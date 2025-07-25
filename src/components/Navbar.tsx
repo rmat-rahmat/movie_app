@@ -1,5 +1,6 @@
 'use client';
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Navbar() {
@@ -55,19 +56,19 @@ export default function Navbar() {
       {/* Desktop Menu */}
       <ul className="hidden md:flex gap-8 items-center">
         <li>
-          <a href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Home</a>
+          <Link href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Home</Link>
         </li>
         <li>
-          <a href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Movies</a>
+          <Link href="/movies" className="text-gray-700 dark:text-gray-200 hover:underline">Movies</Link>
         </li>
         <li>
-          <a href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Series</a>
+          <Link href="/series" className="text-gray-700 dark:text-gray-200 hover:underline">Series</Link>
         </li>
         <li>
-          <a href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Watchlist</a>
+          <Link href="/watchlist" className="text-gray-700 dark:text-gray-200 hover:underline">Watchlist</Link>
         </li>
         <li>
-          <a href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Profile</a>
+          <Link href="/profile" className="text-gray-700 dark:text-gray-200 hover:underline">Profile</Link>
         </li>
       </ul>
 
@@ -125,19 +126,19 @@ export default function Navbar() {
             </form>
             <ul className="flex flex-col gap-4">
               <li>
-                <a href="/" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Home</a>
+                <Link href="/" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Home</Link>
               </li>
               <li>
-                <a href="/movies" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Movies</a>
+                <Link href="/movies" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Movies</Link>
               </li>
               <li>
-                <a href="/series" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Series</a>
+                <Link href="/series" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Series</Link>
               </li>
               <li>
-                <a href="/watchlist" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Watchlist</a>
+                <Link href="/watchlist" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Watchlist</Link>
               </li>
               <li>
-                <a href="/profile" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Profile</a>
+                <Link href="/profile" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Profile</Link>
               </li>
             </ul>
           </div>

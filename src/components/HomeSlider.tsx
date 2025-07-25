@@ -23,6 +23,10 @@ const HomeSlider: React.FC<HomeSliderProps> = ({ slides }) => {
 
     useEffect(() => {
         console.log("Current slide:", current);
+        const intervalId = setInterval(() => {
+            setCurrent((prev) => (prev + 1) % slides.length);
+        }, 5000);
+        return () => clearInterval(intervalId);
     }, [slides.length, current]);
 
     const bind = useGesture({

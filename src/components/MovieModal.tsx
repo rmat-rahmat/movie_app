@@ -30,7 +30,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ movie, onClose }) => {
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center">
       <div
-        className="fixed inset-0 bg-black/70"
+        className="fixed inset-0 bg-black/70" 
         onClick={onClose}
       />
       <div className="fixed inset-0 shadow-lg shadow-green-500/50 bg-black/70 rounded-lg my-auto md:h-[62%] md:mx-auto md:w-[80%] lg:w-[70%] xl:w-[60%] 2xl:w-[50%] overflow-y-auto z-61 flex flex-col items-center justify-center p-4 overflow-y-hidden">

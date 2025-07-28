@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Navbar from "@/components/Navbar";
 import { useEffect, useState } from "react";
 import Footer from "./Footer";
 import SideBar from "./SideBar";
@@ -10,11 +9,20 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
     const [menuOpen, setMenuOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [scrolled, setScrolled] = useState(false);
-    return (
-        <div className="flex">
-            <div className="h-screen md:w-64 w-0">
-                <SideBar show={menuOpen} />
-            </div>
+
+  useEffect(() => {
+    function handleScroll() {
+      setScrolled(window.scrollY > 0);
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+      <div className="flex">
+          <div className="h-screen md:w-64 w-0">
+              <SideBar show={menuOpen} />
+          </div>
 
             <div className="w-full md:w-[calc(100vw-16rem)] min-h-screen">
                 <button

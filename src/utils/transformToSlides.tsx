@@ -1,3 +1,5 @@
+import type { VideoSrc } from "@/types/VideoSrc";
+
 interface RawEpisode {
   id: number;
   url: string;
@@ -14,24 +16,11 @@ interface RawEpisode {
     url: string;
   };
 }
-// interface Slide {
-//   id: number;
-//   image: string;
-//   title: string;
-//   description: string;
-//   highlight?: string;
-//   navigation?: ButtonLink;
-// }
-interface ButtonLink {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-}
 
 export function transformEpisodesToSlides(
   episodes: RawEpisode[],
   maxSlides: number
-): [] {
+): VideoSrc[] {
   return episodes
     .slice(0, maxSlides)
     .map((ep) => {
@@ -40,25 +29,27 @@ export function transformEpisodesToSlides(
 
       // Convert ep.airstamp to local date and time string
       let highlight = "";
+      let release_date = "";
       if (ep.airstamp) {
         const date = new Date(ep.airstamp);
         highlight = date.toLocaleString();
+        release_date = date.toISOString().split("T")[0];
       }
 
       return {
         id: show.id,
-        image: show.image.original,
-        title: `${show.name} ${ep.name ? `: ${ep.name}` : ''}`,
+        title: `${show.name}${ep.name ? `: ${ep.name}` : ''}`,
         description: stripHtml(show.summary) || "",
-        highlight, // Add highlight field
-        navigation: {
-          href: show.url,
-          label: "View Show",
-          icon: null, // Set a React icon here if needed
-        },
-      };
+        backdrop_image: show.image.original,
+        potrait_image: show.image.medium,
+        release_date,
+        popularity: undefined,
+        vote_average: undefined,
+        vote_count: undefined,
+        casts: [],
+      } as VideoSrc;
     })
-    .filter(Boolean) as [];
+    .filter(Boolean) as VideoSrc[];
 }
 
 // Simple HTML tag remover

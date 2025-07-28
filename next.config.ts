@@ -8,11 +8,18 @@ const nextConfig: NextConfig = {
         hostname: "image.tmdb.org",
         port: "",
         pathname: "/t/p/**",
-      },{
+      },
+      {
         protocol: "https",
         hostname: "static.tvmaze.com",
         port: "",
-        pathname: "/t/p/**",
+        pathname: "/**", // Allow all paths
+      },
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+        port: "",
+        pathname: "/vi/**",
       },
     ],
   },

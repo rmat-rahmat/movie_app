@@ -1,23 +1,22 @@
 'use client';
 
 import MovieSlider from "@/components/MovieSlider";
-import MovieSection from "@/components/MovieSection"; // Assuming you have a MovieSection component
-import { getMovies } from "@/lib/movieApi"; // Adjust the import path as necessary
+import MovieSection from "@/components/MovieSection";
+import { getMovies } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
 import ProtectedLayout from "@/components/ProtectedLayout";
 import LoadingPage from "@/components/LoadingPage";
-
+import type { VideoSrc } from "@/types/VideoSrc";
 
 export default function Home() {
-  const [headerMovies, setHeaderMovies] = useState([]);
-  const [topRatedMovies, setTopRatedMovies] = useState([]);
-  const [popularMovies, setPopularMovies] = useState([]);
-  const [upcomingMovies, setUpcomingMovies] = useState([]);
-  const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
+  const [headerMovies, setHeaderMovies] = useState<VideoSrc[]>([]);
+  const [topRatedMovies, setTopRatedMovies] = useState<VideoSrc[]>([]);
+  const [popularMovies, setPopularMovies] = useState<VideoSrc[]>([]);
+  const [upcomingMovies, setUpcomingMovies] = useState<VideoSrc[]>([]);
+  const [nowPlayingMovies, setNowPlayingMovies] = useState<VideoSrc[]>([]);
   const [isloading, setIsLoading] = useState(true);
 
   useEffect(() => {
-
     fetchMovies();
   }, []);
 
@@ -27,8 +26,8 @@ export default function Home() {
       const topRated = await getMovies(10);
       const popular = await getMovies(10);
       const upcoming = await getMovies(10);
-      const nowPlaying = await getMovies(10); // Adjust the number as needed  
-      const header = await getMovies(5); // Fetch 3 movies for the header
+      const nowPlaying = await getMovies(10);
+      const header = await getMovies(5);
       setTopRatedMovies(topRated);
       setPopularMovies(popular);
       setUpcomingMovies(upcoming);
@@ -61,20 +60,19 @@ export default function Home() {
       </div>
     );
   };
+
   return (
     <ProtectedLayout>
       {isloading ? <LoadingPage/> :
       <>
-      <MovieSlider slides={headerMovies} />
+      <MovieSlider videos={headerMovies} />
       <div className="flex flex-col md:px-20 px-0 w-[100vw]">
-        
         <MovieCategoryFilter categories={['Romance', 'Thriller', 'Mystery', 'Science Fiction']} />        
         <hr className="border-green-500/50 mt-3" />
-        <MovieSection title="Top Rated Movies" movies={topRatedMovies} showRating={true}/>
-        <MovieSection title="Popular Movies" movies={popularMovies} />
-        <MovieSection title="Upcoming Movies" movies={upcomingMovies} />
-        <MovieSection title="Now Playing Movies" movies={nowPlayingMovies} />
-
+        <MovieSection title="Top Rated Movies" videos={topRatedMovies} showRating={true}/>
+        <MovieSection title="Popular Movies" videos={popularMovies} />
+        <MovieSection title="Upcoming Movies" videos={upcomingMovies} />
+        <MovieSection title="Now Playing Movies" videos={nowPlayingMovies} />
       </div>
       </>
       }

@@ -1,30 +1,23 @@
 'use client';
 
-import Image from "next/image";
-import Navbar from "@/components/Navbar";
-import HomeSlider from "@/components/MovieSlider";
-import MovieSection from "@/components/MovieSection"; // Assuming you have a MovieSection component
-import { getMovies,getSeries,getShort } from "@/lib/movieApi"; // Adjust the import path as necessary
+import MovieSection from "@/components/MovieSection";
+import { getMovies, getSeries, getShort } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
-import ProtectedLayout from "@/components/ProtectedLayout";
 import LoadingPage from "@/components/LoadingPage";
 import GuestLayout from "@/components/GuestLayout";
 import HeaderSlider from "@/components/HeaderSlider";
-import { transformEpisodesToSlides } from "@/utils/transformToSlides";
-// Import ShortVideo type
-import type { ShortVideo } from "@/types/ShortVideo";
+import type { VideoSrc } from "@/types/VideoSrc";
 
 export default function Home() {
-  const [headerMovies, setHeaderMovies] = useState([]);
-  const [topRatedMovies, setTopRatedMovies] = useState([]);
-  const [popularMovies, setPopularMovies] = useState([]);
-  const [drama, setdrama] = useState<ShortVideo[]>([]);
+  const [headerMovies, setHeaderMovies] = useState<VideoSrc[]>([]);
+  const [topRatedMovies, setTopRatedMovies] = useState<VideoSrc[]>([]);
+  const [popularMovies, setPopularMovies] = useState<VideoSrc[]>([]);
+  const [drama, setdrama] = useState<VideoSrc[]>([]);
   const [isloading, setIsLoading] = useState(true);
-  const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
-  const [shortMovies, setShortMovies] = useState<ShortVideo[]>([]);
+  const [nowPlayingMovies, setNowPlayingMovies] = useState<VideoSrc[]>([]);
+  const [shortMovies, setShortMovies] = useState<VideoSrc[]>([]);
 
   useEffect(() => {
-
     fetchMovies();
   }, []);
 
@@ -33,22 +26,20 @@ export default function Home() {
     try {
       const topRated = await getMovies(10);
       const popular = await getMovies(10);
-      const newdrama = await getShort("UCXhPKXcBaBwpwOjq4l8mHIw",10);
-      const nowPlaying = await getMovies(10); // Adjust the number as needed  
-      const header = await getSeries("CN"); // Fetch 3 movies for the header
-     
+      const newdrama = await getShort("UCXhPKXcBaBwpwOjq4l8mHIw", 10);
+      const nowPlaying = await getMovies(10);
+      const header = await getSeries("CN");
       setTopRatedMovies(topRated);
       setPopularMovies(popular);
       setdrama(newdrama);
       setNowPlayingMovies(nowPlaying);
       setHeaderMovies(header);
-      const short= await getShort("UC2xVncJghTKzq4HvjzfIcOg",10);
+      const short = await getShort("UC2xVncJghTKzq4HvjzfIcOg", 10);
       setShortMovies(short);
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching movies:", error);
       setIsLoading(false);
-
     }
   };
 
@@ -72,24 +63,22 @@ export default function Home() {
       </div>
     );
   };
+
   return (
     <GuestLayout>
-        {isloading ? <LoadingPage/> :
-      <>
-      <HeaderSlider slides={headerMovies} />
-      
-      <div className="flex flex-col md:px-20 px-0 w-[100%] mt-4">
-        
-        <MovieCategoryFilter categories={['Romance', 'Thriller', 'Mystery', 'Science Fiction']} />        
-        <hr className="border-green-500/50 mt-3" />
-        <MovieSection title="Short" movies={shortMovies} showRating={true} showPlayback={true} showViewer={true}   />
-        <MovieSection title="Top Rated Movies" movies={topRatedMovies} showRating={true}/>
-        <MovieSection title="Popular Movies" movies={popularMovies} />
-        <MovieSection title="Drama" frameSize={30} movies={drama} showPlayback={true} showViewer={true} />
-        <MovieSection title="Now Playing Movies" movies={nowPlayingMovies} />
-
-      </div>
-      </>
+      {isloading ? <LoadingPage /> :
+        <>
+          <HeaderSlider videos={headerMovies} />
+          <div className="flex flex-col md:px-20 px-0 w-[100%] mt-4">
+            <MovieCategoryFilter categories={['Romance', 'Thriller', 'Mystery', 'Science Fiction']} />
+            <hr className="border-green-500/50 mt-3" />
+            <MovieSection title="Short" videos={shortMovies} showRating={true} showPlayback={true} showViewer={true} />
+            <MovieSection title="Top Rated Movies" videos={topRatedMovies} showRating={true} />
+            <MovieSection title="Popular Movies" videos={popularMovies} />
+            <MovieSection title="Drama" frameSize={30} videos={drama} showPlayback={true} showViewer={true} />
+            <MovieSection title="Now Playing Movies" videos={nowPlayingMovies} />
+          </div>
+        </>
       }
     </GuestLayout>
   );

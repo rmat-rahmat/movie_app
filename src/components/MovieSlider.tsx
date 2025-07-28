@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useGesture } from "@use-gesture/react";
 import { on } from "events";
+import Loader from "./Loader";
 
 interface Slide {
     id: number;
@@ -12,11 +13,11 @@ interface Slide {
     overview: string;
 }
 
-interface HomeSliderProps {
+interface MovieSliderProps {
     slides: Slide[];
 }
 
-const HomeSlider: React.FC<HomeSliderProps> = ({ slides }) => {
+const MovieSlider: React.FC<MovieSliderProps> = ({ slides }) => {
     const [current, setCurrent] = useState(0);
     const [x, setX] = useState(0);
     const [touchStartPoint, setTouchStartPoint] = useState(0);
@@ -77,8 +78,11 @@ const HomeSlider: React.FC<HomeSliderProps> = ({ slides }) => {
     };
 
 
+    if (!slides || slides.length === 0) {
+        return <Loader />;
+    }
     return (
-        <div style={{ backgroundColor: "green" }} className="w-full relative h-[457px] md:h-[400px] overflow-hidden" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} {...bind()}>
+        <div style={{ backgroundColor: "black" }} className="w-full relative h-[457px] md:h-[400px] overflow-hidden" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} {...bind()}>
             {
                 slides.map((slide, idx) => (
                     <div
@@ -112,11 +116,11 @@ const HomeSlider: React.FC<HomeSliderProps> = ({ slides }) => {
                     </div>
                 ))
             }
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            <div className="absolute bottom-0 flex gap-0 z-10 justify-center w-full px-5">
                 {slides.map((_, idx) => (
                     <button
                         key={idx}
-                        className={`w-3 h-3 rounded-full  ${idx === current ? "bg-green-500" : "bg-gray-400/50"}`}
+                        className={`${idx===0 && "rounded-l-lg"} ${idx===slides.length-1 && "rounded-r-lg"} w-[${1/slides.length*99}%] h-2 cursor-pointer ${idx === current ? "bg-[radial-gradient(circle_at_center,rgba(0,255,0,0.7),rgba(0,255,0,0.5),rgba(156,163,175,0.5))]" : "bg-gray-400/50"}`}
                         onClick={() => setCurrent(idx)}
                         aria-label={`Go to slide ${idx + 1}`}
                     />
@@ -127,4 +131,4 @@ const HomeSlider: React.FC<HomeSliderProps> = ({ slides }) => {
     
 }
 
-export default HomeSlider;
+export default MovieSlider;

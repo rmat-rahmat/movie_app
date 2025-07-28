@@ -1,25 +1,20 @@
 'use client';
 
-import Image from "next/image";
-import Navbar from "@/components/Navbar";
-import HomeSlider from "@/components/MovieSlider";
+import MovieSlider from "@/components/MovieSlider";
 import MovieSection from "@/components/MovieSection"; // Assuming you have a MovieSection component
-import { getMovies,getSeries,getShort } from "@/lib/movieApi"; // Adjust the import path as necessary
+import { getMovies } from "@/lib/movieApi"; // Adjust the import path as necessary
 import { useEffect, useState } from "react";
 import ProtectedLayout from "@/components/ProtectedLayout";
 import LoadingPage from "@/components/LoadingPage";
-import GuestLayout from "@/components/GuestLayout";
-import HeaderSlider from "@/components/HeaderSlider";
-import { transformEpisodesToSlides } from "@/utils/transformToSlides";
+
 
 export default function Home() {
   const [headerMovies, setHeaderMovies] = useState([]);
   const [topRatedMovies, setTopRatedMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
-  const [drama, setdrama] = useState([]);
-  const [isloading, setIsLoading] = useState(true);
+  const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
-  const [shortMovies, setShortMovies] = useState([]);
+  const [isloading, setIsLoading] = useState(true);
 
   useEffect(() => {
 
@@ -31,22 +26,18 @@ export default function Home() {
     try {
       const topRated = await getMovies(10);
       const popular = await getMovies(10);
-      const newdrama = await getShort("UCXhPKXcBaBwpwOjq4l8mHIw",10);
+      const upcoming = await getMovies(10);
       const nowPlaying = await getMovies(10); // Adjust the number as needed  
-      const header = await getSeries("CN"); // Fetch 3 movies for the header
-     
+      const header = await getMovies(5); // Fetch 3 movies for the header
       setTopRatedMovies(topRated);
       setPopularMovies(popular);
-      setdrama(newdrama);
+      setUpcomingMovies(upcoming);
       setNowPlayingMovies(nowPlaying);
       setHeaderMovies(header);
-      const short= await getShort("UC2xVncJghTKzq4HvjzfIcOg",10);
-      setShortMovies(short);
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching movies:", error);
       setIsLoading(false);
-
     }
   };
 
@@ -71,25 +62,24 @@ export default function Home() {
     );
   };
   return (
-    <GuestLayout>
-        {isloading ? <LoadingPage/> :
+    <ProtectedLayout>
+      {isloading ? <LoadingPage/> :
       <>
-      <HeaderSlider slides={headerMovies} />
-      
-      <div className="flex flex-col md:px-20 px-0 w-[100%] mt-4">
+      <MovieSlider slides={headerMovies} />
+      <div className="flex flex-col md:px-20 px-0 w-[100vw]">
         
         <MovieCategoryFilter categories={['Romance', 'Thriller', 'Mystery', 'Science Fiction']} />        
         <hr className="border-green-500/50 mt-3" />
-        <MovieSection title="Short" movies={shortMovies} showRating={true} showPlayback={true} showViewer={true}   />
         <MovieSection title="Top Rated Movies" movies={topRatedMovies} showRating={true}/>
         <MovieSection title="Popular Movies" movies={popularMovies} />
-        <MovieSection title="Drama" frameSize={30} movies={drama} showPlayback={true} showViewer={true} />
+        <MovieSection title="Upcoming Movies" movies={upcomingMovies} />
         <MovieSection title="Now Playing Movies" movies={nowPlayingMovies} />
 
       </div>
       </>
       }
-    </GuestLayout>
+      
+    </ProtectedLayout>
   );
 }
 

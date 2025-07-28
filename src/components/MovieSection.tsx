@@ -25,9 +25,12 @@ interface MovieSectionProps {
     title: string;
     movies: Movie[];
     showRating?: boolean;
+    showPlayback?: boolean;
+    showViewer?: boolean;
+    frameSize?: number;
 }
 
-const MovieSection: React.FC<MovieSectionProps> = ({ title, movies, showRating }) => {
+const MovieSection: React.FC<MovieSectionProps> = ({ title, movies, showRating, showPlayback,showViewer,frameSize }) => {
     const [selectedMovieIndex, setSelectedMovieIndex] = useState<number | null>(null);
 
     if (!movies || movies.length === 0) {
@@ -36,7 +39,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, movies, showRating }
     return (
         <div className="container mx-auto px-4 py-8">
             <h2 className="text-2xl font-bold mb-4">{title}</h2>
-            <div className="grid grid-flow-col auto-cols-[45%] md:auto-cols-[20%] gap-4 p-4 overflow-x-scroll">
+            <div className={`grid grid-flow-col auto-cols-[45%] md:auto-cols-[${frameSize?frameSize:20}%]  gap-4 p-4 overflow-x-scroll`}>
                 {movies.map((movie, index) => (
                     <div key={movie.id} onClick={() => setSelectedMovieIndex(index)} className={`flex flex-1 flex-col bg-black shadow-md pb-2 shadow-green-500/50 rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer`} >
                         <div className="relative w-full h-auto rounded-lg mb-2" >
@@ -63,13 +66,18 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, movies, showRating }
                                 </svg>
                             ))}
                         </div>}
+                        {showViewer && <div className="flex mt-auto justify-center mt-2 mb-2">
+                            
+                            <span className="ml-2 text-gray-400">{parseInt(movie.popularity).toLocaleString('en-US', { notation: "compact" })} views</span>
+                        </div>}
+                        
                     </div>
                 ))}
             </div>
 
             <MovieModal
                 movie={selectedMovieIndex !== null ? movies[selectedMovieIndex] : null}
-                onClose={() => setSelectedMovieIndex(null)}
+                onClose={() => setSelectedMovieIndex(null)} showPlayback={showPlayback}
             />
         </div>
     );

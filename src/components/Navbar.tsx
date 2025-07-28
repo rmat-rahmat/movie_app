@@ -62,13 +62,13 @@ export default function Navbar() {
           <Link href="/movies" className="text-gray-700 dark:text-gray-200 hover:underline">Movies</Link>
         </li>
         <li>
-          <Link href="/series" className="text-gray-700 dark:text-gray-200 hover:underline">Series</Link>
+          <Link href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Series</Link>
         </li>
         <li>
-          <Link href="/watchlist" className="text-gray-700 dark:text-gray-200 hover:underline">Watchlist</Link>
+          <Link href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Watchlist</Link>
         </li>
         <li>
-          <Link href="/profile" className="text-gray-700 dark:text-gray-200 hover:underline">Profile</Link>
+          <Link href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Profile</Link>
         </li>
       </ul>
 

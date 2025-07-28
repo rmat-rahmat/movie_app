@@ -11,15 +11,17 @@ import LoadingPage from "@/components/LoadingPage";
 import GuestLayout from "@/components/GuestLayout";
 import HeaderSlider from "@/components/HeaderSlider";
 import { transformEpisodesToSlides } from "@/utils/transformToSlides";
+// Import ShortVideo type
+import type { ShortVideo } from "@/types/ShortVideo";
 
 export default function Home() {
   const [headerMovies, setHeaderMovies] = useState([]);
   const [topRatedMovies, setTopRatedMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
-  const [drama, setdrama] = useState<any>([]);
+  const [drama, setdrama] = useState<ShortVideo[]>([]);
   const [isloading, setIsLoading] = useState(true);
   const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
-  const [shortMovies, setShortMovies] = useState<any>([]);
+  const [shortMovies, setShortMovies] = useState<ShortVideo[]>([]);
 
   useEffect(() => {
 

@@ -2,6 +2,7 @@ import { transformEpisodesToSlides } from "@/utils/transformToSlides";
 import { parseStringPromise } from 'xml2js';
 import { NextRequest, NextResponse } from "next/server";
 import { on } from "events";
+import type { ShortVideo } from "@/types/ShortVideo";
 
 export const getMovies = async (number: number) => {
     const res = await fetch(`https://jsonfakery.com/movies/random/${number}`, { cache: 'no-store' });
@@ -15,7 +16,7 @@ export const getSeries = async (country: string) => {
     const episodes = await res.json();
     return transformEpisodesToSlides(episodes, 10);
 }   
-export const getShort = async (channel_id: string,limit: number): Promise<any[]> => {
+export const getShort = async (channel_id: string,limit: number): Promise<ShortVideo[]> => {
   const corsProxy = "https://corsproxy.io/?";
   const feedUrl = corsProxy + encodeURIComponent("https://www.youtube.com/feeds/videos.xml?channel_id=" + channel_id);
 
@@ -66,21 +67,3 @@ export const getShort = async (channel_id: string,limit: number): Promise<any[]>
 console.log(mockMovies);
   return mockMovies;
 };
-interface ShortVideo {
-  id: number;
-  backdrop_path: string;
-  poster_path: string;
-  original_title: string;
-  description: string;
-  overview: string;
-  release_date: string;
-  vote_average?: number;
-  vote_count?: number;
-  popularity?: number;
-  casts?: {
-    id: string;
-    name: string;
-    character: string;
-    profile_path: string;
-  }[];
-}

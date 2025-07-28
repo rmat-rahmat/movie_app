@@ -15,7 +15,7 @@ export const getSeries = async (country: string) => {
     const episodes = await res.json();
     return transformEpisodesToSlides(episodes, 10);
 }   
-export const getShort = async (channel_id: string,limit: number): Promise<ShortVideo[]> => {
+export const getShort = async (channel_id: string,limit: number): Promise<any[]> => {
   const corsProxy = "https://corsproxy.io/?";
   const feedUrl = corsProxy + encodeURIComponent("https://www.youtube.com/feeds/videos.xml?channel_id=" + channel_id);
 

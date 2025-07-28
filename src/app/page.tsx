@@ -16,10 +16,10 @@ export default function Home() {
   const [headerMovies, setHeaderMovies] = useState([]);
   const [topRatedMovies, setTopRatedMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
-  const [drama, setdrama] = useState([]);
+  const [drama, setdrama] = useState<any>([]);
   const [isloading, setIsLoading] = useState(true);
   const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
-  const [shortMovies, setShortMovies] = useState([]);
+  const [shortMovies, setShortMovies] = useState<any>([]);
 
   useEffect(() => {
 

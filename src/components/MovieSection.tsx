@@ -68,7 +68,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, movies, showRating, 
                         </div>}
                         {showViewer && <div className="flex mt-auto justify-center mt-2 mb-2">
                             
-                            <span className="ml-2 text-gray-400">{parseInt(movie.popularity).toLocaleString('en-US', { notation: "compact" })} views</span>
+                            <span className="ml-2 text-gray-400">{parseInt(String(movie.popularity ?? "0")).toLocaleString('en-US', { notation: "compact" })} views</span>
                         </div>}
                         
                     </div>

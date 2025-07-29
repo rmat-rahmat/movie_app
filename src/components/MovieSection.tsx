@@ -23,7 +23,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
     return (
         <div className="container mx-auto px-4 py-8">
             <h2 className="text-2xl font-bold mb-4">{title}</h2>
-            <div className={`grid grid-flow-col auto-cols-[45%] md:auto-cols-[${frameSize?frameSize:20}%]  gap-4 p-4 overflow-x-scroll`}>
+            <div className={`grid grid-flow-col auto-cols-[45%] ${frameSize ? `md:auto-cols-[${frameSize}%]` : "md:auto-cols-[20%]"}  gap-4 p-4 overflow-x-scroll`}>
                 {videos.map((video: VideoSrc, index: number) => (
                     <div
                         key={video.id}

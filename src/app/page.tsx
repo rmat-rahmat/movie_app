@@ -46,21 +46,65 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   type MovieCategoryFilterProps = {
     categories: string[];
+    display?: string;
   };
 
-  const MovieCategoryFilter: React.FC<MovieCategoryFilterProps> = ({ categories }) => {
+  // Expanded categories similar to YouTube
+  const allCategories = [
+    "All",
+    "Romance",
+    "Thriller",
+    "Mystery",
+    "Science Fiction",
+    "Music",
+    "Gaming",
+    "Live",
+    "News",
+    "Sports",
+    "Learning",
+    "Fashion & Beauty",
+    "Comedy",
+    "Movies",
+    "TV Shows",
+    "Documentary",
+    "Animation",
+    "Kids",
+    "Travel",
+    "Food",
+    "Technology",
+    "Entertainment",
+    "Recently Uploaded",
+    "Trending",
+  ];
+
+  const MovieCategoryFilter: React.FC<MovieCategoryFilterProps> = ({ categories, display }) => {
     return (
-      <div className="flex items-center  justify-center space-x-4">
-        {categories.map((category) => (
-          <button
-            key={category}
-            onClick={() => setSelectedCategory(category === selectedCategory ? null : category)}
-            className={`px-4 py-2 rounded-md  hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === category ? 'bg-green-500/50 text-white' : 'text-gray-300 shadow-[0px_0px_10px_1px]  shadow-green-500/50 hover:text-white transition-colors duration-300'}`}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
+      <>
+        {display === 'mobile' && <hr className="border-green-500/40 mt-18" />}
+        <div
+          className={`
+            flex justify-center w-full overflow-x-auto mt-2 mb-5
+            ${display === 'mobile'
+              ? "overflow-x-auto mt-2 mb-5 md:hidden"
+              : "hidden md:flex"}
+          `}
+        >
+          <div className="flex w-full gap-2 md:gap-4 px-2 py-1">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category === selectedCategory ? null : category)}
+                className={`px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-md hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === category
+                    ? "bg-green-500/50 text-white"
+                    : "text-gray-300 shadow-[0px_0px_10px_1px] shadow-green-500/50 hover:text-white transition-colors duration-300"
+                  }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+      </>
     );
   };
 
@@ -68,12 +112,18 @@ export default function Home() {
     <GuestLayout>
       {isloading ? <LoadingPage /> :
         <>
+          <MovieCategoryFilter display="mobile" categories={allCategories} />
           <HeaderSlider videos={headerMovies} />
           <div className="flex flex-col md:px-20 px-0 w-[100%] mt-4">
-            <MovieCategoryFilter categories={['Romance', 'Thriller', 'Mystery', 'Science Fiction']} />
+            <MovieCategoryFilter categories={allCategories} />
             <hr className="border-green-500/50 mt-3" />
-            <MovieSection title="Short" videos={shortMovies} showRating={true} showPlayback={true} showViewer={true} />
-            <MovieSection title="Top Rated Movies" videos={topRatedMovies} showRating={true} />
+            <MovieSection
+              icon={<svg className="h-6 w-6 text-green-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M10 8l6 4-6 4V8z" /></svg>}
+              onViewMore={() => console.log("View More Movies")}
+              title="Short" videos={shortMovies} showRating={true} showPlayback={true} showViewer={true} />
+            <MovieSection
+            icon={<svg className="h-6 w-6 text-yellow-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>}
+             title="Top Rated Movies" videos={topRatedMovies} showRating={true} />
             <MovieSection title="Popular Movies" videos={popularMovies} />
             <MovieSection title="Drama" frameSize={30} videos={drama} showPlayback={true} showViewer={true} />
             <MovieSection title="Now Playing Movies" videos={nowPlayingMovies} />

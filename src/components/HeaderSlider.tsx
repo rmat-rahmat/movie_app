@@ -84,7 +84,7 @@ const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
                                     <p className="text-sm md:text-base">Air Date: {video.release_date}</p>
                                 </div>
                                 <p className="text-base md:text-lg">
-                                    {video.description.split(" ").slice(0, 100).join(" ") + (video.description.split(" ").length > 100 ? "..." : "")}
+                                    {video.description.split(" ").slice(0, 50).join(" ") + (video.description.split(" ").length > 50 ? "..." : "")}
                                 </p>
                             </div>
                         </div>

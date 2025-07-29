@@ -1,5 +1,5 @@
 'use client';
-import React, {  useState } from 'react';
+import React, { useState } from 'react';
 import MovieModal from "./MovieModal";
 import type { VideoSrc } from '@/types/VideoSrc';
 import Image from "next/image";
@@ -8,13 +8,15 @@ import Image from "next/image";
 interface MovieSectionProps {
     title: string;
     videos: VideoSrc[]; // Use array of any instead of Movie[]
+    icon?: React.ReactNode;
     showRating?: boolean;
     showPlayback?: boolean;
     showViewer?: boolean;
     frameSize?: number;
+    onViewMore?: () => void;
 }
 
-const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, showPlayback, showViewer, frameSize }) => {
+const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, showPlayback, showViewer, frameSize,icon,onViewMore }) => {
     const [selectedMovieIndex, setSelectedMovieIndex] = useState<number | null>(null);
 
     if (!videos || videos.length === 0) {
@@ -22,7 +24,30 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
     }
     return (
         <div className="container mx-auto px-4 py-8">
-            <h2 className="text-2xl font-bold mb-4">{title}</h2>
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                    {icon}
+                    <h2 className="text-2xl font-bold">{title}</h2>
+                </div>
+                {onViewMore && (
+                    <button
+                        onClick={onViewMore}
+                        className="flex items-center gap-1 text-green-400 hover:text-green-500 font-medium text-sm"
+                    >
+                        View More
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                )}
+            </div>
             <div className={`grid grid-flow-col auto-cols-[45%] ${frameSize ? `md:auto-cols-[${frameSize}%]` : "md:auto-cols-[20%]"}  gap-4 p-4 overflow-x-scroll`}>
                 {videos.map((video: VideoSrc, index: number) => (
                     <div

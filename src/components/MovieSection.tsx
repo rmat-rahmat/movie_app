@@ -56,8 +56,8 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
                         className={`flex flex-1 flex-col bg-black shadow-md pb-2 shadow-green-500/50 rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer`}
                     >
                         <div className="relative w-full h-auto rounded-lg mb-2" >
-                            <div className="absolute w-full h-full bg-gradient-to-t from-black via-black/30 to-transparent" />
-                            <div className="absolute w-full h-full bg-gradient-to-b from-black to-transparent to-[30%]  " />
+                            <div className="absolute w-full h-full bg-gradient-to-t from-black via-black/30 to-transparent z-1" />
+                            <div className="absolute w-full h-full bg-gradient-to-b from-black to-transparent to-[30%] z-1 " />
                             <div className="relative w-full h-[300px]">
                                 <Image
                                     src={video.potrait_image || ""}
@@ -69,7 +69,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
                                 />
                             </div>
                         </div>
-                        <div className='relative px-4 mt-[-30px]  overflow-y-visible'>
+                        <div className='relative px-4 mt-[-30px]  overflow-y-visible z-1'>
                             <h3 className="text-lg font-semibold">{video.title}</h3>
                             <p className="text-sm text-gray-400">{video.release_date}</p>
                         </div>

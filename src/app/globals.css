@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 
-
-:root {
+/* light mode */
+/* :root {
   --background: #ffffff;
   --foreground: #171717;
-}
+} */
 
 @theme inline {
   --color-background: var(--background);
@@ -15,6 +15,7 @@
 }
 /* 
 @media (prefers-color-scheme: dark) { */
+/* force dark mode  */
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;

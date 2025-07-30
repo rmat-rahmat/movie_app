@@ -25,7 +25,7 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
 
             <div className="w-full md:w-[calc(100vw-16rem)] min-h-screen md:pb-0 pb-20">
                 <button
-                    className="md:hidden absolute top-4 right-4 z-100 flex items-center justify-center p-2 rounded text-gray-700 dark:text-gray-200"
+                    className="md:hidden absolute top-4 right-4 z-100 flex items-center justify-center p-2 rounded text-gray-200"
                     onClick={() => setMenuOpen(!menuOpen)}
                     aria-label="Open menu"
                 >
@@ -44,7 +44,7 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                     {/* Logo */}
                     <div className="flex md:hidden items-center">
                         <Image src="/next.svg" alt="Logo" width={40} height={40} />
-                        <span className="font-bold text-lg text-gray-800 dark:text-white">Seefu TV</span>
+                        <span className="font-bold text-lg text-white">Seefu TV</span>
                     </div>
 
                     {/* Search Bar (hidden on mobile) */}
@@ -60,11 +60,11 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             placeholder="Search movies, series..."
-                            className="w-[60%] md:w-full px-3 py-2 bg-gray-100 dark:bg-transparent text-gray-900 dark:text-white md:rounded-l-full outline-none focus:shadow-green-500 focus:shadow-[0px_1px_0px_0px] "
+                            className="w-[60%] md:w-full px-3 py-2 bg-gray-100 bg-transparent text-gray-900 text-white md:rounded-l-full outline-none focus:shadow-green-500 focus:shadow-[0px_1px_0px_0px] "
                         />
                         <button
                             type="submit"
-                            className="px-3 py-2 bg-transparent text-gray-900 dark:text-white md:rounded-r-full hover:shadow-[0px_0px_0px_1px] shadow-green-500 rounded-l-full"
+                            className="px-3 py-2 bg-transparent text-gray-900 text-white md:rounded-r-full hover:shadow-[0px_0px_0px_1px] shadow-green-500 rounded-l-full"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
@@ -73,7 +73,7 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                     </form>
                     <ul className="hidden md:flex gap-1 items-center">
                         <li>
-                            <Link href="/?" className="text-gray-700 dark:text-gray-200 hover:underline">
+                            <Link href="/?" className="text-gray-200 hover:underline">
                                 <p className="flex items-center rounded-full block p-2 mb-2 shadow-[0px_0px_10px_1px] shadow-green-500/50">
                                     <svg className="h-5 w-6 mb-1" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                                         <rect x="3" y="7" width="13" height="10" rx="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -85,7 +85,7 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                             </Link>
                         </li>
                         <li>
-                            <Link href="/" className="text-gray-700 dark:text-gray-200 hover:underline ">
+                            <Link href="/" className="text-gray-200 hover:underline ">
                                 <p className="flex items-center rounded-full block p-2 mb-2 shadow-[0px_0px_10px_1px] shadow-green-500/50">
                                     <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                                         <circle cx="12" cy="8" r="4" strokeLinecap="round" strokeLinejoin="round" />

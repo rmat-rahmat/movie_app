@@ -25,7 +25,7 @@ export default function Navbar() {
       {/* Logo */}
       <div className="flex items-center gap-2">
         <Image src="/next.svg" alt="Logo" width={40} height={40} />
-        <span className="font-bold text-lg text-gray-800 dark:text-white">Seefu TV</span>
+        <span className="font-bold text-lg text-white">Seefu TV</span>
       </div>
 
       {/* Search Bar (hidden on mobile) */}
@@ -41,11 +41,11 @@ export default function Navbar() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search movies, series..."
-          className="w-full px-3 py-2 bg-gray-100 dark:bg-transparent text-gray-900 dark:text-white rounded-l-full outline-none focus:shadow-green-500 focus:shadow-[0px_1px_0px_0px] "
+          className="w-full px-3 py-2 bg-transparent text-white rounded-l-full outline-none focus:shadow-green-500 focus:shadow-[0px_1px_0px_0px] "
         />
         <button
           type="submit"
-          className="px-3 py-2 bg-transparent text-gray-900 dark:text-white rounded-r-full hover:shadow-[0px_0px_0px_1px] shadow-green-500 rounded-l-full"
+          className="px-3 py-2 bg-transparent text-white rounded-r-full hover:shadow-[0px_0px_0px_1px] shadow-green-500 rounded-l-full"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
@@ -56,25 +56,25 @@ export default function Navbar() {
       {/* Desktop Menu */}
       <ul className="hidden md:flex gap-8 items-center">
         <li>
-          <Link href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Home</Link>
+          <Link href="/" className="text-gray-200 hover:underline">Home</Link>
         </li>
         <li>
-          <Link href="/movies" className="text-gray-700 dark:text-gray-200 hover:underline">Movies</Link>
+          <Link href="/movies" className="text-gray-200 hover:underline">Movies</Link>
         </li>
         <li>
-          <Link href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Series</Link>
+          <Link href="/" className="text-gray-200 hover:underline">Series</Link>
         </li>
         <li>
-          <Link href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Watchlist</Link>
+          <Link href="/" className="text-gray-200 hover:underline">Watchlist</Link>
         </li>
         <li>
-          <Link href="/" className="text-gray-700 dark:text-gray-200 hover:underline">Profile</Link>
+          <Link href="/" className="text-gray-200 hover:underline">Profile</Link>
         </li>
       </ul>
 
       {/* Hamburger Button (mobile only) */}
       <button
-        className="md:hidden flex items-center justify-center p-2 rounded text-gray-700 dark:text-gray-200"
+        className="md:hidden flex items-center justify-center p-2 rounded text-gray-200"
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label="Open menu"
       >
@@ -89,7 +89,7 @@ export default function Navbar() {
       {menuOpen && (
         <div className="fixed top-0 left-0 w-full h-full bg-black/60 z-50 md:hidden" onClick={() => setMenuOpen(false)}>
           <div
-            className="absolute top-0 right-0 w-3/4 max-w-xs h-full bg-white dark:bg-gray-900 shadow-lg flex flex-col p-6 gap-6"
+            className="absolute top-0 right-0 w-3/4 max-w-xs h-full bg-gray-900 shadow-lg flex flex-col p-6 gap-6"
             onClick={e => e.stopPropagation()}
           >
             <button
@@ -115,7 +115,7 @@ export default function Navbar() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search..."
-                className="w-full px-3 py-2 rounded-l bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white outline-none"
+                className="w-full px-3 py-2 rounded-l bg-gray-800 text-white outline-none"
               />
               <button
                 type="submit"
@@ -126,19 +126,19 @@ export default function Navbar() {
             </form>
             <ul className="flex flex-col gap-4">
               <li>
-                <Link href="/" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Home</Link>
+                <Link href="/" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Home</Link>
               </li>
               <li>
-                <Link href="/movies" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Movies</Link>
+                <Link href="/movies" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Movies</Link>
               </li>
               <li>
-                <Link href="/series" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Series</Link>
+                <Link href="/series" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Series</Link>
               </li>
               <li>
-                <Link href="/watchlist" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Watchlist</Link>
+                <Link href="/watchlist" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Watchlist</Link>
               </li>
               <li>
-                <Link href="/profile" className="text-gray-700 dark:text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Profile</Link>
+                <Link href="/profile" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Profile</Link>
               </li>
             </ul>
           </div>

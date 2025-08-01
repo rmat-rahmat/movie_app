@@ -1,6 +1,4 @@
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
-import { useEffect, useState } from "react";
 import Footer from "./Footer";
 
 

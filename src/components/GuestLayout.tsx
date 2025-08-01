@@ -85,7 +85,7 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                             </Link>
                         </li>
                         <li>
-                            <Link href="/" className="text-gray-200 hover:underline ">
+                            <Link href="/auth/login" className="text-gray-200 hover:underline ">
                                 <p className="flex items-center rounded-full block p-2 mb-2 shadow-[0px_0px_10px_1px] shadow-green-500/50">
                                     <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                                         <circle cx="12" cy="8" r="4" strokeLinecap="round" strokeLinejoin="round" />

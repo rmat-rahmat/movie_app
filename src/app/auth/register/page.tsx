@@ -98,7 +98,7 @@ const LoginPage: React.FC = () => {
                     Join Seefu TV Today!
                 </h1>
                 <p className="mt-4 text-lg text-gray-200 max-w-md">
-                    Discover trending movies, connect with fellow fans, and unlock exclusive features. <span className="font-semibold text-green-400">Create your free account</span> and start your entertainment journey!
+                    Discover trending movies, connect with fellow fans, and unlock exclusive features. <span className="font-semibold text-red-500">Create your free account</span> and start your entertainment journey!
                 </p>
             </div>
             <div className="bg-black/80 p-8 z-1 rounded-lg shadow-lg w-full md:w-1/3 max-w-md mx-auto">
@@ -111,7 +111,7 @@ const LoginPage: React.FC = () => {
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                             required
                         />
                     </div>
@@ -122,7 +122,7 @@ const LoginPage: React.FC = () => {
                             type="password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                             required
                         />
                     </div>
@@ -133,14 +133,14 @@ const LoginPage: React.FC = () => {
                             type="password"
                             value={confirmPassword}
                             onChange={e => setConfirmPassword(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                             required
                         />
                     </div>
-                    {error && <div className="text-red-600 mb-4">{error}</div>}
+                    {error && <div className="text-red-500 mb-4">{error}</div>}
                     <button
                         type="submit"
-                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
                         Register
                     </button>
@@ -149,7 +149,7 @@ const LoginPage: React.FC = () => {
                     <div className="mt-6 text-center text-gray-300">
                         Have an account?{' '}
                         <span
-                            className="text-green-400 hover:underline font-semibold cursor-pointer"
+                            className="text-red-500 hover:underline font-semibold cursor-pointer"
                             onClick={() => router.replace('/auth/login')}
                         >
                             Login now

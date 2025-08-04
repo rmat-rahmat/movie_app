@@ -52,7 +52,7 @@ export default function Home() {
           <button
             key={category}
             onClick={() => setSelectedCategory(category === selectedCategory ? null : category)}
-            className={`px-4 py-2 rounded-md  hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === category ? 'bg-green-500/50 text-white' : 'text-gray-300 shadow-[0px_0px_10px_1px]  shadow-green-500/50 hover:text-white transition-colors duration-300'}`}
+            className={`px-4 py-2 rounded-md  hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === category ? 'bg-red-500/50 text-white' : 'text-gray-300 shadow-[0px_0px_10px_1px]  shadow-red-500/50 hover:text-white transition-colors duration-300'}`}
           >
             {category}
           </button>
@@ -68,7 +68,7 @@ export default function Home() {
       <MovieSlider videos={headerMovies} />
       <div className="flex flex-col md:px-20 px-0 w-[100vw]">
         <MovieCategoryFilter categories={['Romance', 'Thriller', 'Mystery', 'Science Fiction']} />        
-        <hr className="border-green-500/50 mt-3" />
+        <hr className="border-red-500/50 mt-3" />
         <MovieSection title="Top Rated Movies" videos={topRatedMovies} showRating={true}/>
         <MovieSection title="Popular Movies" videos={popularMovies} />
         <MovieSection title="Upcoming Movies" videos={upcomingMovies} />

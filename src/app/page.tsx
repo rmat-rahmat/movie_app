@@ -80,7 +80,7 @@ export default function Home() {
   const MovieCategoryFilter: React.FC<MovieCategoryFilterProps> = ({ categories, display }) => {
     return (
       <>
-        {display === 'mobile' && <hr className="flex md:hidden border-green-500/40 mt-18" />}
+        {display === 'mobile' && <hr className="flex md:hidden border-red-500/40 mt-18" />}
         <div
           className={`
             flex justify-center w-full overflow-x-auto mt-2 mb-5
@@ -95,8 +95,8 @@ export default function Home() {
                 key={category}
                 onClick={() => setSelectedCategory(category === selectedCategory ? null : category)}
                 className={`px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-md hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === category
-                    ? "bg-green-500/50 text-white"
-                    : "text-gray-300 shadow-[0px_0px_10px_1px] shadow-green-500/50 hover:text-white transition-colors duration-300"
+                    ? "bg-red-500/50 text-white"
+                    : "text-gray-300 shadow-[0px_0px_10px_1px] shadow-red-500/50 hover:text-white transition-colors duration-300"
                   }`}
               >
                 {category}
@@ -116,9 +116,9 @@ export default function Home() {
           <HeaderSlider videos={headerMovies} />
           <div className="flex flex-col md:px-20 px-0 w-[100%] mt-4">
             <MovieCategoryFilter categories={allCategories} />
-            <hr className="border-green-500/50 mt-3" />
+            <hr className="border-red-500/50 mt-3" />
             <MovieSection
-              icon={<svg className="h-6 w-6 text-green-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M10 8l6 4-6 4V8z" /></svg>}
+              icon={<svg className="h-6 w-6 text-red-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M10 8l6 4-6 4V8z" /></svg>}
               onViewMore={() => console.log("View More Movies")}
               title="Short" videos={shortMovies} showRating={true} showPlayback={true} showViewer={true} />
             <MovieSection

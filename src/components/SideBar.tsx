@@ -101,7 +101,7 @@ const SideBar = ({ show }: { show: boolean }) => {
   };
 
   return (
-    <div className={`fixed top-0 left-0 h-screen w-64 text-white px-4 py-6 shadow-[0px_0px_10px_1px] shadow-green-500/50 z-100 bg-black ${show ? 'block' : 'hidden'} transition-transform duration-300 ease-in-out md:block`}>
+    <div className={`fixed top-0 left-0 h-screen w-64 text-white px-4 py-6 shadow-[0px_0px_10px_1px] shadow-red-500/50 z-100 bg-black/90 ${show ? 'block' : 'hidden'} transition-transform duration-300 ease-in-out md:block`}>
       <h1 className="text-3xl font-bold mt-2 mb-10">Seefu.TV</h1>
       <ul>
         {menu.map(({ href, label, icon, subMenu }) => (
@@ -110,8 +110,8 @@ const SideBar = ({ show }: { show: boolean }) => {
               <>
                 <button
                   onClick={() => handleDropdownToggle(label)}
-                  className={`flex w-full cursor-pointer items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-green-500/50
-                    ${openDropdown === label ? "bg-gradient-to-l from-green-500/50 to-green-500/0 font-bold" : ""}
+                  className={`flex w-full cursor-pointer items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-red-500/50
+                    ${openDropdown === label ? "bg-gradient-to-l from-red-500/50 to-red-500/0 font-bold" : ""}
                   `}
                 >
                   {icon}
@@ -122,8 +122,8 @@ const SideBar = ({ show }: { show: boolean }) => {
                     {subMenu.map(({ href, label, icon }) => (
                       <li key={href}>
                         <Link href={href}>
-                          <p className={`flex items-center block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-green-500/50 
-                            ${pathname === href ? "bg-gradient-to-l from-green-500/50 to-green-500/0 font-bold" : ""}
+                          <p className={`flex items-center block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-red-500/50 
+                            ${pathname === href ? "bg-gradient-to-l from-red-500/50 to-red-500/0 font-bold" : ""}
                           `}>
                             {icon}
                             {label}
@@ -136,8 +136,8 @@ const SideBar = ({ show }: { show: boolean }) => {
               </>
             ) : (
               <Link href={href}>
-                <p className={`flex items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-green-500/50
-                  ${pathname === href ? "bg-gradient-to-l from-green-500/50 to-green-500/0 font-bold" : ""}
+                <p className={`flex items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-red-500/50
+                  ${pathname === href ? "bg-gradient-to-l from-red-500/50 to-red-500/0 font-bold" : ""}
                 `}>
                   {icon}
                   {label}
@@ -147,6 +147,17 @@ const SideBar = ({ show }: { show: boolean }) => {
           </li>
         ))}
       </ul>
+      <div className="absolute bottom-6 left-0 w-full px-4 md:hidden">
+        <Link href={'/auth/login'}>
+          <p className="flex items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-red-500/50">
+        <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <path d="M15 12H3m0 0l4-4m-4 4l4 4" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        Sign In/Up
+          </p>
+        </Link>
+      </div>
     </div>
   );
 };

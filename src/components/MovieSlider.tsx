@@ -77,7 +77,7 @@ const MovieSlider: React.FC<MovieSliderProps> = ({ videos }) => {
                                     <p className="text-base md:text-lg">{video.description}</p>
                                 </div>
                             </div>
-                            <div className="relative bg-green-500 order-first md:order-last">
+                            <div className="relative bg-red-500 order-first md:order-last">
                                 <Image
                                     src={video.backdrop_image || video.potrait_image || ""}
                                     alt={video.title}
@@ -97,7 +97,7 @@ const MovieSlider: React.FC<MovieSliderProps> = ({ videos }) => {
                 {videos.map((_, idx) => (
                     <button
                         key={idx}
-                        className={`${idx === 0 && "rounded-l-lg"} ${idx === videos.length - 1 && "rounded-r-lg"} w-[${1 / videos.length * 99}%] h-2 cursor-pointer ${idx === current ? "bg-[radial-gradient(circle_at_center,rgba(0,255,0,0.7),rgba(0,255,0,0.5),rgba(156,163,175,0.5))]" : "bg-gray-400/50"}`}
+                        className={`${idx === 0 && "rounded-l-lg"} ${idx === videos.length - 1 && "rounded-r-lg"} w-[${1 / videos.length * 99}%] h-2 cursor-pointer ${idx === current ? "bg-[radial-gradient(circle_at_center,rgba(0,239, 68, 68.7),rgba(0,239, 68, 68.5),rgba(156,163,175,0.5))]" : "bg-gray-400/50"}`}
                         onClick={() => setCurrent(idx)}
                         aria-label={`Go to slide ${idx + 1}`}
                     />

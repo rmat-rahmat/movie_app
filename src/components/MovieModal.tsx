@@ -17,7 +17,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
         className="fixed inset-0 bg-black/70"
         onClick={onClose}
       />
-      <div className="fixed inset-0 shadow-lg shadow-red-500/50 bg-black/70 rounded-lg my-auto md:h-[62%] md:mx-auto md:w-[80%] lg:w-[70%] xl:w-[60%] 2xl:w-[50%] overflow-y-auto z-61 flex flex-col items-center justify-center p-4 overflow-y-hidden">
+      <div className="fixed inset-0 shadow-lg shadow-[#e50914] bg-black/70 rounded-lg my-auto md:h-[62%] md:mx-auto md:w-[80%] lg:w-[70%] xl:w-[60%] 2xl:w-[50%] overflow-y-auto z-61 flex flex-col items-center justify-center p-4 overflow-y-hidden">
         <div className="flex flex-col md:flex-row items-center mt-4">
           <div
             className="absolute top-4 right-4 cursor-pointer text-white rounded-full bg-black/40 w-10 h-10 flex items-center justify-center"
@@ -79,7 +79,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
                   <svg
                     key={index}
                     xmlns="http://www.w3.org/2000/svg"
-                    className={`h-5 w-5 ${index < Math.ceil((video.vote_average || 0) / 2) ? 'text-red-500' : 'text-gray-300'}`}
+                    className={`h-5 w-5 ${index < Math.ceil((video.vote_average || 0) / 2) ? 'text-[#e50914]' : 'text-gray-300'}`}
                     fill={index < Math.ceil((video.vote_average || 0) / 2) ? 'currentColor' : 'none'}
                     viewBox="0 0 24 24"
                     stroke="currentColor"

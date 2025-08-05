@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { FiSearch, FiMenu, FiX } from "react-icons/fi"; // Import react-icons
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -30,7 +31,7 @@ export default function Navbar() {
 
       {/* Search Bar (hidden on mobile) */}
       <form
-        className="hidden md:flex items-center mx-6 flex-1 max-w-md hover:shadow-red-500 hover:shadow-xs rounded-full"
+        className="hidden md:flex items-center mx-6 flex-1 max-w-md hover:shadow-[#e50914] hover:shadow-xs rounded-full"
         onSubmit={e => {
           e.preventDefault();
           // handle search logic here
@@ -41,15 +42,13 @@ export default function Navbar() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search movies, series..."
-          className="w-full px-3 py-2 bg-transparent text-white rounded-l-full outline-none focus:shadow-red-500 focus:shadow-[0px_1px_0px_0px] "
+          className="w-full px-3 py-2 bg-transparent text-white rounded-l-full outline-none focus:shadow-[#e50914] focus:shadow-[0px_1px_0px_0px] "
         />
         <button
           type="submit"
-          className="px-3 py-2 bg-transparent text-white rounded-r-full hover:shadow-[0px_0px_0px_1px] shadow-red-500 rounded-l-full"
+          className="px-3 py-2 bg-transparent text-white rounded-r-full hover:shadow-[0px_0px_0px_1px] shadow-[#e50914] rounded-l-full"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-          </svg>
+          <FiSearch className="h-5 w-5" />
         </button>
       </form>
 
@@ -62,13 +61,13 @@ export default function Navbar() {
           <Link href="/movies" className="text-gray-200 hover:underline">Movies</Link>
         </li>
         <li>
-          <Link href="/" className="text-gray-200 hover:underline">Series</Link>
+          <Link href="/series" className="text-gray-200 hover:underline">Series</Link>
         </li>
         <li>
-          <Link href="/" className="text-gray-200 hover:underline">Watchlist</Link>
+          <Link href="/watchlist" className="text-gray-200 hover:underline">Watchlist</Link>
         </li>
         <li>
-          <Link href="/" className="text-gray-200 hover:underline">Profile</Link>
+          <Link href="/profile" className="text-gray-200 hover:underline">Profile</Link>
         </li>
       </ul>
 
@@ -78,11 +77,7 @@ export default function Navbar() {
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label="Open menu"
       >
-        <svg width={28} height={28} fill="none" viewBox="0 0 24 24">
-          <rect y="5" width="24" height="2" rx="1" fill="currentColor" />
-          <rect y="11" width="24" height="2" rx="1" fill="currentColor" />
-          <rect y="17" width="24" height="2" rx="1" fill="currentColor" />
-        </svg>
+        <FiMenu size={28} />
       </button>
 
       {/* Mobile Menu */}
@@ -97,10 +92,7 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)}
               aria-label="Close menu"
             >
-              <svg width={24} height={24} fill="none" viewBox="0 0 24 24">
-                <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" strokeWidth="2" />
-                <line x1="6" y1="18" x2="18" y2="6" stroke="currentColor" strokeWidth="2" />
-              </svg>
+              <FiX size={24} />
             </button>
             <form
               className="flex items-center mb-4"
@@ -121,7 +113,7 @@ export default function Navbar() {
                 type="submit"
                 className="px-3 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
               >
-                Search
+                <FiSearch className="h-5 w-5" />
               </button>
             </form>
             <ul className="flex flex-col gap-4">

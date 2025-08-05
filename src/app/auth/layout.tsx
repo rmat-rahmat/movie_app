@@ -88,7 +88,7 @@ export default function AuthLayout({
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-screen">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-500"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#e50914]"></div>
             </div>
         );
     }
@@ -107,7 +107,7 @@ export default function AuthLayout({
                 <style jsx>{`
                     @keyframes glow {
                         0%, 100% {
-                            text-shadow: 2px 2px 3px rgba(239, 68, 68,0.9), 0 0 0 #000, 0 0 3px #222, 0 0 4px #39ff14, 0 0 3px #39ff14;
+                            text-shadow: 2px 2px 3px rgba(255,0,0,0.9), 0 0 0 #000, 0 0 3px #222, 0 0 4px #39ff14, 0 0 3px #39ff14;
                         }
                         50% {
                             text-shadow: 2px 2px 3px rgba(0,0,255,0.9), 0 0 0 #000, 0 0 3px #39ff14, 0 0 4px #39ff14, 0 0 3px #39ff14;

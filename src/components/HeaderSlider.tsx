@@ -80,15 +80,15 @@ const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
                         <div className="bg-black order-last md:order-first flex items-end pb-12 pl-8 md:pl-20 overflow-visible">
                             <div className="text-white min-w-full md:min-w-[50vw] md:max-w-[50vw] z-1">
                                 <h2 className="text-2xl md:text-4xl font-bold mb-2">{video.title}</h2>
-                                <div className="bg-red-500/50 w-[100vw] py-2 rounded-full max-w-xs text-center">
-                                    <p className="text-sm md:text-base">Air Date: {video.release_date}</p>
+                                <div className="bg-gradient-to-b from-[#e50914] to-[#b20710] py-2 rounded-lg text-center inline-block w-auto px-4">
+                                     {new Date(video.release_date ?? "").toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" })}
                                 </div>
                                 <p className="text-base md:text-lg">
                                     {video.description.split(" ").slice(0, 50).join(" ") + (video.description.split(" ").length > 50 ? "..." : "")}
                                 </p>
                             </div>
                         </div>
-                        <div className="relative bg-red-500 order-first md:order-last">
+                        <div className="relative bg-[#e50914] order-first md:order-last">
                             <Image
                                 src={video.backdrop_image || video.potrait_image || ""}
                                 alt={video.title}
@@ -107,7 +107,17 @@ const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
                 {videos.map((_, idx) => (
                     <button
                         key={idx}
-                        className={`${idx === 0 && "rounded-l-lg"} ${idx === videos.length - 1 && "rounded-r-lg"} z-100 w-[calc(100vw-16rem)] h-2 cursor-pointer ${idx === current ? "bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.7),rgba(239,68,68,0.5),rgba(156,163,175,0.5))]" : "bg-gray-400/50"}`}
+                        className={`
+                            ${idx === 0 ? "rounded-l-lg" : ""}
+                            ${idx === videos.length - 1 ? "rounded-r-lg" : ""}
+                            z-100 w-[calc(100vw-16rem)] h-2 cursor-pointer
+                            
+                            ${idx === current
+                                ? "bg-gradient-to-r from-[#e50914] via-[#b20710] to-gray-400/50 transition-colors duration-1000 ease-in-out"
+                                : idx < current
+                                    ? "bg-[#e50914] "
+                                    : "bg-gray-400/50"}
+                        `}
                         onClick={() => setCurrent(idx)}
                         aria-label={`Go to slide ${idx + 1}`}
                     />

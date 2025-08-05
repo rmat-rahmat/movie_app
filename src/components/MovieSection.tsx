@@ -32,7 +32,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
                 {onViewMore && (
                     <button
                         onClick={onViewMore}
-                        className="flex items-center gap-1 text-red-500 hover:text-red-500 font-medium text-sm"
+                        className="flex items-center gap-1 text-[#e50914] hover:text-[#e50914] font-medium text-sm"
                     >
                         View More
                         <svg
@@ -48,12 +48,12 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
                     </button>
                 )}
             </div>
-            <div className={`grid grid-flow-col auto-cols-[70%] sm:auto-cols-[45%] ${frameSize ? `lg:auto-cols-[${frameSize}%]` : "lg:auto-cols-[20%]"}  gap-4 p-4 overflow-x-scroll`}>
+            <div className={`hide-scrollbar grid grid-flow-col auto-cols-[70%] sm:auto-cols-[45%] ${frameSize ? `lg:auto-cols-[${frameSize}%]` : "lg:auto-cols-[20%]"}  gap-4 p-4 overflow-x-scroll`}>
                 {videos.map((video: VideoSrc, index: number) => (
                     <div
                         key={video.id}
                         onClick={() => setSelectedMovieIndex(index)}
-                        className={`flex flex-1 flex-col bg-black shadow-md pb-2 shadow-red-500/50 rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer`}
+                        className={`flex flex-1 flex-col bg-black shadow-md pb-2 shadow-[#e50914] rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer`}
                     >
                         <div className="relative w-full h-auto rounded-lg mb-2" >
                             <div className="absolute w-full h-full bg-gradient-to-t from-black via-black/30 to-transparent z-1" />
@@ -69,7 +69,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
                                 />
                             </div>
                         </div>
-                        <div className='relative px-4 mt-[-100px] md:mt-[-60px]  overflow-y-visible z-1'>
+                        <div className='relative px-4 mt-[-70px] md:mt-[-60px]  overflow-y-visible z-1'>
                             {video.title && video.title.length > 30 ? (
                                 <h3 className="text-xs md:text-md font-semibold">{video.title}</h3>
                             ) : (
@@ -83,7 +83,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
                                     <svg
                                         key={index}
                                         xmlns="http://www.w3.org/2000/svg"
-                                        className={`h-5 w-5 ${index < Math.ceil((video.vote_average || 0) / 2) ? 'text-red-500' : 'text-gray-400'}`}
+                                        className={`h-5 w-5 ${index < Math.ceil((video.vote_average || 0) / 2) ? 'text-[#e50914]' : 'text-gray-400'}`}
                                         fill={index < Math.ceil((video.vote_average || 0) / 2) ? 'currentColor' : 'none'}
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"

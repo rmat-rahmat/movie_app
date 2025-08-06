@@ -1,83 +1,17 @@
 'use client';
 
-import MovieSection from "@/components/MovieSection";
-import { getMovies, getSeries, getShort } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/LoadingPage";
 import GuestLayout from "@/components/GuestLayout";
-import HeaderSlider from "@/components/HeaderSlider";
-import type { VideoSrc } from "@/types/VideoSrc";
-import { FiPlayCircle, FiStar } from "react-icons/fi";
 
 
 export default function Home() {
-  const [headerMovies, setHeaderMovies] = useState<VideoSrc[]>([]);
-  const [topRatedMovies, setTopRatedMovies] = useState<VideoSrc[]>([]);
-  const [popularMovies, setPopularMovies] = useState<VideoSrc[]>([]);
-  const [drama, setdrama] = useState<VideoSrc[]>([]);
   const [isloading, setIsLoading] = useState(true);
-  const [nowPlayingMovies, setNowPlayingMovies] = useState<VideoSrc[]>([]);
-  const [shortMovies, setShortMovies] = useState<VideoSrc[]>([]);
 
   useEffect(() => {
-    fetchMovies();
+    setIsLoading(false);
   }, []);
 
-  const fetchMovies = async () => {
-    setIsLoading(true);
-    try {
-      const topRated = await getMovies(10);
-      const popular = await getMovies(10);
-      const newdrama = await getShort("UCXhPKXcBaBwpwOjq4l8mHIw", 10);
-      const nowPlaying = await getMovies(10);
-      const header = await getSeries("CN");
-      setTopRatedMovies(topRated);
-      setPopularMovies(popular);
-      setdrama(newdrama);
-      setNowPlayingMovies(nowPlaying);
-      setHeaderMovies(header);
-      const short = await getShort("UC2xVncJghTKzq4HvjzfIcOg", 10);
-      setShortMovies(short);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching movies:", error);
-      setIsLoading(false);
-    }
-  };
-
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  type MovieCategoryFilterProps = {
-    categories: string[];
-    display?: string;
-  };
-
-  // Expanded categories similar to YouTube
-  const allCategories = [
-    "All",
-    "Romance",
-    "Thriller",
-    "Mystery",
-    "Science Fiction",
-    "Music",
-    "Gaming",
-    "Live",
-    "News",
-    "Sports",
-    "Learning",
-    "Fashion & Beauty",
-    "Comedy",
-    "Movies",
-    "TV Shows",
-    "Documentary",
-    "Animation",
-    "Kids",
-    "Travel",
-    "Food",
-    "Technology",
-    "Entertainment",
-    "Recently Uploaded",
-    "Trending",
-  ];
 
 
   return (
@@ -92,7 +26,9 @@ export default function Home() {
                 />
                 <div className="flex flex-col">
                 <h1 className="text-2xl font-bold">{mockUser.name}</h1>
-                <p className="text-gray-600 mb-2">Welcome to {mockUser.name}'s channel. Sharing tutorials, reviews, and more!</p>
+                <p className="text-gray-600 mb-2">
+                  Welcome to {mockUser.name}&apos;s channel. Sharing tutorials, reviews, and more!
+                </p>
                 <button className="bg-red-600 text-white px-4 py-2 rounded font-semibold w-fit hover:bg-red-700 transition">
                   Subscribe {mockUser.subscribers ? `(${formatSubscribers(mockUser.subscribers)})` : ""}
                 </button>

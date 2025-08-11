@@ -2,11 +2,13 @@
 
 import MovieSlider from "@/components/MovieSlider";
 import MovieSection from "@/components/MovieSection";
-import { getMovies } from "@/lib/movieApi";
+import { getMovies,getNowPlayingMovies,getPopularMovie,getTopRatedMovies,getUpcomingMovies } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
 import ProtectedLayout from "@/components/ProtectedLayout";
 import LoadingPage from "@/components/LoadingPage";
 import type { VideoSrc } from "@/types/VideoSrc";
+import { allCategories } from "@/lib/categoryList";
+import MovieCategoryFilter from "@/components/MovieCategoryFilter";
 
 export default function Home() {
   const [headerMovies, setHeaderMovies] = useState<VideoSrc[]>([]);
@@ -23,16 +25,16 @@ export default function Home() {
   const fetchMovies = async () => {
     setIsLoading(true);
     try {
-      const topRated = await getMovies(10);
-      const popular = await getMovies(10);
-      const upcoming = await getMovies(10);
-      const nowPlaying = await getMovies(10);
-      const header = await getMovies(5);
+      const topRated = await getTopRatedMovies(1);
+      const popular = await getPopularMovie(1);
+      const upcoming = await getUpcomingMovies(1);
+      const nowPlaying = await getNowPlayingMovies(1);
+      // const header = await getMovies(5);
       setTopRatedMovies(topRated);
       setPopularMovies(popular);
       setUpcomingMovies(upcoming);
       setNowPlayingMovies(nowPlaying);
-      setHeaderMovies(header);
+      setHeaderMovies(upcoming);
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching movies:", error);
@@ -40,34 +42,13 @@ export default function Home() {
     }
   };
 
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  type MovieCategoryFilterProps = {
-    categories: string[];
-  };
-
-  const MovieCategoryFilter: React.FC<MovieCategoryFilterProps> = ({ categories }) => {
-    return (
-      <div className="flex items-center  justify-center space-x-4">
-        {categories.map((category) => (
-          <button
-            key={category}
-            onClick={() => setSelectedCategory(category === selectedCategory ? null : category)}
-            className={`px-4 py-2 rounded-md  hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === category ? 'bg-[#e50914] text-white' : 'text-gray-300 shadow-[0px_0px_10px_1px]  shadow-[#e50914] hover:text-white transition-colors duration-300'}`}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
-    );
-  };
-
   return (
     <ProtectedLayout>
       {isloading ? <LoadingPage/> :
       <>
       <MovieSlider videos={headerMovies} />
-      <div className="flex flex-col md:px-20 px-0 w-[100vw]">
-        <MovieCategoryFilter categories={['Romance', 'Thriller', 'Mystery', 'Science Fiction']} />        
+      <div className="flex flex-col md:px-20 px-0 w-[100%] mt-4">
+        <MovieCategoryFilter categories={allCategories} />
         <hr className="border-[#e50914] mt-3" />
         <MovieSection title="Top Rated Movies" videos={topRatedMovies} showRating={true}/>
         <MovieSection title="Popular Movies" videos={popularMovies} />

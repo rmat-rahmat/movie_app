@@ -21,9 +21,11 @@ import {
 
 const menu = [
   { href: "/", label: "Home", icon: <FiHome className="h-5 w-5 mr-2" /> },
-  { href: "/?", label: "About", icon: <FiInfo className="h-5 w-5 mr-2" /> },
-  { href: "/movies", label: "Movies", icon: <FiFilm className="h-5 w-5 mr-2" /> },
-  { href: "/?", label: "Pages", icon: <FiLayers className="h-5 w-5 mr-2" /> },
+  { href: "/about", label: "About", icon: <FiInfo className="h-5 w-5 mr-2" /> },
+  // { href: "/movies", label: "Movies", icon: <FiFilm className="h-5 w-5 mr-2" /> },
+
+  { href: "/profile", label: "Profile", icon: <FiUser className="h-5 w-5 mr-2" /> }, // <-- Added profile link
+  // { href: "/?", label: "Pages", icon: <FiLayers className="h-5 w-5 mr-2" /> },
   {
     label: "Categories",
     icon: <FiGrid className="h-5 w-5 mr-2" />,
@@ -37,9 +39,8 @@ const menu = [
       { href: "/?", label: "Technology", icon: <FiCpu className="h-5 w-5 mr-2" /> },
     ]
   },
-  { href: "/?", label: "Blog", icon: <FiBook className="h-5 w-5 mr-2" /> },
+  // { href: "/?", label: "Blog", icon: <FiBook className="h-5 w-5 mr-2" /> },
   { href: "/?", label: "Contact", icon: <FiMail className="h-5 w-5 mr-2" /> },
-  { href: "/profile", label: "Profile", icon: <FiUser className="h-5 w-5 mr-2" /> }, // <-- Added profile link
 ];
 
 const SideBar = ({ show }: { show: boolean }) => {

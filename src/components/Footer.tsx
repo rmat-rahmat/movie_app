@@ -1,7 +1,7 @@
 
 export default function Footer() {
   return (
-    <footer className="row-start-3 mt-[-30px] flex gap-[24px] flex-wrap items-center justify-center relative transparent">
+    <footer className="row-start-3 mt-[-30px] flex gap-[24px] flex-wrap items-center justify-center relative transparent ">
       <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none h-full">
       <svg viewBox="0 0 1440 100" className="w-full h-full " preserveAspectRatio="none">
         <path

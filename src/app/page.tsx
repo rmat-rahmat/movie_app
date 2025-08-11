@@ -1,13 +1,16 @@
 'use client';
 
 import MovieSection from "@/components/MovieSection";
-import { getMovies, getSeries, getShort } from "@/lib/movieApi";
+import { getMovies, getSeries, getShort, getUpcomingMovies, getPopularMovie, getTopRatedMovies, getNowPlayingMovies } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/LoadingPage";
 import GuestLayout from "@/components/GuestLayout";
 import HeaderSlider from "@/components/HeaderSlider";
 import type { VideoSrc } from "@/types/VideoSrc";
 import { FiPlayCircle, FiStar } from "react-icons/fi";
+import SubscriptionSection from "@/components/SubscriptionSection";
+import { allCategories } from "@/lib/categoryList";
+import MovieCategoryFilter from "@/components/MovieCategoryFilter";
 
 export default function Home() {
   const [headerMovies, setHeaderMovies] = useState<VideoSrc[]>([]);
@@ -25,11 +28,12 @@ export default function Home() {
   const fetchMovies = async () => {
     setIsLoading(true);
     try {
-      const topRated = await getMovies(10);
-      const popular = await getMovies(10);
+      const topRated = await getTopRatedMovies(1);
+      const popular = await getPopularMovie(1);
       const newdrama = await getShort("UCXhPKXcBaBwpwOjq4l8mHIw", 10);
-      const nowPlaying = await getMovies(10);
-      const header = await getSeries("CN");
+      const nowPlaying = await getNowPlayingMovies(1);
+      
+      const header = await getUpcomingMovies(1)
       setTopRatedMovies(topRated);
       setPopularMovies(popular);
       setdrama(newdrama);
@@ -51,32 +55,7 @@ export default function Home() {
   };
 
   // Expanded categories similar to YouTube
-  const allCategories = [
-    "All",
-    "Romance",
-    "Thriller",
-    "Mystery",
-    "Science Fiction",
-    "Music",
-    "Gaming",
-    "Live",
-    "News",
-    "Sports",
-    "Learning",
-    "Fashion & Beauty",
-    "Comedy",
-    "Movies",
-    "TV Shows",
-    "Documentary",
-    "Animation",
-    "Kids",
-    "Travel",
-    "Food",
-    "Technology",
-    "Entertainment",
-    "Recently Uploaded",
-    "Trending",
-  ];
+  
 
   const MovieCategoryFilter: React.FC<MovieCategoryFilterProps> = ({ categories, display }) => {
     return (
@@ -134,6 +113,7 @@ export default function Home() {
             <MovieSection
               icon={<FiStar className="h-6 w-6 text-yellow-400" />}
               title="Top Rated Movies" videos={topRatedMovies} showRating={true} />
+            <SubscriptionSection />
             <MovieSection title="Popular Movies" videos={popularMovies} />
             <MovieSection title="Drama" frameSize={30} videos={drama} showPlayback={true} showViewer={true} />
             <MovieSection title="Now Playing Movies" videos={nowPlayingMovies} />

@@ -3,6 +3,7 @@ import { parseStringPromise } from 'xml2js';
 import type { VideoSrc } from "@/types/VideoSrc";
 
 // Helper to convert Movie to VideoSrc
+const Authorization = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4Yzc0NjMzMDQxNmJiODMxMmY5MzI1NTA1Y2JjZmZhZSIsIm5iZiI6MTc1NDg3NTYwMi42NzI5OTk5LCJzdWIiOiI2ODk5NDZkMjc3M2YwMWMyMzQ1ZDEyNzciLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.rXrr9MVh9M5P1TEmAxiHrr374UKU5SgLZaVzl4U0GEA';
 function movieToVideoSrc(movie: unknown): VideoSrc {
   const m = movie as {
     id: number | string;
@@ -22,37 +23,123 @@ function movieToVideoSrc(movie: unknown): VideoSrc {
     id: m.id,
     title: m.original_title || m.title || "",
     description: m.description || m.overview || "",
-    backdrop_image: m.backdrop_path,
-    potrait_image: m.poster_path,
+    backdrop_image: "https://image.tmdb.org/t/p/original/" + m.backdrop_path,
+    potrait_image: "https://image.tmdb.org/t/p/original/" + m.poster_path,
     release_date: m.release_date,
     vote_average: m.vote_average,
     vote_count: m.vote_count,
     popularity: m.popularity,
     casts: Array.isArray(m.casts)
       ? m.casts.map((cast) => {
-          const c = cast as {
-            id: string | number;
-            name: string;
-            character?: string;
-            profile_path?: string;
-          };
-          return {
-            id: c.id,
-            name: c.name,
-            character: c.character,
-            profile_image: c.profile_path,
-          };
-        })
+        const c = cast as {
+          id: string | number;
+          name: string;
+          character?: string;
+          profile_path?: string;
+        };
+        return {
+          id: c.id,
+          name: c.name,
+          character: c.character,
+          profile_image: c.profile_path,
+        };
+      })
       : [],
   };
 }
-
 export const getMovies = async (number: number): Promise<VideoSrc[]> => {
   const res = await fetch(`https://jsonfakery.com/movies/random/${number}`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch top-rated movies');
   const movies = await res.json();
   // Convert each movie to VideoSrc format
   return movies.map(movieToVideoSrc);
+};
+
+export const getNowPlayingMovies = async (number: number): Promise<VideoSrc[]> => {
+  const url = 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1';
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization
+    }
+  };
+
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error('Failed to fetch now playing movies');
+    const movies = await res.json();
+    // Convert each movie to VideoSrc format
+    console.log(movies);
+    return movies?.results.map(movieToVideoSrc);
+  } catch (error) {
+    console.error('Error fetching now playing movies:', error);
+    return [];
+  }
+};
+
+export const getPopularMovie = async (number: number): Promise<VideoSrc[]> => {
+  const url = 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1';
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization
+    }
+  };
+
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error('Failed to fetch now playing movies');
+    const movies = await res.json();
+    // Convert each movie to VideoSrc format
+    return movies?.results.map(movieToVideoSrc);
+  } catch (error) {
+    console.error('Error fetching now playing movies:', error);
+    return [];
+  }
+};
+
+export const getTopRatedMovies = async (number: number): Promise<VideoSrc[]> => {
+  const url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1';
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization
+    }
+  };
+
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error('Failed to fetch now playing movies');
+    const movies = await res.json();
+    // Convert each movie to VideoSrc format
+    return movies?.results.map(movieToVideoSrc);
+  } catch (error) {
+    console.error('Error fetching now playing movies:', error);
+    return [];
+  }
+};
+export const getUpcomingMovies = async (number: number): Promise<VideoSrc[]> => {
+  const url = 'https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1';
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization
+    }
+  };  
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error('Failed to fetch now playing movies');
+    const movies = await res.json();
+    // Convert each movie to VideoSrc format
+    return movies?.results.map(movieToVideoSrc);
+  } catch (error) {
+    console.error('Error fetching now playing movies:', error);
+    return [];
+  }
 };
 
 export const getSeries = async (country: string) => {

@@ -1,3 +1,4 @@
+'use client';
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Footer from "./Footer";
@@ -24,7 +25,7 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                 <SideBar show={menuOpen} />
             </div>
 
-            <div className="w-full md:w-[calc(100vw-16rem)] min-h-screen md:pb-0 pb-20">
+            <div className="w-full md:w-[calc(100vw-16rem)] min-h-screen md:pb-0 pb-20 flex flex-col">
                 <button
                     className="md:hidden fixed top-4 right-4 z-100 flex items-center justify-center p-2 rounded text-gray-200"
                     onClick={() => setMenuOpen(!menuOpen)}
@@ -85,7 +86,9 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                         </li>
                     </ul>
                 </nav>
+                <div className="flex-1 pt-16">
                 {children}
+                </div>
                 <Footer />
 
                 {/* Bottom Tab Bar for Mobile */}

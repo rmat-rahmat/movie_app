@@ -53,11 +53,11 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
                     <div
                         key={video.id}
                         onClick={() => setSelectedMovieIndex(index)}
-                        className={`flex flex-1 flex-col bg-black shadow-md pb-2 shadow-[#e50914] rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer`}
+                        className={`flex flex-1 flex-col bg-black shadow-[0px_0px_2px_1px] pb-2 shadow-[#e50914] rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer`}
                     >
                         <div className="relative w-full h-auto rounded-lg mb-2" >
                             <div className="absolute w-full h-full bg-gradient-to-t from-black via-black/30 to-transparent z-1" />
-                            <div className="absolute w-full h-full bg-gradient-to-b from-black to-transparent to-[30%] z-1 " />
+                            {/* <div className="absolute w-full h-full bg-gradient-to-b from-black to-transparent to-[30%] z-1 " /> */}
                             <div className="relative w-full h-[300px]">
                                 <Image
                                     src={video.potrait_image || ""}
@@ -69,7 +69,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
                                 />
                             </div>
                         </div>
-                        <div className='relative px-4 mt-[-70px] md:mt-[-60px]  overflow-y-visible z-1'>
+                        <div className='relative px-4 mt-[-70px] md:mt-[-40px]  overflow-y-visible z-1'>
                             {video.title && video.title.length > 30 ? (
                                 <h3 className="text-xs md:text-md font-semibold">{video.title}</h3>
                             ) : (

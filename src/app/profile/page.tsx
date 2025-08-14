@@ -28,8 +28,8 @@ export default function Profile() {
 
     return (
         <GuestLayout>
-            {isloading ? <LoadingPage /> : <div>
-                {/* <div className="grid h-[30vh] mt-10 w-full md:grid-cols-[30%_70%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
+            {isloading ? <LoadingPage /> : <div className="container mx-auto overflow-hidden">
+                <div className="grid h-[40vh] md:h-[30vh] w-full md:grid-cols-[30%_70%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
                     <div className="bg-black order-last md:order-first flex items-end md:pl-20 overflow-visible">
                         <div className="flex items-center gap-4 p-4 min-w-[200%] z-1">
                             <img
@@ -39,7 +39,7 @@ export default function Profile() {
                             />
                             <div className="flex flex-col">
                                 <h1 className="text-2xl font-bold">{mockUser.name}</h1>
-                                <p className="text-gray-600 mb-2">
+                                <p className="text-gray-400 mb-2 w-[60vw] md:w-[40vw]">
                                     Welcome to {mockUser.name}&apos;s channel. Sharing tutorials, reviews, and more!
                                 </p>
                                 <button className="bg-red-600 text-white px-4 py-2 rounded font-semibold w-fit hover:bg-red-700 transition">
@@ -62,8 +62,8 @@ export default function Profile() {
                         <div className="absolute inset-0 h-full bg-gradient-to-t from-black via-black/30 to-black/30 md:bg-[radial-gradient(circle_at_60%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
                         <div className="absolute inset-0 h-full md:bg-[radial-gradient(circle_at_70%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
                     </div>
-                </div> */}
-                <div className="container mx-auto px-4 py-8 mt-16">
+                </div>
+                <div className="container mx-auto px-4 py-8 mt-0">
 
 
                     <MovieSection
@@ -76,44 +76,22 @@ export default function Profile() {
                         videos={lastSeenVid}
                     />
 
-                    <section className="mb-8">
-                        <h2 className="text-xl font-semibold mb-4">Uploaded Videos</h2>
-                        <div className="grid grid-cols-2 gap-4">
-                            {mockUser.uploadedVideos.map((video) => (
-                                <div key={video.id} className="border rounded p-2 flex flex-col items-center">
-                                    <img src={video.thumbnail} alt={video.title} className="w-full h-24 object-cover rounded" />
-                                    <div className="mt-2 text-center">
-                                        <div className="font-medium">{video.title}</div>
-                                        <div className="text-sm text-gray-500">{video.views} views</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
 
-                    <section className="mb-8">
-                        <h2 className="text-xl font-semibold mb-4">Watchlist</h2>
-                        <div className="grid grid-cols-2 gap-4">
-                            {mockUser.watchlist.map((video) => (
-                                <div key={video.id} className="border rounded p-2 flex flex-col items-center">
-                                    <img src={video.thumbnail} alt={video.title} className="w-full h-24 object-cover rounded" />
-                                    <div className="mt-2 text-center font-medium">{video.title}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                    <MovieSection
+                        onViewMore={() => console.log("Uploaded Videos")}
+                        showPlayback={true} showViewer={true}
+                        frameSize={20}
+                        title="Uploaded Videos"
+                        videos={lastSeenVid}
+                    />
 
-                    <section>
-                        <h2 className="text-xl font-semibold mb-4">Playlists</h2>
-                        <ul>
-                            {mockUser.playlists.map((playlist) => (
-                                <li key={playlist.id} className="mb-2 border rounded p-2 flex justify-between items-center">
-                                    <span>{playlist.name}</span>
-                                    <span className="text-sm text-gray-500">{playlist.count} videos</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
+                    <MovieSection
+                        onViewMore={() => console.log("Playlists")} showViewer={true}
+                        frameSize={20}
+                        title="Playlists"
+                        videos={lastSeenVid}
+                    />
+                   
                 </div>
             </div>
             }

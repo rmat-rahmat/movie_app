@@ -52,24 +52,27 @@ const SideBar = ({ show }: { show: boolean }) => {
   };
 
   return (
-    <div className={`fixed top-0 left-0 h-screen w-64 text-white px-4 py-6 shadow-[0px_0px_10px_1px] shadow-[#e50914] z-100 bg-black/90 ${show ? 'block' : 'hidden'} transition-transform duration-300 ease-in-out md:block`}>
+    <div className={`fixed top-0 left-0 h-screen w-64 text-white px-4 py-6 shadow-[0px_0px_10px_1px] shadow-[#e50914] z-100 bg-black/90 ${show ? 'block' : 'hidden'} transition-transform duration-300 ease-in-out lg:block`}>
       <h1 className="text-3xl font-bold mt-2 mb-10">Seefu.TV</h1>
       <ul>
-        {menu.map(({ href, label, icon, subMenu }) => (
-          <li key={label}>
-            {subMenu ? (
-              <>
+        {menu.map(({ href, label, icon, subMenu }) => {
+          if (subMenu) {
+            // Check if any submenu item matches pathname
+            const shouldOpen = subMenu.some(item => pathname === item.href);
+            const isOpen = openDropdown === label || shouldOpen;
+            return (
+              <li key={label}>
                 <button
                   onClick={() => handleDropdownToggle(label)}
                   className={`flex w-full cursor-pointer items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#e50914]
-                    ${openDropdown === label ? "bg-gradient-to-l from-[#e50914] to-transparent font-bold" : ""}
+                    ${isOpen ? "bg-gradient-to-l from-[#e50914] to-transparent font-bold" : ""}
                   `}
                 >
                   {icon}
                   {label}
-                  {openDropdown === label ? <FiChevronUp className="ml-auto" /> : <FiChevronDown className="ml-auto" />}
+                  {isOpen ? <FiChevronUp className="ml-auto" /> : <FiChevronDown className="ml-auto" />}
                 </button>
-                {openDropdown === label && (
+                {isOpen && (
                   <ul className="pl-8">
                     {subMenu.map(({ href, label, icon }) => (
                       <li key={href}>
@@ -85,8 +88,12 @@ const SideBar = ({ show }: { show: boolean }) => {
                     ))}
                   </ul>
                 )}
-              </>
-            ) : (
+              </li>
+            );
+          }
+          // Not a submenu
+          return (
+            <li key={label}>
               <Link href={href}>
                 <p className={`flex items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#e50914]
                   ${pathname === href ? "bg-gradient-to-l from-[#e50914] to-transparent font-bold" : ""}
@@ -95,11 +102,11 @@ const SideBar = ({ show }: { show: boolean }) => {
                   {label}
                 </p>
               </Link>
-            )}
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
-      <div className="absolute bottom-6 left-4 w-[calc(100%-2rem)] md:hidden">
+      <div className="absolute bottom-6 left-4 w-[calc(100%-2rem)] lg:hidden">
         <Link href={'/auth/login'}>
           <p className="flex items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#e50914]">
         <FiLogIn className="h-5 w-5 mr-2" />

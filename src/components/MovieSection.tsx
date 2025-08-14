@@ -24,7 +24,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
     }
     return (
         <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 px-0">
                 <div className="flex items-center gap-2">
                     {icon}
                     <h2 className="text-2xl font-bold">{title}</h2>
@@ -48,7 +48,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
                     </button>
                 )}
             </div>
-            <div className={`hide-scrollbar grid grid-flow-col auto-cols-[70%] sm:auto-cols-[45%] ${frameSize ? `lg:auto-cols-[${frameSize}%]` : "lg:auto-cols-[20%]"}  gap-4 p-4 overflow-x-scroll`}>
+            <div className={`hide-scrollbar grid grid-flow-col auto-cols-[70%] sm:auto-cols-[45%] ${frameSize ? `xl:auto-cols-[${frameSize}%]` : "xl:auto-cols-[20%]"}  gap-4 py-4 px-1 overflow-x-scroll`}>
                 {videos.map((video: VideoSrc, index: number) => (
                     <div
                         key={video.id}
@@ -69,16 +69,16 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
                                 />
                             </div>
                         </div>
-                        <div className='relative px-4 mt-[-70px] md:mt-[-40px]  overflow-y-visible z-1'>
+                        <div className='relative px-4 mt-[-70px] lg::mt-[-40px]  overflow-y-visible z-1'>
                             {video.title && video.title.length > 30 ? (
-                                <h3 className="text-xs md:text-md font-semibold">{video.title}</h3>
+                                <h3 className="text-xs lg::text-lg: font-semibold">{video.title}</h3>
                             ) : (
-                                <h3 className="text-md md:text-lg font-semibold">{video.title}</h3>
+                                <h3 className="text-lg: lg::text-lg font-semibold">{video.title}</h3>
                             )}
-                            <p className="text-xs md:text-sm text-gray-400">{video.release_date}</p>
+                            <p className="text-xs lg::text-sm text-gray-400">{video.release_date}</p>
                         </div>
                         {showRating && video.vote_count !== undefined && video.vote_count > 0 && (
-                            <div className="flex items-center mt-auto mb-2 align-center justify-center">
+                            <div className="flex items-center mt-auto mb-2 align-center px-4 py-1">
                                 {[...Array(5)].map((_, index: number) => (
                                     <svg
                                         key={index}
@@ -96,7 +96,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, videos, showRating, 
                         )}
                         {showViewer && (
                             <div className="flex mt-auto justify-center mt-2 mb-2">
-                                <span className="text-xs md:text-sm ml-2 text-gray-400">
+                                <span className="text-xs lg::text-sm ml-2 text-gray-400">
                                     {parseInt(String(video.popularity ?? "0")).toLocaleString('en-US', { notation: "compact" })} views
                                 </span>
                             </div>

@@ -71,10 +71,10 @@ const MovieSlider: React.FC<MovieSliderProps> = ({ videos }) => {
                         style={idx === current ? { transform: `translateX(${x}px)` } : undefined}
                     >
                         <div className="grid h-full w-full md:grid-cols-[30%_70%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
-                            <div className="bg-black order-last md:order-first flex items-end pb-12 pl-8 md:pl-20 overflow-visible">
-                                <div className="text-white min-w-full md:min-w-[50vw] md:max-w-[50vw] z-1">
+                            <div className="bg-black w-[90vw] md:w-full order-last md:order-first flex items-end pb-12 mx-auto md:pl-20 overflow-visible">
+                                <div className="text-white overflow-hidden text-ellipsis whitespace-wrap min-w-full md:min-w-[50vw] md:max-w-[50vw] z-1">
                                     <h2 className="text-2xl md:text-4xl font-bold mb-2">{video.title}</h2>
-                                    <p className="text-base md:text-lg">{video.description}</p>
+                                    <p className="text-base md:text-lg">  {video.description.split(" ").slice(0, 50).join(" ") + (video.description.split(" ").length > 50 ? "..." : "")}</p>
                                 </div>
                             </div>
                             <div className="relative bg-[#e50914] order-first md:order-last">

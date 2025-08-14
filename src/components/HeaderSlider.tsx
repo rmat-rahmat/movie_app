@@ -77,10 +77,11 @@ const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
                     style={idx === current ? { transform: `translateX(${x}px)` } : undefined}
                 >
                     <div className="grid h-full w-full md:grid-cols-[30%_70%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
-                        <div className="bg-black order-last md:order-first flex items-end pb-12 pl-8 md:pl-20 overflow-visible">
+                            <div className="bg-black w-[90vw] md:w-full order-last md:order-first flex items-end pb-12 mx-auto md:pl-20 overflow-visible">
+
                             <div className="text-white min-w-full md:min-w-[50vw] md:max-w-[50vw] z-1">
                                 <h2 className="text-2xl md:text-4xl font-bold mb-2">{video.title}</h2>
-                                <div className="bg-gradient-to-b from-[#e50914] to-[#b20710] py-2 rounded-lg text-center inline-block w-auto px-4">
+                                <div className="bg-gradient-to-b from-[#e50914] to-[#b20710] mb-3 py-2 rounded-lg text-center inline-block w-auto px-4">
                                      {new Date(video.release_date ?? "").toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" })}
                                 </div>
                                 <p className="text-base md:text-lg">

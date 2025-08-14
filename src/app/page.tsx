@@ -60,7 +60,7 @@ export default function Home() {
   const MovieCategoryFilter: React.FC<MovieCategoryFilterProps> = ({ categories, display }) => {
     return (
       <>
-        {display === 'mobile' && <hr className="flex md:hidden h-1 rounded-full bg-gradient-to-r from-[#e50914] via-[#b20710] to-[#e50914] border-0 mt-18" />}
+        {display === 'mobile' && <hr className="flex md:hidden h-1 rounded-full bg-gradient-to-r from-[#e50914] via-[#b20710] to-[#e50914] border-0 mt-0" />}
         <div
           className={`
             flex justify-center w-full overflow-x-auto mt-2 mb-5

@@ -43,7 +43,7 @@ export default function Home() {
   };
 
   return (
-    <ProtectedLayout>
+    <>
       {isloading ? <LoadingPage/> :
       <>
       <MovieSlider videos={headerMovies} />
@@ -58,7 +58,7 @@ export default function Home() {
       </>
       }
       
-    </ProtectedLayout>
+    </>
   );
 }
 

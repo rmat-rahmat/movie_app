@@ -1,0 +1,64 @@
+{
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "movies": "Movies", 
+    "profile": "Profile",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "phone": "Phone",
+    "nickname": "Nickname",
+    "loginButton": "Login",
+    "registerButton": "Register",
+    "loginTitle": "Login to Your Account",
+    "registerTitle": "Create New Account",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "forgotPassword": "Forgot Password?"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search",
+    "language": "Language"
+  },
+  "movie": {
+    "genres": "Genres",
+    "rating": "Rating", 
+    "duration": "Duration",
+    "releaseDate": "Release Date",
+    "cast": "Cast",
+    "overview": "Overview",
+    "watchNow": "Watch Now",
+    "addToWatchlist": "Add to Watchlist",
+    "removeFromWatchlist": "Remove from Watchlist"
+  },
+  "subscription": {
+    "plans": "Subscription Plans",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "basic": "Basic",
+    "premium": "Premium",
+    "pro": "Pro",
+    "selectPlan": "Select Plan",
+    "currentPlan": "Current Plan"
+  },
+  "profile": {
+    "personalInfo": "Personal Information",
+    "changePassword": "Change Password",
+    "preferences": "Preferences",
+    "accountSettings": "Account Settings",
+    "updateProfile": "Update Profile"
+  }
+}

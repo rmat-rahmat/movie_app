@@ -8,11 +8,14 @@ import { VideoSrc } from "@/types/VideoSrc";
 import { getLastSeenVideos } from "@/lib/userMovieList";
 import MovieSection from "@/components/MovieSection";
 import { FiPlayCircle } from "react-icons/fi";
+import NavigationFrame from "@/components/NavigationFrame";
+import { useTranslation } from "react-i18next";
 
 
 export default function Profile() {
     const [isloading, setIsLoading] = useState(true);
     const [lastSeenVid, setLastSeenVid] = useState<VideoSrc[]>([]);
+    const { t } = useTranslation('common');
 
 
     useEffect(() => {
@@ -27,7 +30,7 @@ export default function Profile() {
 
 
     return (
-        <GuestLayout>
+        <>
             {isloading ? <LoadingPage /> : <div className="container mx-auto overflow-hidden">
                 <div className="grid h-[40vh] md:h-[30vh] w-full md:grid-cols-[30%_70%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
                     <div className="bg-black order-last md:order-first flex items-end md:pl-20 overflow-visible">
@@ -72,7 +75,7 @@ export default function Profile() {
                         onViewMore={() => console.log("View More Movies")}
                         showPlayback={true} showViewer={true}
                         frameSize={30}
-                        title="Recently Watched"
+                        title={t('profile.personalInfo')}
                         videos={lastSeenVid}
                     />
 
@@ -95,7 +98,7 @@ export default function Profile() {
                 </div>
             </div>
             }
-        </GuestLayout>
+        </>
     );
 }
 

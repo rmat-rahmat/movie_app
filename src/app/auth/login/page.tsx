@@ -1,35 +1,32 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
+import { useAuthStore } from '@/store/authStore';
+import { useTranslation } from 'react-i18next';
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const [localError, setLocalError] = useState<string | null>(null);
     const router = useRouter();
-
-
-
+    const { login, isLoading, error } = useAuthStore();
+    const { t } = useTranslation('common');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError(null);
+        setLocalError(null);
 
-        // TODO: Replace with your authentication logic
         if (email === '' || password === '') {
-            setError('Please enter both email and password.');
+            setLocalError('Please enter both email and password.');
             return;
         }
 
         try {
-            // Example: await login(email, password);
-            alert('Logged in!');
-            // Redirect or perform further actions after successful login
-            router.replace('/');
-            
-        } catch {
-            setError('Invalid credentials.');
+            await login(email, password);
+            router.push('/');
+        } catch (err) {
+            // Error is handled by the store
+            console.error('Login failed:', err);
         }
     };
 
@@ -102,10 +99,10 @@ const LoginPage: React.FC = () => {
                 </h1>
             </div>
             <div className="bg-black/80 p-8 z-1 rounded-lg w-full md:w-1/3 max-w-md mx-auto inset-shadow-[0px_0px_5px_1px] inset-shadow-[#e50914]">
-                <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+                <h1 className="text-2xl font-bold mb-6 text-center">{t('auth.loginTitle')}</h1>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email</label>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-300">{t('auth.email')}</label>
                         <input
                             id="email"
                             type="email"
@@ -116,7 +113,7 @@ const LoginPage: React.FC = () => {
                         />
                     </div>
                     <div className="mb-6">
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-300">Password</label>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-300">{t('auth.password')}</label>
                         <input
                             id="password"
                             type="password"
@@ -126,21 +123,22 @@ const LoginPage: React.FC = () => {
                             required
                         />
                     </div>
-                    {error && <div className="text-[#e50914] mb-4">{error}</div>}
+                    {(error || localError) && <div className="text-[#e50914] mb-4">{error || localError}</div>}
                     <button
                         type="submit"
-                        className="w-full bg-[#e50914] hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        disabled={isLoading}
+                        className="w-full bg-[#e50914] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
-                        Login
+                        {isLoading ? t('common.loading') : t('auth.loginButton')}
                     </button>
                 </form>
                 <div className="mt-6 text-center text-gray-300">
-                    No account?{' '}
+                    {t('auth.dontHaveAccount')}{' '}
                     <span
                         className="text-[#e50914] hover:underline font-semibold cursor-pointer"
                         onClick={() => router.replace('/auth/register')}
                     >
-                        Register now
+                        {t('navigation.register')}
                     </span>
                 </div>
             </div>

@@ -1,0 +1,64 @@
+{
+  "navigation": {
+    "home": "首页",
+    "about": "关于",
+    "movies": "电影", 
+    "profile": "个人资料",
+    "login": "登录",
+    "register": "注册",
+    "logout": "退出"
+  },
+  "auth": {
+    "email": "邮箱",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "phone": "电话",
+    "nickname": "昵称",
+    "loginButton": "登录",
+    "registerButton": "注册",
+    "loginTitle": "登录您的账户",
+    "registerTitle": "创建新账户",
+    "alreadyHaveAccount": "已有账户？",
+    "dontHaveAccount": "还没有账户？",
+    "forgotPassword": "忘记密码？"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "cancel": "取消",
+    "save": "保存",
+    "edit": "编辑",
+    "delete": "删除",
+    "search": "搜索",
+    "language": "语言"
+  },
+  "movie": {
+    "genres": "类型",
+    "rating": "评分", 
+    "duration": "时长",
+    "releaseDate": "上映日期",
+    "cast": "演员",
+    "overview": "简介",
+    "watchNow": "立即观看",
+    "addToWatchlist": "添加到观看列表",
+    "removeFromWatchlist": "从观看列表移除"
+  },
+  "subscription": {
+    "plans": "订阅计划",
+    "monthly": "月付",
+    "yearly": "年付",
+    "basic": "基础",
+    "premium": "高级",
+    "pro": "专业",
+    "selectPlan": "选择计划",
+    "currentPlan": "当前计划"
+  },
+  "profile": {
+    "personalInfo": "个人信息",
+    "changePassword": "修改密码",
+    "preferences": "偏好设置",
+    "accountSettings": "账户设置",
+    "updateProfile": "更新资料"
+  }
+}

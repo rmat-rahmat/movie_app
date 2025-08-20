@@ -3,11 +3,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FiSearch, FiMenu, FiX } from "react-icons/fi"; // Import react-icons
+import { useAuthStore } from "@/store/authStore";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const { isAuthenticated, user, logout } = useAuthStore();
+  const { t } = useTranslation('common');
 
   useEffect(() => {
     function handleScroll() {
@@ -16,6 +21,11 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    setMenuOpen(false);
+  };
 
   return (
     <nav
@@ -41,7 +51,7 @@ export default function Navbar() {
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Search movies, series..."
+          placeholder={t('common.search')}
           className="w-full px-3 py-2 bg-transparent text-white rounded-l-full outline-none focus:shadow-[#e50914] focus:shadow-[0px_1px_0px_0px] "
         />
         <button
@@ -55,19 +65,43 @@ export default function Navbar() {
       {/* Desktop Menu */}
       <ul className="hidden md:flex gap-8 items-center">
         <li>
-          <Link href="/" className="text-gray-200 hover:underline">Home</Link>
+          <Link href="/" className="text-gray-200 hover:underline">{t('navigation.home')}</Link>
         </li>
         <li>
-          <Link href="/movies" className="text-gray-200 hover:underline">Movies</Link>
+          <Link href="/movies" className="text-gray-200 hover:underline">{t('navigation.movies')}</Link>
         </li>
         <li>
-          <Link href="/series" className="text-gray-200 hover:underline">Series</Link>
+          <Link href="/about" className="text-gray-200 hover:underline">{t('navigation.about')}</Link>
         </li>
+        {isAuthenticated ? (
+          <>
+            <li>
+              <Link href="/profile" className="text-gray-200 hover:underline">{t('navigation.profile')}</Link>
+            </li>
+            <li>
+              <button 
+                onClick={handleLogout}
+                className="text-gray-200 hover:underline bg-transparent border-none cursor-pointer"
+              >
+                {t('navigation.logout')}
+              </button>
+            </li>
+            <li className="text-gray-400 text-sm">
+              Hi, {user?.nickname || user?.email || 'User'}
+            </li>
+          </>
+        ) : (
+          <>
+            <li>
+              <Link href="/auth/login" className="text-gray-200 hover:underline">{t('navigation.login')}</Link>
+            </li>
+            <li>
+              <Link href="/auth/register" className="text-gray-200 hover:underline">{t('navigation.register')}</Link>
+            </li>
+          </>
+        )}
         <li>
-          <Link href="/watchlist" className="text-gray-200 hover:underline">Watchlist</Link>
-        </li>
-        <li>
-          <Link href="/profile" className="text-gray-200 hover:underline">Profile</Link>
+          <LanguageSwitcher />
         </li>
       </ul>
 
@@ -106,7 +140,7 @@ export default function Navbar() {
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Search..."
+                placeholder={t('common.search')}
                 className="w-full px-3 py-2 rounded-l bg-gray-800 text-white outline-none"
               />
               <button
@@ -118,19 +152,43 @@ export default function Navbar() {
             </form>
             <ul className="flex flex-col gap-4">
               <li>
-                <Link href="/" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Home</Link>
+                <Link href="/" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>{t('navigation.home')}</Link>
               </li>
               <li>
-                <Link href="/movies" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Movies</Link>
+                <Link href="/movies" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>{t('navigation.movies')}</Link>
               </li>
               <li>
-                <Link href="/series" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Series</Link>
+                <Link href="/about" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>{t('navigation.about')}</Link>
               </li>
+              {isAuthenticated ? (
+                <>
+                  <li>
+                    <Link href="/profile" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>{t('navigation.profile')}</Link>
+                  </li>
+                  <li>
+                    <button 
+                      onClick={handleLogout}
+                      className="text-gray-200 hover:underline bg-transparent border-none cursor-pointer text-left w-full"
+                    >
+                      {t('navigation.logout')}
+                    </button>
+                  </li>
+                  <li className="text-gray-400 text-sm">
+                    Hi, {user?.nickname || user?.email || 'User'}
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link href="/auth/login" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>{t('navigation.login')}</Link>
+                  </li>
+                  <li>
+                    <Link href="/auth/register" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>{t('navigation.register')}</Link>
+                  </li>
+                </>
+              )}
               <li>
-                <Link href="/watchlist" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Watchlist</Link>
-              </li>
-              <li>
-                <Link href="/profile" className="text-gray-200 hover:underline" onClick={() => setMenuOpen(false)}>Profile</Link>
+                <LanguageSwitcher />
               </li>
             </ul>
           </div>

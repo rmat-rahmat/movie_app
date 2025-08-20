@@ -1,32 +1,39 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
+import { useTranslation } from 'react-i18next';
 
-
-const LoginPage: React.FC = () => {
+const RegisterPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const [nickname, setNickname] = useState('');
+    const [localError, setLocalError] = useState<string | null>(null);
     const router = useRouter();
+    const { register, isLoading, error } = useAuthStore();
+    const { t } = useTranslation('common');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError(null);
+        setLocalError(null);
 
-        // TODO: Replace with your authentication logic
         if (email === '' || password === '') {
-            setError('Please enter both email and password.');
+            setLocalError('Please enter both email and password.');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setLocalError('Passwords do not match.');
             return;
         }
 
         try {
-            // Example: await login(email, password);
-            alert('Logged in!');
-            // Redirect or perform further actions after successful login
-            router.replace('/');
+            await register({ email, password, nickname: nickname || undefined });
+            router.push('/');
         } catch (err) {
-            setError('Invalid credentials.');
+            // Error is handled by the store
+            console.error('Registration failed:', err);
         }
     };
 
@@ -102,10 +109,10 @@ const LoginPage: React.FC = () => {
                 </p>
             </div>
             <div className="bg-black/80 p-8 z-1 rounded-lg shadow-lg w-full md:w-1/3 max-w-md mx-auto">
-                <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
+                <h1 className="text-2xl font-bold mb-6 text-center">{t('auth.registerTitle')}</h1>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email</label>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-300">{t('auth.email')}</label>
                         <input
                             id="email"
                             type="email"
@@ -116,7 +123,7 @@ const LoginPage: React.FC = () => {
                         />
                     </div>
                     <div className="mb-4">
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-300">Password</label>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-300">{t('auth.password')}</label>
                         <input
                             id="password"
                             type="password"
@@ -126,8 +133,18 @@ const LoginPage: React.FC = () => {
                             required
                         />
                     </div>
+                    <div className="mb-4">
+                        <label htmlFor="nickname" className="block text-sm font-medium text-gray-300">{t('auth.nickname')}</label>
+                        <input
+                            id="nickname"
+                            type="text"
+                            value={nickname}
+                            onChange={e => setNickname(e.target.value)}
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#e50914] focus:border-[#e50914] sm:text-sm"
+                        />
+                    </div>
                     <div className="mb-6">
-                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300">Confirm Password</label>
+                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300">{t('auth.confirmPassword')}</label>
                         <input
                             id="confirmPassword"
                             type="password"
@@ -137,22 +154,23 @@ const LoginPage: React.FC = () => {
                             required
                         />
                     </div>
-                    {error && <div className="text-[#e50914] mb-4">{error}</div>}
+                    {(error || localError) && <div className="text-[#e50914] mb-4">{error || localError}</div>}
                     <button
                         type="submit"
-                        className="w-full bg-[#e50914] hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        disabled={isLoading}
+                        className="w-full bg-[#e50914] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
-                        Register
+                        {isLoading ? t('common.loading') : t('auth.registerButton')}
                     </button>
                 </form>
                 <div className="mt-6 text-center">
                     <div className="mt-6 text-center text-gray-300">
-                        Have an account?{' '}
+                        {t('auth.alreadyHaveAccount')}{' '}
                         <span
                             className="text-[#e50914] hover:underline font-semibold cursor-pointer"
                             onClick={() => router.replace('/auth/login')}
                         >
-                            Login now
+                            {t('navigation.login')}
                         </span>
                     </div>
 
@@ -162,4 +180,4 @@ const LoginPage: React.FC = () => {
     );
 };
 
-export default LoginPage;
+export default RegisterPage;

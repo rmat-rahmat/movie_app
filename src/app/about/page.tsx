@@ -1,10 +1,6 @@
 import React from 'react';
-import GuestLayout from '@/components/GuestLayout';
-
 const AboutPage = () => (
-    <GuestLayout>
         <AboutContent />
-    </GuestLayout>
 );
 const AboutContent = () => (
     <main className="container mx-auto px-4 py-8">

@@ -1,0 +1,64 @@
+{
+  "navigation": {
+    "home": "Laman Utama",
+    "about": "Tentang",
+    "movies": "Filem", 
+    "profile": "Profil",
+    "login": "Log Masuk",
+    "register": "Daftar",
+    "logout": "Log Keluar"
+  },
+  "auth": {
+    "email": "E-mel",
+    "password": "Kata Laluan",
+    "confirmPassword": "Sahkan Kata Laluan",
+    "phone": "Telefon",
+    "nickname": "Nama Panggilan",
+    "loginButton": "Log Masuk",
+    "registerButton": "Daftar",
+    "loginTitle": "Log Masuk ke Akaun Anda",
+    "registerTitle": "Cipta Akaun Baharu",
+    "alreadyHaveAccount": "Sudah ada akaun?",
+    "dontHaveAccount": "Tiada akaun?",
+    "forgotPassword": "Lupa Kata Laluan?"
+  },
+  "common": {
+    "loading": "Memuatkan...",
+    "error": "Ralat",
+    "success": "Berjaya",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "edit": "Edit",
+    "delete": "Padam",
+    "search": "Cari",
+    "language": "Bahasa"
+  },
+  "movie": {
+    "genres": "Genre",
+    "rating": "Penilaian", 
+    "duration": "Tempoh",
+    "releaseDate": "Tarikh Keluaran",
+    "cast": "Pelakon",
+    "overview": "Sinopsis",
+    "watchNow": "Tonton Sekarang",
+    "addToWatchlist": "Tambah ke Senarai Tontonan",
+    "removeFromWatchlist": "Buang dari Senarai Tontonan"
+  },
+  "subscription": {
+    "plans": "Pelan Langganan",
+    "monthly": "Bulanan",
+    "yearly": "Tahunan",
+    "basic": "Asas",
+    "premium": "Premium",
+    "pro": "Pro",
+    "selectPlan": "Pilih Pelan",
+    "currentPlan": "Pelan Semasa"
+  },
+  "profile": {
+    "personalInfo": "Maklumat Peribadi",
+    "changePassword": "Tukar Kata Laluan",
+    "preferences": "Keutamaan",
+    "accountSettings": "Tetapan Akaun",
+    "updateProfile": "Kemaskini Profil"
+  }
+}

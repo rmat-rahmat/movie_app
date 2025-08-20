@@ -9,7 +9,6 @@ export default function Footer() {
           fill="#e50914" // Tailwind's bg-[#e50914] is #22c55e, 0.5 opacity
         />
       </svg>
-        
       </div>
       <div className="flex items-center justify-center w-full pt-12 pb-6 z-10">
         <p className="text-sm text-white">

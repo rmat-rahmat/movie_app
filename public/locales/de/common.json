@@ -1,0 +1,64 @@
+{
+  "navigation": {
+    "home": "Startseite",
+    "about": "Über uns",
+    "movies": "Filme", 
+    "profile": "Profil",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "logout": "Abmelden"
+  },
+  "auth": {
+    "email": "E-Mail",
+    "password": "Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "phone": "Telefon",
+    "nickname": "Spitzname",
+    "loginButton": "Anmelden",
+    "registerButton": "Registrieren",
+    "loginTitle": "Bei Ihrem Konto anmelden",
+    "registerTitle": "Neues Konto erstellen",
+    "alreadyHaveAccount": "Bereits ein Konto?",
+    "dontHaveAccount": "Noch kein Konto?",
+    "forgotPassword": "Passwort vergessen?"
+  },
+  "common": {
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolgreich",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "search": "Suchen",
+    "language": "Sprache"
+  },
+  "movie": {
+    "genres": "Genres",
+    "rating": "Bewertung", 
+    "duration": "Dauer",
+    "releaseDate": "Erscheinungsdatum",
+    "cast": "Besetzung",
+    "overview": "Überblick",
+    "watchNow": "Jetzt ansehen",
+    "addToWatchlist": "Zur Watchlist hinzufügen",
+    "removeFromWatchlist": "Von Watchlist entfernen"
+  },
+  "subscription": {
+    "plans": "Abonnement-Pläne",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "basic": "Basic",
+    "premium": "Premium",
+    "pro": "Pro",
+    "selectPlan": "Plan auswählen",
+    "currentPlan": "Aktueller Plan"
+  },
+  "profile": {
+    "personalInfo": "Persönliche Informationen",
+    "changePassword": "Passwort ändern",
+    "preferences": "Einstellungen",
+    "accountSettings": "Kontoeinstellungen",
+    "updateProfile": "Profil aktualisieren"
+  }
+}

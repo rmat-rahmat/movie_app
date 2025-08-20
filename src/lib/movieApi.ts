@@ -1,5 +1,7 @@
 import { transformEpisodesToSlides } from "@/utils/transformToSlides";
 import { parseStringPromise } from 'xml2js';
+import axios from 'axios';
+import { BASE_URL } from '../config';
 import type { VideoSrc } from "@/types/VideoSrc";
 
 // Helper to convert Movie to VideoSrc
@@ -48,9 +50,8 @@ function movieToVideoSrc(movie: unknown): VideoSrc {
   };
 }
 export const getMovies = async (number: number): Promise<VideoSrc[]> => {
-  const res = await fetch(`https://jsonfakery.com/movies/random/${number}`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch top-rated movies');
-  const movies = await res.json();
+  const res = await axios.get(`https://jsonfakery.com/movies/random/${number}`);
+  const movies = res.data;
   // Convert each movie to VideoSrc format
   return movies.map(movieToVideoSrc);
 };
@@ -66,9 +67,8 @@ export const getNowPlayingMovies = async (number: number): Promise<VideoSrc[]> =
   };
 
   try {
-    const res = await fetch(url, options);
-    if (!res.ok) throw new Error('Failed to fetch now playing movies');
-    const movies = await res.json();
+  const res = await axios.get(url, { headers: options.headers });
+  const movies = res.data;
     // Convert each movie to VideoSrc format
     console.log(movies);
     return movies?.results.map(movieToVideoSrc);
@@ -89,9 +89,8 @@ export const getPopularMovie = async (number: number): Promise<VideoSrc[]> => {
   };
 
   try {
-    const res = await fetch(url, options);
-    if (!res.ok) throw new Error('Failed to fetch now playing movies');
-    const movies = await res.json();
+  const res = await axios.get(url, { headers: options.headers });
+  const movies = res.data;
     // Convert each movie to VideoSrc format
     return movies?.results.map(movieToVideoSrc);
   } catch (error) {
@@ -111,9 +110,8 @@ export const getTopRatedMovies = async (number: number): Promise<VideoSrc[]> => 
   };
 
   try {
-    const res = await fetch(url, options);
-    if (!res.ok) throw new Error('Failed to fetch now playing movies');
-    const movies = await res.json();
+  const res = await axios.get(url, { headers: options.headers });
+  const movies = res.data;
     // Convert each movie to VideoSrc format
     return movies?.results.map(movieToVideoSrc);
   } catch (error) {
@@ -131,11 +129,10 @@ export const getUpcomingMovies = async (number: number): Promise<VideoSrc[]> => 
     }
   };  
   try {
-    const res = await fetch(url, options);
-    if (!res.ok) throw new Error('Failed to fetch now playing movies');
-    const movies = await res.json();
-    // Convert each movie to VideoSrc format
-    return movies?.results.map(movieToVideoSrc);
+  const res = await axios.get(url, { headers: options.headers });
+  const movies = res.data;
+  // Convert each movie to VideoSrc format
+  return movies?.results.map(movieToVideoSrc);
   } catch (error) {
     console.error('Error fetching now playing movies:', error);
     return [];
@@ -143,9 +140,8 @@ export const getUpcomingMovies = async (number: number): Promise<VideoSrc[]> => 
 };
 
 export const getSeries = async (country: string) => {
-  const res = await fetch(`https://api.tvmaze.com/schedule?country=${country}`, { cache: 'default' });
-  if (!res.ok) throw new Error('Failed to fetch top-rated series');
-  const episodes = await res.json();
+  const res = await axios.get(`https://api.tvmaze.com/schedule?country=${country}`);
+  const episodes = res.data;
   return transformEpisodesToSlides(episodes, 10);
 };
 
@@ -153,8 +149,8 @@ export const getShort = async (channel_id: string, limit: number): Promise<Video
   const corsProxy = "https://corsproxy.io/?";
   const feedUrl = corsProxy + encodeURIComponent("https://www.youtube.com/feeds/videos.xml?channel_id=" + channel_id);
 
-  const res = await fetch(feedUrl);
-  const xmlText = await res.text();
+  const res = await axios.get(feedUrl, { responseType: 'text' });
+  const xmlText = res.data;
   const parsed = await parseStringPromise(xmlText);
 
   const entries = parsed.feed.entry || [];

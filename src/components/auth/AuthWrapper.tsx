@@ -3,9 +3,9 @@
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { usePathname, useRouter } from 'next/navigation';
-import GuestLayout from '@/components/GuestLayout';
-import ProtectedLayout from '@/components/ProtectedLayout';
-import LoadingPage from '@/components/LoadingPage';
+import GuestLayout from '@/components/auth/GuestLayout';
+import ProtectedLayout from '@/components/auth/ProtectedLayout';
+import LoadingPage from '@/components/ui/LoadingPage';
 
 interface AuthWrapperProps {
   children: React.ReactNode;

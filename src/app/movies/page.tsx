@@ -1,14 +1,14 @@
 'use client';
 
-import MovieSlider from "@/components/MovieSlider";
-import MovieSection from "@/components/MovieSection";
+import MovieSlider from "@/components/movie/MovieSlider";
+import MovieSection from "@/components/movie/MovieSection";
 import { getMovies,getNowPlayingMovies,getPopularMovie,getTopRatedMovies,getUpcomingMovies } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
-import ProtectedLayout from "@/components/ProtectedLayout";
-import LoadingPage from "@/components/LoadingPage";
+import ProtectedLayout from "@/components/auth/ProtectedLayout";
+import LoadingPage from "@/components/ui/LoadingPage";
 import type { VideoSrc } from "@/types/VideoSrc";
 import { allCategories } from "@/lib/categoryList";
-import MovieCategoryFilter from "@/components/MovieCategoryFilter";
+import MovieCategoryFilter from "@/components/movie/MovieCategoryFilter";
 
 export default function Home() {
   const [headerMovies, setHeaderMovies] = useState<VideoSrc[]>([]);

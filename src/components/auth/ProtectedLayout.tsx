@@ -1,14 +1,29 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import Footer from "./Footer";
-import SideBar from "./SideBar";
+import Footer from "../layout/Footer";
+import SideBar from "../layout/SideBar";
 import Link from "next/link";
 import { FiUpload, FiUser, FiHome, FiVideo, FiMenu, FiLogIn, FiSearch } from "react-icons/fi";
+import { useAuthStore } from "@/store/authStore";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [scrolled, setScrolled] = useState(false);
+    const { user } = useAuthStore();
+
+    // Derive display name and avatar
+    // Assumption: user may have properties like nickname, name, email, avatar, avatarUrl, photoUrl or picture.
+    const displayName = (user && (user.nickname || user.name || (user.email && user.email.split('@')[0]))) || 'User';
+    const initials = displayName
+        .split(' ')
+        .map(part => part[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
+    const avatarRaw = user && (user.avatar || user.avatarUrl || user.photoUrl || user.picture || null);
+    // Only accept string avatar URLs for next/image. If not a string, fall back to initials avatar.
+    const avatarUrl = typeof avatarRaw === 'string' ? avatarRaw : null;
 
     useEffect(() => {
         function handleScroll() {
@@ -69,48 +84,72 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                     <ul className="hidden md:flex gap-1 items-center">
                         <li>
                             <Link href="/?" className="text-gray-200 hover:underline">
-                                <p className="flex items-center rounded-lg block py-2 px-4 mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#e50914]">
+                                    <p className="flex items-center rounded-lg block py-2 px-4 mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#e50914] transform transition-transform duration-200 hover:scale-105">
                                     <FiUpload className="h-5 w-6 mb-1" />
                                     Upload
                                 </p>
                             </Link>
                         </li>
                         <li>
-                            <Link href="/profile" className="text-gray-200 hover:underline ">
-                              <p className="flex items-center rounded-lg block py-2 px-4 mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#e50914]">
-                                <FiUser className="h-5 w-5 mr-2" />
-                                Profile
-                              </p>
+                            <Link href="/profile" className="text-gray-200 ">
+                                <div className="flex items-center py-2 px-4 mb-2 transform transition-transform duration-200 hover:scale-105">
+                                    {/* Avatar on desktop: image when available, otherwise initials */}
+                                    {avatarUrl ? (
+                                        <Image src={avatarUrl} alt={displayName} width={28} height={28} className="rounded-full mr-2 object-cover" />
+                                    ) : (
+                                        <div className="h-7 w-7 mr-2 rounded-full bg-[#e50914] text-black flex items-center justify-center font-semibold text-sm">
+                                            {initials}
+                                        </div>
+                                    )}
+                                    <span className="hidden md:inline">Hi, {displayName.split(' ')[0]}</span>
+                                </div>
                             </Link>
                         </li>
                     </ul>
                 </nav>
                 <div className="flex-1 pt-16">
-                {children}
+                    {children}
                 </div>
                 <Footer />
 
                 {/* Bottom Tab Bar for Mobile */}
                 <nav className="fixed bottom-0 left-0 w-full bg-black/90 border-t border-[#e50914] flex md:hidden z-50">
-                    <Link href="/" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#e50914]">
+                    <Link href="/" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#e50914] transform transition-transform duration-200 hover:scale-105">
                         <FiHome className="h-6 w-6 mb-1" />
                         <span className="text-xs">Home</span>
                     </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#e50914]">
+                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#e50914] transform transition-transform duration-200 hover:scale-105">
                         <FiVideo className="h-6 w-6 mb-1" />
                         <span className="text-xs">Short</span>
                     </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-[#e50914] hover:text-[#e50914]">
+                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-[#e50914] hover:text-[#e50914] transform transition-transform duration-200 hover:scale-105">
                         <FiUpload className="h-8 w-8 mb-1" />
                         <span className="text-xs">Upload</span>
                     </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#e50914]">
+                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#e50914] transform transition-transform duration-200 hover:scale-105">
                         <FiLogIn className="h-6 w-6 mb-1" />
                         <span className="text-xs">Subscribe</span>
                     </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#e50914]">
-                        <FiUser className="h-6 w-6 mb-1" />
-                        <span className="text-xs">Profile</span>
+                    <Link href="/profile" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#e50914] transform transition-transform duration-200 hover:scale-105">
+                        {/* Greeting */}
+
+                        {/* Avatar: image when available, otherwise letter avatar from initials */}
+                        {avatarUrl ? (
+                            // next/image prefers width/height numbers
+                            <Image
+                                src={avatarUrl}
+                                alt={displayName}
+                                width={28}
+                                height={28}
+                                className="rounded-full mb-1 object-cover"
+                            />
+                        ) : (
+                            <div className="h-6 w-6 mb-1 rounded-full bg-[#e50914] flex items-center justify-center font-semibold text-sm">
+                                {initials}
+                            </div>
+
+                        )}
+                        <span className="text-xs">{displayName}</span>
                     </Link>
                 </nav>
             </div>

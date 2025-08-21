@@ -5,13 +5,13 @@ import i18next from 'i18next';
 import { initReactI18next, I18nextProvider } from 'react-i18next';
 
 // Import translation files
-import enCommon from '../../public/locales/en/common.json';
-import msCommon from '../../public/locales/ms/common.json';
-import zhCommon from '../../public/locales/zh/common.json';
-import deCommon from '../../public/locales/de/common.json';
-import frCommon from '../../public/locales/fr/common.json';
-import ruCommon from '../../public/locales/ru/common.json';
-import arCommon from '../../public/locales/ar/common.json';
+import enCommon from '../../../public/locales/en/common.json';
+import msCommon from '../../../public/locales/ms/common.json';
+import zhCommon from '../../../public/locales/zh/common.json';
+import deCommon from '../../../public/locales/de/common.json';
+import frCommon from '../../../public/locales/fr/common.json';
+import ruCommon from '../../../public/locales/ru/common.json';
+import arCommon from '../../../public/locales/ar/common.json';
 
 interface I18nProviderProps {
   children: ReactNode;

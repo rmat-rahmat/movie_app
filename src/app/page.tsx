@@ -1,15 +1,15 @@
 'use client';
 
-import MovieSection from "@/components/MovieSection";
+import MovieSection from "@/components/movie/MovieSection";
 import { getMovies, getSeries, getShort, getUpcomingMovies, getPopularMovie, getTopRatedMovies, getNowPlayingMovies } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
-import LoadingPage from "@/components/LoadingPage";
-import HeaderSlider from "@/components/HeaderSlider";
+import LoadingPage from "@/components/ui/LoadingPage";
+import HeaderSlider from "@/components/layout/HeaderSlider";
 import type { VideoSrc } from "@/types/VideoSrc";
 import { FiPlayCircle, FiStar } from "react-icons/fi";
-import SubscriptionSection from "@/components/SubscriptionSection";
+import SubscriptionSection from "@/components/subscription/SubscriptionSection";
 import { allCategories } from "@/lib/categoryList";
-import NavigationFrame from "@/components/NavigationFrame";
+import NavigationFrame from "@/components/ui/NavigationFrame";
 import { useAuthStore } from "@/store/authStore";
 
 export default function Home() {

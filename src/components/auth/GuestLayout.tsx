@@ -1,8 +1,8 @@
 'use client';
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import Footer from "./Footer";
-import SideBar from "./SideBar";
+import Footer from "../layout/Footer";
+import SideBar from "../layout/SideBar";
 import Link from "next/link";
 import { FiUpload, FiUser, FiHome, FiVideo, FiMenu, FiLogIn, FiSearch } from "react-icons/fi";
 

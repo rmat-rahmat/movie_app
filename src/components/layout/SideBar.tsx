@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useTranslation } from 'react-i18next';
 import {
@@ -26,6 +26,12 @@ const SideBar = ({ show }: { show: boolean }) => {
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const { t } = useTranslation('common');
+  
+  useEffect(() => {
+    setOpenDropdown(null); // Reset dropdown on pathname change
+    // This effect runs on mount and whenever the pathname changes
+    console.log("Current Pathname:", pathname);
+  }, [pathname]);
 
   const menu = [
     { href: "/", label: t('navigation.home'), icon: <FiHome className="h-5 w-5 mr-2" /> },

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import { useGesture } from "@use-gesture/react";
-import Loader from "./Loader";
+import Loader from "../ui/Loader";
 import type { VideoSrc } from '@/types/VideoSrc';
 import Image from "next/image";
 

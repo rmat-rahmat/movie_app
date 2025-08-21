@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { FiSearch, FiMenu, FiX } from "react-icons/fi"; // Import react-icons
 import { useAuthStore } from "@/store/authStore";
 import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "./i18n/LanguageSwitcher";
+import LanguageSwitcher from "../i18n/LanguageSwitcher";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);

@@ -1,14 +1,11 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import LoadingPage from "@/components/LoadingPage";
-import GuestLayout from "@/components/auth/GuestLayout";
-import Image from "next/image";
+import LoadingPage from "@/components/ui/LoadingPage";
 import { VideoSrc } from "@/types/VideoSrc";
 import { getLastSeenVideos } from "@/lib/userMovieList";
 import MovieSection from "@/components/movie/MovieSection";
 import { FiPlayCircle } from "react-icons/fi";
-import NavigationFrame from "@/components/NavigationFrame";
 import { useTranslation } from "react-i18next";
 
 

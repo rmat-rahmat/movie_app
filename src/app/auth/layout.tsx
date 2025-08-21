@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { getMovies } from '@/lib/movieApi';
 import { VideoSrc } from '@/types/VideoSrc';
-import RainAnimation from "@/components/RainAnimation";
+import RainAnimation from "@/components/ui/RainAnimation";
 
 export default function AuthLayout({
   children,

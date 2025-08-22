@@ -2,8 +2,21 @@
   "navigation": {
     "home": "Startseite",
     "about": "Über uns",
-    "movies": "Filme", 
+    "movies": "Filme",
     "profile": "Profil",
+    "brand": "Seefu TV",
+    "upload": "Hochladen",
+    "short": "Kurz",
+    "subscribe": "Abonnieren",
+    "openMenu": "Menü öffnen",
+    "categories": "Kategorien",
+    "sports": "Sport",
+    "tv": "Fernsehen",
+    "dramas": "Dramen",
+    "music": "Meine Musik",
+    "entertainment": "Unterhaltung",
+    "technology": "Technologie",
+    "contact": "Kontakt",
     "login": "Anmelden",
     "register": "Registrieren",
     "logout": "Abmelden"
@@ -20,7 +33,20 @@
     "registerTitle": "Neues Konto erstellen",
     "alreadyHaveAccount": "Bereits ein Konto?",
     "dontHaveAccount": "Noch kein Konto?",
-    "forgotPassword": "Passwort vergessen?"
+    "forgotPassword": "Passwort vergessen?",
+    "welcomeBack": "Willkommen zurück!",
+    "welcomBack": "Willkommen zurück!",
+    "joinTitle": "Jetzt bei Seefu TV anmelden!",
+    "joinDesc1": "Entdecke angesagte Filme, vernetze dich mit anderen Fans und schalte exklusive Funktionen frei.",
+    "createAccountCTA": "Erstelle kostenloses Konto",
+    "joinDesc2": "und beginne deine Entertainment-Reise!",
+    "error": {
+      "login_failed": "Anmeldung fehlgeschlagen",
+      "register_failed": "Registrierung fehlgeschlagen",
+      "logout_failed": "Abmeldung fehlgeschlagen",
+      "update_failed": "Aktualisierung der Benutzerinformationen fehlgeschlagen",
+      "change_password_failed": "Passwortänderung fehlgeschlagen"
+    }
   },
   "common": {
     "loading": "Lädt...",
@@ -31,11 +57,12 @@
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "search": "Suchen",
-    "language": "Sprache"
+    "language": "Sprache",
+    "searchPlaceholder": "Suche Filme, Serien..."
   },
   "movie": {
     "genres": "Genres",
-    "rating": "Bewertung", 
+    "rating": "Bewertung",
     "duration": "Dauer",
     "releaseDate": "Erscheinungsdatum",
     "cast": "Besetzung",
@@ -60,5 +87,21 @@
     "preferences": "Einstellungen",
     "accountSettings": "Kontoeinstellungen",
     "updateProfile": "Profil aktualisieren"
+  },
+  "greeting": "Hi, {{name}}",
+  "settings": {
+    "title": "Einstellungen",
+    "language": "Sprache",
+    "current": "Aktuell",
+    "hint": "Ihre Spracheinstellung wird lokal gespeichert."
+  },
+  "languages": {
+    "en": "English",
+    "ms": "Bahasa Melayu",
+    "zh": "中文",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ru": "Русский",
+    "ar": "العربية"
   }
 }

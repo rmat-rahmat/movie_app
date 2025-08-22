@@ -15,7 +15,7 @@ interface AuthWrapperProps {
 const publicRoutes = ['/auth/login', '/auth/register', '/', '/about', '/movies'];
 
 // Routes that require authentication
-const protectedRoutes = ['/profile'];
+const protectedRoutes = ['/profile','/settings'];
 
 // Routes that can be accessed by both authenticated and unauthenticated users
 // but show different layouts

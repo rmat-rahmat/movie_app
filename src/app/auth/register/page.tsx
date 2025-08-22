@@ -102,10 +102,10 @@ const RegisterPage: React.FC = () => {
                         textShadow: "2px 2px 3px rgba(0,0,0,0.9), 0 0 0 #000, 0 0 8px #222"
                     }}
                 >
-                    Join Seefu TV Today!
+                    {t('auth.joinTitle')}
                 </h1>
                 <p className="mt-4 text-lg text-gray-200 max-w-md">
-                    Discover trending movies, connect with fellow fans, and unlock exclusive features. <span className="font-semibold text-[#e50914]">Create your free account</span> and start your entertainment journey!
+                    {t('auth.joinDesc1')} <span className="font-semibold text-[#fbb033]">{t('auth.createAccountCTA')}</span> {t('auth.joinDesc2')}
                 </p>
             </div>
             <div className="bg-black/80 p-8 z-1 rounded-lg shadow-lg w-full md:w-1/3 max-w-md mx-auto">
@@ -118,7 +118,7 @@ const RegisterPage: React.FC = () => {
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#e50914] focus:border-[#e50914] sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                             required
                         />
                     </div>
@@ -129,7 +129,7 @@ const RegisterPage: React.FC = () => {
                             type="password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#e50914] focus:border-[#e50914] sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                             required
                         />
                     </div>
@@ -140,7 +140,7 @@ const RegisterPage: React.FC = () => {
                             type="text"
                             value={nickname}
                             onChange={e => setNickname(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#e50914] focus:border-[#e50914] sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                         />
                     </div>
                     <div className="mb-6">
@@ -150,15 +150,15 @@ const RegisterPage: React.FC = () => {
                             type="password"
                             value={confirmPassword}
                             onChange={e => setConfirmPassword(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#e50914] focus:border-[#e50914] sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                             required
                         />
                     </div>
-                    {(error || localError) && <div className="text-[#e50914] mb-4">{error || localError}</div>}
+                    {(error || localError) && <div className="text-[#fbb033] mb-4">{error || localError}</div>}
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-[#e50914] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="w-full bg-[#fbb033] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
                         {isLoading ? t('common.loading') : t('auth.registerButton')}
                     </button>
@@ -167,7 +167,7 @@ const RegisterPage: React.FC = () => {
                     <div className="mt-6 text-center text-gray-300">
                         {t('auth.alreadyHaveAccount')}{' '}
                         <span
-                            className="text-[#e50914] hover:underline font-semibold cursor-pointer"
+                            className="text-[#fbb033] hover:underline font-semibold cursor-pointer"
                             onClick={() => router.replace('/auth/login')}
                         >
                             {t('navigation.login')}

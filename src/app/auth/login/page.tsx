@@ -95,10 +95,10 @@ const LoginPage: React.FC = () => {
                         textShadow: "2px 2px 3px rgba(0,0,0,0.9), 0 0 0 #000, 0 0 8px #222"
                     }}
                 >
-                    Welcome Back!
+                    {t('auth.welcomeBack')}
                 </h1>
             </div>
-            <div className="bg-black/80 p-8 z-1 rounded-lg w-full md:w-1/3 max-w-md mx-auto inset-shadow-[0px_0px_5px_1px] inset-shadow-[#e50914]">
+            <div className="bg-black/80 p-8 z-1 rounded-lg w-full md:w-1/3 max-w-md mx-auto inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033]">
                 <h1 className="text-2xl font-bold mb-6 text-center">{t('auth.loginTitle')}</h1>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
@@ -108,7 +108,7 @@ const LoginPage: React.FC = () => {
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#e50914] focus:border-[#e50914] sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                             required
                         />
                     </div>
@@ -119,15 +119,15 @@ const LoginPage: React.FC = () => {
                             type="password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#e50914] focus:border-[#e50914] sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                             required
                         />
                     </div>
-                    {(error || localError) && <div className="text-[#e50914] mb-4">{error || localError}</div>}
+                    {(error || localError) && <div className="text-[#fbb033] mb-4">{error || localError}</div>}
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-[#e50914] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="w-full bg-[#fbb033] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
                         {isLoading ? t('common.loading') : t('auth.loginButton')}
                     </button>
@@ -135,7 +135,7 @@ const LoginPage: React.FC = () => {
                 <div className="mt-6 text-center text-gray-300">
                     {t('auth.dontHaveAccount')}{' '}
                     <span
-                        className="text-[#e50914] hover:underline font-semibold cursor-pointer"
+                        className="text-[#fbb033] hover:underline font-semibold cursor-pointer"
                         onClick={() => router.replace('/auth/register')}
                     >
                         {t('navigation.register')}

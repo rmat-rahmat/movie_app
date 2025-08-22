@@ -1,12 +1,15 @@
-'use client';
+"use client";
+
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Footer from "../layout/Footer";
 import SideBar from "../layout/SideBar";
 import Link from "next/link";
 import { FiUpload, FiUser, FiHome, FiVideo, FiMenu, FiLogIn, FiSearch } from "react-icons/fi";
+import { useTranslation } from 'react-i18next';
 
 export default function GuestLayout({ children }: { children: React.ReactNode }) {
+    const { t } = useTranslation('common');
     const [menuOpen, setMenuOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [scrolled, setScrolled] = useState(false);
@@ -21,33 +24,31 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
 
     return (
         <div className="flex">
-            <div className="h-screen lg:w-64 w-0">
-                <SideBar show={menuOpen} />
-            </div>
 
-            <div className="w-full lg:w-[calc(100vw-16rem)] min-h-screen lg:pb-0 pb-20 flex flex-col">
-                <button
-                    className="lg:hidden fixed top-4 right-4 z-100 flex items-center justify-center p-2 rounded text-gray-200"
-                    onClick={() => setMenuOpen(!menuOpen)}
-                    aria-label="Open menu"
-                >
-                    <FiMenu size={28} />
-                </button>
+            <div className="w-full min-h-screen lg:pb-0 pb-20 flex flex-col">
+
 
                 <nav
-                    className={`w-full lg:w-[calc(100vw-16rem)] flex items-center justify-between py-4 px-4 fixed top-0 left-0 lg:left-auto lg:right-0 z-50 transition-colors duration-300 
+                    className={`w-full flex items-center justify-between py-4 px-4 fixed top-0 left-0 lg:left-auto lg:right-0 z-50 transition-colors duration-300 
                     ${scrolled ? "bg-gradient-to-b from-black  to-black/30" : "bg-gradient-to-b from-black via-black to-transparent"}
                   `}
                 >
                     {/* Logo */}
-                    <div className="flex lg:hidden items-center">
+                    <div className="flex items-center">
+                        <button
+                            className=" z-100 flex items-center justify-center p-2 rounded text-gray-200"
+                            onClick={() => setMenuOpen(!menuOpen)}
+                            aria-label={t('navigation.openMenu')}
+                        >
+                            <FiMenu size={28} />
+                        </button>
                         <Image src="/next.svg" alt="Logo" width={40} height={40} />
-                        <span className="font-bold text-lg text-white">Seefu TV</span>
+                        <span className="font-bold text-lg lg:text-3xl text-white">{t('navigation.brand')}</span>
                     </div>
 
                     {/* Search Bar (hidden on mobile) */}
                     <form
-                        className=" lg:flex items-center mx-6 flex-1 max-w-md hover:shadow-[#e50914] hover:shadow-xs rounded-full"
+                        className=" lg:flex items-center mx-6 flex-1 max-w-md hover:shadow-[#f69c05]  "
                         onSubmit={e => {
                             e.preventDefault();
                             // handle search logic here
@@ -57,12 +58,13 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                             type="text"
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            placeholder="Search movies, series..."
-                            className="w-[60%] lg:w-full px-3 py-2 bg-gray-100 bg-transparent text-gray-900 text-white lg:rounded-l-full outline-none focus:shadow-[#e50914] focus:shadow-[0px_1px_0px_0px] "
+                            placeholder={t('common.searchPlaceholder')}
+                            className="w-[60%] lg:w-full px-3 py-2 bg-gray-100 bg-transparent text-gray-900 text-white  outline-none shadow-[#f69c05] focus:shadow-[0px_1px_0px_0px] hover:shadow-[0px_1px_0px_0px] "
                         />
                         <button
                             type="submit"
-                            className="px-3 py-2 bg-transparent text-gray-900 text-white lg:rounded-r-full hover:shadow-[0px_0px_0px_1px] shadow-[#e50914] rounded-l-full"
+                            aria-label={t('common.search')}
+                            className="px-2 py-2 bg-transparent text-white rounded-full hover:text-[#f69c05] cursor-pointer transform transition-transform duration-200 ease-out hover:scale-110 active:scale-95"
                         >
                             <FiSearch className="h-5 w-5" />
                         </button>
@@ -70,48 +72,52 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                     <ul className="hidden lg:flex gap-1 items-center">
                         <li>
                             <Link href="/?" className="text-gray-200 hover:underline">
-                                <p className="flex items-center rounded-lg block py-2 px-4 mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#e50914]">
+                                <p className="flex items-center rounded-lg block py-2 px-4 mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#f69c05]">
                                     <FiUpload className="h-5 w-6 mb-1" />
-                                    Upload
+                                    {t('navigation.upload')}
                                 </p>
                             </Link>
                         </li>
                         <li>
                             <Link href="/auth/login" className="text-gray-200 hover:underline ">
-                                <p className="flex items-center rounded-lg block py-2 px-4  mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#e50914]">
+                                <p className="flex items-center rounded-lg block py-2 px-4  mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#f69c05]">
                                     <FiUser className="h-5 w-5 mr-2" />
-                                    Sign In/Up
+                                    {t('navigation.login')}
                                 </p>
                             </Link>
                         </li>
                     </ul>
                 </nav>
-                <div className="flex-1 pt-16">
-                {children}
+                <div className="flex">
+                    <SideBar show={menuOpen} />
+                    <div className={`flex-1 pt-16 w-full ${menuOpen ? 'lg:w-[80vw]' : 'lg:w-full'} transition-width duration-300 ease-in`}>
+                        {children}
+                    </div>
                 </div>
+
                 <Footer />
 
                 {/* Bottom Tab Bar for Mobile */}
-                <nav className="fixed bottom-0 left-0 w-full bg-black/90 border-t border-[#e50914] flex lg:hidden z-50">
-                    <Link href="/" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#e50914]">
+                <nav className="fixed bottom-0 left-0 w-full bg-black/90 border-t border-[#f69c05] flex lg:hidden z-50">
+                    <Link href="/" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#f69c05]">
                         <FiHome className="h-6 w-6 mb-1" />
-                        <span className="text-xs">Home</span>
+                        <span className="text-xs">{t('navigation.home')}</span>
                     </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#e50914]">
+                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#f69c05]">
                         <FiVideo className="h-6 w-6 mb-1" />
-                        <span className="text-xs">Short</span>
+                        <span className="text-xs">{t('navigation.movies')}</span>
                     </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-[#e50914] hover:text-[#e50914]">
+                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-[#f69c05] hover:text-[#f69c05]">
                         <FiUpload className="h-8 w-8 mb-1" />
-                        <span className="text-xs">Upload</span>
+                        <span className="text-xs">{t('navigation.upload')}</span>
                     </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#e50914]">
+                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#f69c05]">
                         <FiLogIn className="h-6 w-6 mb-1" />
-                        <span className="text-xs">Subscribe</span>
+                        <span className="text-xs">{t('navigation.login')}</span>
                     </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#e50914]">
+                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#f69c05]">
                         <FiUser className="h-6 w-6 mb-1" />
-                        <span className="text-xs">Profile</span>
+                        <span className="text-xs">{t('navigation.profile')}</span>
                     </Link>
                 </nav>
             </div>

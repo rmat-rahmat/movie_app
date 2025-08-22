@@ -50,7 +50,7 @@ const SubscriptionSection: React.FC = () => {
         <div className="container mx-auto px-4 py-8 ">
             <div className="flex items-center lg:justify-center mb-4">
                 <div className="flex items-center gap-2">
-                    <span className="text-[#e50914] text-3xl mr-2">
+                    <span className="text-[#fbb033] text-3xl mr-2">
                         <FiGift />
                     </span>
                     <h2 className="text-2xl font-bold">Subscribe Now</h2>
@@ -63,7 +63,7 @@ const SubscriptionSection: React.FC = () => {
                     {subscriptionPackages.map((packageItem, index) => (
                         <div
                             key={packageItem.id}
-                            className={`flex flex-1 flex-col bg-black shadow-[0px_0px_2px_1px] pb-2 shadow-[#e50914] rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer hover:bg-white/90 group`}
+                            className={`flex flex-1 flex-col bg-black shadow-[0px_0px_2px_1px] pb-2 shadow-[#fbb033] rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer hover:bg-white/90 group`}
                         >
                             <div className="relative w-full h-auto rounded-lg mb-2">
                                 {/* <Image
@@ -75,7 +75,7 @@ const SubscriptionSection: React.FC = () => {
                                 /> */}
                             </div>
                             <div className='relative px-4 overflow-y-visible z-1 pb-3'>
-                                <h1 className="text-xl md:text-xl font-bold text-left pt-6 bg-gradient-to-r from-[#e50914] to-[#db0000] text-[#e50914] bg-clip-text group-hover:bg-none transition-colors duration-300">{packageItem.name}</h1>
+                                <h1 className="text-xl md:text-xl font-bold text-left pt-6 bg-gradient-to-r from-[#fbb033] to-[#db0000] text-[#fbb033] bg-clip-text group-hover:bg-none transition-colors duration-300">{packageItem.name}</h1>
                                 <div className="flex items-baseline gap-0 justify-start py-4 transition-colors duration-300">
                                     <h1 className="text-5xl text-white font-bold group-hover:text-black transition-colors duration-300">
                                         ${packageItem.price.toFixed(2)}
@@ -88,7 +88,7 @@ const SubscriptionSection: React.FC = () => {
                                 <ul className="text-xs md:text-sm text-gray-400  group-hover:text-black transition-colors duration-300 text-left">
                                     {packageItem.features.map((feature, idx) => (
                                         <li key={idx} className="flex  ml-2 mb-1">
-                                            <FiCheck className=" mr-2 mt-1 group-hover:text-[#e50914] transition-colors duration-300" />
+                                            <FiCheck className=" mr-2 mt-1 group-hover:text-[#fbb033] transition-colors duration-300" />
                                             {feature}
                                         </li>
                                     ))}

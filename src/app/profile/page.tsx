@@ -5,7 +5,8 @@ import LoadingPage from "@/components/ui/LoadingPage";
 import { VideoSrc } from "@/types/VideoSrc";
 import { getLastSeenVideos } from "@/lib/userMovieList";
 import MovieSection from "@/components/movie/MovieSection";
-import { FiPlayCircle } from "react-icons/fi";
+import { FiPlayCircle, FiSettings } from "react-icons/fi";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 
 
@@ -42,15 +43,21 @@ export default function Profile() {
                                 <p className="text-gray-400 mb-2 w-[60vw] md:w-[40vw]">
                                     Welcome to {mockUser.name}&apos;s channel. Sharing tutorials, reviews, and more!
                                 </p>
-                                <button className="bg-red-600 text-white px-4 py-2 rounded font-semibold w-fit hover:bg-red-700 transition">
-                                    Subscribe {mockUser.subscribers ? `(${formatSubscribers(mockUser.subscribers)})` : ""}
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    <button className="bg-red-600 text-white px-4 py-2 rounded font-semibold w-fit hover:bg-red-700 transition">
+                                        Subscribe {mockUser.subscribers ? `(${formatSubscribers(mockUser.subscribers)})` : ""}
+                                    </button>
+                                    <Link href="/settings" className="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 rounded font-medium hover:bg-gray-700 transition">
+                                        <FiSettings className="h-4 w-4" />
+                                        <span className="text-sm">Settings</span>
+                                    </Link>
+                                </div>
                             </div>
                            
 
                         </div>
                     </div>
-                    <div className="relative bg-[#e50914] order-first md:order-last flex items-center justify-center">
+                    <div className="relative bg-[#fbb033] order-first md:order-last flex items-center justify-center">
                         <video
                             src="https://www.w3schools.com/html/mov_bbb.mp4"
                             controls
@@ -68,7 +75,7 @@ export default function Profile() {
 
                     <MovieSection
 
-                        icon={<FiPlayCircle className="h-6 w-6 text-[#e50914]" />}
+                        icon={<FiPlayCircle className="h-6 w-6 text-[#fbb033]" />}
                         onViewMore={() => console.log("View More Movies")}
                         showPlayback={true} showViewer={true}
                         frameSize={30}

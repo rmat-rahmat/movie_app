@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import { useGesture } from "@use-gesture/react";
-import Loader from "../ui/Loader";
+import LoadingPage from "../ui/LoadingPage";
 import type { VideoSrc } from '@/types/VideoSrc';
 import Image from "next/image";
 
@@ -59,7 +59,7 @@ const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
     };
 
     if (!videos || videos.length === 0) {
-        return <Loader />;
+        return <LoadingPage />;
     }
     return (
         <div
@@ -81,7 +81,7 @@ const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
 
                             <div className="text-white min-w-full md:min-w-[50vw] md:max-w-[50vw] z-1">
                                 <h2 className="text-2xl md:text-4xl font-bold mb-2">{video.title}</h2>
-                                <div className="bg-gradient-to-b from-[#e50914] to-[#b20710] mb-3 py-2 rounded-lg text-center inline-block w-auto px-4">
+                                <div className="bg-gradient-to-b from-[#fbb033] to-[#f69c05] mb-3 py-2 rounded-lg text-center inline-block w-auto px-4">
                                      {new Date(video.release_date ?? "").toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" })}
                                 </div>
                                 <p className="text-base md:text-lg">
@@ -89,7 +89,7 @@ const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
                                 </p>
                             </div>
                         </div>
-                        <div className="relative bg-[#e50914] order-first md:order-last">
+                        <div className="relative bg-[#fbb033] order-first md:order-last">
                             <Image
                                 src={video.backdrop_image || video.potrait_image || ""}
                                 alt={video.title}
@@ -114,9 +114,9 @@ const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
                             z-100 w-[calc(100vw-16rem)] h-2 cursor-pointer
                             
                             ${idx === current
-                                ? "bg-gradient-to-r from-[#e50914] via-[#b20710] to-gray-400/50 transition-colors duration-1000 ease-in-out"
+                                ? "bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-gray-400/50 transition-colors duration-1000 ease-in-out"
                                 : idx < current
-                                    ? "bg-[#e50914] "
+                                    ? "bg-[#fbb033] "
                                     : "bg-gray-400/50"}
                         `}
                         onClick={() => setCurrent(idx)}

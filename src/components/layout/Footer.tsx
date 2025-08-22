@@ -6,7 +6,7 @@ export default function Footer() {
       <svg viewBox="0 0 1440 100" className="w-full h-full " preserveAspectRatio="none">
         <path
           d="M0,0 C360,80 1080,-40 1440,40 L1440,100 L0,100 Z"
-          fill="#e50914" // Tailwind's bg-[#e50914] is #22c55e, 0.5 opacity
+          fill="#fbb033" // Tailwind's bg-[#fbb033] is #22c55e, 0.5 opacity
         />
       </svg>
       </div>

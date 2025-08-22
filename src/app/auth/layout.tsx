@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getMovies } from '@/lib/movieApi';
 import { VideoSrc } from '@/types/VideoSrc';
 import RainAnimation from "@/components/ui/RainAnimation";
+import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 
 export default function AuthLayout({
   children,
@@ -88,7 +89,7 @@ export default function AuthLayout({
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-screen">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#e50914]"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#fbb033]"></div>
             </div>
         );
     }
@@ -118,6 +119,9 @@ export default function AuthLayout({
                     }
                 `}</style>
             </div>
+            <div className="absolute top-4 left-4 z-50">
+                            <LanguageSwitcher large />
+                        </div>
             {children}
         </div>
     );

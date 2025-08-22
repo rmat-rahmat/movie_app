@@ -41,7 +41,7 @@ export default function Navbar() {
 
       {/* Search Bar (hidden on mobile) */}
       <form
-        className="hidden md:flex items-center mx-6 flex-1 max-w-md hover:shadow-[#e50914] hover:shadow-xs rounded-full"
+        className="hidden md:flex items-center mx-6 flex-1 max-w-md hover:shadow-[#fbb033] hover:shadow-xs rounded-full"
         onSubmit={e => {
           e.preventDefault();
           // handle search logic here
@@ -52,11 +52,11 @@ export default function Navbar() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder={t('common.search')}
-          className="w-full px-3 py-2 bg-transparent text-white rounded-l-full outline-none focus:shadow-[#e50914] focus:shadow-[0px_1px_0px_0px] "
+          className="w-full px-3 py-2 bg-transparent text-white rounded-l-full outline-none focus:shadow-[#fbb033] focus:shadow-[0px_1px_0px_0px] "
         />
         <button
           type="submit"
-          className="px-3 py-2 bg-transparent text-white rounded-r-full hover:shadow-[0px_0px_0px_1px] shadow-[#e50914] rounded-l-full"
+          className="px-3 py-2 bg-transparent text-white rounded-r-full hover:shadow-[0px_0px_0px_1px] shadow-[#fbb033] rounded-l-full"
         >
           <FiSearch className="h-5 w-5" />
         </button>

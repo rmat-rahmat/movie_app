@@ -49,7 +49,7 @@ export default function Home() {
       <MovieSlider videos={headerMovies} />
       <div className="flex flex-col md:px-20 px-0 w-[100%] mt-4">
         <MovieCategoryFilter categories={allCategories} />
-        <hr className="border-[#e50914] mt-3" />
+        <hr className="border-[#fbb033] mt-3" />
         <MovieSection title="Top Rated Movies" videos={topRatedMovies} showRating={true}/>
         <MovieSection title="Popular Movies" videos={popularMovies} />
         <MovieSection title="Upcoming Movies" videos={upcomingMovies} />

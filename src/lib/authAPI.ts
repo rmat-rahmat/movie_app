@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { BASE_URL } from '../config';
+import i18next from 'i18next';
 
 // Lightweight auth helpers using axios
 // Assumption: backend exposes REST endpoints under /api/auth
@@ -42,6 +43,16 @@ export const setAuthHeader = (token: string | null) => {
   if (token) axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   else delete axios.defaults.headers.common['Authorization'];
 };
+
+// small helper to translate error messages, with a fallback
+function tr(key: string, fallback: string) {
+  try {
+    // i18next.t will return the key if not initialized; defaultValue ensures fallback used when key missing
+    return i18next.t(key, { defaultValue: fallback });
+  } catch {
+    return fallback;
+  }
+}
 
 // add token storage key and helpers
 const TOKEN_KEY = 'auth_token';
@@ -89,7 +100,7 @@ export async function login(email: string, password: string, form = false): Prom
 
     const body = res.data as StandardResponse<LoginUserVo>;
     if (!body || !body.success) {
-      throw new Error(body?.message || 'Login failed');
+      throw new Error(tr('auth.error.login_failed', body?.message || 'Login failed'));
     }
 
     const userVo = body.data as LoginUserVo;
@@ -100,7 +111,7 @@ export async function login(email: string, password: string, form = false): Prom
     return { token: token || '', user };
   } catch (err: unknown) {
     const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
-    throw new Error(`Login failed: ${message}`);
+    throw new Error(`${tr('auth.error.login_failed', 'Login failed')}: ${message}`);
   }
 }
 
@@ -147,7 +158,7 @@ export async function register(
 
     const body = res.data as StandardResponse<LoginUserVo>;
     if (!body || !body.success) {
-      throw new Error(body?.message || 'Register failed');
+      throw new Error(tr('auth.error.register_failed', body?.message || 'Register failed'));
     }
 
     const userVo = body.data as LoginUserVo;
@@ -173,14 +184,14 @@ export async function logout(): Promise<string> {
     setAuthHeader(null);
     saveTokenToStorage(null); // remove token
     if (!body || !body.success) {
-      throw new Error(body?.message || 'Logout failed');
+      throw new Error(tr('auth.error.logout_failed', body?.message || 'Logout failed'));
     }
     return body.data || '';
   } catch (err: unknown) {
-    setAuthHeader(null);
-    saveTokenToStorage(null); // remove token
-    const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
-    throw new Error(`Logout failed: ${message}`);
+  setAuthHeader(null);
+  saveTokenToStorage(null); // remove token
+  const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
+  throw new Error(tr('auth.error.logout_failed', `Logout failed: ${message}`));
   }
 }
 
@@ -256,7 +267,7 @@ export async function updateUserInfo(
 
     const body = res.data as StandardResponse<LoginUserVo>;
     if (!body || !body.success) {
-      throw new Error(body?.message || 'Update user info failed');
+      throw new Error(tr('auth.error.update_failed', body?.message || 'Update user info failed'));
     }
 
     const userVo = body.data as LoginUserVo;
@@ -265,8 +276,8 @@ export async function updateUserInfo(
     setAuthHeader(token || null);
     return { token: token || '', user };
   } catch (err: unknown) {
-    const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
-    throw new Error(`Update user info failed: ${message}`);
+  const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
+  throw new Error(tr('auth.error.update_failed', `Update user info failed: ${message}`));
   }
 }
 
@@ -306,13 +317,13 @@ export async function changePassword(
 
     const body = res.data as StandardResponse<string>;
     if (!body || !body.success) {
-      throw new Error(body?.message || 'Change password failed');
+      throw new Error(tr('auth.error.change_password_failed', body?.message || 'Change password failed'));
     }
 
     return body.data || '';
   } catch (err: unknown) {
-    const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
-    throw new Error(`Change password failed: ${message}`);
+  const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
+  throw new Error(tr('auth.error.change_password_failed', `Change password failed: ${message}`));
   }
 }
 

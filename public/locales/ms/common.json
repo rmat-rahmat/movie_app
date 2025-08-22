@@ -2,8 +2,21 @@
   "navigation": {
     "home": "Laman Utama",
     "about": "Tentang",
-    "movies": "Filem", 
+    "movies": "Filem",
     "profile": "Profil",
+    "brand": "Seefu TV",
+    "upload": "Muat Naik",
+    "short": "Pendek",
+    "subscribe": "Langgan",
+    "openMenu": "Buka menu",
+    "categories": "Kategori",
+    "sports": "Sukan",
+    "tv": "TV",
+    "dramas": "Drama",
+    "music": "Muzik Saya",
+    "entertainment": "Hiburan",
+    "technology": "Teknologi",
+    "contact": "Hubungi",
     "login": "Log Masuk",
     "register": "Daftar",
     "logout": "Log Keluar"
@@ -20,7 +33,20 @@
     "registerTitle": "Cipta Akaun Baharu",
     "alreadyHaveAccount": "Sudah ada akaun?",
     "dontHaveAccount": "Tiada akaun?",
-    "forgotPassword": "Lupa Kata Laluan?"
+    "forgotPassword": "Lupa Kata Laluan?",
+    "welcomeBack": "Selamat kembali!",
+    "welcomBack": "Selamat kembali!",
+    "joinTitle": "Sertai Seefu TV Hari Ini!",
+    "joinDesc1": "Temui filem trending, berhubung dengan peminat lain, dan buka ciri eksklusif.",
+    "createAccountCTA": "Cipta akaun percuma anda",
+    "joinDesc2": "dan mulakan perjalanan hiburan anda!",
+    "error": {
+      "login_failed": "Gagal log masuk",
+      "register_failed": "Gagal daftar",
+      "logout_failed": "Gagal log keluar",
+      "update_failed": "Gagal kemas kini maklumat pengguna",
+      "change_password_failed": "Gagal menukar kata laluan"
+    }
   },
   "common": {
     "loading": "Memuatkan...",
@@ -31,11 +57,12 @@
     "edit": "Edit",
     "delete": "Padam",
     "search": "Cari",
-    "language": "Bahasa"
+    "language": "Bahasa",
+    "searchPlaceholder": "Cari filem, siri..."
   },
   "movie": {
     "genres": "Genre",
-    "rating": "Penilaian", 
+    "rating": "Penilaian",
     "duration": "Tempoh",
     "releaseDate": "Tarikh Keluaran",
     "cast": "Pelakon",
@@ -60,5 +87,21 @@
     "preferences": "Keutamaan",
     "accountSettings": "Tetapan Akaun",
     "updateProfile": "Kemaskini Profil"
+  },
+  "greeting": "Hai, {{name}}",
+  "settings": {
+    "title": "Tetapan",
+    "language": "Bahasa",
+    "current": "Semasa",
+    "hint": "Keutamaan bahasa anda disimpan secara tempatan."
+  },
+  "languages": {
+    "en": "English",
+    "ms": "Bahasa Melayu",
+    "zh": "中文",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ru": "Русский",
+    "ar": "العربية"
   }
 }

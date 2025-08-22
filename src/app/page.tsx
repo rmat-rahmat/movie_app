@@ -61,7 +61,7 @@ export default function Home() {
   const MovieCategoryFilter: React.FC<MovieCategoryFilterProps> = ({ categories, display }) => {
     return (
       <>
-        {display === 'mobile' && <hr className="flex md:hidden h-1 rounded-full bg-gradient-to-r from-[#e50914] via-[#b20710] to-[#e50914] border-0 mt-0" />}
+        {display === 'mobile' && <hr className="flex md:hidden h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0 mt-0" />}
         <div
           className={`
             flex justify-center w-full overflow-x-auto mt-2 mb-5
@@ -80,8 +80,8 @@ export default function Home() {
                 key={category}
                 onClick={() => setSelectedCategory(category === selectedCategory ? null : category)}
                 className={`px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-md hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === category
-                    ? "bg-gradient-to-b from-[#e50914] to-[#b20710] text-white"
-                    : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#e50914] hover:text-white transition-colors duration-300"
+                    ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"
+                    : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] hover:text-white transition-colors duration-300"
                   }`}
               >
                 {category}
@@ -106,13 +106,13 @@ export default function Home() {
           <HeaderSlider videos={headerMovies} />
           <div className="flex flex-col md:px-20 px-0 w-[100%] mt-4">
             <MovieCategoryFilter categories={allCategories} />
-            <hr className="h-1 rounded-full bg-gradient-to-r from-[#e50914] via-[#b20710] to-[#e50914] border-0"/>
+            <hr className="h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0"/>
             {user && <MovieSection
-              icon={<FiPlayCircle className="h-6 w-6 text-[#e50914]" />}
+              icon={<FiPlayCircle className="h-6 w-6 text-[#fbb033]" />}
               onViewMore={() => console.log("View More Movies")}
               title="Recently Watch" videos={shortMovies} showRating={true} showPlayback={true} showViewer={true} />}
             <MovieSection
-              icon={<FiPlayCircle className="h-6 w-6 text-[#e50914]" />}
+              icon={<FiPlayCircle className="h-6 w-6 text-[#fbb033]" />}
               onViewMore={() => console.log("View More Movies")}
               title="Short" videos={shortMovies} showRating={true} showPlayback={true} showViewer={true} />
             <MovieSection

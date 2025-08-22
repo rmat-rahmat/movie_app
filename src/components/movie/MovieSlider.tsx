@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useGesture } from "@use-gesture/react";
-import Loader from "../ui/Loader";
+import LoadingPage from "../ui/LoadingPage";
 import type { VideoSrc } from '@/types/VideoSrc';
 
 interface MovieSliderProps {
@@ -59,7 +59,7 @@ const MovieSlider: React.FC<MovieSliderProps> = ({ videos }) => {
     };
 
     if (!videos || videos.length === 0) {
-        return <Loader />;
+        return <LoadingPage />;
     }
     return (
         <div style={{ backgroundColor: "black" }} className="w-full relative h-[457px] md:h-[400px] overflow-hidden" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} {...bind()}>
@@ -77,7 +77,7 @@ const MovieSlider: React.FC<MovieSliderProps> = ({ videos }) => {
                                     <p className="text-base md:text-lg">  {video.description.split(" ").slice(0, 50).join(" ") + (video.description.split(" ").length > 50 ? "..." : "")}</p>
                                 </div>
                             </div>
-                            <div className="relative bg-[#e50914] order-first md:order-last">
+                            <div className="relative bg-[#fbb033] order-first md:order-last">
                                 <Image
                                     src={video.backdrop_image || video.potrait_image || ""}
                                     alt={video.title}

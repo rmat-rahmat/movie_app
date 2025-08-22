@@ -43,9 +43,40 @@ if (!i18next.isInitialized) {
 
 export default function I18nProvider({ children }: I18nProviderProps) {
   useEffect(() => {
-    // Get saved language from localStorage
-    const savedLang = localStorage.getItem('seefu-language') || 'en';
-    i18next.changeLanguage(savedLang);
+    // Determine preferred language: saved preference -> system/browser locale -> default 'en'
+    if (typeof window === 'undefined') return;
+
+    const supported = ['en', 'ms', 'zh', 'de', 'fr', 'ru', 'ar'];
+    const savedLang = localStorage.getItem('seefu-language');
+    let chosen = 'en';
+
+    if (savedLang && supported.includes(savedLang)) {
+      chosen = savedLang;
+    } else {
+      const nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
+      const normalized = nav.toLowerCase();
+      const primary = normalized.split('-')[0];
+
+      if (supported.includes(primary)) {
+        chosen = primary;
+      } else if (normalized.startsWith('zh')) {
+        // map any zh-* to simplified chinese 'zh'
+        chosen = 'zh';
+      } else if (normalized.startsWith('ms')) {
+        chosen = 'ms';
+      } else {
+        chosen = 'en';
+      }
+
+      // Persist the detected preference for subsequent visits
+      try {
+        localStorage.setItem('seefu-language', chosen);
+      } catch (e) {
+        // ignore localStorage errors (e.g., in private mode)
+      }
+    }
+
+    i18next.changeLanguage(chosen);
   }, []);
 
   return (

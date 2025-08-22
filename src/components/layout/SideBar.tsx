@@ -54,29 +54,29 @@ const SideBar = ({ show }: { show: boolean }) => {
   ];
   const { isAuthenticated, user, logout } = useAuthStore();
 
-  // Create menu based on authentication status
+  // Create menu based on authentication status (labels come from translations)
   const getMenu = () => {
     const baseMenu = [
-      { href: "/", label: "Home", icon: <FiHome className="h-5 w-5 mr-2" /> },
-      { href: "/about", label: "About", icon: <FiInfo className="h-5 w-5 mr-2" /> },
+      { href: "/", label: t('navigation.home'), icon: <FiHome className="h-5 w-5 mr-2" /> },
+      { href: "/about", label: t('navigation.about'), icon: <FiInfo className="h-5 w-5 mr-2" /> },
       {
-        label: "Categories",
+        label: t('navigation.categories') || 'Categories',
         icon: <FiGrid className="h-5 w-5 mr-2" />,
         subMenu: [
-          { href: "/movies", label: "Movies", icon: <FiFilm className="h-5 w-5 mr-2" /> },
-          { href: "/?", label: "Sports", icon: <FiSmile className="h-5 w-5 mr-2" /> },
-          { href: "/?", label: "TV", icon: <FiTv className="h-5 w-5 mr-2" /> },
-          { href: "/?", label: "Dramas", icon: <FiGrid className="h-5 w-5 mr-2" /> },
-          { href: "/?", label: "My Music", icon: <FiMusic className="h-5 w-5 mr-2" /> },
-          { href: "/?", label: "Entertainment", icon: <FiSmile className="h-5 w-5 mr-2" /> },
-          { href: "/?", label: "Technology", icon: <FiCpu className="h-5 w-5 mr-2" /> },
+          { href: "/movies", label: t('navigation.movies'), icon: <FiFilm className="h-5 w-5 mr-2" /> },
+          { href: "/?", label: t('navigation.sports') || 'Sports', icon: <FiSmile className="h-5 w-5 mr-2" /> },
+          { href: "/?", label: t('navigation.tv') || 'TV', icon: <FiTv className="h-5 w-5 mr-2" /> },
+          { href: "/?", label: t('navigation.dramas') || 'Dramas', icon: <FiGrid className="h-5 w-5 mr-2" /> },
+          { href: "/?", label: t('navigation.music') || 'My Music', icon: <FiMusic className="h-5 w-5 mr-2" /> },
+          { href: "/?", label: t('navigation.entertainment') || 'Entertainment', icon: <FiSmile className="h-5 w-5 mr-2" /> },
+          { href: "/?", label: t('navigation.technology') || 'Technology', icon: <FiCpu className="h-5 w-5 mr-2" /> },
         ]
       },
-      { href: "/?", label: "Contact", icon: <FiMail className="h-5 w-5 mr-2" /> },
+      { href: "/?", label: t('navigation.contact') || 'Contact', icon: <FiMail className="h-5 w-5 mr-2" /> },
     ];
 
     if (isAuthenticated) {
-      baseMenu.splice(2, 0, { href: "/profile", label: "Profile", icon: <FiUser className="h-5 w-5 mr-2" /> });
+      baseMenu.splice(2, 0, { href: "/profile", label: t('navigation.profile'), icon: <FiUser className="h-5 w-5 mr-2" /> });
     }
 
     return baseMenu;
@@ -91,8 +91,9 @@ const SideBar = ({ show }: { show: boolean }) => {
   };
 
   return (
-    <div className={`fixed top-0 left-0 h-screen w-64 text-white px-4 py-6 shadow-[0px_0px_10px_1px] shadow-[#e50914] z-100 bg-black/90 ${show ? 'block' : 'hidden'} transition-transform duration-300 ease-in-out lg:block`}>
-      <h1 className="text-3xl font-bold mt-2 mb-10">Seefu.TV</h1>
+    <div  className={`pt-20 fixed lg:relative h-screen text-white py-6 z-40 bg-red/90 ${show ? 'w-[80vw] lg:w-[20vw]' : 'w-0'} transition-width duration-300 ease-in-out`}>
+    <div className={`fixed ${show ? 'w-[70vw] lg:w-[20vw]' : 'w-0 hidden'} transition-width duration-300 ease-in-out`}>
+      {/* <h1 className="text-3xl font-bold mt-2 mb-10">Seefu.TV</h1> */}
       <ul>
         {getMenu().map(({ href, label, icon, subMenu }) => {
           if (subMenu) {
@@ -103,8 +104,8 @@ const SideBar = ({ show }: { show: boolean }) => {
               <li key={label}>
                 <button
                   onClick={() => handleDropdownToggle(label)}
-                  className={`flex w-full cursor-pointer items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#e50914]
-                    ${isOpen ? "bg-gradient-to-l from-[#e50914] to-transparent font-bold" : ""}
+                  className={`flex w-full cursor-pointer items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033]
+                    ${isOpen ? "bg-gradient-to-l from-[#fbb033] to-transparent font-bold" : ""}
                   `}
                 >
                   {icon}
@@ -116,8 +117,8 @@ const SideBar = ({ show }: { show: boolean }) => {
                     {subMenu.map(({ href, label, icon }) => (
                       <li key={href}>
                         <Link href={href}>
-                          <p className={`flex items-center block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#e50914] 
-                            ${pathname === href ? "bg-gradient-to-l from-[#e50914] to-transparent font-bold" : ""}
+                          <p className={`flex items-center block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033] 
+                            ${pathname === href ? "bg-gradient-to-l from-[#fbb033] to-transparent font-bold" : ""}
                           `}>
                             {icon}
                             {label}
@@ -134,8 +135,8 @@ const SideBar = ({ show }: { show: boolean }) => {
           return (
             <li key={label}>
               <Link href={href}>
-                <p className={`flex items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#e50914]
-                  ${pathname === href ? "bg-gradient-to-l from-[#e50914] to-transparent font-bold" : ""}
+                <p className={`flex items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033]
+                  ${pathname === href ? "bg-gradient-to-l from-[#fbb033] to-transparent font-bold" : ""}
                 `}>
                   {icon}
                   {label}
@@ -151,7 +152,7 @@ const SideBar = ({ show }: { show: boolean }) => {
             <p className="text-gray-400 text-sm">Hi, {user?.nickname || user?.email || 'User'}</p>
             <button
               onClick={handleLogout}
-              className="flex items-center rounded-md block p-2 w-full hover:shadow-[0px_0px_10px_1px] shadow-[#e50914] bg-transparent border-none text-white cursor-pointer"
+              className="flex items-center rounded-md block p-2 w-full hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033] bg-transparent border-none text-white cursor-pointer"
             >
               <FiLogOut className="h-5 w-5 mr-2" />
               {t('navigation.logout')}
@@ -159,13 +160,14 @@ const SideBar = ({ show }: { show: boolean }) => {
           </div>
         ) : (
           <Link href={'/auth/login'}>
-            <p className="flex items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#e50914]">
+            <p className="flex items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033]">
               <FiLogIn className="h-5 w-5 mr-2" />
               {t('navigation.login')}
             </p>
           </Link>
         )}
       </div>
+    </div>
     </div>
   );
 };

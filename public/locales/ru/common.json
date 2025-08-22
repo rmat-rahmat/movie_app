@@ -1,64 +1,108 @@
 {
   "navigation": {
     "home": "Главная",
-    "about": "О нас",
-    "movies": "Фильмы", 
-    "profile": "Профиль",
-    "login": "Войти",
-    "register": "Регистрация",
-    "logout": "Выйти"
-  },
-  "auth": {
-    "email": "Электронная почта",
-    "password": "Пароль",
-    "confirmPassword": "Подтвердить пароль",
-    "phone": "Телефон",
-    "nickname": "Псевдоним",
-    "loginButton": "Войти",
-    "registerButton": "Зарегистрироваться",
-    "loginTitle": "Войдите в свой аккаунт",
-    "registerTitle": "Создать новый аккаунт",
-    "alreadyHaveAccount": "Уже есть аккаунт?",
-    "dontHaveAccount": "Нет аккаунта?",
-    "forgotPassword": "Забыли пароль?"
-  },
-  "common": {
-    "loading": "Загрузка...",
-    "error": "Ошибка",
-    "success": "Успешно",
-    "cancel": "Отмена",
-    "save": "Сохранить",
-    "edit": "Редактировать",
-    "delete": "Удалить",
-    "search": "Поиск",
-    "language": "Язык"
-  },
-  "movie": {
-    "genres": "Жанры",
-    "rating": "Рейтинг", 
-    "duration": "Продолжительность",
-    "releaseDate": "Дата выхода",
-    "cast": "Актеры",
-    "overview": "Описание",
-    "watchNow": "Смотреть сейчас",
-    "addToWatchlist": "Добавить в список просмотра",
-    "removeFromWatchlist": "Удалить из списка просмотра"
-  },
-  "subscription": {
-    "plans": "Планы подписки",
-    "monthly": "Месячный",
-    "yearly": "Годовой",
-    "basic": "Базовый",
-    "premium": "Премиум",
-    "pro": "Про",
-    "selectPlan": "Выбрать план",
-    "currentPlan": "Текущий план"
-  },
-  "profile": {
-    "personalInfo": "Личная информация",
-    "changePassword": "Изменить пароль",
-    "preferences": "Настройки",
-    "accountSettings": "Настройки аккаунта",
-    "updateProfile": "Обновить профиль"
-  }
-}
+        "about": "О нас",
+        "movies": "Фильмы",
+        "profile": "Профиль",
+        "brand": "Seefu TV",
+        "upload": "Загрузить",
+        "short": "Короткое",
+        "subscribe": "Подписаться",
+        "openMenu": "Открыть меню",
+        "categories": "Категории",
+        "sports": "Спорт",
+        "tv": "ТВ",
+        "dramas": "Драмы",
+        "music": "Моя музыка",
+        "entertainment": "Развлечения",
+        "technology": "Технологии",
+        "contact": "Контакт",
+        "login": "Войти",
+        "register": "Регистрация",
+        "logout": "Выйти"
+      },
+      "auth": {
+        "email": "Электронная почта",
+        "password": "Пароль",
+        "confirmPassword": "Подтвердить пароль",
+        "phone": "Телефон",
+        "nickname": "Псевдоним",
+        "loginButton": "Войти",
+        "registerButton": "Зарегистрироваться",
+        "loginTitle": "Войдите в свой аккаунт",
+        "registerTitle": "Создать новый аккаунт",
+        "alreadyHaveAccount": "Уже есть аккаунт?",
+        "dontHaveAccount": "Нет аккаунта?",
+        "forgotPassword": "Забыли пароль?",
+        "welcomeBack": "С возвращением!",
+        "welcomBack": "С возвращением!",
+        "joinTitle": "Присоединяйтесь к Seefu TV сегодня!",
+        "joinDesc1": "Откройте для себя популярные фильмы, общайтесь с другими фанатами и получите доступ к эксклюзивным функциям.",
+        "createAccountCTA": "Создайте бесплатную учетную запись",
+        "joinDesc2": "и начните свое развлекательное путешествие!",
+
+        "error": {
+          "login_failed": "Не удалось войти",
+          "register_failed": "Не удалось зарегистрироваться",
+          "logout_failed": "Не удалось выйти",
+          "update_failed": "Не удалось обновить данные пользователя",
+          "change_password_failed": "Не удалось изменить пароль"
+        }
+      },
+      "common": {
+        "loading": "Загрузка...",
+        "error": "Ошибка",
+        "success": "Успешно",
+        "cancel": "Отмена",
+        "save": "Сохранить",
+        "edit": "Редактировать",
+        "delete": "Удалить",
+        "search": "Поиск",
+        "language": "Язык",
+        "searchPlaceholder": "Искать фильмы, сериалы..."
+      },
+      "movie": {
+        "genres": "Жанры",
+        "rating": "Рейтинг",
+        "duration": "Продолжительность",
+        "releaseDate": "Дата выхода",
+        "cast": "Актеры",
+        "overview": "Описание",
+        "watchNow": "Смотреть сейчас",
+        "addToWatchlist": "Добавить в список просмотра",
+        "removeFromWatchlist": "Удалить из списка просмотра"
+      },
+      "subscription": {
+        "plans": "Планы подписки",
+        "monthly": "Месячный",
+        "yearly": "Годовой",
+        "basic": "Базовый",
+        "premium": "Премиум",
+        "pro": "Про",
+        "selectPlan": "Выбрать план",
+        "currentPlan": "Текущий план"
+      },
+      "profile": {
+        "personalInfo": "Личная информация",
+        "changePassword": "Изменить пароль",
+        "preferences": "Настройки",
+        "accountSettings": "Настройки аккаунта",
+        "updateProfile": "Обновить профиль"
+      },
+      "greeting": "Hi, {{name}}",
+      "settings": {
+        "title": "Настройки",
+        "language": "Язык",
+        "current": "Текущий",
+        "hint": "Ваши настройки языка сохраняются локально."
+      },
+      "languages": {
+        "en": "English",
+        "ms": "Bahasa Melayu",
+        "zh": "中文",
+        "de": "Deutsch",
+        "fr": "Français",
+        "ru": "Русский",
+        "ar": "العربية"
+      }
+    }

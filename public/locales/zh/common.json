@@ -2,8 +2,21 @@
   "navigation": {
     "home": "首页",
     "about": "关于",
-    "movies": "电影", 
+    "movies": "电影",
     "profile": "个人资料",
+    "brand": "Seefu TV",
+    "upload": "上传",
+    "short": "短片",
+    "subscribe": "订阅",
+    "openMenu": "打开菜单",
+    "categories": "分类",
+    "sports": "体育",
+    "tv": "电视",
+    "dramas": "剧集",
+    "music": "我的音乐",
+    "entertainment": "娱乐",
+    "technology": "科技",
+    "contact": "联系",
     "login": "登录",
     "register": "注册",
     "logout": "退出"
@@ -20,7 +33,20 @@
     "registerTitle": "创建新账户",
     "alreadyHaveAccount": "已有账户？",
     "dontHaveAccount": "还没有账户？",
-    "forgotPassword": "忘记密码？"
+    "forgotPassword": "忘记密码？",
+    "welcomeBack": "欢迎回来！",
+    "welcomBack": "欢迎回来！",
+    "joinTitle": "立即加入 Seefu TV！",
+    "joinDesc1": "发现热门电影，与影迷互动，并解锁独家功能。",
+    "createAccountCTA": "创建您的免费账户",
+    "joinDesc2": "并开始您的娱乐之旅！",
+    "error": {
+      "login_failed": "登录失败",
+      "register_failed": "注册失败",
+      "logout_failed": "登出失败",
+      "update_failed": "更新用户信息失败",
+      "change_password_failed": "更改密码失败"
+    }
   },
   "common": {
     "loading": "加载中...",
@@ -31,15 +57,16 @@
     "edit": "编辑",
     "delete": "删除",
     "search": "搜索",
-    "language": "语言"
+    "language": "语言",
+    "searchPlaceholder": "搜索电影，系列..."
   },
   "movie": {
     "genres": "类型",
-    "rating": "评分", 
+    "rating": "评分",
     "duration": "时长",
-    "releaseDate": "上映日期",
+    "releaseDate": "发布日期",
     "cast": "演员",
-    "overview": "简介",
+    "overview": "概览",
     "watchNow": "立即观看",
     "addToWatchlist": "添加到观看列表",
     "removeFromWatchlist": "从观看列表移除"
@@ -60,5 +87,21 @@
     "preferences": "偏好设置",
     "accountSettings": "账户设置",
     "updateProfile": "更新资料"
+  },
+  "greeting": "嗨，{{name}}",
+  "settings": {
+    "title": "设置",
+    "language": "语言",
+    "current": "当前",
+    "hint": "您的语言偏好已保存在本地。"
+  },
+  "languages": {
+    "en": "English",
+    "ms": "Bahasa Melayu",
+    "zh": "中文",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ru": "Русский",
+    "ar": "العربية"
   }
 }

@@ -2,8 +2,21 @@
   "navigation": {
     "home": "الرئيسية",
     "about": "عن الموقع",
-    "movies": "الأفلام", 
+    "movies": "الأفلام",
     "profile": "الملف الشخصي",
+    "brand": "Seefu TV",
+    "upload": "تحميل",
+    "short": "قصيرة",
+    "subscribe": "اشترك",
+    "openMenu": "افتح القائمة",
+    "categories": "الفئات",
+    "sports": "رياضة",
+    "tv": "تلفاز",
+    "dramas": "دراما",
+    "music": "موسيقاي",
+    "entertainment": "ترفيه",
+    "technology": "تكنولوجيا",
+    "contact": "اتصال",
     "login": "تسجيل الدخول",
     "register": "التسجيل",
     "logout": "تسجيل الخروج"
@@ -20,7 +33,20 @@
     "registerTitle": "إنشاء حساب جديد",
     "alreadyHaveAccount": "لديك حساب بالفعل؟",
     "dontHaveAccount": "ليس لديك حساب؟",
-    "forgotPassword": "نسيت كلمة المرور؟"
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "welcomeBack": "مرحبًا بعودتك!",
+    "welcomBack": "مرحبًا بعودتك!",
+    "joinTitle": "انضم إلى Seefu TV اليوم!",
+    "joinDesc1": "اكتشف الأفلام الرائجة، تواصل مع المعجبين الآخرين، وافتح ميزات حصرية.",
+    "createAccountCTA": "أنشئ حسابك المجاني",
+    "joinDesc2": "وابدأ رحلتك الترفيهية!",
+    "error": {
+      "login_failed": "فشل تسجيل الدخول",
+      "register_failed": "فشل التسجيل",
+      "logout_failed": "فشل تسجيل الخروج",
+      "update_failed": "فشل تحديث معلومات المستخدم",
+      "change_password_failed": "فشل تغيير كلمة المرور"
+    }
   },
   "common": {
     "loading": "جاري التحميل...",
@@ -31,11 +57,12 @@
     "edit": "تعديل",
     "delete": "حذف",
     "search": "بحث",
-    "language": "اللغة"
+    "language": "اللغة",
+    "searchPlaceholder": "ابحث عن أفلام، مسلسلات..."
   },
   "movie": {
     "genres": "الأنواع",
-    "rating": "التقييم", 
+    "rating": "التقييم",
     "duration": "المدة",
     "releaseDate": "تاريخ الإصدار",
     "cast": "فريق التمثيل",
@@ -55,10 +82,26 @@
     "currentPlan": "الخطة الحالية"
   },
   "profile": {
-    "personalInfo": "المعلومات الشخصية",
+    "personalInfo": "معلومات شخصية",
     "changePassword": "تغيير كلمة المرور",
     "preferences": "التفضيلات",
     "accountSettings": "إعدادات الحساب",
-    "updateProfile": "تحديث الملف الشخصي"
+    "updateProfile": "تحديث الملف"
+  },
+  "greeting": "مرحبًا، {{name}}",
+  "settings": {
+    "title": "الإعدادات",
+    "language": "اللغة",
+    "current": "الحالي",
+    "hint": "يتم حفظ تفضيل اللغة محليًا."
+  },
+  "languages": {
+    "en": "English",
+    "ms": "Bahasa Melayu",
+    "zh": "中文",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ru": "Русский",
+    "ar": "العربية"
   }
 }

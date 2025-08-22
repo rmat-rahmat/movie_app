@@ -2,8 +2,21 @@
   "navigation": {
     "home": "Home",
     "about": "About",
-    "movies": "Movies", 
+    "movies": "Movies",
     "profile": "Profile",
+    "brand": "Seefu TV",
+    "upload": "Upload",
+    "short": "Short",
+    "subscribe": "Subscribe",
+    "openMenu": "Open menu",
+    "categories": "Categories",
+    "sports": "Sports",
+    "tv": "TV",
+    "dramas": "Dramas",
+    "music": "My Music",
+    "entertainment": "Entertainment",
+    "technology": "Technology",
+    "contact": "Contact",
     "login": "Login",
     "register": "Register",
     "logout": "Logout"
@@ -20,7 +33,21 @@
     "registerTitle": "Create New Account",
     "alreadyHaveAccount": "Already have an account?",
     "dontHaveAccount": "Don't have an account?",
-    "forgotPassword": "Forgot Password?"
+    "forgotPassword": "Forgot Password?",
+    "welcomeBack": "Welcome back!",
+    "welcomBack": "Welcome back!",
+    "joinTitle": "Join Seefu TV Today!",
+    "joinDesc1": "Discover trending movies, connect with fellow fans, and unlock exclusive features.",
+    "createAccountCTA": "Create your free account",
+    "joinDesc2": "and start your entertainment journey!"
+    ,
+    "error": {
+      "login_failed": "Login failed",
+      "register_failed": "Register failed",
+      "logout_failed": "Logout failed",
+      "update_failed": "Update user info failed",
+      "change_password_failed": "Change password failed"
+    }
   },
   "common": {
     "loading": "Loading...",
@@ -31,11 +58,12 @@
     "edit": "Edit",
     "delete": "Delete",
     "search": "Search",
-    "language": "Language"
+    "language": "Language",
+    "searchPlaceholder": "Search movies, series..."
   },
   "movie": {
     "genres": "Genres",
-    "rating": "Rating", 
+    "rating": "Rating",
     "duration": "Duration",
     "releaseDate": "Release Date",
     "cast": "Cast",
@@ -60,5 +88,21 @@
     "preferences": "Preferences",
     "accountSettings": "Account Settings",
     "updateProfile": "Update Profile"
+  },
+  "greeting": "Hi, {{name}}",
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "current": "Current",
+    "hint": "Your language preference is saved locally."
+  },
+  "languages": {
+    "en": "English",
+    "ms": "Bahasa Melayu",
+    "zh": "中文",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ru": "Русский",
+    "ar": "العربية"
   }
 }

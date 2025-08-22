@@ -2,8 +2,21 @@
   "navigation": {
     "home": "Accueil",
     "about": "À propos",
-    "movies": "Films", 
+    "movies": "Films",
     "profile": "Profil",
+    "brand": "Seefu TV",
+    "upload": "Téléverser",
+    "short": "Court",
+    "subscribe": "S'abonner",
+    "openMenu": "Ouvrir le menu",
+    "categories": "Catégories",
+    "sports": "Sports",
+    "tv": "TV",
+    "dramas": "Dramas",
+    "music": "Ma Musique",
+    "entertainment": "Divertissement",
+    "technology": "Technologie",
+    "contact": "Contact",
     "login": "Connexion",
     "register": "S'inscrire",
     "logout": "Déconnexion"
@@ -20,7 +33,20 @@
     "registerTitle": "Créer un nouveau compte",
     "alreadyHaveAccount": "Vous avez déjà un compte ?",
     "dontHaveAccount": "Vous n'avez pas de compte ?",
-    "forgotPassword": "Mot de passe oublié ?"
+    "forgotPassword": "Mot de passe oublié ?",
+    "welcomeBack": "Bienvenue !",
+    "welcomBack": "Bienvenue !",
+    "joinTitle": "Rejoignez Seefu TV aujourd'hui !",
+    "joinDesc1": "Découvrez les films tendances, connectez-vous avec d'autres fans et débloquez des fonctionnalités exclusives.",
+    "createAccountCTA": "Créez votre compte gratuit",
+    "joinDesc2": "et commencez votre aventure divertissante !",
+    "error": {
+      "login_failed": "Échec de la connexion",
+      "register_failed": "Échec de l'inscription",
+      "logout_failed": "Échec de la déconnexion",
+      "update_failed": "Échec de la mise à jour des informations utilisateur",
+      "change_password_failed": "Échec du changement de mot de passe"
+    }
   },
   "common": {
     "loading": "Chargement...",
@@ -31,11 +57,12 @@
     "edit": "Modifier",
     "delete": "Supprimer",
     "search": "Rechercher",
-    "language": "Langue"
+    "language": "Langue",
+    "searchPlaceholder": "Rechercher des films, séries..."
   },
   "movie": {
     "genres": "Genres",
-    "rating": "Note", 
+    "rating": "Note",
     "duration": "Durée",
     "releaseDate": "Date de sortie",
     "cast": "Distribution",
@@ -60,5 +87,21 @@
     "preferences": "Préférences",
     "accountSettings": "Paramètres du compte",
     "updateProfile": "Mettre à jour le profil"
+  },
+  "greeting": "Salut, {{name}}",
+  "settings": {
+    "title": "Paramètres",
+    "language": "Langue",
+    "current": "Actuel",
+    "hint": "Votre préférence de langue est enregistrée localement."
+  },
+  "languages": {
+    "en": "English",
+    "ms": "Bahasa Melayu",
+    "zh": "中文",
+    "de": "Deutsch",
+    "fr": "Français",
+    "ru": "Русский",
+    "ar": "العربية"
   }
 }

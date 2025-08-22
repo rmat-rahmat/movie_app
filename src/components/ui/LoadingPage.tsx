@@ -1,9 +1,13 @@
 import React from "react";
+import { useTranslation } from "next-i18next";
 
-const LoadingPage: React.FC = () => (
+const LoadingPage: React.FC = () =>{ 
+  const {t}= useTranslation('common');
+  
+  return(
   <div className="fixed inset-0 flex flex-col items-center justify-center bg-black/90 z-50">
     <svg
-      className="animate-spin h-12 w-12 text-[#e50914] mb-6"
+      className="animate-spin h-12 w-12 text-[#fbb033] mb-6"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -22,8 +26,8 @@ const LoadingPage: React.FC = () => (
         d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
       />
     </svg>
-    <span className="text-white text-xl font-semibold">Loading...</span>
+    <span className="text-white text-xl font-semibold">{t('common.loading')}</span>
   </div>
 );
-
+}
 export default LoadingPage;

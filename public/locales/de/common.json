@@ -86,9 +86,9 @@
     "changePassword": "Passwort ändern",
     "preferences": "Einstellungen",
     "accountSettings": "Kontoeinstellungen",
-    "updateProfile": "Profil aktualisieren"
+    "updateProfile": "Profil aktualisieren",
+    "greeting": "Hi, {{name}}"
   },
-  "greeting": "Hi, {{name}}",
   "settings": {
     "title": "Einstellungen",
     "language": "Sprache",

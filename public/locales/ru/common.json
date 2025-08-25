@@ -87,9 +87,9 @@
         "changePassword": "Изменить пароль",
         "preferences": "Настройки",
         "accountSettings": "Настройки аккаунта",
-        "updateProfile": "Обновить профиль"
+        "updateProfile": "Обновить профиль",
+        "greeting": "Привет, {{name}}"
       },
-      "greeting": "Hi, {{name}}",
       "settings": {
         "title": "Настройки",
         "language": "Язык",

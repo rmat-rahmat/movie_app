@@ -87,9 +87,10 @@
     "changePassword": "Change Password",
     "preferences": "Preferences",
     "accountSettings": "Account Settings",
-    "updateProfile": "Update Profile"
+    "updateProfile": "Update Profile",
+    "greeting": "Hi, {{name}}"
   },
-  "greeting": "Hi, {{name}}",
+  
   "settings": {
     "title": "Settings",
     "language": "Language",

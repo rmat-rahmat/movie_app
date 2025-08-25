@@ -86,9 +86,10 @@
     "changePassword": "Changer le mot de passe",
     "preferences": "Préférences",
     "accountSettings": "Paramètres du compte",
-    "updateProfile": "Mettre à jour le profil"
+    "updateProfile": "Mettre à jour le profil",
+    "greeting": "Salut, {{name}}"
   },
-  "greeting": "Salut, {{name}}",
+  
   "settings": {
     "title": "Paramètres",
     "language": "Langue",

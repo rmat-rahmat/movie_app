@@ -86,9 +86,9 @@
     "changePassword": "تغيير كلمة المرور",
     "preferences": "التفضيلات",
     "accountSettings": "إعدادات الحساب",
-    "updateProfile": "تحديث الملف"
+    "updateProfile": "تحديث الملف",
+    "greeting": "مرحبًا، {{name}}"
   },
-  "greeting": "مرحبًا، {{name}}",
   "settings": {
     "title": "الإعدادات",
     "language": "اللغة",

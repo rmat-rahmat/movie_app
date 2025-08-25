@@ -37,28 +37,25 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
     return (
         <div className="flex">
-            <div className="h-screen md:w-64 w-0">
-                <SideBar show={menuOpen} />
-            </div>
 
-            <div className="w-full md:w-[calc(100vw-16rem)] min-h-screen md:pb-0 pb-20 flex flex-col">
-                <button
-                    className="md:hidden fixed top-4 right-4 z-100 flex items-center justify-center p-2 rounded text-gray-200"
-                    onClick={() => setMenuOpen(!menuOpen)}
-                    aria-label={t('navigation.openMenu')}
-                >
-                    <FiMenu size={28} />
-                </button>
+            <div className="w-full min-h-screen lg:pb-0 pb-20 flex flex-col">
 
                 <nav
-                    className={`w-full md:w-[calc(100vw-16rem)] flex items-center justify-between py-4 px-4 fixed top-0 left-0 md:left-auto md:right-0 z-50 transition-colors duration-300 
+                    className={`w-full flex items-center justify-between py-4 px-4 fixed top-0 left-0 lg:left-auto lg:right-0 z-50 transition-colors duration-300 
                     ${scrolled ? "bg-gradient-to-b from-black  to-black/30" : "bg-gradient-to-b from-black via-black to-transparent"}
                   `}
                 >
                     {/* Logo */}
-                    <div className="flex md:hidden items-center">
+                    <div className="flex items-center">
+                        <button
+                            className=" z-100 flex items-center justify-center p-2 rounded text-gray-200"
+                            onClick={() => setMenuOpen(!menuOpen)}
+                            aria-label={t('navigation.openMenu')}
+                        >
+                            <FiMenu size={28} />
+                        </button>
                         <Image src="/next.svg" alt="Logo" width={40} height={40} />
-                        <span className="font-bold text-lg text-white">Seefu TV</span>
+                        <span className="font-bold text-lg lg:text-3xl text-white">{t('navigation.brand')}</span>
                     </div>
 
                     {/* Search Bar (hidden on mobile) */}
@@ -86,10 +83,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                     <ul className="hidden md:flex gap-1 items-center">
                         <li>
                             <Link href="/?" className="text-gray-200 hover:underline">
-                                    <p className="flex items-center rounded-lg block py-2 px-4 mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] transform transition-transform duration-200 hover:scale-105">
-                                        <FiUpload className="h-5 w-6 mb-1" />
-                                        {t('navigation.upload')}
-                                    </p>
+                                <p className="flex items-center rounded-lg block py-2 px-4 mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] transform transition-transform duration-200 hover:scale-105">
+                                    <FiUpload className="h-5 w-6 mb-1" />
+                                    {t('navigation.upload')}
+                                </p>
                             </Link>
                         </li>
                         <li>
@@ -109,8 +106,11 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                         </li>
                     </ul>
                 </nav>
-                <div className="flex-1 pt-16">
-                    {children}
+                <div className="flex">
+                    <SideBar show={menuOpen} />
+                    <div className={`flex-1 pt-16 w-full ${menuOpen ? 'lg:w-[85vw]' : 'lg:w-full'} transition-width duration-300 ease-in`}>
+                        {children}
+                    </div>
                 </div>
                 <Footer />
 

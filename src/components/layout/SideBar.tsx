@@ -92,7 +92,7 @@ const SideBar = ({ show }: { show: boolean }) => {
 
   return (
     <div  className={`pt-20 fixed lg:relative h-screen text-white py-6 z-40 bg-red/90 ${show ? 'w-[80vw] lg:w-[20vw]' : 'w-0'} transition-width duration-300 ease-in-out`}>
-    <div className={`fixed ${show ? 'w-[70vw] lg:w-[20vw]' : 'w-0 hidden'} transition-width duration-300 ease-in-out`}>
+    <div className={`fixed pl-4 h-full ${show ? 'w-[70vw] lg:w-[15vw]' : 'w-0 hidden'} transition-width duration-300 ease-in-out`}>
       {/* <h1 className="text-3xl font-bold mt-2 mb-10">Seefu.TV</h1> */}
       <ul>
         {getMenu().map(({ href, label, icon, subMenu }) => {
@@ -146,10 +146,10 @@ const SideBar = ({ show }: { show: boolean }) => {
           );
         })}
       </ul>
-      <div className="absolute bottom-6 left-4 w-[calc(100%-2rem)] lg:hidden">
+      <div className="absolute bottom-30 left-4 w-full">
         {isAuthenticated ? (
           <div className="space-y-2">
-            <p className="text-gray-400 text-sm">Hi, {user?.nickname || user?.email || 'User'}</p>
+            {/* <p className="text-gray-400 text-sm">Hi, {user?.nickname || user?.email || 'User'}</p> */}
             <button
               onClick={handleLogout}
               className="flex items-center rounded-md block p-2 w-full hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033] bg-transparent border-none text-white cursor-pointer"

@@ -86,9 +86,10 @@
     "changePassword": "Tukar Kata Laluan",
     "preferences": "Keutamaan",
     "accountSettings": "Tetapan Akaun",
-    "updateProfile": "Kemaskini Profil"
+    "updateProfile": "Kemaskini Profil",
+    "greeting": "Hai, {{name}}"
   },
-  "greeting": "Hai, {{name}}",
+  
   "settings": {
     "title": "Tetapan",
     "language": "Bahasa",

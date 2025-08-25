@@ -90,7 +90,7 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                 </nav>
                 <div className="flex">
                     <SideBar show={menuOpen} />
-                    <div className={`flex-1 pt-16 w-full ${menuOpen ? 'lg:w-[80vw]' : 'lg:w-full'} transition-width duration-300 ease-in`}>
+                    <div className={`flex-1 pt-16 w-full ${menuOpen ? 'lg:w-[85vw]' : 'lg:w-full'} transition-width duration-300 ease-in`}>
                         {children}
                     </div>
                 </div>

@@ -86,9 +86,9 @@
     "changePassword": "修改密码",
     "preferences": "偏好设置",
     "accountSettings": "账户设置",
-    "updateProfile": "更新资料"
+    "updateProfile": "更新资料",
+    "greeting": "嗨，{{name}}"
   },
-  "greeting": "嗨，{{name}}",
   "settings": {
     "title": "设置",
     "language": "语言",

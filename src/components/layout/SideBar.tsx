@@ -91,8 +91,8 @@ const SideBar = ({ show }: { show: boolean }) => {
   };
 
   return (
-    <div  className={`pt-20 fixed lg:relative h-screen text-white py-6 z-40 bg-red/90 ${show ? 'w-[80vw] lg:w-[20vw]' : 'w-0'} transition-width duration-300 ease-in-out`}>
-    <div className={`fixed pl-4 h-full ${show ? 'w-[70vw] lg:w-[15vw]' : 'w-0 hidden'} transition-width duration-300 ease-in-out`}>
+    <div  className={`pt-20 bg-black/80 fixed lg:relative h-screen text-white py-6 z-40  ${show ? 'w-[70vw] lg:w-[20vw]' : 'w-0'} transition-width duration-300 ease-in-out`}>
+    <div className={`fixed  px-4 h-full ${show ? 'w-[70vw] lg:w-[15vw]' : 'w-0 hidden'} transition-width duration-300 ease-in-out`}>
       {/* <h1 className="text-3xl font-bold mt-2 mb-10">Seefu.TV</h1> */}
       <ul>
         {getMenu().map(({ href, label, icon, subMenu }) => {
@@ -146,7 +146,7 @@ const SideBar = ({ show }: { show: boolean }) => {
           );
         })}
       </ul>
-      <div className="absolute bottom-30 left-4 w-full">
+      <div className="absolute bottom-40 md:bottom-30 left-4 w-full">
         {isAuthenticated ? (
           <div className="space-y-2">
             {/* <p className="text-gray-400 text-sm">Hi, {user?.nickname || user?.email || 'User'}</p> */}

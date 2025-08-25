@@ -58,7 +58,11 @@
     "delete": "删除",
     "search": "搜索",
     "language": "语言",
-    "searchPlaceholder": "搜索电影，系列..."
+    "searchPlaceholder": "搜索电影，系列...",
+    "gender": "性别",
+    "male": "男性",
+    "female": "女性",
+    "other": "其他"
   },
   "movie": {
     "genres": "类型",
@@ -87,7 +91,8 @@
     "preferences": "偏好设置",
     "accountSettings": "账户设置",
     "updateProfile": "更新资料",
-    "greeting": "嗨，{{name}}"
+    "greeting": "嗨，{{name}}",
+    "birthday": "生日"
   },
   "settings": {
     "title": "设置",

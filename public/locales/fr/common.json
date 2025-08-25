@@ -58,7 +58,11 @@
     "delete": "Supprimer",
     "search": "Rechercher",
     "language": "Langue",
-    "searchPlaceholder": "Rechercher des films, séries..."
+    "searchPlaceholder": "Rechercher des films, séries...",
+    "gender": "Genre",
+    "male": "Homme",
+    "female": "Femme",
+    "other": "Autre"
   },
   "movie": {
     "genres": "Genres",
@@ -87,7 +91,8 @@
     "preferences": "Préférences",
     "accountSettings": "Paramètres du compte",
     "updateProfile": "Mettre à jour le profil",
-    "greeting": "Salut, {{name}}"
+    "greeting": "Salut, {{name}}",
+    "birthday": "Date de naissance"
   },
   
   "settings": {

@@ -58,7 +58,11 @@
     "delete": "Padam",
     "search": "Cari",
     "language": "Bahasa",
-    "searchPlaceholder": "Cari filem, siri..."
+    "searchPlaceholder": "Cari filem, siri...",
+    "gender":"Jantina",
+    "male": "Lelaki",
+    "female": "Perempuan",
+    "other": "Lain-lain"
   },
   "movie": {
     "genres": "Genre",
@@ -87,7 +91,8 @@
     "preferences": "Keutamaan",
     "accountSettings": "Tetapan Akaun",
     "updateProfile": "Kemaskini Profil",
-    "greeting": "Hai, {{name}}"
+    "greeting": "Hai, {{name}}",
+    "birthday": "Tarikh Lahir"
   },
   
   "settings": {

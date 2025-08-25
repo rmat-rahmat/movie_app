@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "export": "next export",
+    "deploy:gh": "yarn build && npx gh-pages -d out"
   },
   "dependencies": {
     "@use-gesture/react": "^10.3.1",

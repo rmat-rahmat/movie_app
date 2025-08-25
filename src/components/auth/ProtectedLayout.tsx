@@ -94,7 +94,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                                 <div className="flex items-center py-2 px-4 mb-2 transform transition-transform duration-200 hover:scale-105">
                                     {/* Avatar on desktop: image when available, otherwise initials */}
                                     {avatarUrl ? (
-                                        <Image src={avatarUrl} alt={displayName} width={28} height={28} className="rounded-full mr-2 object-cover" />
+                                        <Image src={avatarUrl} alt={displayName} width={28} height={28} className="rounded-full w-10 h-10 mr-2 object-cover" />
                                     ) : (
                                         <div className="h-7 w-7 mr-2 rounded-full bg-[#fbb033] text-black flex items-center justify-center font-semibold text-sm">
                                             {initials}
@@ -143,7 +143,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                                 alt={displayName}
                                 width={28}
                                 height={28}
-                                className="rounded-full mb-1 object-cover"
+                                className="rounded-full w-7 h-7 mb-1 object-cover"
                             />
                         ) : (
                             <div className="h-6 w-6 mb-1 rounded-full bg-[#fbb033] flex items-center justify-center font-semibold text-sm">

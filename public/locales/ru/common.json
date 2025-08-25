@@ -59,7 +59,11 @@
         "delete": "Удалить",
         "search": "Поиск",
         "language": "Язык",
-        "searchPlaceholder": "Искать фильмы, сериалы..."
+        "searchPlaceholder": "Искать фильмы, сериалы...",
+        "gender": "Пол",
+        "male": "Мужской",
+        "female": "Женский",
+        "other": "Другой"
       },
       "movie": {
         "genres": "Жанры",
@@ -88,7 +92,8 @@
         "preferences": "Настройки",
         "accountSettings": "Настройки аккаунта",
         "updateProfile": "Обновить профиль",
-        "greeting": "Привет, {{name}}"
+        "greeting": "Привет, {{name}}",
+        "birthday": "Дата рождения"
       },
       "settings": {
         "title": "Настройки",

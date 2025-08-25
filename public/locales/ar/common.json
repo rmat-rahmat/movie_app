@@ -58,7 +58,11 @@
     "delete": "حذف",
     "search": "بحث",
     "language": "اللغة",
-    "searchPlaceholder": "ابحث عن أفلام، مسلسلات..."
+    "searchPlaceholder": "ابحث عن أفلام، مسلسلات...",
+    "gender": "الجنس",
+    "male": "ذكر",
+    "female": "أنثى",
+    "other": "آخر"
   },
   "movie": {
     "genres": "الأنواع",
@@ -87,7 +91,8 @@
     "preferences": "التفضيلات",
     "accountSettings": "إعدادات الحساب",
     "updateProfile": "تحديث الملف",
-    "greeting": "مرحبًا، {{name}}"
+    "greeting": "مرحبًا، {{name}}",
+    "birthday": "تاريخ الميلاد"
   },
   "settings": {
     "title": "الإعدادات",

@@ -93,7 +93,13 @@
     "accountSettings": "Account Settings",
     "updateProfile": "Update Profile",
     "greeting": "Hi, {{name}}",
-    "birthday": "Birthday"
+  "birthday": "Birthday",
+  "welcome": "Welcome to {{name}}'s channel. Sharing tutorials, reviews, and more!",
+  "subscribeLabel": "Subscribe",
+  "settings": "Settings",
+  "lastSeen": "Last Seen",
+  "uploadedVideos": "Uploaded Videos",
+  "playlists": "Playlists"
   },
   
   "settings": {

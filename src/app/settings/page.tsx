@@ -160,7 +160,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex items-center space-x-3">
-                <button type="submit" disabled={localLoading || isLoading} className="bg-[#e50914] px-4 py-2 rounded disabled:opacity-60 w-full">
+                <button type="submit" disabled={localLoading || isLoading} className="bg-[#fbb033] px-4 py-2 rounded disabled:opacity-60 w-full">
                   {localLoading || isLoading ? (t('common.loading') || 'Loading...') : (t('common.save') || 'Save')}
                 </button>
                 {success && <span className="text-green-400">{success}</span>}

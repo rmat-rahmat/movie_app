@@ -93,7 +93,13 @@
         "accountSettings": "Настройки аккаунта",
         "updateProfile": "Обновить профиль",
         "greeting": "Привет, {{name}}",
-        "birthday": "Дата рождения"
+      "birthday": "Дата рождения",
+      "welcome": "Добро пожаловать на канал {{name}}. Тут есть уроки, обзоры и многое другое!",
+      "subscribeLabel": "Подписаться",
+      "settings": "Настройки",
+      "lastSeen": "Последние просмотры",
+      "uploadedVideos": "Загруженные видео",
+      "playlists": "Плейлисты"
       },
       "settings": {
         "title": "Настройки",

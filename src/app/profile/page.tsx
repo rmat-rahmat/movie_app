@@ -8,6 +8,8 @@ import MovieSection from "@/components/movie/MovieSection";
 import { FiPlayCircle, FiSettings } from "react-icons/fi";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
+import { useAuthStore } from '@/store/authStore';
+import Image from "next/image";
 
 
 export default function Profile() {
@@ -15,46 +17,47 @@ export default function Profile() {
     const [lastSeenVid, setLastSeenVid] = useState<VideoSrc[]>([]);
     const { t } = useTranslation('common');
 
+    const user = useAuthStore((s) => s.user);
+    const authLoading = useAuthStore((s) => s.isLoading);
+    const checkAuth = useAuthStore((s) => s.checkAuth);
+
 
     useEffect(() => {
+        // ensure auth is loaded
+        if (!user) {
+            checkAuth().catch(() => {});
+        }
+
         const fetchData = async () => {
             const listA = await getLastSeenVideos();
             setLastSeenVid(listA);
             setIsLoading(false);
         };
         fetchData();
-    }, []);
-
-
+    }, [user]);
 
     return (
         <>
-            {isloading ? <LoadingPage /> : <div className="container mx-auto overflow-hidden">
+            {isloading || authLoading || !user ? <LoadingPage /> : <div className="container mx-auto overflow-hidden">
                 <div className="grid h-[40vh] md:h-[30vh] w-full md:grid-cols-[30%_70%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
                     <div className="bg-black order-last md:order-first flex items-end md:pl-20 overflow-visible">
                         <div className="flex items-center gap-4 p-4 min-w-[200%] z-1">
-                            <img
-                                src={mockUser.avatar}
-                                alt="User Avatar"
-                                className="w-40 h-40 rounded-full border"
-                            />
+                             <Image src={user?.avatar || mockUser.avatar} alt={user?.nickname || "avatar"} width={30} height={30} className="w-30 h-30 lg:min-w-50 lg:min-h-50 rounded-full mr-2 object-cover" />
                             <div className="flex flex-col">
-                                <h1 className="text-2xl font-bold">{mockUser.name}</h1>
-                                <p className="text-gray-400 mb-2 w-[60vw] md:w-[40vw]">
-                                    Welcome to {mockUser.name}&apos;s channel. Sharing tutorials, reviews, and more!
+                                <h1 className="text-2xl font-bold">{user?.name || user?.nickname || mockUser.name}</h1>
+                                <p className="text-gray-400 mb-2 w-[60vw] md:w-[40vw] pr-15">
+                                    {t('profile.welcome', { name: user?.name || user?.nickname || mockUser.name })}
                                 </p>
-                                <div className="flex items-center gap-2">
-                                    <button className="bg-red-600 text-white px-4 py-2 rounded font-semibold w-fit hover:bg-red-700 transition">
-                                        Subscribe {mockUser.subscribers ? `(${formatSubscribers(mockUser.subscribers)})` : ""}
+                                <div className="flex items-center gap-2 flex-col md:flex-row pr-15 md:pr-0">
+                                    <button className="bg-[#fbb033] text-white px-4 py-2 rounded font-semibold w-full md:w-fit hover:bg-red-700 transition">
+                                        {`${t('profile.subscribeLabel') || 'Subscribe'} ${user?.subscribers || mockUser.subscribers ? `(${formatSubscribers(Number(user?.subscribers || mockUser.subscribers))})` : ''}`}
                                     </button>
-                                    <Link href="/settings" className="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 rounded font-medium hover:bg-gray-700 transition">
+                                    <Link href="/settings" className="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 w-full md:w-fit rounded font-medium hover:bg-gray-700 transition">
                                         <FiSettings className="h-4 w-4" />
-                                        <span className="text-sm">Settings</span>
+                                        <span className="text-sm">{t('profile.settings') || 'Settings'}</span>
                                     </Link>
                                 </div>
                             </div>
-                           
-
                         </div>
                     </div>
                     <div className="relative bg-[#fbb033] order-first md:order-last flex items-center justify-center">
@@ -79,7 +82,7 @@ export default function Profile() {
                         onViewMore={() => console.log("View More Movies")}
                         showPlayback={true} showViewer={true}
                         frameSize={30}
-                        title={t('profile.personalInfo')}
+                        title={t('profile.lastSeen') || t('profile.personalInfo')}
                         videos={lastSeenVid}
                     />
 
@@ -88,14 +91,14 @@ export default function Profile() {
                         onViewMore={() => console.log("Uploaded Videos")}
                         showPlayback={true} showViewer={true}
                         frameSize={20}
-                        title="Uploaded Videos"
+                        title={t('profile.uploadedVideos') || 'Uploaded Videos'}
                         videos={lastSeenVid}
                     />
 
                     <MovieSection
                         onViewMore={() => console.log("Playlists")} showViewer={true}
                         frameSize={20}
-                        title="Playlists"
+                        title={t('profile.playlists') || 'Playlists'}
                         videos={lastSeenVid}
                     />
                    

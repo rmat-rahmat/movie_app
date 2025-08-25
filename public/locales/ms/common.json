@@ -92,7 +92,13 @@
     "accountSettings": "Tetapan Akaun",
     "updateProfile": "Kemaskini Profil",
     "greeting": "Hai, {{name}}",
-    "birthday": "Tarikh Lahir"
+  "birthday": "Tarikh Lahir",
+  "welcome": "Selamat datang ke saluran {{name}}. Berkongsi tutorial, ulasan, dan banyak lagi!",
+  "subscribeLabel": "Langgan",
+  "settings": "Tetapan",
+  "lastSeen": "Terakhir Dilihat",
+  "uploadedVideos": "Video Dimuat Naik",
+  "playlists": "Senarai Main"
   },
   
   "settings": {

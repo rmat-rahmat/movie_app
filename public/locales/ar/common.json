@@ -92,7 +92,13 @@
     "accountSettings": "إعدادات الحساب",
     "updateProfile": "تحديث الملف",
     "greeting": "مرحبًا، {{name}}",
-    "birthday": "تاريخ الميلاد"
+  "birthday": "تاريخ الميلاد",
+  "welcome": "مرحبًا بكم في قناة {{name}}. مشاركة الدروس والمراجعات والمزيد!",
+  "subscribeLabel": "اشترك",
+  "settings": "الإعدادات",
+  "lastSeen": "شوهدت مؤخرًا",
+  "uploadedVideos": "الفيديوهات المرفوعة",
+  "playlists": "قوائم التشغيل"
   },
   "settings": {
     "title": "الإعدادات",

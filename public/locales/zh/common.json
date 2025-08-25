@@ -92,7 +92,13 @@
     "accountSettings": "账户设置",
     "updateProfile": "更新资料",
     "greeting": "嗨，{{name}}",
-    "birthday": "生日"
+    "birthday": "生日",
+    "welcome": "欢迎来到 {{name}} 的频道。",
+    "subscribeLabel": "订阅",
+    "settings": "设置",
+    "lastSeen": "最近观看",
+    "uploadedVideos": "上传的视频",
+    "playlists": "播放列表"
   },
   "settings": {
     "title": "设置",

@@ -92,7 +92,13 @@
     "accountSettings": "Paramètres du compte",
     "updateProfile": "Mettre à jour le profil",
     "greeting": "Salut, {{name}}",
-    "birthday": "Date de naissance"
+  "birthday": "Date de naissance",
+  "welcome": "Bienvenue sur la chaîne de {{name}}. Tutoriels, avis et plus encore!",
+  "subscribeLabel": "S'abonner",
+  "settings": "Paramètres",
+  "lastSeen": "Derniers visionnages",
+  "uploadedVideos": "Vidéos téléchargées",
+  "playlists": "Listes de lecture"
   },
   
   "settings": {

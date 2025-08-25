@@ -92,7 +92,13 @@
     "accountSettings": "Kontoeinstellungen",
     "updateProfile": "Profil aktualisieren",
     "greeting": "Hi, {{name}}",
-    "birthday": "Geburtstag"
+  "birthday": "Geburtstag",
+  "welcome": "Willkommen auf {{name}}'s Kanal. Tutorials, Reviews und mehr!",
+  "subscribeLabel": "Abonnieren",
+  "settings": "Einstellungen",
+  "lastSeen": "Zuletzt gesehen",
+  "uploadedVideos": "Hochgeladene Videos",
+  "playlists": "Wiedergabelisten"
   },
   "settings": {
     "title": "Einstellungen",

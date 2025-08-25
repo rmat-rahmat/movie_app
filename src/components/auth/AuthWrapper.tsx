@@ -38,6 +38,9 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
     return <LoadingPage />;
   }
 
+  // If pathname is not available, default to GuestLayout
+  if (!pathname) return <GuestLayout>{children}</GuestLayout>;
+
   // Handle protected routes
   if (protectedRoutes.some(route => pathname.startsWith(route))) {
     if (!isAuthenticated) {

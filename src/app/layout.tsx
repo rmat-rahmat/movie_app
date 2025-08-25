@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Seefu.TV",
+  title: "OTalk.TV",
   description: "Watch your favorite movies and TV shows",
 };
 

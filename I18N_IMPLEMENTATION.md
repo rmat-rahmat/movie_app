@@ -1,7 +1,7 @@
 # International Multilingual Support (i18n) Implementation
 
 ## Overview
-Successfully implemented comprehensive internationalization (i18n) support for the Seefu TV streaming application using React i18next, supporting 7 languages with client-side translation switching.
+Successfully implemented comprehensive internationalization (i18n) support for the OTalk TV streaming application using React i18next, supporting 7 languages with client-side translation switching.
 
 ## Supported Languages
 - 🇺🇸 **English** (en) - Default
@@ -100,7 +100,7 @@ src/components/
 - **Profile Page (src/app/profile/page.tsx)**: Section titles
 
 ### 5. Language Persistence
-- Selected language is stored in `localStorage` as `seefu-language`
+- Selected language is stored in `localStorage` as `OTalk-language`
 - Automatically loads saved language preference on app initialization
 - Persists across browser sessions
 

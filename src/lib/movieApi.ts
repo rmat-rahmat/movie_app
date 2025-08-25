@@ -3,6 +3,7 @@ import { parseStringPromise } from 'xml2js';
 import axios from 'axios';
 import { BASE_URL } from '../config';
 import type { VideoSrc } from "@/types/VideoSrc";
+import type { DashboardApiResponse, DashboardItem } from '@/types/Dashboard';
 
 // Helper to convert Movie to VideoSrc
 const Authorization = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4Yzc0NjMzMDQxNmJiODMxMmY5MzI1NTA1Y2JjZmZhZSIsIm5iZiI6MTc1NDg3NTYwMi42NzI5OTk5LCJzdWIiOiI2ODk5NDZkMjc3M2YwMWMyMzQ1ZDEyNzciLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.rXrr9MVh9M5P1TEmAxiHrr374UKU5SgLZaVzl4U0GEA';
@@ -195,4 +196,48 @@ export const getShort = async (channel_id: string, limit: number): Promise<Video
   });
 
   return mockMovies;
+};
+
+// Fetch live dashboard from backend and map to VideoSrc
+export const getDashboard = async (): Promise<DashboardApiResponse | null> => {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/home/dashboard`;
+    const res = await axios.get<DashboardApiResponse>(url);
+    const payload = res.data;
+    return payload as DashboardApiResponse;
+  } catch (err) {
+    console.error('Failed to fetch dashboard', err);
+    return null;
+  }
+};
+
+// Helper: convert featuredContent to VideoSrc[] when a VideoSrc view is needed
+export const mapFeaturedToVideoSrc = (payload: DashboardApiResponse | null): VideoSrc[] => {
+  const items = payload?.data?.featuredContent || [];
+  return items.map((it: DashboardItem) => {
+    const id = it.id;
+    const title = it.title || '';
+    const description = it.description || '';
+    const backdrop_image = it.customCoverUrl || it.coverUrl || '';
+    const potrait_image = it.coverUrl || it.customCoverUrl || '';
+    const release_date = it.createTime ? String(it.createTime).split('T')[0] : (it.year ? String(it.year) : undefined);
+    const vote_average = typeof it.rating === 'number' ? it.rating : (it.rating ? Number(it.rating) : undefined);
+    const popularity = typeof it.fileSize === 'number' ? it.fileSize : undefined;
+    const casts = Array.isArray(it.actors)
+      ? it.actors.map((name: string, idx: number) => ({ id: `${id}_cast_${idx}`, name, character: undefined, profile_image: undefined }))
+      : [];
+
+    return {
+      id,
+      title,
+      description,
+      backdrop_image,
+      potrait_image,
+      release_date,
+      vote_average,
+      vote_count: undefined,
+      popularity,
+      casts,
+    } as VideoSrc;
+  });
 };

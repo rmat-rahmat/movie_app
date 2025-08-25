@@ -22,7 +22,7 @@ export default function LanguageSwitcher({ large }: { large?: boolean }) {
 
   const handleLanguageChange = (locale: string) => {
     i18n.changeLanguage(locale);
-    localStorage.setItem('seefu-language', locale);
+    localStorage.setItem('OTalk-language', locale);
     setIsOpen(false);
   };
 

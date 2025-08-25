@@ -1,25 +1,20 @@
 'use client';
 
-import MovieSection from "@/components/movie/MovieSection";
-import { getMovies, getSeries, getShort, getUpcomingMovies, getPopularMovie, getTopRatedMovies, getNowPlayingMovies } from "@/lib/movieApi";
+import { getUpcomingMovies, getDashboard } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/ui/LoadingPage";
-import HeaderSlider from "@/components/layout/HeaderSlider";
-import type { VideoSrc } from "@/types/VideoSrc";
-import { FiPlayCircle, FiStar } from "react-icons/fi";
+import type { DashboardItem, ContentSection } from '@/types/Dashboard';
 import SubscriptionSection from "@/components/subscription/SubscriptionSection";
 import { allCategories } from "@/lib/categoryList";
-import NavigationFrame from "@/components/ui/NavigationFrame";
 import { useAuthStore } from "@/store/authStore";
+import DashboardSection from "@/components/movie/DashboardSection";
+import DashboardSlider from "@/components/movie/DashboardSlider";
 
 export default function Home() {
-  const [headerMovies, setHeaderMovies] = useState<VideoSrc[]>([]);
-  const [topRatedMovies, setTopRatedMovies] = useState<VideoSrc[]>([]);
-  const [popularMovies, setPopularMovies] = useState<VideoSrc[]>([]);
-  const [drama, setdrama] = useState<VideoSrc[]>([]);
+  const [headerMovies, setHeaderMovies] = useState<DashboardItem[]>([]);
   const [isloading, setIsLoading] = useState(true);
-  const [nowPlayingMovies, setNowPlayingMovies] = useState<VideoSrc[]>([]);
-  const [shortMovies, setShortMovies] = useState<VideoSrc[]>([]);
+  const [categories, setCategories] = useState<string[]>(allCategories);
+  const [sections, setSections] = useState<ContentSection[]>([]);
   const { user } = useAuthStore();
 
   useEffect(() => {
@@ -29,20 +24,35 @@ export default function Home() {
   const fetchMovies = async () => {
     setIsLoading(true);
     try {
-      const topRated = await getTopRatedMovies(1);
-      const popular = await getPopularMovie(1);
-      const newdrama = await getShort("UCXhPKXcBaBwpwOjq4l8mHIw", 10);
-      const nowPlaying = await getNowPlayingMovies(1);
-      
-      const header = await getUpcomingMovies(1)
-      setTopRatedMovies(topRated);
-      setPopularMovies(popular);
-      setdrama(newdrama);
-      setNowPlayingMovies(nowPlaying);
-      setHeaderMovies(header);
-      const short = await getShort("UC2xVncJghTKzq4HvjzfIcOg", 10);
-      setShortMovies(short);
-      setIsLoading(false);
+      // Try loading live dashboard from backend first
+      const dashboard = await getDashboard();
+      if (dashboard && dashboard.data) {
+          // featured content -> header
+
+          setHeaderMovies(dashboard.data.featuredContent || []);
+          setSections(dashboard.data.contentSections || []);
+          // derive categories from dashboard response, fallback to existing list
+          const mappedCategories = (dashboard.data.categories || []).map((c) => c.categoryName || c.categoryAlias || c.id).filter(Boolean) as string[];
+          setCategories(mappedCategories.length > 0 ? Array.from(new Set(mappedCategories)) : allCategories);
+          setIsLoading(false);
+          return;
+        }
+
+        // fallback: only fetch header upcoming movies to display
+        const header = await getUpcomingMovies(1);
+        // map VideoSrc -> DashboardItem for headerMovies state
+        const headerItems: DashboardItem[] = (header || []).map(h => ({
+          id: String(h.id),
+          title: h.title || '',
+          description: h.description || '',
+          coverUrl: h.backdrop_image || h.potrait_image || undefined,
+          customCoverUrl: h.potrait_image || h.backdrop_image || undefined,
+          createTime: h.release_date || undefined,
+          rating: (h.vote_average as any) ?? undefined,
+          fileSize: (h.popularity as any) ?? undefined,
+        }));
+        setHeaderMovies(headerItems);
+        setIsLoading(false);
     } catch (error) {
       console.error("Error fetching movies:", error);
       setIsLoading(false);
@@ -56,7 +66,7 @@ export default function Home() {
   };
 
   // Expanded categories similar to YouTube
-  
+
 
   const MovieCategoryFilter: React.FC<MovieCategoryFilterProps> = ({ categories, display }) => {
     return (
@@ -80,8 +90,8 @@ export default function Home() {
                 key={category}
                 onClick={() => setSelectedCategory(category === selectedCategory ? null : category)}
                 className={`px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-md hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === category
-                    ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"
-                    : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] hover:text-white transition-colors duration-300"
+                  ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"
+                  : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] hover:text-white transition-colors duration-300"
                   }`}
               >
                 {category}
@@ -102,26 +112,23 @@ export default function Home() {
     <>
       {isloading ? <LoadingPage /> :
         <>
-          <MovieCategoryFilter display="mobile" categories={allCategories} />
-          <HeaderSlider videos={headerMovies} />
+          <MovieCategoryFilter display="mobile" categories={categories} />
+          <DashboardSlider videos={headerMovies} />
           <div className="flex flex-col md:px-20 px-0 w-[100%] mt-4">
-            <MovieCategoryFilter categories={allCategories} />
-            <hr className="h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0"/>
-            {user && <MovieSection
-              icon={<FiPlayCircle className="h-6 w-6 text-[#fbb033]" />}
-              onViewMore={() => console.log("View More Movies")}
-              title="Recently Watch" videos={shortMovies} showRating={true} showPlayback={true} showViewer={true} />}
-            <MovieSection
-              icon={<FiPlayCircle className="h-6 w-6 text-[#fbb033]" />}
-              onViewMore={() => console.log("View More Movies")}
-              title="Short" videos={shortMovies} showRating={true} showPlayback={true} showViewer={true} />
-            <MovieSection
-              icon={<FiStar className="h-6 w-6 text-yellow-400" />}
-              title="Top Rated Movies" videos={topRatedMovies} showRating={true} />
+            <MovieCategoryFilter categories={categories} />
+            <hr className="h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0" />
+            {/* If we have dashboard sections render them dynamically */}
+            {sections.length > 0 && (
+              sections.map((sec) => (
+                <DashboardSection
+                  key={sec.id || sec.title}
+                  onViewMore={sec.hasMore ? () => console.log("View More Movies") : undefined}
+                  title={sec.title || ""}
+                  videos={sec.contents || []}
+                />
+              ))
+            )}
             {!user && <SubscriptionSection />}
-            <MovieSection title="Popular Movies" videos={popularMovies} />
-            <MovieSection title="Drama" frameSize={30} videos={drama} showPlayback={true} showViewer={true} />
-            <MovieSection title="Now Playing Movies" videos={nowPlayingMovies} />
           </div>
         </>
       }

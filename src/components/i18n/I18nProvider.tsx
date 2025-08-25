@@ -47,7 +47,7 @@ export default function I18nProvider({ children }: I18nProviderProps) {
     if (typeof window === 'undefined') return;
 
     const supported = ['en', 'ms', 'zh', 'de', 'fr', 'ru', 'ar'];
-    const savedLang = localStorage.getItem('seefu-language');
+    const savedLang = localStorage.getItem('OTalk-language');
     let chosen = 'en';
 
     if (savedLang && supported.includes(savedLang)) {
@@ -70,7 +70,7 @@ export default function I18nProvider({ children }: I18nProviderProps) {
 
       // Persist the detected preference for subsequent visits
       try {
-        localStorage.setItem('seefu-language', chosen);
+        localStorage.setItem('OTalk-language', chosen);
       } catch (e) {
         // ignore localStorage errors (e.g., in private mode)
       }

@@ -2,21 +2,21 @@
 import { useEffect, useState } from "react";
 import { useGesture } from "@use-gesture/react";
 import LoadingPage from "../ui/LoadingPage";
-import type { VideoSrc } from '@/types/VideoSrc';
+import type { DashboardItem } from '@/types/Dashboard';
 import Image from "next/image";
 
-interface HeaderSliderProps {
-    videos: VideoSrc[];
+interface DashboardSliderProps {
+    videos: DashboardItem[];
 }
 
-const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
+const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
     const [current, setCurrent] = useState(0);
     const [x, setX] = useState(0);
     const [touchStartPoint, setTouchStartPoint] = useState(0);
 
     useEffect(() => {
         const intervalId = setInterval(() => {
-            setCurrent((prev) => (prev + 1) % videos.length);
+            setCurrent((prev) => (prev + 1) % Math.max(1, videos.length));
         }, 5000);
         return () => clearInterval(intervalId);
     }, [videos.length, current]);
@@ -70,7 +70,14 @@ const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
             onTouchEnd={onTouchEnd}
             {...bind()}
         >
-            {videos.map((video, idx) => (
+            {videos.map((video, idx) => {
+                const title = video.title || "";
+                const backdropSrc = video.coverUrl || video.customCoverUrl || "";
+                const portraitSrc = backdropSrc;
+                const description = video.description || "";
+                const releaseLabel = video.createTime ? new Date(String(video.createTime)).toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" }) : (video.year ? String(video.year) : "");
+
+                return (
                 <div
                     key={`${video.id}-${idx}`}
                     className={`absolute inset-0 transition-opacity duration-1000 ${x < 0 && idx === (current + 1) % videos.length ? 'z-2 opacity-100' : x > 0 && idx === (current - 1 + videos.length) % videos.length ? 'z-2 opacity-100' : idx === current ? 'z-9 opacity-100' : 'z-1 opacity-50'}`}
@@ -80,19 +87,19 @@ const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
                             <div className="bg-black w-[90vw] md:w-full order-last md:order-first flex items-end pb-12 mx-auto md:pl-20 overflow-visible">
 
                             <div className="text-white min-w-full md:min-w-[50vw] md:max-w-[50vw] z-1">
-                                <h2 className="text-2xl md:text-4xl font-bold mb-2">{video.title}</h2>
+                                <h2 className="text-2xl md:text-4xl font-bold mb-2">{title}</h2>
                                 <div className="bg-gradient-to-b from-[#fbb033] to-[#f69c05] mb-3 py-2 rounded-lg text-center inline-block w-auto px-4">
-                                     {new Date(video.release_date ?? "").toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" })}
+                                     {releaseLabel}
                                 </div>
                                 <p className="text-base md:text-lg">
-                                    {video.description.split(" ").slice(0, 50).join(" ") + (video.description.split(" ").length > 50 ? "..." : "")}
+                                    {description.split(" ").slice(0, 50).join(" ") + (description.split(" ").length > 50 ? "..." : "")}
                                 </p>
                             </div>
                         </div>
                         <div className="relative bg-[#fbb033] order-first md:order-last">
                             <Image
-                                src={video.backdrop_image || video.potrait_image || ""}
-                                alt={video.title}
+                                src={backdropSrc || portraitSrc || ""}
+                                alt={title}
                                 fill
                                 className="object-cover w-full h-full"
                                 sizes="100vw"
@@ -103,7 +110,8 @@ const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
                         </div>
                     </div>
                 </div>
-            ))}
+                );
+            })}
             <div className="absolute bottom-0 flex gap-0 z-10 justify-center w-full px-5">
                 {videos.map((_, idx) => (
                     <button
@@ -128,4 +136,4 @@ const HeaderSlider: React.FC<HeaderSliderProps> = ({ videos }) => {
     );
 };
 
-export default HeaderSlider;
+export default DashboardSlider;

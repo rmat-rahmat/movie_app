@@ -103,7 +103,7 @@ export default function AuthLayout({
                         textShadow: "2px 2px 3px rgba(0,0,0,0.9), 0 0 0 #000, 0 0 8px #222"
                     }}
                 >
-                    SeeFu.TV
+                    OTalk.TV
                 </h1>
                 <style jsx>{`
                     @keyframes glow {

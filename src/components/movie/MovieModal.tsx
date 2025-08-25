@@ -1,15 +1,23 @@
 import type { VideoSrc } from "@/types/VideoSrc";
+import type { DashboardItem } from '@/types/Dashboard';
 import React from "react";
 import Image from "next/image";
 
 interface MovieModalProps {
-  video: VideoSrc;
+  video: VideoSrc | DashboardItem;
   onClose: () => void;
   showPlayback?: boolean;
 }
 
 const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback }) => {
   if (!video) return null;
+
+  // normalize fields from either VideoSrc or DashboardItem
+  const title = (video as any).title || "";
+  const release_date = (video as any).release_date || ((video as any).createTime ? String((video as any).createTime).split('T')[0] : ((video as any).year ? String((video as any).year) : ""));
+  const description = (video as any).description || "";
+  const backdrop_image = (video as any).backdrop_image || (video as any).coverUrl || (video as any).customCoverUrl || "";
+  const potrait_image = (video as any).potrait_image || (video as any).customCoverUrl || (video as any).coverUrl || "";
 
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center">
@@ -31,8 +39,8 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
             <>
               <div className="w-full rounded-lg md:hidden relative aspect-video">
                 <Image
-                  src={video.backdrop_image || ""}
-                  alt={video.title}
+                  src={backdrop_image || ""}
+                  alt={title}
                   fill
                   className="rounded-lg object-cover"
                   sizes="100vw"
@@ -41,8 +49,8 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
               </div>
               <div className="w-1/3 rounded-lg hidden md:block relative aspect-[2/3]">
                 <Image
-                  src={video.potrait_image || ""}
-                  alt={video.title}
+                  src={potrait_image || ""}
+                  alt={title}
                   fill
                   className="rounded-lg object-cover"
                   sizes="33vw"
@@ -66,33 +74,33 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
               </div>
             )}
 
-            <h2 className="text-2xl font-bold text-white">{video.title}</h2>
-            <p className="text-sm text-gray-400">{video.release_date}</p>
+            <h2 className="text-2xl font-bold text-white">{title}</h2>
+            <p className="text-sm text-gray-400">{release_date}</p>
             <br />
             <p className="text-sm text-white">
-              {(video.description || "").split(" ").slice(0, 100).join(" ") +
-                ((video.description || "").split(" ").length > 100 ? "..." : "")}
+              {(description || "").split(" ").slice(0, 100).join(" ") +
+                ((description || "").split(" ").length > 100 ? "..." : "")}
             </p>
-            {video.vote_count !== undefined && video.vote_count > 0 && (
+            {(video as any).vote_count !== undefined && (video as any).vote_count > 0 && (
               <div className="flex items-center mt-2">
                 {[...Array(5)].map((_, index) => (
                   <svg
                     key={index}
                     xmlns="http://www.w3.org/2000/svg"
-                    className={`h-5 w-5 ${index < Math.ceil((video.vote_average || 0) / 2) ? 'text-[#fbb033]' : 'text-gray-300'}`}
-                    fill={index < Math.ceil((video.vote_average || 0) / 2) ? 'currentColor' : 'none'}
+                    className={`h-5 w-5 ${index < Math.ceil(((video as any).vote_average || (video as any).rating || 0) / 2) ? 'text-[#fbb033]' : 'text-gray-300'}`}
+                    fill={index < Math.ceil(((video as any).vote_average || (video as any).rating || 0) / 2) ? 'currentColor' : 'none'}
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    strokeWidth={index < Math.ceil((video.vote_average || 0) / 2) ? 0 : 1}
+                    strokeWidth={index < Math.ceil(((video as any).vote_average || (video as any).rating || 0) / 2) ? 0 : 1}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                   </svg>
                 ))}
               </div>
             )}
-            {video.casts && video.casts.length > 0 && (
+            {Array.isArray((video as any).casts) && (video as any).casts.length > 0 && (
               <div className="grid grid-flow-col auto-cols-[15%] md:auto-cols-[17%] gap-4 mt-4">
-                {video.casts.slice(0, 5).map(cast => (
+                {(video as any).casts.slice(0, 5).map((cast: any) => (
                   <div key={cast.id} className="flex flex-1 flex-col items-center">
                     <div className="w-full h-auto rounded-lg relative aspect-square">
                       <Image

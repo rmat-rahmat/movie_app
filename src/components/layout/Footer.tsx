@@ -12,7 +12,7 @@ export default function Footer() {
       </div>
       <div className="flex items-center justify-center w-full pt-12 pb-6 z-10">
         <p className="text-sm text-white">
-          &copy; {new Date().getFullYear()} Seefu TV. All rights reserved.
+          &copy; {new Date().getFullYear()} OTalk TV. All rights reserved.
         </p>
       </div>
     </footer>

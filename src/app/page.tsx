@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { getUpcomingMovies, getDashboard } from "@/lib/movieApi";
@@ -71,7 +72,7 @@ export default function Home() {
   const MovieCategoryFilter: React.FC<MovieCategoryFilterProps> = ({ categories, display }) => {
     return (
       <>
-        {display === 'mobile' && <hr className="flex md:hidden h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0 mt-0" />}
+        {display === 'mobile' && <hr className="flex md:hidden h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0 mt-3" />}
         <div
           className={`
             flex justify-center w-full overflow-x-auto mt-2 mb-5

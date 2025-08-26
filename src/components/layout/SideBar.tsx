@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
+import { getCachedCategories } from '@/lib/movieApi';
+import type { CategoryItem } from '@/types/Dashboard';
 import { useAuthStore } from '@/store/authStore';
 import { useTranslation } from 'react-i18next';
 import {
@@ -25,6 +27,7 @@ import {
 const SideBar = ({ show }: { show: boolean }) => {
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [categories, setCategories] = useState<CategoryItem[] | null>(null);
   const { t } = useTranslation('common');
   
   useEffect(() => {
@@ -33,25 +36,17 @@ const SideBar = ({ show }: { show: boolean }) => {
     console.log("Current Pathname:", pathname);
   }, [pathname]);
 
-  const menu = [
-    { href: "/", label: t('navigation.home'), icon: <FiHome className="h-5 w-5 mr-2" /> },
-    { href: "/about", label: t('navigation.about'), icon: <FiInfo className="h-5 w-5 mr-2" /> },
-    { href: "/profile", label: t('navigation.profile'), icon: <FiUser className="h-5 w-5 mr-2" /> },
-    {
-      label: "Categories",
-      icon: <FiGrid className="h-5 w-5 mr-2" />,
-      subMenu: [
-        { href: "/movies", label: t('navigation.movies'), icon: <FiFilm className="h-5 w-5 mr-2" /> },
-        { href: "/?", label: "Sports", icon: <FiSmile className="h-5 w-5 mr-2" /> },
-        { href: "/?", label: "TV", icon: <FiTv className="h-5 w-5 mr-2" /> },
-        { href: "/?", label: "Dramas", icon: <FiGrid className="h-5 w-5 mr-2" /> },
-        { href: "/?", label: "My Music", icon: <FiMusic className="h-5 w-5 mr-2" /> },
-        { href: "/?", label: "Entertainment", icon: <FiSmile className="h-5 w-5 mr-2" /> },
-        { href: "/?", label: "Technology", icon: <FiCpu className="h-5 w-5 mr-2" /> },
-      ]
-    },
-    { href: "/?", label: "Contact", icon: <FiMail className="h-5 w-5 mr-2" /> },
-  ];
+  useEffect(() => {
+    // Load cached categories on client mount
+    try {
+      const cats = getCachedCategories();
+      console.log(cats)
+      if (cats && Array.isArray(cats)) setCategories(cats);
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
   const { isAuthenticated, user, logout } = useAuthStore();
 
   // Create menu based on authentication status (labels come from translations)
@@ -62,14 +57,16 @@ const SideBar = ({ show }: { show: boolean }) => {
       {
         label: t('navigation.categories') || 'Categories',
         icon: <FiGrid className="h-5 w-5 mr-2" />,
-        subMenu: [
-          { href: "/movies", label: t('navigation.movies'), icon: <FiFilm className="h-5 w-5 mr-2" /> },
-          { href: "/?", label: t('navigation.sports') || 'Sports', icon: <FiSmile className="h-5 w-5 mr-2" /> },
-          { href: "/?", label: t('navigation.tv') || 'TV', icon: <FiTv className="h-5 w-5 mr-2" /> },
-          { href: "/?", label: t('navigation.dramas') || 'Dramas', icon: <FiGrid className="h-5 w-5 mr-2" /> },
-          { href: "/?", label: t('navigation.music') || 'My Music', icon: <FiMusic className="h-5 w-5 mr-2" /> },
-          { href: "/?", label: t('navigation.entertainment') || 'Entertainment', icon: <FiSmile className="h-5 w-5 mr-2" /> },
-          { href: "/?", label: t('navigation.technology') || 'Technology', icon: <FiCpu className="h-5 w-5 mr-2" /> },
+        subMenu: (categories && categories.length)
+        ? categories.map((c) => ({ href: `/category/${c.id}`, label: c.categoryName || c.categoryAlias || c.id, icon: <FiGrid className="h-5 w-5 mr-2" /> }))
+        : [
+          // { href: "/movies", label: t('navigation.movies'), icon: <FiFilm className="h-5 w-5 mr-2" /> },
+          // { href: "/?", label: t('navigation.sports') || 'Sports', icon: <FiSmile className="h-5 w-5 mr-2" /> },
+          // { href: "/?", label: t('navigation.tv') || 'TV', icon: <FiTv className="h-5 w-5 mr-2" /> },
+          // { href: "/?", label: t('navigation.dramas') || 'Dramas', icon: <FiGrid className="h-5 w-5 mr-2" /> },
+          // { href: "/?", label: t('navigation.music') || 'My Music', icon: <FiMusic className="h-5 w-5 mr-2" /> },
+          // { href: "/?", label: t('navigation.entertainment') || 'Entertainment', icon: <FiSmile className="h-5 w-5 mr-2" /> },
+          // { href: "/?", label: t('navigation.technology') || 'Technology', icon: <FiCpu className="h-5 w-5 mr-2" /> },
         ]
       },
       { href: "/?", label: t('navigation.contact') || 'Contact', icon: <FiMail className="h-5 w-5 mr-2" /> },
@@ -91,8 +88,8 @@ const SideBar = ({ show }: { show: boolean }) => {
   };
 
   return (
-    <div  className={`pt-20 bg-black/80 fixed lg:relative h-screen text-white py-6 z-40  ${show ? 'w-[70vw] lg:w-[20vw]' : 'w-0'} transition-width duration-300 ease-in-out`}>
-    <div className={`fixed  px-4 h-full ${show ? 'w-[70vw] lg:w-[15vw]' : 'w-0 hidden'} transition-width duration-300 ease-in-out`}>
+    <div  className={`pt-18 md:pt-25 bg-black/80 fixed lg:relative h-screen text-white py-6 z-40  ${show ? 'w-[70vw] lg:w-[20vw]' : 'w-0'} transition-width duration-300 ease-in-out`}>
+    <div className={`fixed bg-black/80  px-4 h-full ${show ? 'w-[70vw] lg:w-[15vw]' : 'w-0 hidden'} transition-width duration-300 ease-in-out`}>
       {/* <h1 className="text-3xl font-bold mt-2 mb-10">OTalk.TV</h1> */}
       <ul>
         {getMenu().map(({ href, label, icon, subMenu }) => {
@@ -113,11 +110,11 @@ const SideBar = ({ show }: { show: boolean }) => {
                   {isOpen ? <FiChevronUp className="ml-auto" /> : <FiChevronDown className="ml-auto" />}
                 </button>
                 {isOpen && (
-                  <ul className="pl-8">
+                  <ul className="pl-8 h-[30vh] md:h-[50vh] overflow-auto">
                     {subMenu.map(({ href, label, icon }) => (
                       <li key={href}>
                         <Link href={href}>
-                          <p className={`flex items-center block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033] 
+                          <p className={`flex w-[90%] items-center block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033] 
                             ${pathname === href ? "bg-gradient-to-l from-[#fbb033] to-transparent font-bold" : ""}
                           `}>
                             {icon}

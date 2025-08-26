@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { VideoSrc } from "@/types/VideoSrc";
 import type { DashboardItem } from '@/types/Dashboard';
 import React from "react";

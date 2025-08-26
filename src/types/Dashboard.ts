@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Types for live dashboard API
 export interface DashboardItem {
   id: string;

@@ -3,7 +3,47 @@ import { parseStringPromise } from 'xml2js';
 import axios from 'axios';
 import { BASE_URL } from '../config';
 import type { VideoSrc } from "@/types/VideoSrc";
-import type { DashboardApiResponse, DashboardItem } from '@/types/Dashboard';
+import type { DashboardApiResponse, DashboardItem, CategoryItem } from '@/types/Dashboard';
+
+// Build hierarchical category tree from flat list (parents contain `children` array)
+function buildCategoryTree(flat: CategoryItem[] = []): CategoryItem[] {
+  const map = new Map<string, CategoryItem & { children?: CategoryItem[] }>();
+  // normalize and populate map
+  flat.forEach((c) => {
+    map.set(String(c.id), { ...c, children: [] });
+  });
+
+  const roots: (CategoryItem & { children?: CategoryItem[] })[] = [];
+
+  map.forEach((node) => {
+    const parentId = node.parentId;
+    if (parentId && parentId !== '0' && map.has(String(parentId))) {
+      const parent = map.get(String(parentId))!;
+      parent.children = parent.children || [];
+      parent.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+
+  // Optional: sort roots and children by sortWeight when present
+  const sortFn = (a: any, b: any) => {
+    const na = Number(a?.sortWeight ?? 0);
+    const nb = Number(b?.sortWeight ?? 0);
+    return na - nb;
+  };
+
+  const sortRecursive = (list: any[]) => {
+    list.sort(sortFn);
+    list.forEach((it) => {
+      if (Array.isArray(it.children) && it.children.length) sortRecursive(it.children);
+    });
+  };
+
+  sortRecursive(roots as any[]);
+
+  return roots as CategoryItem[];
+}
 
 // Helper to convert Movie to VideoSrc
 const Authorization = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4Yzc0NjMzMDQxNmJiODMxMmY5MzI1NTA1Y2JjZmZhZSIsIm5iZiI6MTc1NDg3NTYwMi42NzI5OTk5LCJzdWIiOiI2ODk5NDZkMjc3M2YwMWMyMzQ1ZDEyNzciLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.rXrr9MVh9M5P1TEmAxiHrr374UKU5SgLZaVzl4U0GEA';
@@ -199,14 +239,138 @@ export const getShort = async (channel_id: string, limit: number): Promise<Video
 };
 
 // Fetch live dashboard from backend and map to VideoSrc
+// Simple module-level cache to support server/runtime environments where localStorage
+// is not available. This is best-effort and will be overwritten by localStorage when
+// available in the browser.
+let inMemoryDashboardCache: { timestamp: number; payload: DashboardApiResponse } | null = null;
+let inMemoryCategoriesCache: { timestamp: number; categories: CategoryItem[] } | null = null;
+
 export const getDashboard = async (): Promise<DashboardApiResponse | null> => {
+  const CACHE_KEY = 'seefu_dashboard_cache_v1';
+  const REFRESH_TS_KEY = 'seefu_dashboard_refresh_timestamps_v1';
+  const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+  const now = Date.now();
+
+  const isWindow = typeof window !== 'undefined';
+
+  const readCache = (): { timestamp: number; payload: DashboardApiResponse } | null => {
+    if (inMemoryDashboardCache) return inMemoryDashboardCache;
+    if (!isWindow) return null;
+    try {
+      const raw = window.localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { timestamp: number; payload: DashboardApiResponse };
+      // basic validation
+      if (!parsed || !parsed.timestamp || !parsed.payload) return null;
+      // populate in-memory for this runtime
+      // If categories exist, ensure they are transformed into a hierarchical tree
+      const flatCats = parsed.payload?.data?.categories || [];
+      const catsTree = Array.isArray(flatCats) ? buildCategoryTree(flatCats as CategoryItem[]) : [];
+      parsed.payload = {
+        ...parsed.payload,
+        data: {
+          ...parsed.payload.data,
+          categories: catsTree,
+        },
+      };
+      inMemoryDashboardCache = parsed;
+      // also populate categories cache if available
+      inMemoryCategoriesCache = { timestamp: parsed.timestamp, categories: catsTree };
+      return parsed;
+    } catch (e) {
+      // malformed json or access denied
+      return null;
+    }
+  };
+
+  // Detect rapid refreshes (multiple page loads within short period) using sessionStorage
+  // We keep a list of timestamps (ms) and count entries within the last 5 seconds.
+  let forceRefresh = false;
+  if (isWindow) {
+    try {
+      const raw = window.sessionStorage.getItem(REFRESH_TS_KEY);
+      const arr: number[] = raw ? (JSON.parse(raw) as number[]) : [];
+      // add current load
+      arr.push(now);
+      // keep only last 5 seconds
+      const windowStart = now - 5_000;
+      const recent = arr.filter((t) => t >= windowStart);
+      // persist back
+      window.sessionStorage.setItem(REFRESH_TS_KEY, JSON.stringify(recent));
+      // force refresh when page was refreshed more than 3 times within 5 seconds
+      if (recent.length > 3) forceRefresh = true;
+    } catch (e) {
+      // ignore sessionStorage errors
+    }
+  }
+
+  const cache = readCache();
+  // If cache exists and is fresh, return it — unless it has no categories (empty/missing),
+  // in which case we consider it stale and fetch fresh data from server.
+  const cacheHasCategories = !!(cache && cache.payload && Array.isArray(cache.payload.data?.categories) && cache.payload.data!.categories.length > 0);
+  if (!forceRefresh && cache && now - cache.timestamp < TWO_HOURS_MS && cacheHasCategories) {
+    return cache.payload;
+  }
+
+  // fetch fresh data
   try {
     const url = `${BASE_URL}/api-movie/v1/home/dashboard`;
     const res = await axios.get<DashboardApiResponse>(url);
-    const payload = res.data;
-    return payload as DashboardApiResponse;
+    const payload = res.data as DashboardApiResponse;
+
+  // ensure categories are stored as hierarchical tree
+  const flatCats = payload?.data?.categories || [];
+  const catsTree = Array.isArray(flatCats) ? buildCategoryTree(flatCats as CategoryItem[]) : [];
+  // create a new payload object with hierarchical categories
+  const newPayload = { ...payload, data: { ...payload.data, categories: catsTree } } as DashboardApiResponse;
+
+  const record = { timestamp: now, payload: newPayload };
+  // update in-memory
+  inMemoryDashboardCache = record;
+  // update categories cache in-memory
+  inMemoryCategoriesCache = { timestamp: now, categories: catsTree };
+    // update localStorage when available
+    if (isWindow) {
+      try {
+        window.localStorage.setItem(CACHE_KEY, JSON.stringify(record));
+        // also persist categories (hierarchical tree) separately for quick access
+        const CATEGORIES_KEY = 'seefu_dashboard_categories_v1';
+        try {
+          window.localStorage.setItem(CATEGORIES_KEY, JSON.stringify(catsTree));
+        } catch (e) {
+          // ignore category storage errors
+        }
+      } catch (e) {
+        // ignore quota/permission errors
+      }
+    }
+
+  return newPayload;
   } catch (err) {
     console.error('Failed to fetch dashboard', err);
+    // fallback to cache if available
+    if (cache) return cache.payload;
+    return null;
+  }
+};
+
+// Synchronous helper to get cached categories (in-memory or localStorage). Returns null when
+// no categories are cached or when running outside the browser and no in-memory cache exists.
+export const getCachedCategories = (): CategoryItem[] | null => {
+  if (inMemoryCategoriesCache) return inMemoryCategoriesCache.categories;
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem('seefu_dashboard_categories_v1');
+    if (!raw) return null;
+  const parsed = JSON.parse(raw);
+  if (!Array.isArray(parsed)) return null;
+  // If stored format is flat (items have parentId and no children), convert to tree
+  const first = parsed[0];
+  const isTree = first && Object.prototype.hasOwnProperty.call(first, 'children');
+  const catsTree = isTree ? (parsed as CategoryItem[]) : buildCategoryTree(parsed as CategoryItem[]);
+  inMemoryCategoriesCache = { timestamp: Date.now(), categories: catsTree };
+  return catsTree;
+  } catch (e) {
     return null;
   }
 };

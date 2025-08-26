@@ -58,7 +58,15 @@ export default function SettingsPage() {
     setLocalLoading(true);
     setSuccess(null);
     try {
-      const payload: any = {
+      type UpdateProfilePayload = {
+        nickname?: string;
+        phone?: string;
+        avatar?: string;
+        gender?: number;
+        birthday?: string;
+      };
+
+      const payload: UpdateProfilePayload = {
         nickname: form.nickname || undefined,
         phone: form.phone || undefined,
         avatar: form.avatar || undefined,

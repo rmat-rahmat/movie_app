@@ -17,8 +17,10 @@ interface DashboardSectionProps {
     onViewMore?: () => void;
 }
 
-const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, showRating, showPlayback, showViewer, frameSize,icon,onViewMore }) => {
+const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, showRating, showPlayback, showViewer, frameSize, icon, onViewMore }) => {
     const [selectedMovieIndex, setSelectedMovieIndex] = useState<number | null>(null);
+    // track image load errors per item index so we can fallback to a local sample poster
+    const [imageErrorMap, setImageErrorMap] = useState<Record<number, boolean>>({});
 
     if (!videos || videos.length === 0) {
         return <div className="text-center text-gray-500">No movies available</div>;
@@ -65,14 +67,30 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
                             <div className="relative w-full h-auto rounded-lg mb-2" >
                                 <div className="absolute w-full h-full bg-gradient-to-t from-black via-black/30 to-transparent z-1" />
                                 <div className="relative w-full h-[300px]">
-                                    <Image
-                                        src={potrait || ""}
-                                        alt={video.title || ""}
-                                        fill
-                                        className="z-0 rounded-t-lg object-cover"
-                                        sizes="100vw"
-                                        priority={index === 0}
-                                    />
+                                    {
+                                        (() => {
+                                            const fallbackSrc2 = '/fallback_poster/sample_poster.png';
+                                            const fallbackSrc1 = '/fallback_poster/sample_poster1.png';
+                                            const computedSrc = (!potrait) ? fallbackSrc2 : (imageErrorMap[index] ? (index % 2 === 0 ? fallbackSrc1 : fallbackSrc2) : potrait);
+                                            return (
+                                                <Image
+                                                    src={computedSrc}
+                                                    alt={video.title || ""}
+                                                    fill
+                                                    className="z-0 rounded-t-lg object-cover"
+                                                    sizes="100vw"
+                                                    priority={index === 0}
+                                                    onError={() => setImageErrorMap(s => ({ ...s, [index]: true }))}
+                                                    onLoadingComplete={() => setImageErrorMap(s => {
+                                                        if (!s[index]) return s;
+                                                        const copy = { ...s };
+                                                        delete copy[index];
+                                                        return copy;
+                                                    })}
+                                                />
+                                            );
+                                        })()
+                                    }
                                 </div>
                             </div>
                             <div className='relative px-4 mt-[-70px] lg::mt-[-40px]  overflow-y-visible z-1'>

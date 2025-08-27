@@ -13,6 +13,8 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
     const [current, setCurrent] = useState(0);
     const [x, setX] = useState(0);
     const [touchStartPoint, setTouchStartPoint] = useState(0);
+    // track image load errors per slide index so we can fallback to a local sample
+    const [imageErrorMap, setImageErrorMap] = useState<Record<number, boolean>>({});
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -74,6 +76,9 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
                 const title = video.title || "";
                 const backdropSrc = video.coverUrl || video.customCoverUrl || "";
                 const portraitSrc = backdropSrc;
+                const fallbackSrc2 = '/fallback_poster/sample_snapshot_2.png';
+                const fallbackSrc1 = '/fallback_poster/sample_snapshot_1.png';
+                const computedSrc = (!backdropSrc && !portraitSrc) ? fallbackSrc1 : (imageErrorMap[idx] ? (idx%2===0 ? fallbackSrc1 : fallbackSrc2) : (backdropSrc || portraitSrc || fallbackSrc1));
                 const description = video.description || "";
                 const releaseLabel = video.createTime ? new Date(String(video.createTime)).toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" }) : (video.year ? String(video.year) : "");
 
@@ -98,12 +103,22 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
                         </div>
                         <div className="relative bg-[#fbb033] order-first md:order-last">
                             <Image
-                                src={backdropSrc || portraitSrc || ""}
+                                src={computedSrc}
                                 alt={title}
                                 fill
                                 className="object-cover w-full h-full"
                                 sizes="100vw"
                                 priority={idx === current}
+                                onError={() => setImageErrorMap(s => ({ ...s, [idx]: true }))}
+                                onLoadingComplete={() => {
+                                    // clear any previous error if the image successfully loads
+                                    setImageErrorMap(s => {
+                                        if (!s[idx]) return s;
+                                        const copy = { ...s };
+                                        delete copy[idx];
+                                        return copy;
+                                    });
+                                }}
                             />
                             <div className="absolute inset-0 h-full bg-gradient-to-t from-black via-black/30 to-black/30 md:bg-[radial-gradient(circle_at_60%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
                             <div className="absolute inset-0 h-full md:bg-[radial-gradient(circle_at_70%_50%,transparent,rgba(0,0,0,0.4),#000)]" />

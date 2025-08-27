@@ -26,7 +26,7 @@ export default function Home() {
     setIsLoading(true);
     try {
       // Try loading live dashboard from backend first
-      const dashboard = await getDashboard();
+      const dashboard = await getDashboard(true);
       if (dashboard && dashboard.data) {
           // featured content -> header
 
@@ -83,7 +83,7 @@ export default function Home() {
           style={{ scrollbarWidth: "none" }}
         >
           <div
-            className="flex w-full gap-2 md:gap-4 px-2 py-1"
+            className="flex w-full gap-2 md:gap-4 px-2 py-1 justify-center"
             style={{ scrollbarWidth: "none" }}
           >
             {categories.map((category) => (

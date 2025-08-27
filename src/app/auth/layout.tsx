@@ -17,7 +17,6 @@ export default function AuthLayout({
         setIsLoading(true);
         try {
             const moviesData = await getMovies(30);
-            console.log(moviesData.length, "movies fetched");
             setMovies(moviesData);
         } catch (error) {
             console.error("Error fetching movies:", error);

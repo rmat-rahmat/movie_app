@@ -42,7 +42,7 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                         >
                             <FiMenu size={28} />
                         </button>
-                        <Image src="/next.svg" alt="Logo" width={40} height={40} />
+                        <Image src="/logo_dark.svg" className="mx-2" alt="Logo" width={40} height={40} />
                         <span className="font-bold text-lg lg:text-3xl text-white">{t('navigation.brand')}</span>
                     </div>
 

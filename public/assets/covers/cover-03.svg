@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <rect width="1200" height="675" fill="#07103f" />
+  <g transform="translate(30,30)">
+    <rect width="360" height="615" rx="8" fill="#0ea5e9" />
+    <rect x="20" y="20" width="320" height="420" rx="6" fill="#020617" />
+    <text x="180" y="475" font-family="Inter, Arial, Helvetica, sans-serif" font-size="20" fill="#fff" text-anchor="middle">Poster #3</text>
+    <text x="180" y="505" font-family="Inter, Arial, Helvetica, sans-serif" font-size="14" fill="#e5e7eb" text-anchor="middle">Short</text>
+  </g>
+  <g transform="translate(420,30)">
+    <rect width="750" height="420" rx="8" fill="#0b1220" />
+    <rect x="20" y="20" width="710" height="380" rx="6" fill="#111827" />
+    <text x="375" y="460" font-family="Inter, Arial, Helvetica, sans-serif" font-size="22" fill="#fff" text-anchor="middle">Snapshot #3</text>
+    <rect x="0" y="480" width="750" height="120" rx="6" fill="#07103f" />
+    <text x="20" y="520" font-family="Inter, Arial, Helvetica, sans-serif" font-size="18" fill="#f472b6">Title: City Lights</text>
+    <text x="20" y="548" font-family="Inter, Arial, Helvetica, sans-serif" font-size="14" fill="#9ca3af">Episode: 05 • 24m</text>
+  </g>
+</svg>

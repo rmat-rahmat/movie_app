@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <defs>
+    <linearGradient id="g2" x1="0" x2="1">
+      <stop offset="0%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#F97316" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="#050816" />
+  <g transform="translate(30,30)">
+    <rect width="360" height="615" rx="8" fill="url(#g2)" />
+    <rect x="20" y="20" width="320" height="420" rx="6" fill="#0b1220" />
+    <text x="180" y="475" font-family="Inter, Arial, Helvetica, sans-serif" font-size="20" fill="#fff" text-anchor="middle">Poster #2</text>
+    <text x="180" y="505" font-family="Inter, Arial, Helvetica, sans-serif" font-size="14" fill="#e5e7eb" text-anchor="middle">Movie</text>
+  </g>
+  <g transform="translate(420,30)">
+    <rect width="750" height="420" rx="8" fill="#071124" />
+    <rect x="20" y="20" width="710" height="380" rx="6" fill="#0f172a" />
+    <text x="375" y="460" font-family="Inter, Arial, Helvetica, sans-serif" font-size="22" fill="#fff" text-anchor="middle">Snapshot #2</text>
+    <rect x="0" y="480" width="750" height="120" rx="6" fill="#021124" />
+    <text x="20" y="520" font-family="Inter, Arial, Helvetica, sans-serif" font-size="18" fill="#34d399">Title: Dawn Breaks</text>
+    <text x="20" y="548" font-family="Inter, Arial, Helvetica, sans-serif" font-size="14" fill="#9ca3af">Duration: 1h 32m</text>
+  </g>
+</svg>

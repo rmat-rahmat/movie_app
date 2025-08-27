@@ -27,20 +27,20 @@ function buildCategoryTree(flat: CategoryItem[] = []): CategoryItem[] {
   });
 
   // Optional: sort roots and children by sortWeight when present
-  const sortFn = (a: any, b: any) => {
+  const sortFn = (a: CategoryItem & { sortWeight?: string | number | undefined }, b: CategoryItem & { sortWeight?: string | number | undefined }) => {
     const na = Number(a?.sortWeight ?? 0);
     const nb = Number(b?.sortWeight ?? 0);
     return na - nb;
   };
 
-  const sortRecursive = (list: any[]) => {
+  const sortRecursive = (list: (CategoryItem & { children?: CategoryItem[] })[]) => {
     list.sort(sortFn);
     list.forEach((it) => {
-      if (Array.isArray(it.children) && it.children.length) sortRecursive(it.children);
+      if (Array.isArray(it.children) && it.children.length) sortRecursive(it.children as (CategoryItem & { children?: CategoryItem[] })[]);
     });
   };
 
-  sortRecursive(roots as any[]);
+  sortRecursive(roots as (CategoryItem & { children?: CategoryItem[] })[]);
 
   return roots as CategoryItem[];
 }
@@ -111,7 +111,6 @@ export const getNowPlayingMovies = async (number: number): Promise<VideoSrc[]> =
   const res = await axios.get(url, { headers: options.headers });
   const movies = res.data;
     // Convert each movie to VideoSrc format
-    console.log(movies);
     return movies?.results.map(movieToVideoSrc);
   } catch (error) {
     console.error('Error fetching now playing movies:', error);
@@ -245,7 +244,7 @@ export const getShort = async (channel_id: string, limit: number): Promise<Video
 let inMemoryDashboardCache: { timestamp: number; payload: DashboardApiResponse } | null = null;
 let inMemoryCategoriesCache: { timestamp: number; categories: CategoryItem[] } | null = null;
 
-export const getDashboard = async (): Promise<DashboardApiResponse | null> => {
+export const getDashboard = async (force = false): Promise<DashboardApiResponse | null> => {
   const CACHE_KEY = 'seefu_dashboard_cache_v1';
   const REFRESH_TS_KEY = 'seefu_dashboard_refresh_timestamps_v1';
   const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
@@ -308,7 +307,8 @@ export const getDashboard = async (): Promise<DashboardApiResponse | null> => {
   // If cache exists and is fresh, return it — unless it has no categories (empty/missing),
   // in which case we consider it stale and fetch fresh data from server.
   const cacheHasCategories = !!(cache && cache.payload && Array.isArray(cache.payload.data?.categories) && cache.payload.data!.categories.length > 0);
-  if (!forceRefresh && cache && now - cache.timestamp < TWO_HOURS_MS && cacheHasCategories) {
+  // if caller explicitly requests a force refresh, skip returning cached payload
+  if (!force && !forceRefresh && cache && now - cache.timestamp < TWO_HOURS_MS && cacheHasCategories) {
     return cache.payload;
   }
 
@@ -370,6 +370,7 @@ export const getCachedCategories = (): CategoryItem[] | null => {
   const catsTree = isTree ? (parsed as CategoryItem[]) : buildCategoryTree(parsed as CategoryItem[]);
   inMemoryCategoriesCache = { timestamp: Date.now(), categories: catsTree };
   return catsTree;
+    return parsed
   } catch (e) {
     return null;
   }

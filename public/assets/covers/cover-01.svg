@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="#0b0b0b" />
+  <!-- Portrait poster -->
+  <g transform="translate(30,30)">
+    <rect width="360" height="615" rx="8" fill="url(#g1)" />
+    <rect x="20" y="20" width="320" height="420" rx="6" fill="#111827" />
+    <text x="180" y="475" font-family="Inter, Arial, Helvetica, sans-serif" font-size="20" fill="#fff" text-anchor="middle">Poster #1</text>
+    <text x="180" y="505" font-family="Inter, Arial, Helvetica, sans-serif" font-size="14" fill="#e5e7eb" text-anchor="middle">Short Drama</text>
+  </g>
+
+  <!-- Snapshot -->
+  <g transform="translate(420,30)">
+    <rect width="750" height="420" rx="8" fill="#111827" />
+    <rect x="20" y="20" width="710" height="380" rx="6" fill="#374151" />
+    <text x="375" y="460" font-family="Inter, Arial, Helvetica, sans-serif" font-size="22" fill="#fff" text-anchor="middle">Snapshot #1</text>
+    <rect x="0" y="480" width="750" height="120" rx="6" fill="#0f172a" />
+    <text x="20" y="520" font-family="Inter, Arial, Helvetica, sans-serif" font-size="18" fill="#fbbf24">Title: The Quiet Night</text>
+    <text x="20" y="548" font-family="Inter, Arial, Helvetica, sans-serif" font-size="14" fill="#cbd5e1">Episode: 01 • Drama • 12m</text>
+  </g>
+</svg>

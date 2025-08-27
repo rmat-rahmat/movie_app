@@ -23,24 +23,27 @@ import {
   FiLogIn,
   FiLogOut
 } from 'react-icons/fi';
+import RecursiveMenu, { type MenuItem } from './RecursiveMenu';
 
 const SideBar = ({ show }: { show: boolean }) => {
   const pathname = usePathname();
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<string[]>([]);
+  const [userToggled, setUserToggled] = useState<boolean>(false);
   const [categories, setCategories] = useState<CategoryItem[] | null>(null);
   const { t } = useTranslation('common');
-  
+
   useEffect(() => {
-    setOpenDropdown(null); // Reset dropdown on pathname change
+    setOpenDropdown([]); // Reset dropdown on pathname change
+  setUserToggled(false);
     // This effect runs on mount and whenever the pathname changes
-    console.log("Current Pathname:", pathname);
+    const segments = pathname ? pathname.split("/").filter(item => item) : [];
+    setOpenDropdown(segments);
   }, [pathname]);
 
   useEffect(() => {
     // Load cached categories on client mount
     try {
       const cats = getCachedCategories();
-      console.log(cats)
       if (cats && Array.isArray(cats)) setCategories(cats);
     } catch (e) {
       // ignore
@@ -56,18 +59,23 @@ const SideBar = ({ show }: { show: boolean }) => {
       { href: "/about", label: t('navigation.about'), icon: <FiInfo className="h-5 w-5 mr-2" /> },
       {
         label: t('navigation.categories') || 'Categories',
+        name:"category",
         icon: <FiGrid className="h-5 w-5 mr-2" />,
         subMenu: (categories && categories.length)
-        ? categories.map((c) => ({ href: `/category/${c.id}`, label: c.categoryName || c.categoryAlias || c.id, icon: <FiGrid className="h-5 w-5 mr-2" /> }))
-        : [
-          // { href: "/movies", label: t('navigation.movies'), icon: <FiFilm className="h-5 w-5 mr-2" /> },
-          // { href: "/?", label: t('navigation.sports') || 'Sports', icon: <FiSmile className="h-5 w-5 mr-2" /> },
-          // { href: "/?", label: t('navigation.tv') || 'TV', icon: <FiTv className="h-5 w-5 mr-2" /> },
-          // { href: "/?", label: t('navigation.dramas') || 'Dramas', icon: <FiGrid className="h-5 w-5 mr-2" /> },
-          // { href: "/?", label: t('navigation.music') || 'My Music', icon: <FiMusic className="h-5 w-5 mr-2" /> },
-          // { href: "/?", label: t('navigation.entertainment') || 'Entertainment', icon: <FiSmile className="h-5 w-5 mr-2" /> },
-          // { href: "/?", label: t('navigation.technology') || 'Technology', icon: <FiCpu className="h-5 w-5 mr-2" /> },
-        ]
+          ? categories.map((c) => ({
+            href: `/category/${c.id}`, label: c.categoryName || c.categoryAlias || c.id, icon: <FiGrid className="h-5 w-5 mr-2" />,
+            name:c.id,
+            subMenu: c.children && c.children.length ? c.children.map((sub: CategoryItem) => ({ href: `/category/${sub.id}`, label: sub.categoryName || sub.categoryAlias || sub.id, icon: <FiGrid className="h-5 w-5 mr-2" /> })) : []
+          }))
+          : [
+            // { href: "/movies", label: t('navigation.movies'), icon: <FiFilm className="h-5 w-5 mr-2" /> },
+            // { href: "/?", label: t('navigation.sports') || 'Sports', icon: <FiSmile className="h-5 w-5 mr-2" /> },
+            // { href: "/?", label: t('navigation.tv') || 'TV', icon: <FiTv className="h-5 w-5 mr-2" /> },
+            // { href: "/?", label: t('navigation.dramas') || 'Dramas', icon: <FiGrid className="h-5 w-5 mr-2" /> },
+            // { href: "/?", label: t('navigation.music') || 'My Music', icon: <FiMusic className="h-5 w-5 mr-2" /> },
+            // { href: "/?", label: t('navigation.entertainment') || 'Entertainment', icon: <FiSmile className="h-5 w-5 mr-2" /> },
+            // { href: "/?", label: t('navigation.technology') || 'Technology', icon: <FiCpu className="h-5 w-5 mr-2" /> },
+          ]
       },
       { href: "/?", label: t('navigation.contact') || 'Contact', icon: <FiMail className="h-5 w-5 mr-2" /> },
     ];
@@ -83,88 +91,72 @@ const SideBar = ({ show }: { show: boolean }) => {
     await logout();
   };
 
-  const handleDropdownToggle = (label: string) => {
-    setOpenDropdown((prev) => (prev === label ? null : label));
+  const handleDropdownToggle = (labelOrArray: string | string[]) => {
+  setUserToggled(true);
+    if (Array.isArray(labelOrArray)) {
+      // Replace the dropdown state directly when an array is provided.
+      // If the provided array is equal to current state, collapse one level (remove last item).
+      setOpenDropdown((prev) => {
+        if (JSON.stringify(prev) === JSON.stringify(labelOrArray)) {
+          // collapse one level
+          if (prev.length === 0) return [];
+          return labelOrArray.slice(0, -1);
+        } else {
+          const last = labelOrArray[labelOrArray.length - 1];
+          const idx = prev.indexOf(last);
+          if (idx > -1) {
+            // remove from found index and above
+
+            return prev.slice(-1, idx);
+          } else {
+            return [...labelOrArray];
+          }
+        }
+      });
+      return;
+    }
+    const label = labelOrArray;
+    setOpenDropdown((prev) => {
+      if (prev.includes(label)) return prev.filter((l) => l !== label);
+      return [...prev, label];
+    });
   };
 
   return (
-    <div  className={`pt-18 md:pt-25 bg-black/80 fixed lg:relative h-screen text-white py-6 z-40  ${show ? 'w-[70vw] lg:w-[20vw]' : 'w-0'} transition-width duration-300 ease-in-out`}>
-    <div className={`fixed bg-black/80  px-4 h-full ${show ? 'w-[70vw] lg:w-[15vw]' : 'w-0 hidden'} transition-width duration-300 ease-in-out`}>
-      {/* <h1 className="text-3xl font-bold mt-2 mb-10">OTalk.TV</h1> */}
-      <ul>
-        {getMenu().map(({ href, label, icon, subMenu }) => {
-          if (subMenu) {
-            // Check if any submenu item matches pathname
-            const shouldOpen = subMenu.some(item => pathname === item.href);
-            const isOpen = openDropdown === label || shouldOpen;
-            return (
-              <li key={label}>
-                <button
-                  onClick={() => handleDropdownToggle(label)}
-                  className={`flex w-full cursor-pointer items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033]
-                    ${isOpen ? "bg-gradient-to-l from-[#fbb033] to-transparent font-bold" : ""}
-                  `}
-                >
-                  {icon}
-                  {label}
-                  {isOpen ? <FiChevronUp className="ml-auto" /> : <FiChevronDown className="ml-auto" />}
-                </button>
-                {isOpen && (
-                  <ul className="pl-8 h-[30vh] md:h-[50vh] overflow-auto">
-                    {subMenu.map(({ href, label, icon }) => (
-                      <li key={href}>
-                        <Link href={href}>
-                          <p className={`flex w-[90%] items-center block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033] 
-                            ${pathname === href ? "bg-gradient-to-l from-[#fbb033] to-transparent font-bold" : ""}
-                          `}>
-                            {icon}
-                            {label}
-                          </p>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            );
-          }
-          // Not a submenu
-          return (
-            <li key={label}>
-              <Link href={href}>
-                <p className={`flex items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033]
-                  ${pathname === href ? "bg-gradient-to-l from-[#fbb033] to-transparent font-bold" : ""}
-                `}>
-                  {icon}
-                  {label}
-                </p>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-      <div className="absolute bottom-40 md:bottom-30 left-4 w-full">
-        {isAuthenticated ? (
-          <div className="space-y-2">
-            {/* <p className="text-gray-400 text-sm">Hi, {user?.nickname || user?.email || 'User'}</p> */}
-            <button
-              onClick={handleLogout}
-              className="flex items-center rounded-md block p-2 w-full hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033] bg-transparent border-none text-white cursor-pointer"
-            >
-              <FiLogOut className="h-5 w-5 mr-2" />
-              {t('navigation.logout')}
-            </button>
-          </div>
-        ) : (
-          <Link href={'/auth/login'}>
-            <p className="flex items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033]">
-              <FiLogIn className="h-5 w-5 mr-2" />
-              {t('navigation.login')}
-            </p>
-          </Link>
-        )}
+    <div className={`pt-18 md:pt-25 bg-black/80 fixed lg:relative h-screen text-white py-6 z-40  ${show ? 'w-[70vw] lg:w-[20vw]' : 'w-0'} transition-width duration-300 ease-in-out`}>
+      <div className={`fixed bg-black/80  px-4 h-full ${show ? 'w-[70vw] lg:w-[20vw]' : 'w-0 hidden'} transition-width duration-300 ease-in-out`}>
+        {/* <h1 className="text-3xl font-bold mt-2 mb-10">OTalk.TV</h1> */}
+        <ul>
+          <RecursiveMenu
+            items={getMenu() as MenuItem[]}
+            pathname={pathname}
+            openDropdown={openDropdown}
+            onToggle={handleDropdownToggle}
+            userToggled={userToggled}
+          />
+        </ul>
+        <div className="absolute bottom-40 md:bottom-30 left-4 w-full">
+          {isAuthenticated ? (
+            <div className="space-y-2">
+              {/* <p className="text-gray-400 text-sm">Hi, {user?.nickname || user?.email || 'User'}</p> */}
+              <button
+                onClick={handleLogout}
+                className="flex items-center rounded-md block p-2 w-full hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033] bg-transparent border-none text-white cursor-pointer"
+              >
+                <FiLogOut className="h-5 w-5 mr-2" />
+                {t('navigation.logout')}
+              </button>
+            </div>
+          ) : (
+            <Link href={'/auth/login'}>
+              <p className="flex items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033]">
+                <FiLogIn className="h-5 w-5 mr-2" />
+                {t('navigation.login')}
+              </p>
+            </Link>
+          )}
+        </div>
       </div>
-    </div>
     </div>
   );
 };

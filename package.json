@@ -1,5 +1,5 @@
 {
-  "name": "OTalk_tv",
+  "name": "otalk-tv",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "export": "next export",
-    "deploy:gh": "yarn build && npx gh-pages -d out"
+    "deploy:gh": "yarn build && npx gh-pages -d out",
+    "generate:icons": "node scripts/generate-favicon.js && node scripts/generate-social-images.js"
   },
   "dependencies": {
     "@use-gesture/react": "^10.3.1",

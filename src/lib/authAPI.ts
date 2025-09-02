@@ -5,10 +5,11 @@ import i18next from 'i18next';
 // Lightweight auth helpers using axios
 // Assumption: backend exposes REST endpoints under /api/auth
 // Contract:
-// - login(email,password) -> { token, user }
+// - login(email,password,deviceId) -> { token, user }
 // - register(name,email,password) -> { token, user }
 // - logout() -> void
 // - getCurrentUser() -> User | null
+// - getDeviceId() -> string (generates/retrieves unique device identifier)
 
 type User = { id: string; email: string; name?: string; [key: string]: unknown };
 type AuthResponse = { token: string; user: User };
@@ -54,6 +55,57 @@ function tr(key: string, fallback: string) {
   }
 }
 
+// Device ID generation and management
+const DEVICE_ID_KEY = 'device_id';
+
+function generateDeviceId(): string {
+  // Generate a unique device ID using timestamp, random values, and browser info
+  const timestamp = Date.now().toString(36);
+  const randomPart = Math.random().toString(36).substring(2);
+  
+  if (typeof navigator !== 'undefined') {
+    // Use browser fingerprinting for consistency
+    const userAgent = navigator.userAgent;
+    const language = navigator.language;
+    const platform = navigator.platform;
+    const screenResolution = `${screen.width}x${screen.height}`;
+    
+    // Create a simple hash from browser info
+    const browserInfo = `${userAgent}-${language}-${platform}-${screenResolution}`;
+    let hash = 0;
+    for (let i = 0; i < browserInfo.length; i++) {
+      const char = browserInfo.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    const browserHash = Math.abs(hash).toString(36);
+    
+    return `${timestamp}-${randomPart}-${browserHash}`;
+  }
+  
+  return `${timestamp}-${randomPart}-server`;
+}
+
+function getDeviceId(): string {
+  try {
+    if (typeof window !== 'undefined') {
+      let deviceId = localStorage.getItem(DEVICE_ID_KEY);
+      if (!deviceId) {
+        deviceId = generateDeviceId();
+        localStorage.setItem(DEVICE_ID_KEY, deviceId);
+      }
+      return deviceId;
+    }
+  } catch {
+    // Fallback for SSR or when localStorage is not available
+  }
+  
+  return generateDeviceId();
+}
+
+// Export device ID function for use in other parts of the app
+export { getDeviceId };
+
 // add token storage key and helpers
 const TOKEN_KEY = 'auth_token';
 
@@ -82,20 +134,28 @@ export function restoreAuthFromStorage() {
 /**
  * Login using the movie API endpoint: POST {BASE_URL}/api-movie/v1/auth/login
  * Supports JSON by default; set `form = true` to send application/x-www-form-urlencoded
+ * Now includes device ID for tracking user sessions across devices
  */
 export async function login(email: string, password: string, form = false): Promise<AuthResponse> {
   const url = `${BASE_URL}/api-movie/v1/auth/login`;
+  const deviceId = getDeviceId();
+  
   try {
     let res;
     if (form) {
       const params = new URLSearchParams();
       params.append('email', email);
       params.append('password', password);
+      params.append('deviceId', deviceId);
       res = await axios.post<StandardResponse<LoginUserVo>>(url, params.toString(), {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
     } else {
-      res = await axios.post<StandardResponse<LoginUserVo>>(url, { email, password });
+      res = await axios.post<StandardResponse<LoginUserVo>>(url, { 
+        email, 
+        password, 
+        deviceId 
+      });
     }
 
     const body = res.data as StandardResponse<LoginUserVo>;

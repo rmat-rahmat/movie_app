@@ -3,7 +3,7 @@ import { parseStringPromise } from 'xml2js';
 import axios from 'axios';
 import { BASE_URL } from '../config';
 import type { VideoSrc } from "@/types/VideoSrc";
-import type { DashboardApiResponse, DashboardItem, CategoryItem } from '@/types/Dashboard';
+import type { DashboardApiResponse, DashboardItem, CategoryItem, VideosApiResponse, SearchApiResponse } from '@/types/Dashboard';
 
 // Build hierarchical category tree from flat list (parents contain `children` array)
 function buildCategoryTree(flat: CategoryItem[] = []): CategoryItem[] {
@@ -383,8 +383,8 @@ export const mapFeaturedToVideoSrc = (payload: DashboardApiResponse | null): Vid
     const id = it.id;
     const title = it.title || '';
     const description = it.description || '';
-    const backdrop_image = it.customCoverUrl || it.coverUrl || '';
-    const potrait_image = it.coverUrl || it.customCoverUrl || '';
+    const backdrop_image = it.coverUrl || '';
+    const potrait_image = it.coverUrl || '';
     const release_date = it.createTime ? String(it.createTime).split('T')[0] : (it.year ? String(it.year) : undefined);
     const vote_average = typeof it.rating === 'number' ? it.rating : (it.rating ? Number(it.rating) : undefined);
     const popularity = typeof it.fileSize === 'number' ? it.fileSize : undefined;
@@ -406,3 +406,67 @@ export const mapFeaturedToVideoSrc = (payload: DashboardApiResponse | null): Vid
     } as VideoSrc;
   });
 };
+
+// Get videos by category ID with pagination
+export async function getCategoryVideos(categoryId: string, page: number = 1, size: number = 20): Promise<VideosApiResponse | null> {
+  try {
+    const response = await axios.get(`${BASE_URL}/api-movie/v1/category/videos/${categoryId}`, {
+      params: { page, size },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return response.data as VideosApiResponse;
+  } catch (e) {
+    console.error('Failed to fetch category videos:', e);
+    return null;
+  }
+}
+
+// Get videos by category ID with pagination
+export async function getGridVideos(src: string, page: number = 1, size: number = 20): Promise<VideosApiResponse | null> {
+  try {
+  // normalize src to avoid accidental double slashes when src starts with '/'
+  const normalizedSrc = src.startsWith('/') ? src.slice(1) : src;
+  const finalUrl = `${BASE_URL}/${normalizedSrc}`;
+  console.log(`getGridVideos -> requesting: ${finalUrl}`);
+  const response = await axios.get(finalUrl, {
+      params: { page, size },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return response.data as VideosApiResponse;
+  } catch (e) {
+    console.error('Failed to fetch category videos:', e);
+    return null;
+  }
+}
+
+// Search videos with optional category filter and pagination
+export async function searchVideos(
+  searchName: string, 
+  categoryId: string = "", 
+  page: number = 1, 
+  size: number = 10
+): Promise<SearchApiResponse | null> {
+  try {
+    const response = await axios.post(`${BASE_URL}/api-movie/v1/search/searchVideo`, {
+      searchName,
+      categoryId,
+      page,
+      size
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    return response.data as SearchApiResponse;
+  } catch (e) {
+    console.error('Failed to search videos:', e);
+    return null;
+  }
+}

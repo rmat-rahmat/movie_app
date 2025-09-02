@@ -3,6 +3,7 @@
 
 import { getUpcomingMovies, getDashboard } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
+import { useRouter } from 'next/navigation';
 import LoadingPage from "@/components/ui/LoadingPage";
 import type { DashboardItem, ContentSection } from '@/types/Dashboard';
 import SubscriptionSection from "@/components/subscription/SubscriptionSection";
@@ -16,7 +17,10 @@ export default function Home() {
   const [isloading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>(allCategories);
   const [sections, setSections] = useState<ContentSection[]>([]);
+  const [allSections, setAllSections] = useState<ContentSection[]>([]); // Store original sections
+  const [categoryMap, setCategoryMap] = useState<Record<string, string>>({}); // Map category IDs to names
   const { user } = useAuthStore();
+  const router = useRouter();
 
   useEffect(() => {
     fetchMovies();
@@ -31,28 +35,29 @@ export default function Home() {
           // featured content -> header
 
           setHeaderMovies(dashboard.data.featuredContent || []);
-          setSections(dashboard.data.contentSections || []);
+          const originalSections = dashboard.data.contentSections || [];
+          console.log(originalSections)
+          setSections(originalSections);
+          setAllSections(originalSections); // Store original sections for filtering
           // derive categories from dashboard response, fallback to existing list
-          const mappedCategories = (dashboard.data.categories || []).map((c) => c.categoryName || c.categoryAlias || c.id).filter(Boolean) as string[];
-          setCategories(mappedCategories.length > 0 ? Array.from(new Set(mappedCategories)) : allCategories);
+          const dashboardCategories = dashboard.data.categories || [];
+          const mappedCategories = dashboardCategories.map((c) => c.categoryName || c.categoryAlias || c.id).filter(Boolean) as string[];
+          const finalCategories = mappedCategories.length > 0 ? Array.from(new Set(mappedCategories)) : allCategories;
+          // Ensure "All" is at the beginning
+          const categoriesWithAll = finalCategories.includes("All") ? finalCategories : ["All", ...finalCategories];
+          setCategories(categoriesWithAll);
+          
+          // Create a map of category IDs to names for better filtering
+          const categoryIdToName: Record<string, string> = {};
+          dashboardCategories.forEach(cat => {
+            if (cat.id) {
+              categoryIdToName[cat.id] = cat.categoryName || cat.categoryAlias || cat.id;
+            }
+          });
+          setCategoryMap(categoryIdToName);
           setIsLoading(false);
           return;
         }
-
-        // fallback: only fetch header upcoming movies to display
-        const header = await getUpcomingMovies(1);
-        // map VideoSrc -> DashboardItem for headerMovies state
-        const headerItems: DashboardItem[] = (header || []).map(h => ({
-          id: String(h.id),
-          title: h.title || '',
-          description: h.description || '',
-          coverUrl: h.backdrop_image || h.potrait_image || undefined,
-          customCoverUrl: h.potrait_image || h.backdrop_image || undefined,
-          createTime: h.release_date || undefined,
-          rating: (h.vote_average as any) ?? undefined,
-          fileSize: (h.popularity as any) ?? undefined,
-        }));
-        setHeaderMovies(headerItems);
         setIsLoading(false);
     } catch (error) {
       console.error("Error fetching movies:", error);
@@ -61,6 +66,49 @@ export default function Home() {
   };
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  
+  // Filter sections based on selected category
+  useEffect(() => {
+    if (!selectedCategory || selectedCategory === "All") {
+      setSections(allSections);
+    } else {
+      const filteredSections = allSections.map(section => {
+        const filteredContents = (section.contents || []).filter(item => {
+          // Check if item matches the selected category
+          const matchesCategoryId = item.categoryId === selectedCategory;
+          const matchesCategoryName = item.categoryId && categoryMap[item.categoryId] === selectedCategory;
+          const matchesTags = item.tags?.includes(selectedCategory);
+          const matchesTagsCaseInsensitive = item.tags?.some(tag => tag.toLowerCase() === selectedCategory.toLowerCase());
+          const matchesTitle = item.title?.toLowerCase().includes(selectedCategory.toLowerCase());
+          const matchesDescription = item.description?.toLowerCase().includes(selectedCategory.toLowerCase());
+          
+          // For debugging - log the first few items to understand the data structure
+          if (allSections.length > 0 && section === allSections[0] && item === section.contents?.[0]) {
+            console.log('Sample item structure:', {
+              title: item.title,
+              categoryId: item.categoryId,
+              categoryName: item.categoryId ? categoryMap[item.categoryId] : null,
+              tags: item.tags,
+              selectedCategory,
+              matchesCategoryId,
+              matchesCategoryName,
+              matchesTags,
+              matchesTagsCaseInsensitive
+            });
+          }
+          
+          return matchesCategoryId || matchesCategoryName || matchesTags || matchesTagsCaseInsensitive || matchesTitle || matchesDescription;
+        });
+
+        return {
+          ...section,
+          contents: filteredContents
+        };
+      }).filter(section => (section.contents || []).length > 0); // Only show sections with content
+
+      setSections(filteredSections);
+    }
+  }, [selectedCategory, allSections, categoryMap]);
   type MovieCategoryFilterProps = {
     categories: string[];
     display?: string;
@@ -118,17 +166,43 @@ export default function Home() {
           <div className="flex flex-col md:px-20 px-0 w-[100%] mt-4">
             <MovieCategoryFilter categories={categories} />
             <hr className="h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0" />
+            
+            {/* Show selected category indicator */}
+            {selectedCategory && selectedCategory !== "All" && (
+              <div className="py-4 px-4">
+                <p className="text-gray-300 text-sm">
+                  Showing content for: <span className="text-[#fbb033] font-semibold">{selectedCategory}</span>
+                  <button 
+                    onClick={() => setSelectedCategory(null)}
+                    className="ml-2 text-xs text-gray-400 hover:text-white underline"
+                  >
+                    Clear filter
+                  </button>
+                </p>
+              </div>
+            )}
+            
             {/* If we have dashboard sections render them dynamically */}
-            {sections.length > 0 && (
+            {sections.length > 0 ? (
               sections.map((sec) => (
                 <DashboardSection
                   key={sec.id || sec.title}
-                  onViewMore={sec.hasMore ? () => console.log("View More Movies") : undefined}
+                  onViewMore={sec.hasMore ? () => router.push(`/viewmore/${sec.id}`) : undefined}
                   title={sec.title || ""}
                   videos={sec.contents || []}
                 />
               ))
-            )}
+            ) : selectedCategory && selectedCategory !== "All" ? (
+              <div className="py-8 px-4 text-center">
+                <p className="text-gray-400 text-lg">No content found for &quot;{selectedCategory}&quot;</p>
+                <button 
+                  onClick={() => setSelectedCategory(null)}
+                  className="mt-2 px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors"
+                >
+                  Show All Content
+                </button>
+              </div>
+            ) : null}
             {!user && <SubscriptionSection />}
           </div>
         </>

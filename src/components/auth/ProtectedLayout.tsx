@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { SearchInput } from '@/components/search';
 import { useTranslation } from 'react-i18next';
 import Footer from "../layout/Footer";
 import SideBar from "../layout/SideBar";
@@ -9,7 +12,6 @@ import { useAuthStore } from "@/store/authStore";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
     const [menuOpen, setMenuOpen] = useState(false);
-    const [search, setSearch] = useState("");
     const [scrolled, setScrolled] = useState(false);
     const { user } = useAuthStore();
     const { t } = useTranslation('common');
@@ -59,27 +61,9 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                     </div>
 
                     {/* Search Bar (hidden on mobile) */}
-                    <form
-                        className=" md:flex items-center mx-6 flex-1 max-w-md hover:shadow-[#fbb033] hover:shadow-xs rounded-full"
-                        onSubmit={e => {
-                            e.preventDefault();
-                            // handle search logic here
-                        }}
-                    >
-                        <input
-                            type="text"
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            placeholder={t('common.searchPlaceholder')}
-                            className="w-[60%] md:w-full px-3 py-2 bg-gray-100 bg-transparent text-gray-900 text-white md:rounded-l-full outline-none focus:shadow-[#fbb033] focus:shadow-[0px_1px_0px_0px] "
-                        />
-                        <button
-                            type="submit"
-                            className="px-3 py-2 bg-transparent text-gray-900 text-white md:rounded-r-full hover:shadow-[0px_0px_0px_1px] shadow-[#fbb033] rounded-l-full"
-                        >
-                            <FiSearch className="h-5 w-5" />
-                        </button>
-                    </form>
+                    <div className="hidden md:block mx-6 flex-1 max-w-md">
+                        <SearchInput placeholder={t('common.searchPlaceholder')} />
+                    </div>
                     <ul className="hidden md:flex gap-1 items-center">
                         <li>
                             <Link href="/?" className="text-gray-200 hover:underline">

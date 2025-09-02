@@ -1,15 +1,18 @@
 'use client';
 import { useEffect, useState } from "react";
 import { useGesture } from "@use-gesture/react";
+import { useTranslation } from "react-i18next";
 import LoadingPage from "../ui/LoadingPage";
 import type { DashboardItem } from '@/types/Dashboard';
 import Image from "next/image";
+// using native <img> for simpler fallback handling
 
 interface DashboardSliderProps {
     videos: DashboardItem[];
 }
 
 const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
+    const { i18n } = useTranslation();
     const [current, setCurrent] = useState(0);
     const [x, setX] = useState(0);
     const [touchStartPoint, setTouchStartPoint] = useState(0);
@@ -74,13 +77,18 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
         >
             {videos.map((video, idx) => {
                 const title = video.title || "";
-                const backdropSrc = video.coverUrl || video.customCoverUrl || "";
-                const portraitSrc = backdropSrc;
+                const backdropSrc =  video.imageQuality?.p720 || "";
+                const portraitSrc = video.imageQuality?.p360 || "";
                 const fallbackSrc2 = '/fallback_poster/sample_snapshot_2.png';
                 const fallbackSrc1 = '/fallback_poster/sample_snapshot_1.png';
                 const computedSrc = (!backdropSrc && !portraitSrc) ? fallbackSrc1 : (imageErrorMap[idx] ? (idx%2===0 ? fallbackSrc1 : fallbackSrc2) : (backdropSrc || portraitSrc || fallbackSrc1));
                 const description = video.description || "";
-                const releaseLabel = video.createTime ? new Date(String(video.createTime)).toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" }) : (video.year ? String(video.year) : "");
+                
+                // Get current language from i18n for date formatting
+                const currentLocale = i18n?.language || (typeof navigator !== 'undefined' && navigator.language) || 'en';
+                const releaseLabel = video.createTime 
+                    ? new Date(String(video.createTime)).toLocaleString(currentLocale, { dateStyle: "full", timeStyle: "short" }) 
+                    : (video.year ? String(video.year) : "");
 
                 return (
                 <div
@@ -102,7 +110,21 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
                             </div>
                         </div>
                         <div className="relative bg-[#fbb033] order-first md:order-last">
-                            <Image
+                            {/* <img
+                                src={computedSrc}
+                                alt={title}
+                                className="object-cover w-full h-full"
+                                onError={() => setImageErrorMap(s => ({ ...s, [idx]: true }))}
+                                onLoad={() => {
+                                    setImageErrorMap(s => {
+                                        if (!s[idx]) return s;
+                                        const copy = { ...s };
+                                        delete copy[idx];
+                                        return copy;
+                                    });
+                                }}
+                            /> */}
+                             <Image
                                 src={computedSrc}
                                 alt={title}
                                 fill

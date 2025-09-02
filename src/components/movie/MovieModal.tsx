@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import type { VideoSrc } from "@/types/VideoSrc";
 import type { DashboardItem } from '@/types/Dashboard';
 import React from "react";
 import Image from "next/image";
 
 interface MovieModalProps {
-  video: VideoSrc | DashboardItem;
+  video: DashboardItem;
   onClose: () => void;
   showPlayback?: boolean;
 }
@@ -13,12 +11,15 @@ interface MovieModalProps {
 const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback }) => {
   if (!video) return null;
 
-  // normalize fields from either VideoSrc or DashboardItem
-  const title = (video as any).title || "";
-  const release_date = (video as any).release_date || ((video as any).createTime ? String((video as any).createTime).split('T')[0] : ((video as any).year ? String((video as any).year) : ""));
-  const description = (video as any).description || "";
-  const backdrop_image = (video as any).backdrop_image || (video as any).coverUrl || (video as any).customCoverUrl || "";
-  const potrait_image = (video as any).potrait_image || (video as any).customCoverUrl || (video as any).coverUrl || "";
+  // Use DashboardItem properties directly
+  const title = video.title || "";
+  const releaseDate = video.createTime 
+    ? new Date(video.createTime).toLocaleDateString() 
+    : (video.year ? String(video.year) : "");
+  const description = video.description || "";
+  const backdropImage = video.imageQuality?.p720 || "";
+  const portraitImage = video.imageQuality?.p360 || "";
+  const rating = video.rating || 0;
 
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center">
@@ -40,7 +41,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
             <>
               <div className="w-full rounded-lg md:hidden relative aspect-video">
                 <Image
-                  src={backdrop_image || ""}
+                  src={backdropImage || ""}
                   alt={title}
                   fill
                   className="rounded-lg object-cover"
@@ -50,7 +51,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
               </div>
               <div className="w-1/3 rounded-lg hidden md:block relative aspect-[2/3]">
                 <Image
-                  src={potrait_image || ""}
+                  src={portraitImage || ""}
                   alt={title}
                   fill
                   className="rounded-lg object-cover"
@@ -69,54 +70,91 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
                   width="100%"
                   height="200"
                   src={`https://www.youtube.com/embed/${video.id}?controls=0&autoplay=1`}
-                  title={video.title}
+                  title={title}
                   allowFullScreen
                 ></iframe>
               </div>
             )}
 
             <h2 className="text-2xl font-bold text-white">{title}</h2>
-            <p className="text-sm text-gray-400">{release_date}</p>
+            <p className="text-sm text-gray-400">{releaseDate}</p>
+            {video.isSeries && (
+              <div className="flex gap-2 mt-1">
+                <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs">Series</span>
+                {video.seasonNumber && (
+                  <span className="bg-gray-600 text-white px-2 py-1 rounded text-xs">
+                    Season {video.seasonNumber}
+                  </span>
+                )}
+                {video.totalEpisodes && (
+                  <span className="bg-gray-600 text-white px-2 py-1 rounded text-xs">
+                    {video.totalEpisodes} Episodes
+                  </span>
+                )}
+              </div>
+            )}
             <br />
             <p className="text-sm text-white">
               {(description || "").split(" ").slice(0, 100).join(" ") +
                 ((description || "").split(" ").length > 100 ? "..." : "")}
             </p>
-            {(video as any).vote_count !== undefined && (video as any).vote_count > 0 && (
+            {rating > 0 && (
               <div className="flex items-center mt-2">
                 {[...Array(5)].map((_, index) => (
                   <svg
                     key={index}
                     xmlns="http://www.w3.org/2000/svg"
-                    className={`h-5 w-5 ${index < Math.ceil(((video as any).vote_average || (video as any).rating || 0) / 2) ? 'text-[#fbb033]' : 'text-gray-300'}`}
-                    fill={index < Math.ceil(((video as any).vote_average || (video as any).rating || 0) / 2) ? 'currentColor' : 'none'}
+                    className={`h-5 w-5 ${index < Math.ceil(rating / 2) ? 'text-[#fbb033]' : 'text-gray-300'}`}
+                    fill={index < Math.ceil(rating / 2) ? 'currentColor' : 'none'}
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    strokeWidth={index < Math.ceil(((video as any).vote_average || (video as any).rating || 0) / 2) ? 0 : 1}
+                    strokeWidth={index < Math.ceil(rating / 2) ? 0 : 1}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                   </svg>
                 ))}
               </div>
             )}
-            {Array.isArray((video as any).casts) && (video as any).casts.length > 0 && (
-              <div className="grid grid-flow-col auto-cols-[15%] md:auto-cols-[17%] gap-4 mt-4">
-                {(video as any).casts.slice(0, 5).map((cast: any) => (
-                  <div key={cast.id} className="flex flex-1 flex-col items-center">
-                    <div className="w-full h-auto rounded-lg relative aspect-square">
-                      <Image
-                        src={cast.profile_image || ""}
-                        alt={cast.name}
-                        fill
-                        className="rounded-lg object-cover"
-                        sizes="100vw"
-                        loading="lazy"
-                      />
-                    </div>
-                    <p className="text-center text-sm text-white">{cast.name}</p>
-                    <p className="text-center text-sm text-gray-400">{cast.character}</p>
-                  </div>
-                ))}
+            {video.actors && Array.isArray(video.actors) && video.actors.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-white mb-2">Cast</h3>
+                <div className="flex flex-wrap gap-2">
+                  {video.actors.slice(0, 5).map((actor, index) => (
+                    <span key={index} className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm">
+                      {actor}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {video.director && (
+              <div className="mt-2">
+                <span className="text-gray-400">Director: </span>
+                <span className="text-white">{video.director}</span>
+              </div>
+            )}
+            {video.region && (
+              <div className="mt-1">
+                <span className="text-gray-400">Region: </span>
+                <span className="text-white">{video.region}</span>
+              </div>
+            )}
+            {video.language && (
+              <div className="mt-1">
+                <span className="text-gray-400">Language: </span>
+                <span className="text-white">{video.language}</span>
+              </div>
+            )}
+            {video.tags && Array.isArray(video.tags) && video.tags.length > 0 && (
+              <div className="mt-3">
+                <h4 className="text-sm font-semibold text-gray-400 mb-1">Tags</h4>
+                <div className="flex flex-wrap gap-1">
+                  {video.tags.map((tag, index) => (
+                    <span key={index} className="bg-[#fbb033] text-black px-2 py-1 rounded text-xs">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
           </div>

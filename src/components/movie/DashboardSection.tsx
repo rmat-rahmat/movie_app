@@ -35,7 +35,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
                 {onViewMore && (
                     <button
                         onClick={onViewMore}
-                        className="flex items-center gap-1 text-[#fbb033] hover:text-[#fbb033] font-medium text-sm"
+                        className="flex items-center gap-1 text-[#fbb033] hover:text-[#fbb033] font-medium text-sm cursor-pointer"
                     >
                         View More
                         <svg
@@ -53,10 +53,11 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
             </div>
             <div className={`hide-scrollbar grid grid-flow-col auto-cols-[70%] sm:auto-cols-[45%] ${frameSize ? `xl:auto-cols-[${frameSize}%]` : "xl:auto-cols-[20%]"}  gap-4 py-4 px-1 overflow-x-scroll`}>
                 {videos.map((video: DashboardItem, index: number) => {
-                    const potrait = video.customCoverUrl || video.coverUrl || "";
+                    const potrait = video.imageQuality?.p360 || "";
                     const release_date = video.createTime ? String(video.createTime).split('T')[0] : (video.year ? String(video.year) : "");
                     const vote_average = (video.rating ?? 0) as number;
-                    const popularity = Number((video as any).popularity ?? (video as any).views ?? 0);
+                    const rawPopularity = (video as Record<string, unknown>).popularity ?? (video as Record<string, unknown>).views ?? 0;
+                    const popularity = Number(typeof rawPopularity === 'number' ? rawPopularity : (typeof rawPopularity === 'string' ? Number(rawPopularity) : 0));
 
                     return (
                         <div

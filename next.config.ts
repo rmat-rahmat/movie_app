@@ -34,6 +34,36 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "bkimg.cdn.bcebos.com",
+        port: "",
+        pathname: "/pic/**",
+      },
+
+      {
+        protocol: "https",
+        hostname: "baike.baidu.com",
+        port: "",
+        pathname: "/pic/**",
+      },
+      {
+        protocol: "https",
+        hostname: "otalkoss.oss-cn-beijing.aliyuncs.com",
+        port: "",
+        pathname: "/otalk/**",
+      },
+      {protocol: "https", 
+        hostname: "sjc1.vultrobjects.com",
+        port: "",
+        pathname: "/otalk-test/**",
+      },
+      {
+        protocol: "https",
+        hostname: "sgp1.vultrobjects.com",
+        port: "",
+        pathname: "/movie-test/**",
+      },
     ],
   },
 };

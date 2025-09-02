@@ -6,7 +6,7 @@ export interface DashboardItem {
   description?: string;
   fileName?: string;
   coverUrl?: string | null;
-  customCoverUrl?: string | null;
+  imageQuality?: ImageItem | null;
   fileSize?: number | null;
   status?: string | null;
   createBy?: string | null;
@@ -25,7 +25,13 @@ export interface DashboardItem {
   seasonNumber?: number | null;
   totalEpisodes?: number | null;
   isCompleted?: boolean;
-  [key: string]: any;
+  [key: string]: unknown;
+}
+export interface ImageItem {
+  customCoverUrl: string;
+  p144: string;
+  p360: string;
+  p720: string;
 }
 
 export interface CategoryItem {
@@ -42,7 +48,9 @@ export interface CategoryItem {
   createBy?: string | null;
   updateTime?: string | null;
   updateBy?: string | null;
-  [key: string]: any;
+  children?: CategoryItem[];
+  depth?: number;
+  [key: string]: unknown;
 }
 
 export interface ContentSection {
@@ -52,14 +60,14 @@ export interface ContentSection {
   contents?: DashboardItem[];
   limit?: number | null;
   hasMore?: boolean;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface DashboardData {
   featuredContent?: DashboardItem[];
   categories?: CategoryItem[];
   contentSections?: ContentSection[];
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface DashboardApiResponse {
@@ -69,6 +77,95 @@ export interface DashboardApiResponse {
   message?: string;
   data?: DashboardData;
   timestamp?: number;
+  clientError?: boolean;
+  serverError?: boolean;
+}
+
+// Video VO type for category videos API
+export interface VideoVO {
+  title: string;
+  description?: string;
+  fileName?: string;
+  coverUrl?: string;
+  imageQuality?: object;
+  status?: string;
+  isSeries?: boolean;
+  seriesId?: string;
+  seasonNumber?: number;
+  episodeNumber?: number;
+  totalEpisodes?: number;
+  isCompleted?: boolean;
+  categoryId?: string;
+  year?: number;
+  region?: string;
+  language?: string;
+  director?: string;
+  actors?: string;
+  rating?: number;
+  tags?: string[];
+  createBy?: string;
+  createTime?: string;
+  id?: string; // Adding id for consistency
+}
+
+// Page info for pagination
+export interface PageInfo {
+  page: number;
+  size: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+// Error detail type
+export interface ErrorDetail {
+  message?: string;
+  type?: string;
+  stackTrace?: string;
+  details?: object;
+}
+
+// Validation error type
+export interface ValidationError {
+  field?: string;
+  message?: string;
+  code?: string;
+  rejectedValue?: unknown;
+}
+
+// Videos API response
+export interface VideosApiResponse {
+  status: number;
+  code?: string;
+  success: boolean;
+  message?: string;
+  data: VideoVO[];
+  timestamp?: number;
+  errorId?: string;
+  path?: string;
+  error?: ErrorDetail;
+  validationErrors?: ValidationError[];
+  pageInfo?: PageInfo;
+  metadata?: object;
+  clientError?: boolean;
+  serverError?: boolean;
+}
+
+// Search API response
+export interface SearchApiResponse {
+  status: number;
+  code?: string;
+  success: boolean;
+  message?: string;
+  data: VideoVO[];
+  timestamp?: number;
+  errorId?: string;
+  path?: string;
+  error?: ErrorDetail;
+  validationErrors?: ValidationError[];
+  pageInfo?: PageInfo;
+  metadata?: object;
   clientError?: boolean;
   serverError?: boolean;
 }

@@ -33,6 +33,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# local SSH key(s)
+china_key
+china_key.pub
+
 # vercel
 .vercel
 

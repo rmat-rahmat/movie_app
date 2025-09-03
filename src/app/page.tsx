@@ -3,7 +3,6 @@
 
 import { getUpcomingMovies, getDashboard } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
-import { useRouter } from 'next/navigation';
 import LoadingPage from "@/components/ui/LoadingPage";
 import type { DashboardItem, ContentSection } from '@/types/Dashboard';
 import SubscriptionSection from "@/components/subscription/SubscriptionSection";
@@ -20,7 +19,6 @@ export default function Home() {
   const [allSections, setAllSections] = useState<ContentSection[]>([]); // Store original sections
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({}); // Map category IDs to names
   const { user } = useAuthStore();
-  const router = useRouter();
 
   useEffect(() => {
     fetchMovies();
@@ -187,14 +185,14 @@ export default function Home() {
               sections.map((sec) => (
                 <DashboardSection
                   key={sec.id || sec.title}
-                  onViewMore={sec.hasMore ? () => router.push(`/viewmore/${sec.id}`) : undefined}
+                  onViewMore={sec.hasMore ? () => location.href = `/viewmore/${sec.id}` : undefined}
                   title={sec.title || ""}
                   videos={sec.contents || []}
                 />
               ))
             ) : selectedCategory && selectedCategory !== "All" ? (
               <div className="py-8 px-4 text-center">
-                <p className="text-gray-400 text-lg">No content found for &quot;{selectedCategory}&quot;</p>
+                <p className="text-gray-400 text-lg">No content found for "{selectedCategory}"</p>
                 <button 
                   onClick={() => setSelectedCategory(null)}
                   className="mt-2 px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors"

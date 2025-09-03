@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { SearchInput } from '@/components/search';
 import { useTranslation } from 'react-i18next';
 import Footer from "../layout/Footer";
@@ -61,9 +61,11 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                     </div>
 
                     {/* Search Bar (hidden on mobile) */}
-                    <div className="hidden md:block mx-6 flex-1 max-w-md">
-                        <SearchInput placeholder={t('common.searchPlaceholder')} />
-                    </div>
+                                        <div className="hidden md:block mx-6 flex-1 max-w-md">
+                                                <Suspense fallback={<div className="h-10" aria-hidden />}>
+                                                    <SearchInput placeholder={t('common.searchPlaceholder')} />
+                                                </Suspense>
+                                        </div>
                     <ul className="hidden md:flex gap-1 items-center">
                         <li>
                             <Link href="/?" className="text-gray-200 hover:underline">

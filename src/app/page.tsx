@@ -192,7 +192,7 @@ export default function Home() {
               ))
             ) : selectedCategory && selectedCategory !== "All" ? (
               <div className="py-8 px-4 text-center">
-                <p className="text-gray-400 text-lg">No content found for "{selectedCategory}"</p>
+                <p className="text-gray-400 text-lg">No content found for &quot;{selectedCategory}&quot;</p>
                 <button 
                   onClick={() => setSelectedCategory(null)}
                   className="mt-2 px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors"

@@ -1,8 +1,9 @@
+"use client";
 import React from "react";
 import { useTranslation } from "next-i18next";
 
 const LoadingPage: React.FC = () =>{ 
-  const {t}= useTranslation('common');
+  const { t } = useTranslation('common');
   
   return(
   <div className="fixed inset-0 flex flex-col items-center justify-center bg-black/90 z-50">

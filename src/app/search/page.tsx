@@ -1,21 +1,23 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+// NOTE: This file is a server entry that passes search params to a client component.
+// We accept `searchParams` from Next and render the client `SearchVideos` inside a Suspense
+// boundary so `useSearchParams()` inside client components doesn't cause a prerender error.
+import React, { Suspense } from 'react';
 import SearchVideos from '@/components/search/SearchVideos';
+import LoadingPage from '@/components/ui/LoadingPage';
 
-export default function SearchPage() {
-  const searchParams = useSearchParams();
-  const [initialQuery, setInitialQuery] = useState('');
+type SearchParams = Record<string, string | string[] | undefined>;
 
-  useEffect(() => {
-    const query = searchParams?.get('q') || '';
-    setInitialQuery(query);
-  }, [searchParams]);
+export default async function Page(args: unknown) {
+  const sp = (args as { searchParams?: SearchParams | Promise<SearchParams> })?.searchParams;
+  const resolved = (await Promise.resolve(sp)) as SearchParams | undefined;
+  const qRaw = resolved?.q;
+  const initialQuery = Array.isArray(qRaw) ? (qRaw[0] ?? '') : (qRaw ?? '');
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <SearchVideos initialQuery={initialQuery} />
+      <Suspense fallback={<LoadingPage />}>
+        <SearchVideos initialQuery={initialQuery} />
+      </Suspense>
     </div>
   );
 }

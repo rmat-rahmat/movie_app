@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { getGridVideos} from '@/lib/movieApi';
+import { getGridVideos, getDashboard } from '@/lib/movieApi';
+import type { ContentSection } from '@/types/Dashboard';
 import GridVideos from '@/components/movie/GridVideos';
 import { notFound } from 'next/navigation';
 
@@ -24,6 +25,22 @@ export async function generateMetadata(args: unknown): Promise<Metadata> {
     description: `Browse movies and TV shows in ${sectionName}. Discover great content and entertainment.`,
     keywords: ['movies', 'tv shows', 'category', 'entertainment', sectionName.toLowerCase()],
   };
+}
+
+// Provide static params for static export builds by enumerating section ids
+export async function generateStaticParams() {
+  try {
+    const dashboard = await getDashboard(false);
+    const sections = (dashboard?.data?.contentSections ?? []) as ContentSection[];
+    if (!Array.isArray(sections)) return [];
+    return sections
+      .map((s) => s?.id)
+      .filter(Boolean)
+      .map((id) => ({ id: String(id) }));
+  } catch (_e) {
+    // If fetching fails at build time, return an empty list to avoid build errors.
+    return [];
+  }
 }
 
 export default async function Page(args: unknown) {

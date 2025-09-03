@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { getCategoryVideos, getCachedCategories } from '@/lib/movieApi';
+import { getCategoryVideos, getCachedCategories, getDashboard } from '@/lib/movieApi';
 import CategoryVideos from '@/components/movie/CategoryVideos';
 import { notFound } from 'next/navigation';
 import type { CategoryItem } from '@/types/Dashboard';
@@ -77,4 +77,32 @@ export default async function Page(args: unknown) {
         categoryName={undefined}
       />
   );
+}
+
+// Provide static params for export builds by enumerating category ids
+export async function generateStaticParams() {
+  try {
+    // Prefer cached categories first
+    const cached = getCachedCategories();
+    let categories = cached;
+    if (!categories) {
+      const dashboard = await getDashboard(false);
+      categories = dashboard?.data?.categories || [];
+    }
+
+    if (!Array.isArray(categories) || categories.length === 0) return [];
+
+    const ids: string[] = [];
+    const collect = (items: CategoryItem[]) => {
+      items.forEach((it) => {
+        if (it?.id) ids.push(String(it.id));
+        if (Array.isArray(it.children) && it.children.length > 0) collect(it.children as CategoryItem[]);
+      });
+    };
+    collect(categories as CategoryItem[]);
+
+    return Array.from(new Set(ids)).map((id) => ({ id }));
+  } catch (err) {
+    return [];
+  }
 }

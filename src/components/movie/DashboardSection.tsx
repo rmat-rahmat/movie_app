@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import React, { useState } from 'react';
 import MovieModal from "./MovieModal";
@@ -56,7 +55,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
                     const potrait = video.imageQuality?.p360 || "";
                     const release_date = video.createTime ? String(video.createTime).split('T')[0] : (video.year ? String(video.year) : "");
                     const vote_average = (video.rating ?? 0) as number;
-                    const rawPopularity = (video as Record<string, unknown>).popularity ?? (video as Record<string, unknown>).views ?? 0;
+                    const rawPopularity = video.popularity ?? video.views ?? 0;
                     const popularity = Number(typeof rawPopularity === 'number' ? rawPopularity : (typeof rawPopularity === 'string' ? Number(rawPopularity) : 0));
 
                     return (

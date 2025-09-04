@@ -23,7 +23,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
       const stored = typeof window !== 'undefined' ? sessionStorage.getItem('seefu_search_query') : null;
       const initial = qParam || stored || '';
       setQuery(initial);
-    } catch (e) {
+    } catch (_e) {
       // ignore storage errors
     }
   }, [searchParams?.toString()]);

@@ -19,7 +19,7 @@ const protectedRoutes = ['/profile','/settings'];
 
 // Routes that can be accessed by both authenticated and unauthenticated users
 // but show different layouts
-const hybridRoutes = ['/', '/about', '/movies'];
+const hybridRoutes = ['/', '/about', '/movies','/category','/search'];
 
 export default function AuthWrapper({ children }: AuthWrapperProps) {
   const { isAuthenticated, isLoading, checkAuth, user } = useAuthStore();

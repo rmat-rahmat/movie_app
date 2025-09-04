@@ -1,5 +1,5 @@
-// Server component: render client `SearchVideos` inside Suspense so
-// client hooks like useSearchParams() run on the client only.
+'use client';
+
 import React, { Suspense } from 'react';
 import SearchVideos from '@/components/search/SearchVideos';
 import LoadingPage from '@/components/ui/LoadingPage';

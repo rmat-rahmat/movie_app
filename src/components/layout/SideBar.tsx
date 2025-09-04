@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getCachedCategories } from '@/lib/movieApi';
 import type { CategoryItem } from '@/types/Dashboard';
 import { useAuthStore } from '@/store/authStore';
@@ -8,20 +8,12 @@ import { useTranslation } from 'react-i18next';
 import {
   FiHome,
   FiInfo,
-  FiFilm,
-  FiLayers,
   FiGrid,
-  FiTv,
-  FiMusic,
-  FiSmile,
-  FiCpu,
-  FiBook,
   FiMail,
   FiUser,
-  FiChevronDown,
-  FiChevronUp,
   FiLogIn,
-  FiLogOut
+  FiLogOut,
+  FiUpload
 } from 'react-icons/fi';
 import RecursiveMenu, { type MenuItem } from './RecursiveMenu';
 
@@ -45,12 +37,12 @@ const SideBar = ({ show }: { show: boolean }) => {
     try {
       const cats = getCachedCategories();
       if (cats && Array.isArray(cats)) setCategories(cats);
-    } catch (e) {
+    } catch (_e) {
       // ignore
     }
   }, []);
 
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, logout } = useAuthStore();
 
   // Create menu based on authentication status (labels come from translations)
   const getMenu = () => {
@@ -82,6 +74,7 @@ const SideBar = ({ show }: { show: boolean }) => {
 
     if (isAuthenticated) {
       baseMenu.splice(2, 0, { href: "/profile", label: t('navigation.profile'), icon: <FiUser className="h-5 w-5 mr-2" /> });
+      baseMenu.splice(3, 0, { href: "/upload", label: t('navigation.upload', 'Upload'), icon: <FiUpload className="h-5 w-5 mr-2" /> });
     }
 
     return baseMenu;

@@ -71,7 +71,7 @@ export default function I18nProvider({ children }: I18nProviderProps) {
       // Persist the detected preference for subsequent visits
       try {
         localStorage.setItem('OTalk-language', chosen);
-      } catch (e) {
+      } catch (_e) {
         // ignore localStorage errors (e.g., in private mode)
       }
     }

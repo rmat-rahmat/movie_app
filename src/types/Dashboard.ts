@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // Types for live dashboard API
 export interface DashboardItem {
   id: string;
@@ -25,8 +24,10 @@ export interface DashboardItem {
   seasonNumber?: number | null;
   totalEpisodes?: number | null;
   isCompleted?: boolean;
-  [key: string]: unknown;
+  popularity?: number | string | null;
+  views?: number | string | null;
 }
+
 export interface ImageItem {
   customCoverUrl: string;
   p144: string;
@@ -50,7 +51,6 @@ export interface CategoryItem {
   updateBy?: string | null;
   children?: CategoryItem[];
   depth?: number;
-  [key: string]: unknown;
 }
 
 export interface ContentSection {
@@ -60,14 +60,12 @@ export interface ContentSection {
   contents?: DashboardItem[];
   limit?: number | null;
   hasMore?: boolean;
-  [key: string]: unknown;
 }
 
 export interface DashboardData {
   featuredContent?: DashboardItem[];
   categories?: CategoryItem[];
   contentSections?: ContentSection[];
-  [key: string]: unknown;
 }
 
 export interface DashboardApiResponse {
@@ -87,7 +85,7 @@ export interface VideoVO {
   description?: string;
   fileName?: string;
   coverUrl?: string;
-  imageQuality?: object;
+  imageQuality?: ImageItem;
   status?: string;
   isSeries?: boolean;
   seriesId?: string;
@@ -123,7 +121,7 @@ export interface ErrorDetail {
   message?: string;
   type?: string;
   stackTrace?: string;
-  details?: object;
+  details?: Record<string, unknown>;
 }
 
 // Validation error type
@@ -147,7 +145,7 @@ export interface VideosApiResponse {
   error?: ErrorDetail;
   validationErrors?: ValidationError[];
   pageInfo?: PageInfo;
-  metadata?: object;
+  metadata?: Record<string, unknown>;
   clientError?: boolean;
   serverError?: boolean;
 }
@@ -165,7 +163,7 @@ export interface SearchApiResponse {
   error?: ErrorDetail;
   validationErrors?: ValidationError[];
   pageInfo?: PageInfo;
-  metadata?: object;
+  metadata?: Record<string, unknown>;
   clientError?: boolean;
   serverError?: boolean;
 }

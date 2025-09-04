@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { getUpcomingMovies, getDashboard } from "@/lib/movieApi";
+import { getDashboard } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/ui/LoadingPage";
 import type { DashboardItem, ContentSection } from '@/types/Dashboard';

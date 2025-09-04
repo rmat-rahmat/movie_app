@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import Footer from "../layout/Footer";
 import SideBar from "../layout/SideBar";
 import Link from "next/link";
-import { FiUpload, FiUser, FiHome, FiVideo, FiMenu, FiLogIn, FiSearch } from "react-icons/fi";
+import { FiUpload, FiHome, FiVideo, FiMenu, FiLogIn } from "react-icons/fi";
 import { useAuthStore } from "@/store/authStore";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -61,11 +61,11 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                     </div>
 
                     {/* Search Bar (hidden on mobile) */}
-                                        <div className="hidden md:block mx-6 flex-1 max-w-md">
-                                                <Suspense fallback={<div className="h-10" aria-hidden />}>
-                                                    <SearchInput placeholder={t('common.searchPlaceholder')} />
-                                                </Suspense>
-                                        </div>
+                    <div className="hidden md:block mx-6 flex-1 max-w-md">
+                        <Suspense fallback={<div className="h-10 bg-gray-800 rounded"></div>}>
+                            <SearchInput placeholder={t('common.searchPlaceholder')} />
+                        </Suspense>
+                    </div>
                     <ul className="hidden md:flex gap-1 items-center">
                         <li>
                             <Link href="/?" className="text-gray-200 hover:underline">

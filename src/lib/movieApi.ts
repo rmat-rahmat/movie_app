@@ -97,7 +97,7 @@ export const getMovies = async (number: number): Promise<VideoSrc[]> => {
   return movies.map(movieToVideoSrc);
 };
 
-export const getNowPlayingMovies = async (number: number): Promise<VideoSrc[]> => {
+export const getNowPlayingMovies = async (_number: number): Promise<VideoSrc[]> => {
   const url = 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1';
   const options = {
     method: 'GET',
@@ -118,7 +118,7 @@ export const getNowPlayingMovies = async (number: number): Promise<VideoSrc[]> =
   }
 };
 
-export const getPopularMovie = async (number: number): Promise<VideoSrc[]> => {
+export const getPopularMovie = async (_number: number): Promise<VideoSrc[]> => {
   const url = 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1';
   const options = {
     method: 'GET',
@@ -139,7 +139,7 @@ export const getPopularMovie = async (number: number): Promise<VideoSrc[]> => {
   }
 };
 
-export const getTopRatedMovies = async (number: number): Promise<VideoSrc[]> => {
+export const getTopRatedMovies = async (_number: number): Promise<VideoSrc[]> => {
   const url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1';
   const options = {
     method: 'GET',
@@ -159,7 +159,7 @@ export const getTopRatedMovies = async (number: number): Promise<VideoSrc[]> => 
     return [];
   }
 };
-export const getUpcomingMovies = async (number: number): Promise<VideoSrc[]> => {
+export const getUpcomingMovies = async (_number: number): Promise<VideoSrc[]> => {
   const url = 'https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1';
   const options = {
     method: 'GET',
@@ -276,7 +276,7 @@ export const getDashboard = async (force = false): Promise<DashboardApiResponse 
       // also populate categories cache if available
       inMemoryCategoriesCache = { timestamp: parsed.timestamp, categories: catsTree };
       return parsed;
-    } catch (e) {
+    } catch (_e) {
       // malformed json or access denied
       return null;
     }
@@ -298,7 +298,7 @@ export const getDashboard = async (force = false): Promise<DashboardApiResponse 
       window.sessionStorage.setItem(REFRESH_TS_KEY, JSON.stringify(recent));
       // force refresh when page was refreshed more than 3 times within 5 seconds
       if (recent.length > 3) forceRefresh = true;
-    } catch (e) {
+    } catch (_e) {
       // ignore sessionStorage errors
     }
   }
@@ -337,10 +337,10 @@ export const getDashboard = async (force = false): Promise<DashboardApiResponse 
         const CATEGORIES_KEY = 'seefu_dashboard_categories_v1';
         try {
           window.localStorage.setItem(CATEGORIES_KEY, JSON.stringify(catsTree));
-        } catch (e) {
+        } catch (_e) {
           // ignore category storage errors
         }
-      } catch (e) {
+      } catch (_e) {
         // ignore quota/permission errors
       }
     }
@@ -371,7 +371,7 @@ export const getCachedCategories = (): CategoryItem[] | null => {
   inMemoryCategoriesCache = { timestamp: Date.now(), categories: catsTree };
   return catsTree;
     return parsed
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 };

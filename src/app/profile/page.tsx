@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import LoadingPage from "@/components/ui/LoadingPage";
 import { VideoSrc } from "@/types/VideoSrc";
 import { getLastSeenVideos } from "@/lib/userMovieList";
-import { FiPlayCircle, FiSettings } from "react-icons/fi";
+import { FiSettings } from "react-icons/fi";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from '@/store/authStore';
@@ -122,21 +122,3 @@ function formatSubscribers(count: number): string {
     }
     return count.toString();
 }
-
-const mockUser = {
-    name: "John Doe",
-    avatar: "https://i.pravatar.cc/150?img=3",
-    subscribers: 1200,
-    uploadedVideos: [
-        { id: 1, title: "My First Video", thumbnail: "https://via.placeholder.com/150", views: 120 },
-        { id: 2, title: "React Tutorial", thumbnail: "https://via.placeholder.com/150", views: 98 },
-    ],
-    watchlist: [
-        { id: 3, title: "Learn TypeScript", thumbnail: "https://via.placeholder.com/150" },
-        { id: 4, title: "Next.js Guide", thumbnail: "https://via.placeholder.com/150" },
-    ],
-    playlists: [
-        { id: 1, name: "Favorites", count: 5 },
-        { id: 2, name: "Watch Later", count: 3 },
-    ],
-};

@@ -1,7 +1,5 @@
 'use client';
-import React, { useState } from 'react';
-import type { VideoSrc } from '@/types/VideoSrc';
-import Image from "next/image";
+import React from 'react';
 import { FiGift, FiCheck } from "react-icons/fi";
 
 const subscriptionPackages = [
@@ -60,7 +58,7 @@ const SubscriptionSection: React.FC = () => {
             <div className="flex justify-center rounded-lg ">
 
                 <div className={` w-full mx-auto grid grid-flow-col auto-cols-[80%] sm:auto-cols-[45%] lg:auto-cols-[20%] gap-4 lg:gap-30 p-4 lg:justify-center overflow-x-scroll hide-scrollbar`}>
-                    {subscriptionPackages.map((packageItem, index) => (
+                    {subscriptionPackages.map((packageItem, _index) => (
                         <div
                             key={packageItem.id}
                             className={`flex flex-1 flex-col bg-black shadow-[0px_0px_2px_1px] pb-2 shadow-[#fbb033] rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer hover:bg-white/90 group`}

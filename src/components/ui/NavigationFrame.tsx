@@ -1,6 +1,5 @@
 import ProtectedLayout from "../auth/ProtectedLayout";
 import GuestLayout from "../auth/GuestLayout";
-import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 
 import { ReactNode } from "react";

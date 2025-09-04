@@ -43,3 +43,8 @@ china_key.pub
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Docker
+.dockerignore
+docker-compose.yml
+Dockerfile

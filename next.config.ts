@@ -1,10 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-   output: 'export',
+  output: 'export',
+  trailingSlash: true,
+  skipTrailingSlashRedirect: true,
+  distDir: 'out',
   // allowedDevOrigins: ["http://localhost:3000","http://192.168.1.77:3000/"],
   images: {
-     unoptimized: true,
+    unoptimized: true,
     // remotePatterns: [
     //   {
     //     protocol: "https",

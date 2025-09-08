@@ -43,10 +43,10 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
 
   // Handle protected routes
   if (protectedRoutes.some(route => pathname.startsWith(route))) {
-    if (!isAuthenticated) {
-      router.push('/auth/login');
-      return <LoadingPage />;
-    }
+    // if (!isAuthenticated) {
+      // router.push('/auth/login');
+      // return <LoadingPage />;
+    // }
     return <ProtectedLayout>{children}</ProtectedLayout>;
   }
 

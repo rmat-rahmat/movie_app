@@ -133,52 +133,29 @@ export const useAuthStore = create<AuthState>()(
       },
 
       checkAuth: async () => {
-        // Avoid concurrent check runs and unnecessary state updates which can trigger render loops
-        const { isLoading: currentlyLoading, isAuthenticated: currentlyAuthenticated, token: currentToken, user: currentUser } = get();
-        if (currentlyLoading) return;
-
         try {
-          set({ isLoading: true, error: null });
+          set({ isLoading: true });
           const response = await isLogin();
-
           if (response) {
-            // Update only if something changed to avoid extra renders
-            const needsUpdate =
-              currentUser?.id !== response.user?.id ||
-              currentToken !== response.token ||
-              get().refreshToken !== response.refreshToken ||
-              !currentlyAuthenticated;
-
-            if (needsUpdate) {
-              set({
-                user: response.user,
-                token: response.token,
-                refreshToken: response.refreshToken,
-                isAuthenticated: true,
-                isLoading: false,
-                error: null,
-              });
-            } else {
-              // nothing changed, just clear loading
-              set({ isLoading: false });
-            }
+            set({
+              user: response.user,
+              token: response.token,
+              refreshToken: response.refreshToken,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
           } else {
-            // If already cleared, avoid setting state again to prevent re-render loops
-            if (currentlyAuthenticated || currentToken || currentUser) {
-              set({
-                user: null,
-                token: null,
-                refreshToken: null,
-                isAuthenticated: false,
-                isLoading: false,
-                error: null,
-              });
-            } else {
-              set({ isLoading: false });
-            }
+            set({
+              user: null,
+              token: null,
+              refreshToken: null,
+              isAuthenticated: false,
+              isLoading: false,
+              error: null,
+            });
           }
-        } catch (error) {
-          // On error ensure the store is in a clean unauthenticated state
+        } catch {
           set({
             user: null,
             token: null,

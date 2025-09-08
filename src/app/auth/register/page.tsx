@@ -3,23 +3,43 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useTranslation } from 'react-i18next';
+import { getDeviceId } from '@/lib/authAPI';
 
 const RegisterPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [nickname, setNickname] = useState('');
+    const [emailCaptcha, setEmailCaptcha] = useState('');
+    const [captchaSent, setCaptchaSent] = useState(false);
+    const [countdown, setCountdown] = useState(0);
     const [localError, setLocalError] = useState<string | null>(null);
     const router = useRouter();
-    const { register, isLoading, error } = useAuthStore();
+    const { register, sendEmailVerification, isLoading, error } = useAuthStore();
     const { t } = useTranslation('common');
+
+    const handleSendCaptcha = async () => {
+        if (!email) {
+            setLocalError('Please enter your email first.');
+            return;
+        }
+
+        try {
+            await sendEmailVerification(email);
+            setCaptchaSent(true);
+            setCountdown(60); // 60 second countdown
+            setLocalError(null);
+        } catch (err) {
+            setLocalError('Failed to send verification code. Please try again.');
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLocalError(null);
 
-        if (email === '' || password === '') {
-            setLocalError('Please enter both email and password.');
+        if (email === '' || password === '' || emailCaptcha === '') {
+            setLocalError('Please fill in all required fields.');
             return;
         }
 
@@ -28,14 +48,36 @@ const RegisterPage: React.FC = () => {
             return;
         }
 
+        if (!captchaSent) {
+            setLocalError('Please verify your email first.');
+            return;
+        }
+
         try {
-            await register({ email, password, nickname: nickname || undefined });
+            const deviceId = getDeviceId();
+            await register({ 
+                email, 
+                password, 
+                deviceId,
+                emailCaptcha,
+                nickname: nickname || undefined 
+            });
             router.push('/');
         } catch (err) {
             // Error is handled by the store
             console.error('Registration failed:', err);
         }
     };
+
+    useEffect(() => {
+        // Countdown timer for captcha resend
+        if (countdown > 0) {
+            const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+            return () => clearTimeout(timer);
+        } else if (captchaSent && countdown === 0) {
+            setCaptchaSent(false);
+        }
+    }, [countdown, captchaSent]);
 
     useEffect(() => {
         // Only inject keyframes once after mount
@@ -121,6 +163,28 @@ const RegisterPage: React.FC = () => {
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                             required
                         />
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="emailCaptcha" className="block text-sm font-medium text-gray-300">{t('auth.emailVerification')}</label>
+                        <div className="flex gap-2">
+                            <input
+                                id="emailCaptcha"
+                                type="text"
+                                value={emailCaptcha}
+                                onChange={e => setEmailCaptcha(e.target.value)}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
+                                placeholder={t('auth.enterVerificationCode')}
+                                required
+                            />
+                            <button
+                                type="button"
+                                onClick={handleSendCaptcha}
+                                disabled={!email || captchaSent || isLoading}
+                                className="mt-1 px-4 py-2 bg-[#fbb033] text-white rounded-md hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+                            >
+                                {captchaSent ? `${countdown}s` : t('auth.sendCode')}
+                            </button>
+                        </div>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="password" className="block text-sm font-medium text-gray-300">{t('auth.password')}</label>

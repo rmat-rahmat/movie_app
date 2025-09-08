@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const error = useAuthStore((s) => s.error);
   const checkAuth = useAuthStore((s) => s.checkAuth);
   const updateProfile = useAuthStore((s) => s.updateProfile);
+  const changePassword = useAuthStore((s) => s.changePassword);
 
   const [form, setForm] = useState({
     email: '',
@@ -29,6 +30,16 @@ export default function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [localLoading, setLocalLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Password change form
+  const [passwordForm, setPasswordForm] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   // load user on mount if missing
   useEffect(() => {
@@ -103,6 +114,41 @@ export default function SettingsPage() {
       // error is stored in auth store; we also show it below
     } finally {
       setLocalLoading(false);
+    }
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordSuccess(null);
+
+    if (!passwordForm.oldPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setPasswordError('Please fill in all password fields.');
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError('New passwords do not match.');
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    try {
+      setPasswordLoading(true);
+      const result = await changePassword({
+        oldPassword: passwordForm.oldPassword,
+        password: passwordForm.newPassword,
+      });
+      setPasswordSuccess(result || 'Password changed successfully');
+      setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Failed to change password');
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -196,7 +242,53 @@ export default function SettingsPage() {
 
         </form>
       </section>
-      <section className="bg-black/70 p-6 rounded-md max-w-xl">
+
+      <section className="bg-black/70 p-6 rounded-md max-w-xl mt-6">
+        <h2 className="text-lg font-semibold mb-3">{t('settings.changePassword') || 'Change Password'}</h2>
+        <form onSubmit={handlePasswordChange} className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-300 mb-1">{t('auth.currentPassword') || 'Current Password'}</label>
+            <input
+              type="password"
+              value={passwordForm.oldPassword}
+              onChange={(e) => setPasswordForm(prev => ({ ...prev, oldPassword: e.target.value }))}
+              className="w-full px-3 py-2 bg-gray-900 rounded text-white"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-300 mb-1">{t('auth.newPassword') || 'New Password'}</label>
+            <input
+              type="password"
+              value={passwordForm.newPassword}
+              onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+              className="w-full px-3 py-2 bg-gray-900 rounded text-white"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-300 mb-1">{t('auth.confirmPassword') || 'Confirm New Password'}</label>
+            <input
+              type="password"
+              value={passwordForm.confirmPassword}
+              onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+              className="w-full px-3 py-2 bg-gray-900 rounded text-white"
+              required
+            />
+          </div>
+          {passwordError && <div className="text-red-400 text-sm">{passwordError}</div>}
+          {passwordSuccess && <div className="text-green-400 text-sm">{passwordSuccess}</div>}
+          <button
+            type="submit"
+            disabled={passwordLoading}
+            className="bg-[#fbb033] px-4 py-2 rounded disabled:opacity-60 hover:bg-orange-600 transition-colors"
+          >
+            {passwordLoading ? (t('common.loading') || 'Loading...') : (t('settings.changePassword') || 'Change Password')}
+          </button>
+        </form>
+      </section>
+
+      <section className="bg-black/70 p-6 rounded-md max-w-xl mt-6">
         <h2 className="text-lg font-semibold mb-2">{t('settings.language') || 'Language'}</h2>
         <p className="text-sm text-gray-400 mb-4">{t('settings.current') ? `${t('settings.current')}: ${currentLang}` : `Current: ${currentLang}`}</p>
 

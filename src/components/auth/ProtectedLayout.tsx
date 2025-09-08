@@ -68,7 +68,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                     </div>
                     <ul className="hidden md:flex gap-1 items-center">
                         <li>
-                            <Link href="/?" className="text-gray-200 hover:underline">
+                            <Link href="/upload" className="text-gray-200 hover:underline">
                                 <p className="flex items-center rounded-lg block py-2 px-4 mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] transform transition-transform duration-200 hover:scale-105">
                                     <FiUpload className="h-5 w-6 mb-1" />
                                     {t('navigation.upload')}
@@ -110,7 +110,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                         <FiVideo className="h-6 w-6 mb-1" />
                         <span className="text-xs">{t('navigation.short')}</span>
                     </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-[#fbb033] hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
+                    <Link href="/upload" className="flex-1 flex flex-col items-center py-2 text-[#fbb033] hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
                         <FiUpload className="h-8 w-8 mb-1" />
                         <span className="text-xs">{t('navigation.upload')}</span>
                     </Link>

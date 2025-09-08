@@ -5,6 +5,7 @@ import "./globals.css";
 import AuthWrapper from "@/components/auth/AuthWrapper";
 import I18nProvider from "@/components/i18n/I18nProvider";
 import { useEffect } from "react";
+import { initializeAuthInterceptor } from "@/lib/authInterceptor";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,6 +23,9 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   useEffect(() => {
+    // Initialize auth interceptor for automatic token refresh
+    // initializeAuthInterceptor();
+    
     // Set meta tags dynamically for SPA
     document.title = "OTalk.TV";
     

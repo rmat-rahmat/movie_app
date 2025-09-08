@@ -25,8 +25,13 @@
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
     "phone": "Phone",
     "nickname": "Nickname",
+    "emailVerification": "Email Verification",
+    "enterVerificationCode": "Enter verification code",
+    "sendCode": "Send Code",
     "loginButton": "Login",
     "registerButton": "Register",
     "loginTitle": "Login to Your Account",
@@ -46,7 +51,9 @@
       "register_failed": "Register failed",
       "logout_failed": "Logout failed",
       "update_failed": "Update user info failed",
-      "change_password_failed": "Change password failed"
+      "change_password_failed": "Change password failed",
+      "send_captcha_failed": "Send verification code failed",
+      "refresh_failed": "Token refresh failed"
     }
   },
   "common": {
@@ -102,11 +109,32 @@
   "playlists": "Playlists"
   },
   
+  "upload": {
+    "title": "Upload Content",
+    "description": "Upload your movies or TV series to share with the world",
+    "movie": "Movie",
+    "series": "TV Series",
+    "videoFile": "Video File",
+    "uploadMovie": "Upload Movie",
+    "uploadSeries": "Upload Series",
+    "director": "Director",
+    "actors": "Actors",
+    "rating": "Rating",
+    "region": "Region",
+    "language": "Language",
+    "tags": "Tags",
+    "coverUrl": "Cover Image URL",
+    "customCoverUrl": "Custom Cover Image ID",
+    "year": "Year"
+  },
+  
   "settings": {
     "title": "Settings",
     "language": "Language",
     "current": "Current",
-    "hint": "Your language preference is saved locally."
+    "hint": "Your language preference is saved locally.",
+    "changePassword": "Change Password",
+    "save": "Save"
   },
   "languages": {
     "en": "English",

@@ -12,7 +12,7 @@ import i18next from 'i18next';
 // - getDeviceId() -> string (generates/retrieves unique device identifier)
 
 type User = { id: string; email: string; name?: string; [key: string]: unknown };
-type AuthResponse = { token: string; user: User };
+type AuthResponse = { token: string; refreshToken: string; user: User };
 
 // Types matching the provided API documentation
 type LoginUserVo = {
@@ -28,6 +28,7 @@ type LoginUserVo = {
   createdAt?: string;
   updatedAt?: string;
   token?: string;
+  refreshToken?: string;
   [key: string]: unknown;
 };
 
@@ -106,8 +107,9 @@ function getDeviceId(): string {
 // Export device ID function for use in other parts of the app
 export { getDeviceId };
 
-// add token storage key and helpers
+// Token and refresh token storage keys and helpers
 const TOKEN_KEY = 'auth_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
 function saveTokenToStorage(token: string | null) {
   try {
@@ -118,11 +120,37 @@ function saveTokenToStorage(token: string | null) {
   }
 }
 
+function saveRefreshTokenToStorage(refreshToken: string | null) {
+  try {
+    if (refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    else localStorage.removeItem(REFRESH_TOKEN_KEY);
+  } catch {
+    // ignore storage errors (e.g. SSR)
+  }
+}
+
 export function loadTokenFromStorage(): string | null {
   try {
     return localStorage.getItem(TOKEN_KEY);
   } catch {
     return null;
+  }
+}
+
+export function loadRefreshTokenFromStorage(): string | null {
+  try {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function clearAllTokensFromStorage() {
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+  } catch {
+    // ignore storage errors (e.g. SSR)
   }
 }
 
@@ -165,10 +193,12 @@ export async function login(email: string, password: string, form = false): Prom
 
     const userVo = body.data as LoginUserVo;
     const token = userVo?.token || '';
+    const refreshToken = userVo?.refreshToken || '';
     const user: User = { ...userVo, id: userVo.id, email: userVo.email || '' };
     setAuthHeader(token || null);
-    saveTokenToStorage(token || null); // persist token
-    return { token: token || '', user };
+    saveTokenToStorage(token || null);
+    saveRefreshTokenToStorage(refreshToken || null);
+    return { token: token || '', refreshToken: refreshToken || '', user };
   } catch (err: unknown) {
     const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
     throw new Error(`${tr('auth.error.login_failed', 'Login failed')}: ${message}`);
@@ -189,6 +219,8 @@ export async function register(
   payload: {
     email: string;
     password: string;
+    deviceId: string;
+    emailCaptcha: string;
     phone?: string;
     avatar?: string;
     nickname?: string;
@@ -204,6 +236,8 @@ export async function register(
       const params = new URLSearchParams();
       params.append('email', payload.email);
       params.append('password', payload.password);
+      params.append('deviceId', payload.deviceId);
+      params.append('emailCaptcha', payload.emailCaptcha);
       if (payload.phone) params.append('phone', payload.phone);
       if (payload.avatar) params.append('avatar', payload.avatar);
       if (payload.nickname) params.append('nickname', payload.nickname);
@@ -223,10 +257,12 @@ export async function register(
 
     const userVo = body.data as LoginUserVo;
     const token = userVo?.token || '';
+    const refreshToken = userVo?.refreshToken || '';
     const user: User = { ...userVo, id: userVo.id, email: userVo.email || '' };
     setAuthHeader(token || null);
-    saveTokenToStorage(token || null); // persist token
-    return { token: token || '', user };
+    saveTokenToStorage(token || null);
+    saveRefreshTokenToStorage(refreshToken || null);
+    return { token: token || '', refreshToken: refreshToken || '', user };
   } catch (err: unknown) {
     const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
     throw new Error(`Register failed: ${message}`);
@@ -240,18 +276,19 @@ export async function logout(): Promise<string> {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
     const body = res.data as StandardResponse<string>;
-    // clear client header regardless
+    // clear client tokens regardless of server response
     setAuthHeader(null);
-    saveTokenToStorage(null); // remove token
+    clearAllTokensFromStorage();
     if (!body || !body.success) {
       throw new Error(tr('auth.error.logout_failed', body?.message || 'Logout failed'));
     }
     return body.data || '';
   } catch (err: unknown) {
-  setAuthHeader(null);
-  saveTokenToStorage(null); // remove token
-  const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
-  throw new Error(tr('auth.error.logout_failed', `Logout failed: ${message}`));
+    // clear client tokens even if server call fails
+    setAuthHeader(null);
+    clearAllTokensFromStorage();
+    const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
+    throw new Error(tr('auth.error.logout_failed', `Logout failed: ${message}`));
   }
 }
 
@@ -261,6 +298,80 @@ export async function getCurrentUser(): Promise<User | null> {
     return (res.data && (res.data as { user: User }).user) || null;
   } catch {
     return null;
+  }
+}
+
+/**
+ * Send email verification code: POST {BASE_URL}/api-movie/v1/auth/sendEmailCaptcha
+ * Supports application/x-www-form-urlencoded
+ */
+export async function sendEmailCaptcha(email: string): Promise<string> {
+  const url = `${BASE_URL}/api-movie/v1/auth/sendEmailCaptcha`;
+  try {
+    const params = new URLSearchParams();
+    params.append('email', email);
+    const res = await axios.post<StandardResponse<string>>(url, params.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+
+    const body = res.data as StandardResponse<string>;
+    if (!body || !body.success) {
+      throw new Error(tr('auth.error.send_captcha_failed', body?.message || 'Send captcha failed'));
+    }
+
+    return body.message || 'Verification email sent';
+  } catch (err: unknown) {
+    const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
+    throw new Error(tr('auth.error.send_captcha_failed', `Send captcha failed: ${message}`));
+  }
+}
+
+/**
+ * Refresh access token: POST {BASE_URL}/api-movie/v1/auth/refresh
+ * Requires current token in Authorization header and refreshToken in refreshToken header
+ */
+export async function refreshToken(): Promise<AuthResponse> {
+  const url = `${BASE_URL}/api-movie/v1/auth/refresh`;
+  const currentToken = loadTokenFromStorage();
+  const currentRefreshToken = loadRefreshTokenFromStorage();
+
+  if (!currentToken || !currentRefreshToken) {
+    throw new Error('No tokens available for refresh');
+  }
+
+  try {
+    const res = await axios.post<StandardResponse<{ token: string; refreshToken: string }>>(url, '', {
+      headers: {
+        'Authorization': currentToken,
+        'refreshToken': currentRefreshToken,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    const body = res.data as StandardResponse<{ token: string; refreshToken: string }>;
+    if (!body || !body.success || !body.data) {
+      throw new Error(tr('auth.error.refresh_failed', body?.message || 'Token refresh failed'));
+    }
+
+    const newToken = body.data.token;
+    const newRefreshToken = body.data.refreshToken;
+
+    // Update stored tokens and headers
+    setAuthHeader(newToken);
+    saveTokenToStorage(newToken);
+    saveRefreshTokenToStorage(newRefreshToken);
+
+    // Get current user info - we might need to call isLogin to get user data
+    // For now, we'll return a minimal user object since refresh endpoint may not return full user data
+    const user: User = { id: '', email: '' }; // This might need to be populated from existing state
+
+    return { token: newToken, refreshToken: newRefreshToken, user };
+  } catch (err: unknown) {
+    // Clear tokens on refresh failure
+    clearAllTokensFromStorage();
+    setAuthHeader(null);
+    const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
+    throw new Error(tr('auth.error.refresh_failed', `Token refresh failed: ${message}`));
   }
 }
 
@@ -281,11 +392,13 @@ export async function isLogin(): Promise<AuthResponse | null> {
     if (!body || !body.success) return null;
     const userVo = body.data as LoginUserVo;
     const token = userVo?.token || loadTokenFromStorage() || '';
+    const refreshToken = userVo?.refreshToken || loadRefreshTokenFromStorage() || '';
     const user: User = { ...userVo, id: userVo.id, email: userVo.email || '' };
     // ensure header and storage are up-to-date
     setAuthHeader(token || null);
     saveTokenToStorage(token || null);
-    return { token: token || '', user };
+    saveRefreshTokenToStorage(refreshToken || null);
+    return { token: token || '', refreshToken: refreshToken || '', user };
   } catch {
     return null;
   }
@@ -332,9 +445,12 @@ export async function updateUserInfo(
 
     const userVo = body.data as LoginUserVo;
     const token = userVo?.token || '';
+    const refreshToken = userVo?.refreshToken || loadRefreshTokenFromStorage() || '';
     const user: User = { ...userVo, id: userVo.id, email: userVo.email || '' };
     setAuthHeader(token || null);
-    return { token: token || '', user };
+    saveTokenToStorage(token || null);
+    saveRefreshTokenToStorage(refreshToken || null);
+    return { token: token || '', refreshToken: refreshToken || '', user };
   } catch (err: unknown) {
   const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
   throw new Error(tr('auth.error.update_failed', `Update user info failed: ${message}`));
@@ -344,16 +460,12 @@ export async function updateUserInfo(
 /**
  * Change password via movie API endpoint: POST {BASE_URL}/api-movie/v1/auth/changePassword
  * Accepts JSON by default; set `form = true` to send application/x-www-form-urlencoded
- * payload may include: password and optional profile fields
+ * payload must include: oldPassword and password
  */
 export async function changePassword(
   payload: {
-    password?: string;
-    phone?: string;
-    avatar?: string;
-    nickname?: string;
-    gender?: number;
-    birthday?: string;
+    oldPassword: string;
+    password: string;
   },
   form = false
 ): Promise<string> {
@@ -362,12 +474,8 @@ export async function changePassword(
     let res;
     if (form) {
       const params = new URLSearchParams();
-      if (payload.password) params.append('password', payload.password);
-      if (payload.phone) params.append('phone', payload.phone);
-      if (payload.avatar) params.append('avatar', payload.avatar);
-      if (payload.nickname) params.append('nickname', payload.nickname);
-      if (typeof payload.gender !== 'undefined') params.append('gender', String(payload.gender));
-      if (payload.birthday) params.append('birthday', payload.birthday);
+      params.append('oldPassword', payload.oldPassword);
+      params.append('password', payload.password);
       res = await axios.post<StandardResponse<string>>(url, params.toString(), {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
@@ -380,10 +488,10 @@ export async function changePassword(
       throw new Error(tr('auth.error.change_password_failed', body?.message || 'Change password failed'));
     }
 
-    return body.data || '';
+    return body.message || 'Password changed successfully';
   } catch (err: unknown) {
-  const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
-  throw new Error(tr('auth.error.change_password_failed', `Change password failed: ${message}`));
+    const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
+    throw new Error(tr('auth.error.change_password_failed', `Change password failed: ${message}`));
   }
 }
 
@@ -396,7 +504,12 @@ const authAPI = {
   updateUserInfo,
   changePassword,
   isLogin,
-  restoreAuthFromStorage, // export the restore helper
+  sendEmailCaptcha,
+  refreshToken,
+  restoreAuthFromStorage,
+  loadTokenFromStorage,
+  loadRefreshTokenFromStorage,
+  clearAllTokensFromStorage,
 };
 
 export default authAPI;

@@ -1,0 +1,398 @@
+"use client";
+
+import { useState, useRef, useEffect } from 'react';
+import { FiUpload, FiX, FiPlus, FiTrash2 } from 'react-icons/fi';
+import { createSeries, createEpisode, initializeEpisodeUpload, uploadFile, initializeImageUpload, getImageById, type SeriesCreateRequest, type EpisodeCreateRequest, type EpisodeUploadRequest } from '@/lib/uploadAPI';
+
+interface Episode {
+  number: number;
+  title: string;
+  description: string;
+  file: File | null;
+  coverUrl?: string;
+}
+
+const debugLog = (message: string, data?: unknown) => {
+  console.log(`[SeriesUpload] ${message}`, data || '');
+};
+
+export default function SeriesUpload() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [episodePreviewUrl, setEpisodePreviewUrl] = useState<string | null>(null);
+  const [seriesPreviewIndex, setSeriesPreviewIndex] = useState<number>(0);
+  const [seriesCoverPreviewUrl, setSeriesCoverPreviewUrl] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ progress: 0, status: 'idle' as 'idle' | 'uploading' | 'success' | 'error', error: '' });
+
+  const [seriesForm, setSeriesForm] = useState({
+    title: '',
+    description: '',
+  coverUrl: '',
+  coverFile: null as File | null,
+    categoryId: 'series',
+    year: new Date().getFullYear(),
+    region: '',
+    language: '',
+    director: '',
+    actors: '',
+    rating: 0,
+    tags: [] as string[],
+    tagInput: '',
+    seasonNumber: 1,
+    totalEpisodes: 1,
+    episodes: [
+      { number: 1, title: 'Episode 1', description: '', file: null, coverUrl: '' }
+    ] as Episode[]
+  });
+
+  useEffect(() => {
+    return () => {
+      if (episodePreviewUrl) try { URL.revokeObjectURL(episodePreviewUrl); } catch {}
+      if (seriesCoverPreviewUrl) try { URL.revokeObjectURL(seriesCoverPreviewUrl); } catch {}
+    };
+  }, [episodePreviewUrl, seriesCoverPreviewUrl]);
+
+  const addEpisode = () => {
+    const newEpisodeNumber = seriesForm.episodes.length + 1;
+    setSeriesForm(prev => ({ ...prev, episodes: [...prev.episodes, { number: newEpisodeNumber, title: `Episode ${newEpisodeNumber}`, description: '', file: null, coverUrl: '' }], totalEpisodes: newEpisodeNumber }));
+  };
+
+  const removeEpisode = (index: number) => {
+    if (seriesForm.episodes.length <= 1) return;
+    setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.filter((_, idx) => idx !== index).map((ep, idx) => ({ ...ep, number: idx + 1, title: ep.title.includes('Episode') ? `Episode ${idx + 1}` : ep.title })), totalEpisodes: prev.episodes.length - 1 }));
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, episodeIndex: number) => {
+    const files = event.target.files;
+    if (!files?.length) return;
+    const file = files[0];
+    setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === episodeIndex ? { ...ep, file } : ep) }));
+    try {
+      const url = URL.createObjectURL(file);
+      if (episodePreviewUrl) URL.revokeObjectURL(episodePreviewUrl);
+      setEpisodePreviewUrl(url);
+      setSeriesPreviewIndex(episodeIndex);
+    } catch {}
+  };
+
+  const clearEpisodeFile = (index: number) => {
+    if (episodePreviewUrl) try { URL.revokeObjectURL(episodePreviewUrl); } catch {}
+    setEpisodePreviewUrl(null);
+    setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, file: null } : ep) }));
+    if (seriesPreviewIndex === index) setSeriesPreviewIndex(0);
+  };
+
+  const addTag = () => {
+    if (seriesForm.tagInput.trim() && !seriesForm.tags.includes(seriesForm.tagInput.trim())) {
+      debugLog('Adding series tag', { tag: seriesForm.tagInput.trim() });
+      setSeriesForm(prev => ({ ...prev, tags: [...prev.tags, prev.tagInput.trim()], tagInput: '' }));
+    }
+  };
+
+  const handleCoverFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files?.length) return;
+    const file = files[0];
+    // store file in form state
+    setSeriesForm(prev => ({ ...prev, coverFile: file }));
+    try {
+      const url = URL.createObjectURL(file);
+      if (seriesCoverPreviewUrl) URL.revokeObjectURL(seriesCoverPreviewUrl);
+      setSeriesCoverPreviewUrl(url);
+    } catch {}
+  };
+
+  const clearCoverFile = () => {
+    if (seriesCoverPreviewUrl) try { URL.revokeObjectURL(seriesCoverPreviewUrl); } catch {}
+    setSeriesCoverPreviewUrl(null);
+    setSeriesForm(prev => ({ ...prev, coverFile: null }));
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    debugLog('Removing series tag', { tag: tagToRemove });
+    setSeriesForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tagToRemove) }));
+  };
+
+  const renderProgressBar = () => {
+    if (uploadProgress.status === 'idle') return null;
+    return (
+      <div className="mt-6 p-4 bg-gray-800 rounded-lg">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-white">
+            {uploadProgress.status === 'uploading' && 'Uploading...'}
+            {uploadProgress.status === 'success' && 'Upload Complete!'}
+            {uploadProgress.status === 'error' && 'Upload Failed'}
+          </span>
+          <span className="text-sm text-gray-400">{Math.round(uploadProgress.progress)}%</span>
+        </div>
+        <div className="w-full bg-gray-700 rounded-full h-2">
+          <div className={`h-2 rounded-full transition-all duration-300 ${uploadProgress.status === 'success' ? 'bg-green-500' : uploadProgress.status === 'error' ? 'bg-red-500' : 'bg-[#fbb033]'}`} style={{ width: `${uploadProgress.progress}%` }} />
+        </div>
+      </div>
+    );
+  };
+
+  const handleSeriesUpload = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!seriesForm.title.trim() || seriesForm.episodes.length === 0) {
+      setUploadProgress({ progress: 0, status: 'error', error: 'Please provide series title and at least one episode' });
+      return;
+    }
+
+    const episodesWithFiles = seriesForm.episodes.filter(ep => ep.file !== null);
+    if (episodesWithFiles.length === 0) {
+      setUploadProgress({ progress: 0, status: 'error', error: 'Please select video files for at least one episode' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setUploadProgress({ progress: 0, status: 'uploading', error: '' });
+
+    try {
+      // If user selected a local cover file, upload it first and set coverUrl
+      if (seriesForm.coverFile) {
+        try {
+          setIsUploadingCover(true);
+          // initialize image upload
+          const init = await initializeImageUpload({
+            fileName: seriesForm.coverFile.name,
+            contentType: seriesForm.coverFile.type || 'image/jpeg',
+            fileSize: seriesForm.coverFile.size,
+            totalParts: 1,
+            imageType: 'cover',
+          });
+
+          // upload the file using existing uploadFile helper
+          await uploadFile(seriesForm.coverFile, { uploadId: init.uploadId, key: init.key }, (p) => {
+            // optional: integrate progress into uploadProgress
+          });
+
+          // After upload, the backend should have an image id in init.id; retrieve full metadata
+          const imageMeta = await getImageById(init.id, '360');
+          if (imageMeta?.url) {
+            setSeriesForm(prev => ({ ...prev, coverUrl: imageMeta.url || '' }));
+          }
+        } catch (imgErr) {
+          console.error('Cover upload failed', imgErr);
+        } finally {
+          setIsUploadingCover(false);
+        }
+      }
+
+      const seriesRequest: SeriesCreateRequest = {
+        title: seriesForm.title,
+        description: seriesForm.description || undefined,
+  // The API accepts a coverUrl string. If the user selected a local file (coverFile)
+  // we currently don't have an upload endpoint here, so only send coverUrl when present.
+        coverUrl: seriesForm.coverUrl || undefined,
+        categoryId: seriesForm.categoryId,
+        year: seriesForm.year,
+        region: seriesForm.region || undefined,
+        language: seriesForm.language || undefined,
+        director: seriesForm.director || undefined,
+        actors: seriesForm.actors || undefined,
+        rating: seriesForm.rating || undefined,
+        tags: seriesForm.tags.length > 0 ? seriesForm.tags : undefined,
+        seasonNumber: seriesForm.seasonNumber,
+        totalEpisodes: seriesForm.totalEpisodes
+      };
+
+      debugLog('Creating series', seriesRequest);
+      const seriesResult = await createSeries(seriesRequest);
+      const seriesId = seriesResult.seriesId;
+      setUploadProgress(prev => ({ ...prev, progress: 10 }));
+
+      const progressPerEpisode = 80 / episodesWithFiles.length;
+      let currentProgress = 10;
+
+      for (let i = 0; i < episodesWithFiles.length; i++) {
+        const episode = episodesWithFiles[i];
+        const episodeRequest: EpisodeCreateRequest = {
+          seriesId,
+          title: episode.title,
+          description: episode.description || undefined,
+          coverUrl: episode.coverUrl || undefined,
+          episodeNumber: episode.number,
+          duration: undefined
+        };
+
+        await createEpisode(episodeRequest);
+        currentProgress += progressPerEpisode * 0.2;
+        setUploadProgress(prev => ({ ...prev, progress: currentProgress }));
+
+        const uploadRequest: EpisodeUploadRequest = {
+          seriesId,
+          episodeNumber: episode.number,
+          fileName: episode.file!.name,
+          fileSize: episode.file!.size
+        };
+
+        const uploadCredential = await initializeEpisodeUpload(uploadRequest);
+        currentProgress += progressPerEpisode * 0.1;
+        setUploadProgress(prev => ({ ...prev, progress: currentProgress }));
+
+        await uploadFile(episode.file!, uploadCredential, (fileProgress) => {
+          const fileProgressContribution = progressPerEpisode * 0.7 * (fileProgress / 100);
+          setUploadProgress(prev => ({ ...prev, progress: currentProgress + fileProgressContribution }));
+        });
+
+        currentProgress += progressPerEpisode * 0.7;
+        setUploadProgress(prev => ({ ...prev, progress: currentProgress }));
+      }
+
+      setUploadProgress({ progress: 100, status: 'success', error: '' });
+  setSeriesForm({ title: '', description: '', coverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], tagInput: '', seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, coverUrl: '' }] });
+      setEpisodePreviewUrl(null);
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Series upload failed';
+      debugLog('Series upload failed', { error: errorMessage });
+      setUploadProgress({ progress: 0, status: 'error', error: errorMessage });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSeriesUpload} className="bg-gray-800 rounded-xl p-8 shadow-2xl">
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">Title *</label>
+        <input type="text" required value={seriesForm.title} onChange={(e) => setSeriesForm(prev => ({ ...prev, title: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Enter series title" />
+      </div>
+
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">Description</label>
+        <textarea rows={4} value={seriesForm.description} onChange={(e) => setSeriesForm(prev => ({ ...prev, description: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Enter series description" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 mb-6">
+        <label className="block text-sm font-medium mb-2">Cover Image</label>
+        <div className="flex items-center gap-4">
+          <input type="file" accept="image/*" id="series-cover-file" onChange={handleCoverFileSelect} className="hidden" />
+          <label htmlFor="series-cover-file" className="px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer text-white">Choose Image</label>
+          {seriesCoverPreviewUrl ? (
+            <div className="flex items-center gap-3">
+              <img src={seriesCoverPreviewUrl} alt="cover preview" className="w-28 h-16 object-cover rounded" />
+              <button type="button" onClick={clearCoverFile} className="px-3 py-2 bg-red-600 rounded text-white">Remove</button>
+            </div>
+          ) : (
+            <span className="text-sm text-gray-400">No cover selected. You may also paste an external URL into the coverUrl field later if needed.</span>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        <div>
+          <label className="block text-sm font-medium mb-2">Director</label>
+          <input type="text" value={seriesForm.director} onChange={(e) => setSeriesForm(prev => ({ ...prev, director: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Director name" />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Actors</label>
+          <input type="text" value={seriesForm.actors} onChange={(e) => setSeriesForm(prev => ({ ...prev, actors: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Actor1, Actor2, Actor3" />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Rating</label>
+          <input type="number" min="0" max="10" step="0.1" value={seriesForm.rating} onChange={(e) => setSeriesForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="8.5" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label className="block text-sm font-medium mb-2">Region</label>
+          <input type="text" value={seriesForm.region} onChange={(e) => setSeriesForm(prev => ({ ...prev, region: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="e.g., USA, China, etc." />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Language</label>
+          <input type="text" value={seriesForm.language} onChange={(e) => setSeriesForm(prev => ({ ...prev, language: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="e.g., English, Chinese, etc." />
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">Tags</label>
+        <div className="flex gap-2 mb-3">
+          <input type="text" value={seriesForm.tagInput} onChange={(e) => setSeriesForm(prev => ({ ...prev, tagInput: e.target.value }))} onKeyPress={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }} className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Add a tag and press Enter" />
+          <button type="button" onClick={addTag} className="px-4 py-3 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus /></button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {seriesForm.tags.map((tag, index) => (
+            <span key={index} className="flex items-center px-3 py-1 bg-gray-700 text-white rounded-full text-sm">
+              {tag}
+              <button type="button" onClick={() => removeTag(tag)} className="ml-2 text-gray-400 hover:text-red-400"><FiX /></button>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-md font-medium">Episodes</h4>
+          <button type="button" onClick={addEpisode} className="flex items-center px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus className="mr-2" />Add Episode</button>
+        </div>
+
+        {seriesForm.episodes.map((episode, index) => (
+          <div key={index} className="mb-4 p-4 bg-gray-600 rounded-lg">
+            <div className="flex items-center justify-between mb-3">
+              <h5 className="font-medium">Episode {episode.number}</h5>
+              {seriesForm.episodes.length > 1 && (
+                <button type="button" onClick={() => removeEpisode(index)} className="text-red-400 hover:text-red-300"><FiTrash2 /></button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Episode Title</label>
+                <input type="text" value={episode.title} onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, title: e.target.value } : ep) }))} className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={`Episode ${episode.number} title`} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Video File</label>
+                <div className="flex items-center">
+                  {!episode.file || seriesPreviewIndex !== index ? (
+                    <>
+                      <input type="file" accept="video/*" onChange={(e) => handleFileSelect(e, index)} className="hidden" ref={index === 0 ? fileInputRef : undefined} id={`episode-file-${index}`} />
+                      <label htmlFor={`episode-file-${index}`} className="flex-1 flex items-center justify-center px-3 py-2 bg-gray-500 border border-gray-400 rounded cursor-pointer hover:bg-gray-400 transition-colors">
+                        <FiUpload className="mr-2" />
+                        {episode.file ? episode.file.name : 'Select video file'}
+                      </label>
+                    </>
+                  ) : (
+                    <div className="flex-1 flex items-center justify-between gap-4">
+                      <video src={episodePreviewUrl as string} controls className="w-full rounded bg-black" />
+                      <button type="button" onClick={() => clearEpisodeFile(index)} className="ml-4 px-3 py-2 bg-red-600 rounded text-white hover:bg-red-500">Delete</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Episode Description</label>
+              <textarea rows={2} value={episode.description} onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, description: e.target.value } : ep) }))} className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={`Episode ${episode.number} description`} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {renderProgressBar()}
+
+      <div className="flex justify-end mt-8">
+        <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex items-center px-8 py-4 bg-[#fbb033] text-black font-semibold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          {isSubmitting ? (
+            <>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-3"></div>
+              Uploading Series...
+            </>
+          ) : (
+            <>
+              <FiUpload className="mr-3" />
+              Upload Series
+            </>
+          )}
+        </button>
+      </div>
+    </form>
+  );
+}

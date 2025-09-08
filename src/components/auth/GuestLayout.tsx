@@ -53,14 +53,14 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                         </Suspense>
                     </div>
                     <ul className="hidden lg:flex gap-1 items-center">
-                        <li>
+                        {/* <li>
                             <Link href="/?" className="text-gray-200 hover:underline">
                                 <p className="flex items-center rounded-lg block py-2 px-4 mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#f69c05]">
                                     <FiUpload className="h-5 w-6 mb-1" />
                                     {t('navigation.upload')}
                                 </p>
                             </Link>
-                        </li>
+                        </li> */}
                         <li>
                             <Link href="/auth/login" className="text-gray-200 hover:underline ">
                                 <p className="flex items-center rounded-lg block py-2 px-4  mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#f69c05]">

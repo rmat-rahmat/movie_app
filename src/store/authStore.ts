@@ -72,7 +72,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       refreshToken: null,
       isAuthenticated: false,
-      isLoading: false,
+      isLoading: true,
       error: null,
 
       login: async (email: string, password: string, form = false) => {
@@ -80,7 +80,7 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: true, error: null });
               // call renamed API helper to avoid shadowing the store method
               const response = await apiLogin(email, password, form);
-              console.debug('[authStore] login response:', response);
+              console.log('[authStore] login response:', response);
           set({
             user: response.user,
             token: response.token,
@@ -89,7 +89,7 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: null,
           });
-              console.debug('[authStore] state after login set:', { user: response.user, isAuthenticated: true });
+              console.log('[authStore] state after login set:', { user: response.user, isAuthenticated: true });
         } catch (error) {
           set({
             error: error instanceof Error ? error.message : 'Login failed',
@@ -147,11 +147,12 @@ export const useAuthStore = create<AuthState>()(
       },
 
       checkAuth: async () => {
+        console.log("checkAuth called");
         try {
           set({ isLoading: true });
           // Use API helper that restores headers if needed
           const response = await apiIsLogin();
-          console.debug('[authStore] checkAuth response:', response);
+          console.log('[authStore] checkAuth response:', response);
           if (response) {
             set({
               user: response.user,
@@ -161,7 +162,7 @@ export const useAuthStore = create<AuthState>()(
               isLoading: false,
               error: null,
             });
-            console.debug('[authStore] state after checkAuth (logged in)');
+            console.log('[authStore] state after checkAuth (logged in)');
           } else {
             set({
               user: null,
@@ -171,7 +172,7 @@ export const useAuthStore = create<AuthState>()(
               isLoading: false,
               error: null,
             });
-            console.debug('[authStore] state after checkAuth (not logged in)');
+            console.log('[authStore] state after checkAuth (not logged in)');
           }
         } catch {
           set({
@@ -271,19 +272,20 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         token: state.token,
         refreshToken: state.refreshToken,
-        isAuthenticated: state.isAuthenticated,
       }),
       // Restore axios header after rehydration so subsequent isLogin calls have the header
       onRehydrateStorage: () => (state) => {
+        console.log("Rehydrating auth store...")
         try {
           if (state && state.token) {
             // setAuthHeader expects a raw token (it will add the Bearer prefix)
             setAuthHeader(state.token);
-            console.debug('[authStore] restored auth header from persisted token');
+            console.log('[authStore] restored auth header from persisted token');
           } else {
             // attempt to restore from storage if no token in persisted state
             restoreAuthFromStorage();
-            console.debug('[authStore] attempted restoreAuthFromStorage');
+            console.log('[authStore] attempted restoreAuthFromStorage');
+            
           }
         } catch (e) {
           // ignore
@@ -292,3 +294,4 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+

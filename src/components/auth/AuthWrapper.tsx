@@ -28,10 +28,9 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
 
   useEffect(() => {
     // Check authentication status on mount
-    console.log("Checking auth status...");
-    checkAuth();
-    console.log("Auth status checked:", { isAuthenticated, user });
-  }, [checkAuth]);
+    // console.log("Checking auth status...");
+    // checkAuth();
+  }, []);
 
   // Show loading while checking authentication
   if (isLoading) {
@@ -43,10 +42,10 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
 
   // Handle protected routes
   if (protectedRoutes.some(route => pathname.startsWith(route))) {
-    // if (!isAuthenticated) {
-      // router.push('/auth/login');
-      // return <LoadingPage />;
-    // }
+    if (!isAuthenticated) {
+      router.push('/auth/login');
+      return <LoadingPage />;
+    }
     return <ProtectedLayout>{children}</ProtectedLayout>;
   }
 
@@ -73,8 +72,8 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
   // Handle hybrid routes (/, /about, /movies)
   if (hybridRoutes.some(route => pathname === route || pathname.startsWith(route + '/'))) {
 
-    console.log(isAuthenticated)
-    console.log(user)
+    // console.log(isAuthenticated)
+    // console.log(user)
     if (isAuthenticated) {
       return <ProtectedLayout>{children}</ProtectedLayout>;
     } else {

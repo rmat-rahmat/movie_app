@@ -13,7 +13,7 @@ export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
   const isLoading = useAuthStore((s) => s.isLoading);
   const error = useAuthStore((s) => s.error);
-  const checkAuth = useAuthStore((s) => s.checkAuth);
+  // const checkAuth = useAuthStore((s) => s.checkAuth);
   const updateProfile = useAuthStore((s) => s.updateProfile);
   const changePassword = useAuthStore((s) => s.changePassword);
 
@@ -44,7 +44,7 @@ export default function SettingsPage() {
   // load user on mount if missing
   useEffect(() => {
     if (!user) {
-      checkAuth().catch(() => { });
+      // checkAuth().catch(() => { });
     }
   }, []);
 

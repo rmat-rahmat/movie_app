@@ -1,6 +1,17 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { login, register, logout, isLogin, updateUserInfo, changePassword, sendEmailCaptcha, refreshToken } from '@/lib/authAPI';
+import {
+  login as apiLogin,
+  register as apiRegister,
+  logout as apiLogout,
+  isLogin as apiIsLogin,
+  updateUserInfo as apiUpdateUserInfo,
+  changePassword as apiChangePassword,
+  sendEmailCaptcha as apiSendEmailCaptcha,
+  refreshToken as apiRefreshToken,
+  setAuthHeader as setAuthHeader,
+  restoreAuthFromStorage as restoreAuthFromStorage,
+} from '@/lib/authAPI';
 
 type User = { 
   id: string; 
@@ -67,7 +78,9 @@ export const useAuthStore = create<AuthState>()(
       login: async (email: string, password: string, form = false) => {
         try {
           set({ isLoading: true, error: null });
-          const response = await login(email, password, form);
+              // call renamed API helper to avoid shadowing the store method
+              const response = await apiLogin(email, password, form);
+              console.debug('[authStore] login response:', response);
           set({
             user: response.user,
             token: response.token,
@@ -76,6 +89,7 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: null,
           });
+              console.debug('[authStore] state after login set:', { user: response.user, isAuthenticated: true });
         } catch (error) {
           set({
             error: error instanceof Error ? error.message : 'Login failed',
@@ -89,10 +103,10 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      register: async (payload, form = false) => {
+    register: async (payload, form = false) => {
         try {
           set({ isLoading: true, error: null });
-          const response = await register(payload, form);
+      const response = await apiRegister(payload, form);
           set({
             user: response.user,
             token: response.token,
@@ -114,10 +128,10 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      logout: async () => {
+    logout: async () => {
         try {
           set({ isLoading: true });
-          await logout();
+      await apiLogout();
         } catch (error) {
           console.error('Logout error:', error);
         } finally {
@@ -135,7 +149,9 @@ export const useAuthStore = create<AuthState>()(
       checkAuth: async () => {
         try {
           set({ isLoading: true });
-          const response = await isLogin();
+          // Use API helper that restores headers if needed
+          const response = await apiIsLogin();
+          console.debug('[authStore] checkAuth response:', response);
           if (response) {
             set({
               user: response.user,
@@ -145,6 +161,7 @@ export const useAuthStore = create<AuthState>()(
               isLoading: false,
               error: null,
             });
+            console.debug('[authStore] state after checkAuth (logged in)');
           } else {
             set({
               user: null,
@@ -154,6 +171,7 @@ export const useAuthStore = create<AuthState>()(
               isLoading: false,
               error: null,
             });
+            console.debug('[authStore] state after checkAuth (not logged in)');
           }
         } catch {
           set({
@@ -167,10 +185,10 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      refreshAuthToken: async () => {
+    refreshAuthToken: async () => {
         try {
           set({ isLoading: true, error: null });
-          const response = await refreshToken();
+      const response = await apiRefreshToken();
           const currentUser = get().user; // Keep existing user data
           set({
             token: response.token,
@@ -194,10 +212,10 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      sendEmailVerification: async (email: string) => {
+    sendEmailVerification: async (email: string) => {
         try {
           set({ isLoading: true, error: null });
-          const result = await sendEmailCaptcha(email);
+      const result = await apiSendEmailCaptcha(email);
           set({ isLoading: false });
           return result;
         } catch (error) {
@@ -209,10 +227,10 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      updateProfile: async (payload, form = false) => {
+    updateProfile: async (payload, form = false) => {
         try {
           set({ isLoading: true, error: null });
-          const response = await updateUserInfo(payload, form);
+      const response = await apiUpdateUserInfo(payload, form);
           set({
             user: response.user,
             token: response.token,
@@ -229,10 +247,10 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      changePassword: async (payload, form = false) => {
+    changePassword: async (payload, form = false) => {
         try {
           set({ isLoading: true, error: null });
-          const result = await changePassword(payload, form);
+      const result = await apiChangePassword(payload, form);
           set({ isLoading: false, error: null });
           return result;
         } catch (error) {
@@ -255,6 +273,22 @@ export const useAuthStore = create<AuthState>()(
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
+      // Restore axios header after rehydration so subsequent isLogin calls have the header
+      onRehydrateStorage: () => (state) => {
+        try {
+          if (state && state.token) {
+            // setAuthHeader expects a raw token (it will add the Bearer prefix)
+            setAuthHeader(state.token);
+            console.debug('[authStore] restored auth header from persisted token');
+          } else {
+            // attempt to restore from storage if no token in persisted state
+            restoreAuthFromStorage();
+            console.debug('[authStore] attempted restoreAuthFromStorage');
+          }
+        } catch (e) {
+          // ignore
+        }
+      },
     }
   )
 );

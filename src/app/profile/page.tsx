@@ -18,14 +18,14 @@ export default function Profile() {
 
     const user = useAuthStore((s) => s.user);
     const authLoading = useAuthStore((s) => s.isLoading);
-    const checkAuth = useAuthStore((s) => s.checkAuth);
+    // const checkAuth = useAuthStore((s) => s.checkAuth);
     const subscribersCount = user?.subscribers;
 
 
     useEffect(() => {
         // ensure auth is loaded
         if (!user) {
-            checkAuth().catch(() => {});
+            // checkAuth().catch(() => {});
         }
 
         const fetchData = async () => {

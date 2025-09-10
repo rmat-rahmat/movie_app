@@ -215,7 +215,7 @@ export const useAuthStore = create<AuthState>()(
 
     sendEmailVerification: async (email: string) => {
         try {
-          set({ isLoading: true, error: null });
+          // set({ isLoading: true, error: null });
       const result = await apiSendEmailCaptcha(email);
           set({ isLoading: false });
           return result;

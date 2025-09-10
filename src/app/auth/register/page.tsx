@@ -4,6 +4,10 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useTranslation } from 'react-i18next';
 import { getDeviceId } from '@/lib/authAPI';
+import PasswordStrengthMeter from '@/components/ui/PasswordStrengthMeter';
+import { checkPasswordStrength } from '@/utils/passwordUtils';
+
+type ButtonClickEvent = React.MouseEvent<HTMLButtonElement>;
 
 const RegisterPage: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -14,23 +18,37 @@ const RegisterPage: React.FC = () => {
     const [captchaSent, setCaptchaSent] = useState(false);
     const [countdown, setCountdown] = useState(0);
     const [localError, setLocalError] = useState<string | null>(null);
+    const [captchaLoading, setCaptchaLoading] = useState(false);
     const router = useRouter();
     const { register, sendEmailVerification, isLoading, error } = useAuthStore();
     const { t } = useTranslation('common');
+    // compute password strength for render-time checks
+    const passwordStrength = checkPasswordStrength(password);
+    // live match check for confirm password
+    const passwordsMatch = password === confirmPassword;
+    // live email format validation (start when length > 5)
+    const isEmailValid = email.length > 4 ? /^[\w-.+]+@[\w-]+\.[\w-.]+$/.test(email) : false;
 
-    const handleSendCaptcha = async () => {
+    const handleSendCaptcha = async (e: ButtonClickEvent): Promise<void> => {
+        e.preventDefault();
+        e.stopPropagation();
+        
         if (!email) {
-            setLocalError('Please enter your email first.');
+            setLocalError(t('auth.error.enter_email_first'));
             return;
         }
 
         try {
+            setLocalError(null);
+            setCaptchaLoading(true);
             await sendEmailVerification(email);
             setCaptchaSent(true);
             setCountdown(60); // 60 second countdown
-            setLocalError(null);
-        } catch (err) {
-            setLocalError('Failed to send verification code. Please try again.');
+        } catch (err: unknown) {
+            console.error('Send captcha error:', err);
+            setLocalError(t('auth.error.send_captcha_failed'));
+        } finally {
+            setCaptchaLoading(false);
         }
     };
 
@@ -39,28 +57,35 @@ const RegisterPage: React.FC = () => {
         setLocalError(null);
 
         if (email === '' || password === '' || emailCaptcha === '') {
-            setLocalError('Please fill in all required fields.');
+            setLocalError(t('auth.error.fill_required_fields'));
+            return;
+        }
+
+        // Check password strength
+        const passwordStrength = checkPasswordStrength(password);
+        if (passwordStrength.score < 2) {
+            setLocalError(t('auth.error.password_too_weak'));
             return;
         }
 
         if (password !== confirmPassword) {
-            setLocalError('Passwords do not match.');
+            setLocalError(t('auth.error.passwords_not_match'));
             return;
         }
 
         if (!captchaSent) {
-            setLocalError('Please verify your email first.');
+            setLocalError(t('auth.error.verify_email_first'));
             return;
         }
 
         try {
             const deviceId = getDeviceId();
-            await register({ 
-                email, 
-                password, 
+            await register({
+                email,
+                password,
                 deviceId,
                 emailCaptcha,
-                nickname: nickname || undefined 
+                nickname: nickname || undefined
             });
             router.push('/');
         } catch (err) {
@@ -163,6 +188,9 @@ const RegisterPage: React.FC = () => {
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                             required
                         />
+                        {email.length > 4 && !isEmailValid && (
+                            <p className="text-xs text-red-400 mt-1">{t('auth.error.invalid_email') || 'Invalid email format'}</p>
+                        )}
                     </div>
                     <div className="mb-4">
                         <label htmlFor="emailCaptcha" className="block text-sm font-medium text-gray-300">{t('auth.emailVerification')}</label>
@@ -179,10 +207,10 @@ const RegisterPage: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={handleSendCaptcha}
-                                disabled={!email || captchaSent || isLoading}
+                                disabled={!email || captchaSent || captchaLoading || !isEmailValid}
                                 className="mt-1 px-4 py-2 bg-[#fbb033] text-white rounded-md hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm whitespace-nowrap"
                             >
-                                {captchaSent ? `${countdown}s` : t('auth.sendCode')}
+                                {captchaLoading ? t('common.loading') : captchaSent ? `${countdown}s` : t('auth.sendCode')}
                             </button>
                         </div>
                     </div>
@@ -196,6 +224,21 @@ const RegisterPage: React.FC = () => {
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                             required
                         />
+                        <PasswordStrengthMeter password={password} />
+                    </div>
+                    <div className="mb-6">
+                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300">{t('auth.confirmPassword')}</label>
+                        <input
+                            id="confirmPassword"
+                            type="password"
+                            value={confirmPassword}
+                            onChange={e => setConfirmPassword(e.target.value)}
+                            className={`mt-1 block w-full px-3 py-2 rounded-md shadow-sm focus:outline-none sm:text-sm ${confirmPassword ? (passwordsMatch ? 'border border-green-500 focus:ring-green-500 focus:border-green-500' : 'border border-red-500 focus:ring-red-500 focus:border-red-500') : 'border border-gray-300 focus:ring-[#fbb033] focus:border-[#fbb033]'}`}
+                            required
+                        />
+                        {!passwordsMatch && confirmPassword && (
+                            <p className="text-xs text-red-400 mt-1">{t('auth.error.passwords_not_match')}</p>
+                        )}
                     </div>
                     <div className="mb-4">
                         <label htmlFor="nickname" className="block text-sm font-medium text-gray-300">{t('auth.nickname')}</label>
@@ -207,21 +250,11 @@ const RegisterPage: React.FC = () => {
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                         />
                     </div>
-                    <div className="mb-6">
-                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300">{t('auth.confirmPassword')}</label>
-                        <input
-                            id="confirmPassword"
-                            type="password"
-                            value={confirmPassword}
-                            onChange={e => setConfirmPassword(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
-                            required
-                        />
-                    </div>
+                    
                     {(error || localError) && <div className="text-[#fbb033] mb-4">{error || localError}</div>}
                     <button
                         type="submit"
-                        disabled={isLoading}
+                        disabled={isLoading || passwordStrength.score < 2 || !passwordsMatch || !isEmailValid || !nickname.trim()}
                         className="w-full bg-[#fbb033] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
                         {isLoading ? t('common.loading') : t('auth.registerButton')}

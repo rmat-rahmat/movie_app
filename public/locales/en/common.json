@@ -45,6 +45,22 @@
       "joinDesc1": "Discover trending movies, connect with fellow fans, and unlock exclusive features.",
       "createAccountCTA": "Create your free account",
       "joinDesc2": "and start your entertainment journey!",
+      "password_requirements": {
+        "title": "Password requirements",
+        "intro": "Your password must meet the following:",
+        "length": "At least 8 characters long",
+        "lowercase": "Contains lowercase letters (a-z)",
+        "uppercase": "Contains uppercase letters (A-Z)",
+        "number": "Contains numbers (0-9)",
+        "special": "Contains special characters (!@#$%^&*)"
+      },
+      "password_strength": {
+        "very_weak": "Very Weak",
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good",
+        "strong": "Strong"
+      },
       "error": {
         "login_failed": "Login failed",
         "register_failed": "Register failed",
@@ -52,7 +68,13 @@
         "update_failed": "Update user info failed",
         "change_password_failed": "Change password failed",
         "send_captcha_failed": "Send verification code failed",
-        "refresh_failed": "Token refresh failed"
+        "refresh_failed": "Token refresh failed",
+        "password_too_weak": "Password is too weak. Please create a stronger password.",
+        "passwords_not_match": "Passwords do not match.",
+        "fill_required_fields": "Please fill in all required fields.",
+        "verify_email_first": "Please verify your email first.",
+        "invalid_email": "Invalid email format",
+        "enter_email_first": "Please enter your email first."
       }
     },
     "common": {
@@ -186,5 +208,23 @@
       "tags": "Tags",
       "duration": "Duration",
       "loadingPlaylists": "Loading playlists..."
+    },
+    "modal": {
+      "loadingDetails": "Loading details...",
+      "noContentData": "No content data",
+      "fetchError": "Failed to fetch content detail",
+      "series": "Series",
+      "season": "Season",
+      "episodes": "Episodes",
+      "cast": "Cast",
+      "director": "Director",
+      "region": "Region",
+      "language": "Language",
+      "tags": "Tags",
+      "episode": "Episode",
+      "duration": "Duration",
+      "watch": "Watch",
+      "noEpisodesAvailable": "No episodes available",
+      "watchNow": "Watch Now!!"
     }
-  }
+   }

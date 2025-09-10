@@ -5,6 +5,8 @@ import Image from "next/image";
 import { getContentDetail } from '@/lib/movieApi';
 import { useRouter } from 'next/navigation';
 import { useVideoStore } from '@/store/videoStore';
+import { formatDuration } from '@/utils/durationUtils';
+import { useTranslation } from 'react-i18next';
 
 interface MovieModalProps {
   video: DashboardItem;
@@ -13,7 +15,7 @@ interface MovieModalProps {
 }
 
 const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback }) => {
-
+  const { t } = useTranslation();
   const [detail, setDetail] = useState<VideoDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,12 +57,12 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
           // merge fetched data into existing detail to fill missing keys
           setDetail((prev) => ({ ...(prev as VideoDetails || {}), ...data } as VideoDetails));
         } else {
-          setError('No content data');
+          setError(t('modal.noContentData'));
         }
       } catch (err: unknown) {
         if (!mounted) return;
         const message = err instanceof Error ? err.message : String(err);
-        setError(message || 'Failed to fetch content detail');
+        setError(message || t('modal.fetchError'));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -105,7 +107,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
         onClick={onClose}
       />
       <div className="fixed inset-0 shadow-lg shadow-[#fbb033] bg-black/70 rounded-lg my-auto md:h-[62%] md:mx-auto md:w-[80%] lg:w-[70%] xl:w-[60%] 2xl:w-[50%] overflow-y-auto z-61 flex flex-col items-center justify-center p-4 overflow-y-hidden">
-        <div className="flex flex-col md:flex-row w-full items-center mt-4">
+        <div className="flex flex-col md:flex-row w-full items-center mt-4 h-full">
           <div
             className="absolute top-4 right-4 cursor-pointer text-white rounded-full bg-black/40 w-10 h-10 flex items-center justify-center"
             onClick={onClose}
@@ -139,7 +141,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
             </>
           )}
 
-          <div className="ml-4 w-full text-white">
+          <div className="ml-4 w-full text-white max-h-[90%] overflow-y-auto">
             {showPlayback && (
               <div className="flex items-center mt-2 mb-2">
                 <iframe
@@ -155,19 +157,19 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
 
             <h2 className="text-2xl font-bold text-white">{title}</h2>
             <p className="text-sm text-gray-400">{releaseDate}</p>
-            {loading && <p className="text-sm text-gray-400">Loading details...</p>}
+            {loading && <p className="text-sm text-gray-400">{t('modal.loadingDetails')}</p>}
             {error && <p className="text-sm text-red-400">{error}</p>}
             {source.isSeries && (
               <div className="flex gap-2 mt-1">
-                <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs">Series</span>
+                <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs">{t('modal.series')}</span>
                 {source.seasonNumber && (
                   <span className="bg-gray-600 text-white px-2 py-1 rounded text-xs">
-                    Season {source.seasonNumber}
+                    {t('modal.season')} {source.seasonNumber}
                   </span>
                 )}
                 {source.totalEpisodes && (
                   <span className="bg-gray-600 text-white px-2 py-1 rounded text-xs">
-                    {source.totalEpisodes} Episodes
+                    {source.totalEpisodes} {t('modal.episodes')}
                   </span>
                 )}
               </div>
@@ -196,7 +198,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
             )}
             {source.actors && Array.isArray(source.actors) && source.actors.length > 0 && (
               <div className="mt-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Cast</h3>
+                <h3 className="text-lg font-semibold text-white mb-2">{t('modal.cast')}</h3>
                 <div className="flex flex-wrap gap-2">
                   {source.actors.slice(0, 5).map((actor: string, index: number) => (
                     <span key={index} className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm">
@@ -208,25 +210,25 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
             )}
             {source.director && (
               <div className="mt-2">
-                <span className="text-gray-400">Director: </span>
+                <span className="text-gray-400">{t('modal.director')}: </span>
                 <span className="text-white">{source.director}</span>
               </div>
             )}
             {source.region && (
               <div className="mt-1">
-                <span className="text-gray-400">Region: </span>
+                <span className="text-gray-400">{t('modal.region')}: </span>
                 <span className="text-white">{source.region}</span>
               </div>
             )}
             {source.language && (
               <div className="mt-1">
-                <span className="text-gray-400">Language: </span>
+                <span className="text-gray-400">{t('modal.language')}: </span>
                 <span className="text-white">{source.language}</span>
               </div>
             )}
             {source.tags && Array.isArray(source.tags) && source.tags.length > 0 && (
               <div className="mt-3">
-                <h4 className="text-sm font-semibold text-gray-400 mb-1">Tags</h4>
+                <h4 className="text-sm font-semibold text-gray-400 mb-1">{t('modal.tags')}</h4>
                 <div className="flex flex-wrap gap-1">
                   {source.tags.map((tag: string, index: number) => (
                     <span key={index} className="bg-[#fbb033] text-black px-2 py-1 rounded text-xs">
@@ -239,30 +241,40 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
             {/* Episodes / uploadId display */}
             {isVideoDetails(source) && source.isSeries ? (
               <div className="mt-4 w-full">
-                <h3 className="text-lg font-semibold text-white mb-2">Episodes</h3>
+                <h3 className="text-lg font-semibold text-white mb-2">{t('modal.episodes')}</h3>
                 {Array.isArray(source.episodes) && source.episodes.length > 0 ? (
                   <div className="flex flex-col gap-2">
                     {source.episodes.map((ep: Episode) => (
                       <div key={ep.id || ep.uploadId} className="flex items-center justify-between bg-gray-900 p-2 rounded">
                         <div>
-                          <div className="text-sm text-white">{ep.title || `Episode ${ep.episodeNumber || ''}`}</div>
-                          <div className="text-xs text-gray-400">Duration: {ep.duration ? `${ep.duration}s` : 'N/A'}</div>
+                          <div className="text-sm text-white">{ep.title || `${t('modal.episode')} ${ep.episodeNumber || ''}`}</div>
+                          <div className="text-xs text-gray-400">
+                            {t('modal.duration')}: {formatDuration(ep.duration)}
+                          </div>
                         </div>
-                        <button type="button" onClick={() => navigateToPlayer(ep.uploadId || ep.id)} className="border border-gray-700 text-gray-400 hover:text-white px-3 py-1 rounded">
-                          Watch
+                        <button
+                          type="button"
+                          onClick={() => navigateToPlayer(ep.uploadId || ep.id)}
+                          className="flex items-center gap-2 border border-gray-700 text-gray-400 hover:text-white px-3 py-1 rounded-lg cursor-pointer hover:border-[#fbb033] transition-colors"
+                          title="Watch episode"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#fbb033]" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d="M6 4l10 6-10 6V4z" />
+                          </svg>
+                          <span>{t('modal.watch')}</span>
                         </button>
-                        <div className="text-xs text-gray-300">UploadId: <span className="text-[#fbb033]">{ep.uploadId || ep.id}</span></div>
+                        {/* <div className="text-xs text-gray-300">UploadId: <span className="text-[#fbb033]">{ep.uploadId || ep.id}</span></div> */}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-400">No episodes available</p>
+                  <p className="text-sm text-gray-400">{t('modal.noEpisodesAvailable')}</p>
                 )}
               </div>
             ) : (
               <div className="mt-4 w-full">
                 <button type="button" onClick={() => navigateToPlayer((isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].uploadId) || (isVideoDetails(source) && source.uploadId) || source.id || '')} className="bg-[#fbb033] text-white font-bold hover:bg-red-500 px-3 py-3 rounded w-full cursor-pointer">
-                  Watch Now!!
+                  {t('modal.watchNow')}
                 </button>
               </div>
             )}

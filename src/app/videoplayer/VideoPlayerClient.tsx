@@ -1,19 +1,21 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
-import { getPlayMain, getPlayVariant, getPlaybackUrl } from '@/lib/movieApi';
+import { getPlayMain, getPlaybackUrl } from '@/lib/movieApi';
 import Hls from 'hls.js';
-import { env } from 'process';
 import { BASE_URL } from '@/config';
 import { useVideoStore } from '@/store/videoStore';
-import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'next/navigation';
 
 interface VideoPlayerClientProps {
-  id: string;
+  id?: string;
 }
 
-const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id }) => {
-  const [main, setMain] = useState<string | null>(null);
+const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => {
+  // For static export, read id from URL params client-side
+  const searchParams = useSearchParams();
+  const urlId = searchParams.get('id');
+  const id = propId || urlId || '';
   const [variants, setVariants] = useState<Record<string, string | null>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,9 +36,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id }) => {
       setLoading(true);
       setError(null);
       try {
-        const m = await getPlayMain(id);
+        // Note: getPlayMain result not used currently, focusing on quality variants
+        await getPlayMain(id);
         if (!mounted) return;
-        setMain(m);
         const qualities: ('360p' | '720p' | '1080p')[] = ['1080p', '720p', '360p'];
         const results: Record<string, string | null> = {};
         for (const quality of qualities) {
@@ -55,9 +57,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id }) => {
           console.log('Preparing player for default quality:', defaultQ);
           preparePlayer(defaultQ, false);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!mounted) return;
-        setError(err?.message || String(err));
+        const message = err instanceof Error ? err.message : String(err);
+        setError(message);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -143,6 +146,16 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id }) => {
       }
     };
   }, []);
+
+  // Show fallback when no video ID is provided
+  if (!id) {
+    return (
+      <div className="p-6 text-white">
+        <h1 className="text-2xl font-bold mb-4">Video Player</h1>
+        <p className="text-sm text-gray-400">No video selected. Click a Watch button to open the player.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen  text-white">

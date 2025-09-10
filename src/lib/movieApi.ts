@@ -476,12 +476,12 @@ export async function searchVideos(
 export async function getPlayMain(uploadId: string, expires: number | string = 100000, signature: string = '2', apiKey?: string): Promise<string | null> {
   try {
     const url = `${BASE_URL}/api-net/play/${uploadId}/expires=${expires}&signature=${signature}`;
-    const params: any = {};
-    if (expires) params.expires = expires;
-    if (signature) params.signature = signature;
+  const params: Record<string, string> = {};
+  if (expires !== undefined && expires !== null) params.expires = String(expires);
+  if (signature !== undefined && signature !== null) params.signature = String(signature);
     const headers: Record<string, string> = {};
     if (apiKey) headers['api-key'] = apiKey;
-    const query = new URLSearchParams(params as any).toString();
+  const query = new URLSearchParams(params).toString();
     const requestUrl = query ? `${url}?${query}` : url;
     const response = await fetch(requestUrl, { method: 'GET', headers });
     if (!response.ok) throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);

@@ -13,12 +13,12 @@ interface MovieModalProps {
 }
 
 const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback }) => {
-  if (!video) return null;
 
   const [detail, setDetail] = useState<VideoDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const router = useRouter();
   useEffect(() => {
     let mounted = true;
 
@@ -70,6 +70,8 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
     return () => { mounted = false; };
   }, [video?.id]);
 
+  if (!video) return null;
+
   // prefer API-fetched detail when available
   const source = detail || video;
   // runtime type guard to detect richer VideoDetails
@@ -82,7 +84,6 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
   const backdropImage = (source.imageQuality && (source.imageQuality.p720 || source.imageQuality.p360)) || "";
   const portraitImage = source.imageQuality?.p360 || "";
   const rating = source.rating || 0;
-  const router = useRouter();
 
   const navigateToPlayer = (uploadId?: string | number | undefined) => {
     const id = uploadId || (isVideoDetails(source) && source.uploadId) || source.id;

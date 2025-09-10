@@ -15,7 +15,7 @@
         "dramas": "Драмы",
         "music": "Моя музыка",
         "entertainment": "Развлечения",
-        "technology": "Технологии",
+  "technology": "Технологии",
         "contact": "Контакт",
         "login": "Войти",
         "register": "Регистрация",
@@ -115,5 +115,56 @@
         "fr": "Français",
         "ru": "Русский",
         "ar": "العربية"
+      }
+
+      ,"upload": {
+        "title": "Загрузить контент",
+        "description": "Загрузите ваши фильмы или сериалы, чтобы поделиться ими с миром",
+        "movie": "Фильм",
+        "series": "Сериал",
+        "videoFile": "Видеофайл",
+        "uploadMovie": "Загрузить фильм",
+        "uploadSeries": "Загрузить сериал",
+        "director": "Режиссёр",
+        "actors": "Актёры",
+        "rating": "Рейтинг",
+        "region": "Регион",
+        "language": "Язык",
+        "tags": "Теги",
+        "coverUrl": "URL обложки",
+        "customCoverUrl": "Идентификатор пользовательской обложки",
+        "year": "Год"
+      },
+      "uploadForm": {
+        "titlePlaceholder": "Введите название фильма",
+        "yearPlaceholder": "Год",
+        "descriptionPlaceholder": "Введите описание фильма",
+        "videoFileLabel": "Видеофайл *",
+        "coverImageLabel": "Изображение обложки",
+        "selectCoverFile": "Выбрать файл обложки",
+        "clearCover": "Очистить обложку",
+        "addTag": "Добавить тег",
+        "removeTag": "Удалить тег",
+        "uploading": "Загрузка...",
+        "uploadSuccess": "Загрузка завершена!",
+        "uploadFailed": "Ошибка загрузки",
+        "provideTitleAndFile": "Пожалуйста, укажите название и выберите файл"
+      }
+      ,
+      "video": {
+        "playerTitle": "Видеоплеер - {{id}}",
+        "browserNotSupported": "Ваш браузер не поддерживает тег video.",
+        "play": "Воспроизвести",
+        "selectQuality": "Выбрать качество:",
+        "currentlyPlaying": "Сейчас воспроизводится",
+        "uploadId": "uploadID",
+        "episodes": "Эпизоды",
+        "cast": "Актеры",
+        "director": "Режиссер",
+        "language": "Язык",
+        "region": "Регион",
+        "tags": "Теги",
+        "duration": "Длительность",
+        "loadingPlaylists": "Загрузка плейлистов..."
       }
     }

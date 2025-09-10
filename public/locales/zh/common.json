@@ -114,5 +114,55 @@
     "fr": "Français",
     "ru": "Русский",
     "ar": "العربية"
+  },
+  "video": {
+    "playerTitle": "视频播放器 - {{id}}",
+    "browserNotSupported": "您的浏览器不支持 video 标签。",
+    "play": "播放",
+    "selectQuality": "选择清晰度:",
+    "currentlyPlaying": "当前播放",
+    "uploadId": "上传ID",
+    "episodes": "剧集",
+    "cast": "演员",
+    "director": "导演",
+    "language": "语言",
+    "region": "地区",
+    "tags": "标签",
+    "duration": "时长",
+    "loadingPlaylists": "正在加载播放列表..."
+  }
+  ,
+  "upload": {
+    "title": "上传内容",
+    "description": "上传您的电影或电视剧，与世界分享",
+    "movie": "电影",
+    "series": "电视剧",
+    "videoFile": "视频文件",
+    "uploadMovie": "上传电影",
+    "uploadSeries": "上传剧集",
+    "director": "导演",
+    "actors": "演员",
+    "rating": "评分",
+    "region": "地区",
+    "language": "语言",
+    "tags": "标签",
+    "coverUrl": "封面图片 URL",
+    "customCoverUrl": "自定义封面 ID",
+    "year": "年份"
+  },
+  "uploadForm": {
+    "titlePlaceholder": "输入电影标题",
+    "yearPlaceholder": "年份",
+    "descriptionPlaceholder": "输入电影描述",
+    "videoFileLabel": "视频文件 *",
+    "coverImageLabel": "封面图片",
+    "selectCoverFile": "选择封面文件",
+    "clearCover": "清除封面",
+    "addTag": "添加标签",
+    "removeTag": "移除标签",
+    "uploading": "上传中...",
+    "uploadSuccess": "上传完成！",
+    "uploadFailed": "上传失败",
+    "provideTitleAndFile": "请提供标题并选择文件"
   }
 }

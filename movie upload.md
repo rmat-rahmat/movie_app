@@ -257,7 +257,7 @@ Finish the multipart upload by sending the list of parts (PartNumber + ETag) so 
 Call the file API to retrieve the available quality levels for the uploaded video:
 
 ```
-https://otaik.cc/api/file/play/{uploadId}?expires={expires}&signature={signature}
+${BASE_URL}/api/file/play/{uploadId}?expires={expires}&signature={signature}
 ```
 
 Replace `{uploadId}`, `{expires}`, and `{signature}` with the actual values.
@@ -275,7 +275,7 @@ Response example:
 Use the playback endpoint to fetch the HLS playlist for a specific quality (type):
 
 ```
-https://otaik.cc/api/file/Play/{uploadID}/{type}.m3u8
+${BASE_URL}/api/file/Play/{uploadID}/{type}.m3u8
 ```
 
 Parameters: `type` = `360p` | `720p` | `1080p`

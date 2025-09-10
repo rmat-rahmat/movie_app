@@ -108,8 +108,8 @@ export const getNowPlayingMovies = async (_number: number): Promise<VideoSrc[]> 
   };
 
   try {
-  const res = await axios.get(url, { headers: options.headers });
-  const movies = res.data;
+    const res = await axios.get(url, { headers: options.headers });
+    const movies = res.data;
     // Convert each movie to VideoSrc format
     return movies?.results.map(movieToVideoSrc);
   } catch (error) {
@@ -129,8 +129,8 @@ export const getPopularMovie = async (_number: number): Promise<VideoSrc[]> => {
   };
 
   try {
-  const res = await axios.get(url, { headers: options.headers });
-  const movies = res.data;
+    const res = await axios.get(url, { headers: options.headers });
+    const movies = res.data;
     // Convert each movie to VideoSrc format
     return movies?.results.map(movieToVideoSrc);
   } catch (error) {
@@ -150,8 +150,8 @@ export const getTopRatedMovies = async (_number: number): Promise<VideoSrc[]> =>
   };
 
   try {
-  const res = await axios.get(url, { headers: options.headers });
-  const movies = res.data;
+    const res = await axios.get(url, { headers: options.headers });
+    const movies = res.data;
     // Convert each movie to VideoSrc format
     return movies?.results.map(movieToVideoSrc);
   } catch (error) {
@@ -167,12 +167,12 @@ export const getUpcomingMovies = async (_number: number): Promise<VideoSrc[]> =>
       accept: 'application/json',
       Authorization
     }
-  };  
+  };
   try {
-  const res = await axios.get(url, { headers: options.headers });
-  const movies = res.data;
-  // Convert each movie to VideoSrc format
-  return movies?.results.map(movieToVideoSrc);
+    const res = await axios.get(url, { headers: options.headers });
+    const movies = res.data;
+    // Convert each movie to VideoSrc format
+    return movies?.results.map(movieToVideoSrc);
   } catch (error) {
     console.error('Error fetching now playing movies:', error);
     return [];
@@ -318,17 +318,17 @@ export const getDashboard = async (force = false): Promise<DashboardApiResponse 
     const res = await axios.get<DashboardApiResponse>(url);
     const payload = res.data as DashboardApiResponse;
 
-  // ensure categories are stored as hierarchical tree
-  const flatCats = payload?.data?.categories || [];
-  const catsTree = Array.isArray(flatCats) ? buildCategoryTree(flatCats as CategoryItem[]) : [];
-  // create a new payload object with hierarchical categories
-  const newPayload = { ...payload, data: { ...payload.data, categories: catsTree } } as DashboardApiResponse;
+    // ensure categories are stored as hierarchical tree
+    const flatCats = payload?.data?.categories || [];
+    const catsTree = Array.isArray(flatCats) ? buildCategoryTree(flatCats as CategoryItem[]) : [];
+    // create a new payload object with hierarchical categories
+    const newPayload = { ...payload, data: { ...payload.data, categories: catsTree } } as DashboardApiResponse;
 
-  const record = { timestamp: now, payload: newPayload };
-  // update in-memory
-  inMemoryDashboardCache = record;
-  // update categories cache in-memory
-  inMemoryCategoriesCache = { timestamp: now, categories: catsTree };
+    const record = { timestamp: now, payload: newPayload };
+    // update in-memory
+    inMemoryDashboardCache = record;
+    // update categories cache in-memory
+    inMemoryCategoriesCache = { timestamp: now, categories: catsTree };
     // update localStorage when available
     if (isWindow) {
       try {
@@ -345,7 +345,7 @@ export const getDashboard = async (force = false): Promise<DashboardApiResponse 
       }
     }
 
-  return newPayload;
+    return newPayload;
   } catch (err) {
     console.error('Failed to fetch dashboard', err);
     // fallback to cache if available
@@ -362,14 +362,14 @@ export const getCachedCategories = (): CategoryItem[] | null => {
   try {
     const raw = window.localStorage.getItem('seefu_dashboard_categories_v1');
     if (!raw) return null;
-  const parsed = JSON.parse(raw);
-  if (!Array.isArray(parsed)) return null;
-  // If stored format is flat (items have parentId and no children), convert to tree
-  const first = parsed[0];
-  const isTree = first && Object.prototype.hasOwnProperty.call(first, 'children');
-  const catsTree = isTree ? (parsed as CategoryItem[]) : buildCategoryTree(parsed as CategoryItem[]);
-  inMemoryCategoriesCache = { timestamp: Date.now(), categories: catsTree };
-  return catsTree;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return null;
+    // If stored format is flat (items have parentId and no children), convert to tree
+    const first = parsed[0];
+    const isTree = first && Object.prototype.hasOwnProperty.call(first, 'children');
+    const catsTree = isTree ? (parsed as CategoryItem[]) : buildCategoryTree(parsed as CategoryItem[]);
+    inMemoryCategoriesCache = { timestamp: Date.now(), categories: catsTree };
+    return catsTree;
     return parsed
   } catch (_e) {
     return null;
@@ -416,7 +416,7 @@ export async function getCategoryVideos(categoryId: string, page: number = 1, si
         'Content-Type': 'application/json',
       },
     });
-    
+
     return response.data as VideosApiResponse;
   } catch (e) {
     console.error('Failed to fetch category videos:', e);
@@ -427,17 +427,17 @@ export async function getCategoryVideos(categoryId: string, page: number = 1, si
 // Get videos by category ID with pagination
 export async function getGridVideos(src: string, page: number = 1, size: number = 20): Promise<VideosApiResponse | null> {
   try {
-  // normalize src to avoid accidental double slashes when src starts with '/'
-  const normalizedSrc = src.startsWith('/') ? src.slice(1) : src;
-  const finalUrl = `${BASE_URL}/${normalizedSrc}`;
-  console.log(`getGridVideos -> requesting: ${finalUrl}`);
-  const response = await axios.get(finalUrl, {
+    // normalize src to avoid accidental double slashes when src starts with '/'
+    const normalizedSrc = src.startsWith('/') ? src.slice(1) : src;
+    const finalUrl = `${BASE_URL}/${normalizedSrc}`;
+    console.log(`getGridVideos -> requesting: ${finalUrl}`);
+    const response = await axios.get(finalUrl, {
       params: { page, size },
       headers: {
         'Content-Type': 'application/json',
       },
     });
-    
+
     return response.data as VideosApiResponse;
   } catch (e) {
     console.error('Failed to fetch category videos:', e);
@@ -447,9 +447,9 @@ export async function getGridVideos(src: string, page: number = 1, size: number 
 
 // Search videos with optional category filter and pagination
 export async function searchVideos(
-  searchName: string, 
-  categoryId: string = "", 
-  page: number = 1, 
+  searchName: string,
+  categoryId: string = "",
+  page: number = 1,
   size: number = 10
 ): Promise<SearchApiResponse | null> {
   try {
@@ -464,10 +464,85 @@ export async function searchVideos(
         'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
       },
     });
-    
+
     return response.data as SearchApiResponse;
   } catch (e) {
     console.error('Failed to search videos:', e);
+    return null;
+  }
+}
+
+// Fetch the main m3u8 (may require expires & signature)
+export async function getPlayMain(uploadId: string, expires: number | string = 100000, signature: string = '2', apiKey?: string): Promise<string | null> {
+  try {
+    const url = `${BASE_URL}/api-net/play/${uploadId}/expires=${expires}&signature=${signature}`;
+    const params: any = {};
+    if (expires) params.expires = expires;
+    if (signature) params.signature = signature;
+    const headers: Record<string, string> = {};
+    if (apiKey) headers['api-key'] = apiKey;
+    const query = new URLSearchParams(params as any).toString();
+    const requestUrl = query ? `${url}?${query}` : url;
+    const response = await fetch(requestUrl, { method: 'GET', headers });
+    if (!response.ok) throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+    const res = { data: await response.text() };
+    return res.data as string;
+  } catch (err) {
+    console.error('Failed to fetch play main for', uploadId, err);
+    return null;
+  }
+}
+
+// Fetch a variant m3u8 for specific resolution/type
+export async function getPlayVariant(uploadId: string, type: string, apiKey?: string): Promise<string | null> {
+  try {
+    // const url = `${BASE_URL}/api-net/play/${uploadId}/${type}.m3u8`;
+    const url = `https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8`;
+    const headers: Record<string, string> = {};
+    if (apiKey) headers['api-key'] = apiKey;
+    const res = await axios.get(url, { headers, responseType: 'text' });
+    return res.data as string;
+  } catch (err) {
+    console.error('Failed to fetch play variant for', uploadId, type, err);
+    return null;
+  }
+}
+
+// Get playback URL for a specific quality using the otaik.cc endpoint
+export async function getPlaybackUrl(uploadId: string, quality: '360p' | '720p' | '1080p', apiKey?: string): Promise<string | null> {
+  try {
+    const url = `${BASE_URL}/api-net/play/${uploadId}/${quality}.m3u8`;
+    // const url = `https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8`;
+    const headers: Record<string, string> = {};
+    if (apiKey) headers['api-key'] = apiKey;
+
+    const response = await fetch(url, { method: 'GET', headers });
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+    }
+    const text = await response.text();
+    console.log('getPlaybackUrl -> fetched URL:', url, 'response length:', text.length);
+    return text;
+  } catch (err) {
+    console.error('Failed to fetch playback URL for', uploadId, quality, err);
+    return null;
+  }
+}
+
+// Fetch content detail by contentId and return typed VideoDetails
+export async function getContentDetail(contentId: string): Promise<import('@/types/Dashboard').VideoDetails | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/home/contents/${contentId}/detail`;
+    const res = await axios.get(url, {
+      headers: { 'Accept': '*/*' }
+    });
+    const json = res.data;
+    if (json && json.data) {
+      return json.data as import('@/types/Dashboard').VideoDetails;
+    }
+    return null;
+  } catch (err) {
+    console.error('Failed to fetch content detail for', contentId, err);
     return null;
   }
 }

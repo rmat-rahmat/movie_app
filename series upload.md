@@ -502,7 +502,7 @@ Complete the multipart upload and merge all uploaded parts into the final object
 GET:
 
 ```
-https://otaik.cc/api/file/play/{uploadId}?expires={expires}&signature={signature}
+${BASE_URL}/api/file/play/{uploadId}?expires={expires}&signature={signature}
 ```
 
 Response example:
@@ -518,7 +518,7 @@ Response example:
 Use the playback endpoint to fetch the HLS playlist for a specific quality (type):
 
 ```
-https://otaik.cc/api/file/Play/{uploadID}/{type}.m3u8
+${BASE_URL}/api/file/Play/{uploadID}/{type}.m3u8
 ```
 
 Parameters: `type` = `360p` | `720p` | `1080p`

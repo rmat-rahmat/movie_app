@@ -64,6 +64,7 @@
     "female": "Femme",
     "other": "Autre"
   },
+  
   "movie": {
     "genres": "Genres",
     "rating": "Note",
@@ -115,5 +116,56 @@
     "fr": "Français",
     "ru": "Русский",
     "ar": "العربية"
+  }
+
+  ,"upload": {
+    "title": "Téléverser du contenu",
+    "description": "Téléversez vos films ou séries TV pour les partager avec le monde",
+    "movie": "Film",
+    "series": "Série TV",
+    "videoFile": "Fichier vidéo",
+    "uploadMovie": "Téléverser un film",
+    "uploadSeries": "Téléverser une série",
+    "director": "Réalisateur",
+    "actors": "Acteurs",
+    "rating": "Note",
+    "region": "Région",
+    "language": "Langue",
+    "tags": "Tags",
+    "coverUrl": "URL de l'image de couverture",
+    "customCoverUrl": "ID d'image de couverture personnalisée",
+    "year": "Année"
+  },
+  "uploadForm": {
+    "titlePlaceholder": "Entrez le titre du film",
+    "yearPlaceholder": "Année",
+    "descriptionPlaceholder": "Entrez la description du film",
+    "videoFileLabel": "Fichier vidéo *",
+    "coverImageLabel": "Image de couverture",
+    "selectCoverFile": "Sélectionner l'image de couverture",
+    "clearCover": "Supprimer la couverture",
+    "addTag": "Ajouter un tag",
+    "removeTag": "Supprimer le tag",
+    "uploading": "Téléversement...",
+    "uploadSuccess": "Téléversement terminé !",
+    "uploadFailed": "Échec du téléversement",
+    "provideTitleAndFile": "Veuillez fournir un titre et sélectionner un fichier"
+  }
+  ,
+  "video": {
+    "playerTitle": "Lecteur vidéo - {{id}}",
+    "browserNotSupported": "Votre navigateur ne prend pas en charge la balise vidéo.",
+    "play": "Lire",
+    "selectQuality": "Sélectionner la qualité:",
+    "currentlyPlaying": "En cours de lecture",
+    "uploadId": "uploadID",
+    "episodes": "Épisodes",
+    "cast": "Distribution",
+    "director": "Réalisateur",
+    "language": "Langue",
+    "region": "Région",
+    "tags": "Tags",
+    "duration": "Durée",
+    "loadingPlaylists": "Chargement des listes de lecture..."
   }
 }

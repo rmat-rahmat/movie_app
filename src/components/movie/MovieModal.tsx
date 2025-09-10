@@ -1,6 +1,10 @@
-import type { DashboardItem } from '@/types/Dashboard';
-import React from "react";
+"use client";
+import type { DashboardItem, VideoDetails, Episode } from '@/types/Dashboard';
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { getContentDetail } from '@/lib/movieApi';
+import { useRouter } from 'next/navigation';
+import { useVideoStore } from '@/store/videoStore';
 
 interface MovieModalProps {
   video: DashboardItem;
@@ -11,16 +15,88 @@ interface MovieModalProps {
 const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback }) => {
   if (!video) return null;
 
-  // Use DashboardItem properties directly
-  const title = video.title || "";
-  const releaseDate = video.createTime 
-    ? new Date(video.createTime).toLocaleDateString() 
-    : (video.year ? String(video.year) : "");
-  const description = video.description || "";
-  const backdropImage = video.imageQuality?.p720 || "";
-  const portraitImage = video.imageQuality?.p360 || "";
-  const rating = video.rating || 0;
+  const [detail, setDetail] = useState<VideoDetails | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    let mounted = true;
+
+    // create an initial VideoDetails object from the lighter DashboardItem prop
+    const videoToDetailsInit = (v: DashboardItem): VideoDetails => ({
+      ...v,
+      // ensure imageQuality exists with safe string fields
+      imageQuality: v.imageQuality ?? { customCoverUrl: '', p144: '', p360: '', p720: '' },
+      // episodes may not exist on the lighter item; provide empty array for series
+      episodes: v.isSeries ? ((v as VideoDetails).episodes ?? []) : undefined,
+      // ensure uploadId/fileName/fileSize exist
+      uploadId: (v as VideoDetails).uploadId ?? undefined,
+      fileName: v.fileName ?? undefined,
+      fileSize: v.fileSize ?? null,
+    });
+
+    // Prefill detail with props-derived data so the modal has complete shape immediately
+    if (video && !detail) {
+      try {
+        setDetail(videoToDetailsInit(video));
+      } catch (_e) {
+        // ignore
+      }
+    }
+
+    const fetchDetail = async () => {
+      if (!video?.id) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getContentDetail(String(video.id));
+        if (!mounted) return;
+        if (data) {
+          // merge fetched data into existing detail to fill missing keys
+          setDetail((prev) => ({ ...(prev as VideoDetails || {}), ...data } as VideoDetails));
+        } else {
+          setError('No content data');
+        }
+      } catch (err: unknown) {
+        if (!mounted) return;
+        const message = err instanceof Error ? err.message : String(err);
+        setError(message || 'Failed to fetch content detail');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchDetail();
+    return () => { mounted = false; };
+  }, [video?.id]);
+
+  // prefer API-fetched detail when available
+  const source = detail || video;
+  // runtime type guard to detect richer VideoDetails
+  const isVideoDetails = (s: typeof source): s is VideoDetails => {
+    return !!s && (Array.isArray((s as VideoDetails).episodes) || typeof (s as VideoDetails).uploadId !== 'undefined' || typeof (s as VideoDetails).totalEpisodes !== 'undefined');
+  };
+  const title = source.title || "";
+  const releaseDate = source.createTime ? new Date(source.createTime).toLocaleDateString() : (source.year ? String(source.year) : "");
+  const description = source.description || "";
+  const backdropImage = (source.imageQuality && (source.imageQuality.p720 || source.imageQuality.p360)) || "";
+  const portraitImage = source.imageQuality?.p360 || "";
+  const rating = source.rating || 0;
+  const router = useRouter();
+
+  const navigateToPlayer = (uploadId?: string | number | undefined) => {
+    const id = uploadId || (isVideoDetails(source) && source.uploadId) || source.id;
+    if (!id) return;
+    
+    // Store video metadata in Zustand store
+    const { setVideoFromDetails } = useVideoStore.getState();
+    if (isVideoDetails(source)) {
+      setVideoFromDetails(source, String(id));
+    }
+    
+    // push to query-param based player route so static export works
+    router.push(`/videoplayer?id=${encodeURIComponent(String(id))}`);
+  };
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center">
       <div
@@ -28,7 +104,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
         onClick={onClose}
       />
       <div className="fixed inset-0 shadow-lg shadow-[#fbb033] bg-black/70 rounded-lg my-auto md:h-[62%] md:mx-auto md:w-[80%] lg:w-[70%] xl:w-[60%] 2xl:w-[50%] overflow-y-auto z-61 flex flex-col items-center justify-center p-4 overflow-y-hidden">
-        <div className="flex flex-col md:flex-row items-center mt-4">
+        <div className="flex flex-col md:flex-row w-full items-center mt-4">
           <div
             className="absolute top-4 right-4 cursor-pointer text-white rounded-full bg-black/40 w-10 h-10 flex items-center justify-center"
             onClick={onClose}
@@ -62,14 +138,14 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
             </>
           )}
 
-          <div className="ml-4">
+          <div className="ml-4 w-full text-white">
             {showPlayback && (
               <div className="flex items-center mt-2 mb-2">
                 <iframe
                   className="z-0 rounded-t-lg"
                   width="100%"
                   height="200"
-                  src={`https://www.youtube.com/embed/${video.id}?controls=0&autoplay=1`}
+                  src={`https://www.youtube.com/embed/${source.id}?controls=0&autoplay=1`}
                   title={title}
                   allowFullScreen
                 ></iframe>
@@ -78,17 +154,19 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
 
             <h2 className="text-2xl font-bold text-white">{title}</h2>
             <p className="text-sm text-gray-400">{releaseDate}</p>
-            {video.isSeries && (
+            {loading && <p className="text-sm text-gray-400">Loading details...</p>}
+            {error && <p className="text-sm text-red-400">{error}</p>}
+            {source.isSeries && (
               <div className="flex gap-2 mt-1">
                 <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs">Series</span>
-                {video.seasonNumber && (
+                {source.seasonNumber && (
                   <span className="bg-gray-600 text-white px-2 py-1 rounded text-xs">
-                    Season {video.seasonNumber}
+                    Season {source.seasonNumber}
                   </span>
                 )}
-                {video.totalEpisodes && (
+                {source.totalEpisodes && (
                   <span className="bg-gray-600 text-white px-2 py-1 rounded text-xs">
-                    {video.totalEpisodes} Episodes
+                    {source.totalEpisodes} Episodes
                   </span>
                 )}
               </div>
@@ -115,11 +193,11 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
                 ))}
               </div>
             )}
-            {video.actors && Array.isArray(video.actors) && video.actors.length > 0 && (
+            {source.actors && Array.isArray(source.actors) && source.actors.length > 0 && (
               <div className="mt-4">
                 <h3 className="text-lg font-semibold text-white mb-2">Cast</h3>
                 <div className="flex flex-wrap gap-2">
-                  {video.actors.slice(0, 5).map((actor, index) => (
+                  {source.actors.slice(0, 5).map((actor: string, index: number) => (
                     <span key={index} className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm">
                       {actor}
                     </span>
@@ -127,34 +205,64 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
                 </div>
               </div>
             )}
-            {video.director && (
+            {source.director && (
               <div className="mt-2">
                 <span className="text-gray-400">Director: </span>
-                <span className="text-white">{video.director}</span>
+                <span className="text-white">{source.director}</span>
               </div>
             )}
-            {video.region && (
+            {source.region && (
               <div className="mt-1">
                 <span className="text-gray-400">Region: </span>
-                <span className="text-white">{video.region}</span>
+                <span className="text-white">{source.region}</span>
               </div>
             )}
-            {video.language && (
+            {source.language && (
               <div className="mt-1">
                 <span className="text-gray-400">Language: </span>
-                <span className="text-white">{video.language}</span>
+                <span className="text-white">{source.language}</span>
               </div>
             )}
-            {video.tags && Array.isArray(video.tags) && video.tags.length > 0 && (
+            {source.tags && Array.isArray(source.tags) && source.tags.length > 0 && (
               <div className="mt-3">
                 <h4 className="text-sm font-semibold text-gray-400 mb-1">Tags</h4>
                 <div className="flex flex-wrap gap-1">
-                  {video.tags.map((tag, index) => (
+                  {source.tags.map((tag: string, index: number) => (
                     <span key={index} className="bg-[#fbb033] text-black px-2 py-1 rounded text-xs">
                       {tag}
                     </span>
                   ))}
                 </div>
+              </div>
+            )}
+            {/* Episodes / uploadId display */}
+            {isVideoDetails(source) && source.isSeries ? (
+              <div className="mt-4 w-full">
+                <h3 className="text-lg font-semibold text-white mb-2">Episodes</h3>
+                {Array.isArray(source.episodes) && source.episodes.length > 0 ? (
+                  <div className="flex flex-col gap-2">
+                    {source.episodes.map((ep: Episode) => (
+                      <div key={ep.id || ep.uploadId} className="flex items-center justify-between bg-gray-900 p-2 rounded">
+                        <div>
+                          <div className="text-sm text-white">{ep.title || `Episode ${ep.episodeNumber || ''}`}</div>
+                          <div className="text-xs text-gray-400">Duration: {ep.duration ? `${ep.duration}s` : 'N/A'}</div>
+                        </div>
+                        <button type="button" onClick={() => navigateToPlayer(ep.uploadId || ep.id)} className="border border-gray-700 text-gray-400 hover:text-white px-3 py-1 rounded">
+                          Watch
+                        </button>
+                        <div className="text-xs text-gray-300">UploadId: <span className="text-[#fbb033]">{ep.uploadId || ep.id}</span></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400">No episodes available</p>
+                )}
+              </div>
+            ) : (
+              <div className="mt-4 w-full">
+                <button type="button" onClick={() => navigateToPlayer((isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].uploadId) || (isVideoDetails(source) && source.uploadId) || source.id || '')} className="bg-[#fbb033] text-white font-bold hover:bg-red-500 px-3 py-3 rounded w-full cursor-pointer">
+                  Watch Now!!
+                </button>
               </div>
             )}
           </div>

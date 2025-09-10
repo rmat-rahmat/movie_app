@@ -634,7 +634,7 @@ export async function getPlaybackQualities(uploadId: string): Promise<string[]> 
   
   try {
     // Note: This would need actual expires and signature in production
-    const url = `https://otaik.cc/api/file/play/${uploadId}?expires=9999999999&signature=dummy`;
+    const url = `${BASE_URL}/api-net/play/${uploadId}?expires=9999999999&signature=dummy`;
     const res = await axios.get(url);
 
     if (res.status < 200 || res.status >= 300) {
@@ -653,7 +653,7 @@ export async function getPlaybackQualities(uploadId: string): Promise<string[]> 
 }
 
 export function getPlaybackUrl(uploadId: string, quality: string): string {
-  const url = `https://otaik.cc/api/file/Play/${uploadId}/${quality}.m3u8`;
+  const url = `${BASE_URL}/api-net/play/${uploadId}/${quality}.m3u8`;
   debugLog('Generated playback URL', { uploadId, quality, url });
   return url;
 }

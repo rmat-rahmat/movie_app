@@ -106,6 +106,37 @@ export interface VideoVO {
   id?: string; // Adding id for consistency
 }
 
+// Episode details returned from content detail endpoint
+export interface Episode {
+  id?: string;
+  uploadId?: string;
+  title?: string;
+  description?: string;
+  episodeNumber?: number;
+  seriesId?: string;
+  duration?: number;
+  fileSize?: number;
+  coverUrl?: string;
+  imageQuality?: ImageItem | null;
+  status?: string;
+  createTime?: string | null;
+  createBy?: string | null;
+  updateTime?: string | null;
+}
+
+// Rich content detail type that extends the lighter DashboardItem
+export interface VideoDetails extends DashboardItem {
+  fileName?: string;
+  fileSize?: number | null;
+  coverUrl?: string | null;
+  imageQuality?: ImageItem | null;
+  isSeries?: boolean;
+  episodes?: Episode[];
+  totalEpisodes?: number | null;
+  seasonNumber?: number | null;
+  uploadId?: string | null;
+}
+
 // Page info for pagination
 export interface PageInfo {
   page: number;

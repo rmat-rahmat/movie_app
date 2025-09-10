@@ -115,4 +115,55 @@
     "ru": "Русский",
     "ar": "العربية"
   }
+
+  ,"upload": {
+    "title": "تحميل المحتوى",
+    "description": "قم بتحميل أفلامك أو مسلسلاتك لمشاركتها مع العالم",
+    "movie": "فيلم",
+    "series": "مسلسل",
+    "videoFile": "ملف الفيديو",
+    "uploadMovie": "تحميل فيلم",
+    "uploadSeries": "تحميل مسلسل",
+    "director": "المخرج",
+    "actors": "الممثلون",
+    "rating": "التقييم",
+    "region": "المنطقة",
+    "language": "اللغة",
+    "tags": "الوسوم",
+    "coverUrl": "رابط صورة الغلاف",
+    "customCoverUrl": "معرف غلاف مخصص",
+    "year": "السنة"
+  },
+  "uploadForm": {
+    "titlePlaceholder": "أدخل عنوان الفيلم",
+    "yearPlaceholder": "السنة",
+    "descriptionPlaceholder": "أدخل وصف الفيلم",
+    "videoFileLabel": "ملف الفيديو *",
+    "coverImageLabel": "صورة الغلاف",
+    "selectCoverFile": "اختر ملف صورة الغلاف",
+    "clearCover": "إزالة الغلاف",
+    "addTag": "إضافة وسم",
+    "removeTag": "إزالة وسم",
+    "uploading": "جاري التحميل...",
+    "uploadSuccess": "اكتمل التحميل!",
+    "uploadFailed": "فشل التحميل",
+    "provideTitleAndFile": "يرجى إدخال العنوان واختيار ملف"
+  }
+  ,
+  "video": {
+    "playerTitle": "مشغل الفيديو - {{id}}",
+    "browserNotSupported": "المتصفح الخاص بك لا يدعم وسم الفيديو.",
+    "play": "تشغيل",
+    "selectQuality": "اختر الجودة:",
+    "currentlyPlaying": "قيد التشغيل",
+    "uploadId": "uploadID",
+    "episodes": "الحلقات",
+    "cast": "طاقم التمثيل",
+    "director": "المخرج",
+    "language": "اللغة",
+    "region": "المنطقة",
+    "tags": "الوسوم",
+    "duration": "المدة",
+    "loadingPlaylists": "جارٍ تحميل قوائم التشغيل..."
+  }
 }

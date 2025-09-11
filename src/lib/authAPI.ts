@@ -308,11 +308,9 @@ export async function getCurrentUser(): Promise<User | null> {
  * Supports application/x-www-form-urlencoded
  */
 export async function sendEmailCaptcha(email: string): Promise<string> {
-  const url = `${BASE_URL}/api-movie/v1/auth/sendEmailCaptcha`;
+  const url = `${BASE_URL}/api-movie/v1/auth/sendEmailCaptcha?email=${encodeURIComponent(email)}`;
   try {
-    const params = new URLSearchParams();
-    params.append('email', email);
-    const res = await axios.post<StandardResponse<string>>(url, params.toString(), {
+    const res = await axios.get<StandardResponse<string>>(url, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
 

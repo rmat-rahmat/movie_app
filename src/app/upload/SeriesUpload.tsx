@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiUpload, FiX, FiPlus, FiTrash2 } from 'react-icons/fi';
 import { createSeries, createEpisode, initializeEpisodeUpload, uploadFile, initializeImageUpload, getImageById, type SeriesCreateRequest, type EpisodeCreateRequest, type EpisodeUploadRequest } from '@/lib/uploadAPI';
+import UploadSuccessModal from '@/components/ui/UploadSuccessModal';
 
 interface Episode {
   number: number;
@@ -26,6 +27,8 @@ export default function SeriesUpload() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ progress: 0, status: 'idle' as 'idle' | 'uploading' | 'success' | 'error', error: '' });
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [uploadedSeriesId, setUploadedSeriesId] = useState<string | null>(null);
 
   const [seriesForm, setSeriesForm] = useState({
     title: '',
@@ -244,8 +247,12 @@ export default function SeriesUpload() {
       }
 
       setUploadProgress({ progress: 100, status: 'success', error: '' });
-  setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], tagInput: '', seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }] });
-      setEpisodePreviewUrl(null);
+      
+      // Store the uploaded series ID for the success modal
+      setUploadedSeriesId(seriesId || 'unknown');
+      
+      // Show success modal instead of resetting form immediately
+      setShowSuccessModal(true);
 
     } catch (err) {
   const errorMessage = err instanceof Error ? err.message : t('uploadForm.seriesUploadFailed', 'Series upload failed');
@@ -256,7 +263,31 @@ export default function SeriesUpload() {
     }
   };
 
+  const handleUploadMore = () => {
+    // Reset form for new upload
+    setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], tagInput: '', seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }] });
+    if (episodePreviewUrl) {
+      try { URL.revokeObjectURL(episodePreviewUrl); } catch {}
+    }
+    if (seriesCoverPreviewUrl) {
+      try { URL.revokeObjectURL(seriesCoverPreviewUrl); } catch {}
+    }
+    setEpisodePreviewUrl(null);
+    setSeriesCoverPreviewUrl(null);
+    setUploadProgress({ progress: 0, status: 'idle', error: '' });
+    setUploadedSeriesId(null);
+  };
+
   return (
+    <>
+      <UploadSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        uploadedId={uploadedSeriesId || undefined}
+        title={seriesForm.title}
+        type="series"
+        onUploadMore={handleUploadMore}
+      />
     <form onSubmit={handleSeriesUpload} className="bg-gray-800 rounded-xl p-8 shadow-2xl">
       <div className="mb-6">
   <label className="block text-sm font-medium mb-2">{t('uploadForm.titlePlaceholder', 'Title *')}</label>
@@ -396,5 +427,6 @@ export default function SeriesUpload() {
         </button>
       </div>
     </form>
+    </>
   );
 }

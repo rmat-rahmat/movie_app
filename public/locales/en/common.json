@@ -149,11 +149,17 @@
       "customCoverUrl": "Custom Cover Image ID",
       "year": "Year",
       "episodes": "Episodes",
-      "episodeLabel": "Episode"
-    ,"episodeTitle": "Episode Title",
-    "episodeDescription": "Episode Description",
-    "selectVideoFile": "Select video file",
-    "noCoverSelected": "No cover selected. You may also paste an external URL into the coverUrl field later if needed."
+      "episodeLabel": "Episode",
+      "episodeTitle": "Episode Title",
+      "episodeDescription": "Episode Description",
+      "selectVideoFile": "Select video file",
+      "noCoverSelected": "No cover selected. You may also paste an external URL into the coverUrl field later if needed.",
+      "successTitle": "Upload Successful!",
+      "movieUploadSuccess": "has been uploaded successfully!",
+      "seriesUploadSuccess": "series has been uploaded successfully!",
+      "viewDetails": "View Details",
+      "uploadMore": "Upload Another",
+      "backToHome": "Back to Home"
     },
     "uploadForm": {
       "titlePlaceholder": "Enter movie title",
@@ -226,5 +232,19 @@
       "watch": "Watch",
       "noEpisodesAvailable": "No episodes available",
       "watchNow": "Watch Now!!"
+    },
+    "videoInfo": {
+      "error": "Error",
+      "notFound": "Video not found",
+      "description": "Description",
+      "cast": "Cast",
+      "director": "Director",
+      "language": "Language",
+      "region": "Region",
+      "tags": "Tags",
+      "episodes": "Episodes",
+      "series": "Series",
+      "watchNow": "Watch Now",
+      "watch": "Watch"
     }
    }

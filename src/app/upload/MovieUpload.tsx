@@ -11,6 +11,7 @@ import {
   type MovieUploadRequest,
   type UploadCredential
 } from '@/lib/uploadAPI';
+import UploadSuccessModal from '@/components/ui/UploadSuccessModal';
 
 const debugLog = (message: string, data?: unknown) => {
   console.log(`[MovieUpload] ${message}`, data || '');
@@ -24,6 +25,8 @@ export default function MovieUpload() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ progress: 0, status: 'idle' as 'idle' | 'uploading' | 'success' | 'error', error: '' });
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [uploadedMovieId, setUploadedMovieId] = useState<string | null>(null);
 
   const [movieForm, setMovieForm] = useState({
     title: '',
@@ -212,12 +215,13 @@ export default function MovieUpload() {
         setUploadProgress(prev => ({ ...prev, progress: 10 + (progress * 0.9) }));
       });
 
-  setUploadProgress({ progress: 100, status: 'success', error: '' });
-  setMovieForm({ title: '', description: '', file: null, coverUrl: '', coverFile: null, customCoverUrl: '', categoryId: 'movie', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], tagInput: '' });
-      if (moviePreviewUrl) {
-        try { URL.revokeObjectURL(moviePreviewUrl); } catch {}
-      }
-      setMoviePreviewUrl(null);
+      setUploadProgress({ progress: 100, status: 'success', error: '' });
+      
+      // Store the uploaded movie ID and title for the success modal
+      setUploadedMovieId(uploadCredential.uploadId || uploadCredential.key || 'unknown');
+      
+      // Show success modal instead of resetting form immediately
+      setShowSuccessModal(true);
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Upload failed';
@@ -228,7 +232,31 @@ export default function MovieUpload() {
     }
   };
 
+  const handleUploadMore = () => {
+    // Reset form for new upload
+    setMovieForm({ title: '', description: '', file: null, coverUrl: '', coverFile: null, customCoverUrl: '', categoryId: 'movie', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], tagInput: '' });
+    if (moviePreviewUrl) {
+      try { URL.revokeObjectURL(moviePreviewUrl); } catch {}
+    }
+    if (movieCoverPreviewUrl) {
+      try { URL.revokeObjectURL(movieCoverPreviewUrl); } catch {}
+    }
+    setMoviePreviewUrl(null);
+    setMovieCoverPreviewUrl(null);
+    setUploadProgress({ progress: 0, status: 'idle', error: '' });
+    setUploadedMovieId(null);
+  };
+
   return (
+    <>
+      <UploadSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        uploadedId={uploadedMovieId || undefined}
+        title={movieForm.title}
+        type="movie"
+        onUploadMore={handleUploadMore}
+      />
     <form onSubmit={handleMovieUpload} className="bg-gray-800 rounded-xl p-8 shadow-2xl">
       <div className="mb-6">
         <label className="block text-sm font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File *')}</label>
@@ -351,5 +379,6 @@ export default function MovieUpload() {
         </button>
       </div>
     </form>
+    </>
   );
 }

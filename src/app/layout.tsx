@@ -24,7 +24,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   useEffect(() => {
     // Initialize auth interceptor for automatic token refresh
-    // initializeAuthInterceptor();
+    initializeAuthInterceptor();
     
     // Set meta tags dynamically for SPA
     document.title = "OTalk.TV";

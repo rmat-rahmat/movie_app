@@ -61,6 +61,7 @@ axios.interceptors.response.use(
       isRefreshing = true;
 
       const refreshTokenValue = loadRefreshTokenFromStorage();
+      console.log('Attempting token refresh with refresh token:', refreshTokenValue);
       
       if (!refreshTokenValue) {
         // No refresh token available, redirect to login
@@ -114,6 +115,7 @@ export const initializeAuthInterceptor = () => {
   // This function can be called during app initialization
   // The interceptors are already set up above
   console.log('Auth interceptor initialized');
+
 };
 
 export default { initializeAuthInterceptor };

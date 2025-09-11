@@ -34,10 +34,10 @@ export default function Navbar() {
       `}
     >
       {/* Logo */}
-      <div className="flex items-center gap-2">
+      <Link href="/" className="flex items-center gap-2 cursor-pointer">
         <Image src="/next.svg" alt="Logo" width={40} height={40} />
         <span className="font-bold text-lg text-white">OTalk TV</span>
-      </div>
+      </Link>
 
       {/* Search Bar (hidden on mobile) */}
       <form

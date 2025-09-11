@@ -10,7 +10,7 @@ interface Episode {
   title: string;
   description: string;
   file: File | null;
-  coverUrl?: string;
+  customCoverUrl?: string;
 }
 
 const debugLog = (message: string, data?: unknown) => {
@@ -30,7 +30,7 @@ export default function SeriesUpload() {
   const [seriesForm, setSeriesForm] = useState({
     title: '',
     description: '',
-  coverUrl: '',
+  customCoverUrl: '',
   coverFile: null as File | null,
     categoryId: 'series',
     year: new Date().getFullYear(),
@@ -44,7 +44,7 @@ export default function SeriesUpload() {
     seasonNumber: 1,
     totalEpisodes: 1,
     episodes: [
-      { number: 1, title: 'Episode 1', description: '', file: null, coverUrl: '' }
+      { number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }
     ] as Episode[]
   });
 
@@ -57,7 +57,7 @@ export default function SeriesUpload() {
 
   const addEpisode = () => {
     const newEpisodeNumber = seriesForm.episodes.length + 1;
-    setSeriesForm(prev => ({ ...prev, episodes: [...prev.episodes, { number: newEpisodeNumber, title: `Episode ${newEpisodeNumber}`, description: '', file: null, coverUrl: '' }], totalEpisodes: newEpisodeNumber }));
+    setSeriesForm(prev => ({ ...prev, episodes: [...prev.episodes, { number: newEpisodeNumber, title: `Episode ${newEpisodeNumber}`, description: '', file: null, customCoverUrl: '' }], totalEpisodes: newEpisodeNumber }));
   };
 
   const removeEpisode = (index: number) => {
@@ -152,7 +152,7 @@ export default function SeriesUpload() {
     setUploadProgress({ progress: 0, status: 'uploading', error: '' });
 
     try {
-      // If user selected a local cover file, upload it first and set coverUrl
+      // If user selected a local cover file, upload it first and set customCoverUrl
       if (seriesForm.coverFile) {
         try {
           setIsUploadingCover(true);
@@ -173,7 +173,7 @@ export default function SeriesUpload() {
           // After upload, the backend should have an image id in init.id; retrieve full metadata
           const imageMeta = await getImageById(init.id, '360');
           if (imageMeta?.url) {
-            setSeriesForm(prev => ({ ...prev, coverUrl: imageMeta.url || '' }));
+            setSeriesForm(prev => ({ ...prev, customCoverUrl: imageMeta.url || '' }));
           }
         } catch (imgErr) {
           console.error('Cover upload failed', imgErr);
@@ -185,9 +185,9 @@ export default function SeriesUpload() {
       const seriesRequest: SeriesCreateRequest = {
         title: seriesForm.title,
         description: seriesForm.description || undefined,
-  // The API accepts a coverUrl string. If the user selected a local file (coverFile)
-  // we currently don't have an upload endpoint here, so only send coverUrl when present.
-        coverUrl: seriesForm.coverUrl || undefined,
+  // The API accepts a customCoverUrl string. If the user selected a local file (coverFile)
+  // we currently don't have an upload endpoint here, so only send customCoverUrl when present.
+        customCoverUrl: seriesForm.customCoverUrl || undefined,
         categoryId: seriesForm.categoryId,
         year: seriesForm.year,
         region: seriesForm.region || undefined,
@@ -214,7 +214,7 @@ export default function SeriesUpload() {
           seriesId,
           title: episode.title,
           description: episode.description || undefined,
-          coverUrl: episode.coverUrl || undefined,
+          customCoverUrl: episode.customCoverUrl || undefined,
           episodeNumber: episode.number,
           duration: undefined
         };
@@ -244,7 +244,7 @@ export default function SeriesUpload() {
       }
 
       setUploadProgress({ progress: 100, status: 'success', error: '' });
-  setSeriesForm({ title: '', description: '', coverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], tagInput: '', seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, coverUrl: '' }] });
+  setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], tagInput: '', seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }] });
       setEpisodePreviewUrl(null);
 
     } catch (err) {
@@ -279,7 +279,7 @@ export default function SeriesUpload() {
               <button type="button" onClick={clearCoverFile} className="px-3 py-2 bg-red-600 rounded text-white">{t('uploadForm.clearCover', 'Remove')}</button>
             </div>
           ) : (
-            <span className="text-sm text-gray-400">{t('upload.noCoverSelected', 'No cover selected. You may also paste an external URL into the coverUrl field later if needed.')}</span>
+            <span className="text-sm text-gray-400">{t('upload.noCoverSelected', 'No cover selected. You may also paste an external URL into the customCoverUrl field later if needed.')}</span>
           )}
         </div>
       </div>

@@ -26,6 +26,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         .slice(0, 2)
         .toUpperCase();
     const avatarRaw = user && (user.avatar || user.avatarUrl || user.photoUrl || user.picture || null);
+    console.log('User:', user);
     // Only accept string avatar URLs for next/image. If not a string, fall back to initials avatar.
     const avatarUrl = typeof avatarRaw === 'string' ? avatarRaw : null;
 
@@ -56,8 +57,11 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                         >
                             <FiMenu size={28} />
                         </button>
-                        <Image src="/logo_dark.svg" className="mx-2" alt="Logo" width={40} height={40} />
-                        <span className="font-bold text-lg lg:text-3xl text-white">{t('navigation.brand')}</span>
+                        <Link href="/" className="flex items-center gap-2 cursor-pointer">
+
+                            <Image src="/logo_dark.svg" className="mx-2" alt="Logo" width={40} height={40} />
+                            <span className="font-bold text-lg lg:text-3xl text-white">{t('navigation.brand')}</span>
+                        </Link>
                     </div>
 
                     {/* Search Bar (hidden on mobile) */}

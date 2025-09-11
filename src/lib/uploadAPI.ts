@@ -34,7 +34,7 @@ export interface UploadCredential {
 export interface SeriesCreateRequest {
   title: string;
   description?: string;
-  coverUrl?: string;
+  customCoverUrl?: string;
   categoryId?: string;
   year?: number;
   region?: string;
@@ -51,7 +51,7 @@ export interface EpisodeCreateRequest {
   seriesId: string;
   title: string;
   description?: string;
-  coverUrl?: string;
+  customCoverUrl?: string;
   episodeNumber: number;
   duration?: number;
 }
@@ -217,7 +217,7 @@ export async function createSeries(request: SeriesCreateRequest): Promise<{
   seriesId: string;
   title: string;
   description?: string;
-  coverUrl?: string;
+  customCoverUrl?: string;
   categoryId?: string;
   year?: number;
   region?: string;
@@ -238,7 +238,7 @@ export async function createSeries(request: SeriesCreateRequest): Promise<{
       seriesId: string;
       title: string;
       description?: string;
-      coverUrl?: string;
+      customCoverUrl?: string;
       categoryId?: string;
       year?: number;
       region?: string;
@@ -337,7 +337,7 @@ export async function createEpisode(request: EpisodeCreateRequest): Promise<{
   seriesId: string;
   duration?: number;
   fileSize?: number;
-  coverUrl?: string;
+  customCoverUrl?: string;
   status: string;
   createTime: string;
   createBy: string;
@@ -355,7 +355,7 @@ export async function createEpisode(request: EpisodeCreateRequest): Promise<{
       seriesId: string;
       duration?: number;
       fileSize?: number;
-      coverUrl?: string;
+      customCoverUrl?: string;
       status: string;
       createTime: string;
       createBy: string;

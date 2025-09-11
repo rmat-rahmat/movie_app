@@ -5,6 +5,7 @@ import { getGridVideos, getCachedCategories } from '@/lib/movieApi';
 import type { VideosApiResponse, VideoVO, CategoryItem } from '@/types/Dashboard';
 import LoadingPage from '@/components/ui/LoadingPage';
 import DashboardItem from './DashboardItem';
+import MovieModal from './MovieModal';
 
 interface GridVideosProps {
   id: string;
@@ -20,10 +21,10 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, src }) => {
   const [pageInfo, setPageInfo] = useState<VideosApiResponse['pageInfo'] | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [actualtitle, setActualtitle] = useState<string | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<VideoVO | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const pageSize = 20;
-
-  
 
   // Fetch category name on component mount
   useEffect(() => {
@@ -101,6 +102,16 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, src }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleVideoClick = (video: VideoVO) => {
+    setSelectedVideo(video);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedVideo(null);
+    setIsModalOpen(false);
+  };
+
   if (loading) {
     return <LoadingPage />;
   }
@@ -145,7 +156,7 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, src }) => {
                   index={index}
                   showRating={!!video.rating} // Show rating if available
                   showViewer={!!video.views} // Show viewer count if available
-                  onClick={() => console.log(`Clicked on video: ${video.title}`)} // Example click handler
+                  onClick={() => handleVideoClick(video)} // Open modal on click
                 />
               ))}
             </div>
@@ -222,6 +233,11 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, src }) => {
           </>
         )}
       </section>
+
+      {/* Render MovieModal */}
+      {isModalOpen && selectedVideo && (
+        <MovieModal video={selectedVideo} onClose={handleCloseModal} />
+      )}
     </div>
   );
 };

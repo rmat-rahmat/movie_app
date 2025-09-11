@@ -147,6 +147,13 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     };
   }, []);
 
+  // Set default volume programmatically
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.volume = 1; // Set default volume to 100%
+    }
+  }, []);
+
   // Show fallback when no video ID is provided
   if (!id) {
     return (
@@ -181,6 +188,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                 controls
                 preload="metadata"
                 poster={currentVideo?.backdropImage || "/fallback_poster/sample_poster.png"}
+                muted={false} // Ensure the video is not muted
               >
                 {t('video.browserNotSupported')}
               </video>

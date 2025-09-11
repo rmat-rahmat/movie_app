@@ -194,7 +194,9 @@ export async function login(email: string, password: string, form = false): Prom
     const userVo = body.data as LoginUserVo;
     const token = userVo?.token || '';
     const refreshToken = userVo?.refreshToken || '';
-    const user: User = { ...userVo, id: userVo.id, email: userVo.email || '' };
+    const userData: Partial<User> = (userVo as any)?.user || {};
+
+    const user: User = { ...userData, id: userVo.id, email: userData.email || '' };
     setAuthHeader(token || null);
     saveTokenToStorage(token || null);
     saveRefreshTokenToStorage(refreshToken || null);

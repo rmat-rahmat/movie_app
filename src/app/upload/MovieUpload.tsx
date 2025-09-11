@@ -102,9 +102,14 @@ export default function MovieUpload() {
   };
 
   const addTag = () => {
-    if (movieForm.tagInput.trim() && !movieForm.tags.includes(movieForm.tagInput.trim())) {
-      debugLog('Adding tag', { tag: movieForm.tagInput.trim() });
-      setMovieForm(prev => ({ ...prev, tags: [...prev.tags, prev.tagInput.trim()], tagInput: '' }));
+    if (movieForm.tagInput.trim()) {
+      if (!movieForm.tags.includes(movieForm.tagInput.trim())) {
+        debugLog('Adding tag', { tag: movieForm.tagInput.trim() });
+        setMovieForm(prev => ({ ...prev, tags: [...prev.tags, prev.tagInput.trim()], tagInput: '' }));
+      } else {
+        alert(t('uploadForm.tagAlreadyExists', 'This tag already exists.'));
+        setMovieForm(prev => ({ ...prev, tagInput: '' }));
+      }
     }
   };
 

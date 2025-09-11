@@ -33,8 +33,8 @@ export default function SeriesUpload() {
   const [seriesForm, setSeriesForm] = useState({
     title: '',
     description: '',
-  customCoverUrl: '',
-  coverFile: null as File | null,
+    customCoverUrl: '',
+    coverFile: null as File | null,
     categoryId: 'series',
     year: new Date().getFullYear(),
     region: '',
@@ -53,8 +53,8 @@ export default function SeriesUpload() {
 
   useEffect(() => {
     return () => {
-      if (episodePreviewUrl) try { URL.revokeObjectURL(episodePreviewUrl); } catch {}
-      if (seriesCoverPreviewUrl) try { URL.revokeObjectURL(seriesCoverPreviewUrl); } catch {}
+      if (episodePreviewUrl) try { URL.revokeObjectURL(episodePreviewUrl); } catch { }
+      if (seriesCoverPreviewUrl) try { URL.revokeObjectURL(seriesCoverPreviewUrl); } catch { }
     };
   }, [episodePreviewUrl, seriesCoverPreviewUrl]);
 
@@ -78,11 +78,11 @@ export default function SeriesUpload() {
       if (episodePreviewUrl) URL.revokeObjectURL(episodePreviewUrl);
       setEpisodePreviewUrl(url);
       setSeriesPreviewIndex(episodeIndex);
-    } catch {}
+    } catch { }
   };
 
   const clearEpisodeFile = (index: number) => {
-    if (episodePreviewUrl) try { URL.revokeObjectURL(episodePreviewUrl); } catch {}
+    if (episodePreviewUrl) try { URL.revokeObjectURL(episodePreviewUrl); } catch { }
     setEpisodePreviewUrl(null);
     setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, file: null } : ep) }));
     if (seriesPreviewIndex === index) setSeriesPreviewIndex(0);
@@ -92,6 +92,10 @@ export default function SeriesUpload() {
     if (seriesForm.tagInput.trim() && !seriesForm.tags.includes(seriesForm.tagInput.trim())) {
       debugLog('Adding series tag', { tag: seriesForm.tagInput.trim() });
       setSeriesForm(prev => ({ ...prev, tags: [...prev.tags, prev.tagInput.trim()], tagInput: '' }));
+    }
+    else {
+      alert(t('uploadForm.tagAlreadyExists', 'This tag already exists.'));
+      setSeriesForm(prev => ({ ...prev, tagInput: '' }));
     }
   };
 
@@ -105,11 +109,11 @@ export default function SeriesUpload() {
       const url = URL.createObjectURL(file);
       if (seriesCoverPreviewUrl) URL.revokeObjectURL(seriesCoverPreviewUrl);
       setSeriesCoverPreviewUrl(url);
-    } catch {}
+    } catch { }
   };
 
   const clearCoverFile = () => {
-    if (seriesCoverPreviewUrl) try { URL.revokeObjectURL(seriesCoverPreviewUrl); } catch {}
+    if (seriesCoverPreviewUrl) try { URL.revokeObjectURL(seriesCoverPreviewUrl); } catch { }
     setSeriesCoverPreviewUrl(null);
     setSeriesForm(prev => ({ ...prev, coverFile: null }));
   };
@@ -188,8 +192,8 @@ export default function SeriesUpload() {
       const seriesRequest: SeriesCreateRequest = {
         title: seriesForm.title,
         description: seriesForm.description || undefined,
-  // The API accepts a customCoverUrl string. If the user selected a local file (coverFile)
-  // we currently don't have an upload endpoint here, so only send customCoverUrl when present.
+        // The API accepts a customCoverUrl string. If the user selected a local file (coverFile)
+        // we currently don't have an upload endpoint here, so only send customCoverUrl when present.
         customCoverUrl: seriesForm.customCoverUrl || undefined,
         categoryId: seriesForm.categoryId,
         year: seriesForm.year,
@@ -247,17 +251,17 @@ export default function SeriesUpload() {
       }
 
       setUploadProgress({ progress: 100, status: 'success', error: '' });
-      
+
       // Store the uploaded series ID for the success modal
       setUploadedSeriesId(seriesId || 'unknown');
-      
+
       // Show success modal instead of resetting form immediately
       setShowSuccessModal(true);
 
     } catch (err) {
-  const errorMessage = err instanceof Error ? err.message : t('uploadForm.seriesUploadFailed', 'Series upload failed');
-  debugLog('Series upload failed', { error: errorMessage });
-  setUploadProgress({ progress: 0, status: 'error', error: errorMessage });
+      const errorMessage = err instanceof Error ? err.message : t('uploadForm.seriesUploadFailed', 'Series upload failed');
+      debugLog('Series upload failed', { error: errorMessage });
+      setUploadProgress({ progress: 0, status: 'error', error: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
@@ -267,10 +271,10 @@ export default function SeriesUpload() {
     // Reset form for new upload
     setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], tagInput: '', seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }] });
     if (episodePreviewUrl) {
-      try { URL.revokeObjectURL(episodePreviewUrl); } catch {}
+      try { URL.revokeObjectURL(episodePreviewUrl); } catch { }
     }
     if (seriesCoverPreviewUrl) {
-      try { URL.revokeObjectURL(seriesCoverPreviewUrl); } catch {}
+      try { URL.revokeObjectURL(seriesCoverPreviewUrl); } catch { }
     }
     setEpisodePreviewUrl(null);
     setSeriesCoverPreviewUrl(null);
@@ -288,145 +292,145 @@ export default function SeriesUpload() {
         type="series"
         onUploadMore={handleUploadMore}
       />
-    <form onSubmit={handleSeriesUpload} className="bg-gray-800 rounded-xl p-8 shadow-2xl">
-      <div className="mb-6">
-  <label className="block text-sm font-medium mb-2">{t('uploadForm.titlePlaceholder', 'Title *')}</label>
-  <input type="text" required value={seriesForm.title} onChange={(e) => setSeriesForm(prev => ({ ...prev, title: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.titlePlaceholder', 'Enter series title')} />
-      </div>
-
-      <div className="mb-6">
-  <label className="block text-sm font-medium mb-2">{t('upload.description', 'Description')}</label>
-  <textarea rows={4} value={seriesForm.description} onChange={(e) => setSeriesForm(prev => ({ ...prev, description: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.descriptionPlaceholder', 'Enter series description')} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 mb-6">
-  <label className="block text-sm font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover Image')}</label>
-        <div className="flex items-center gap-4">
-          <input type="file" accept="image/*" id="series-cover-file" onChange={handleCoverFileSelect} className="hidden" />
-          <label htmlFor="series-cover-file" className="px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer text-white">{t('uploadForm.selectCoverFile', 'Choose Image')}</label>
-          {seriesCoverPreviewUrl ? (
-            <div className="flex items-center gap-3">
-              <img src={seriesCoverPreviewUrl} alt="cover preview" className="w-28 h-16 object-cover rounded" />
-              <button type="button" onClick={clearCoverFile} className="px-3 py-2 bg-red-600 rounded text-white">{t('uploadForm.clearCover', 'Remove')}</button>
-            </div>
-          ) : (
-            <span className="text-sm text-gray-400">{t('upload.noCoverSelected', 'No cover selected. You may also paste an external URL into the customCoverUrl field later if needed.')}</span>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-        <div>
-          <label className="block text-sm font-medium mb-2">{t('upload.director', 'Director')}</label>
-          <input type="text" value={seriesForm.director} onChange={(e) => setSeriesForm(prev => ({ ...prev, director: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Director name" />
+      <form onSubmit={handleSeriesUpload} className="bg-gray-800 rounded-xl p-8 shadow-2xl">
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">{t('uploadForm.titlePlaceholder', 'Title *')}</label>
+          <input type="text" required value={seriesForm.title} onChange={(e) => setSeriesForm(prev => ({ ...prev, title: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.titlePlaceholder', 'Enter series title')} />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">{t('upload.actors', 'Actors')}</label>
-          <input type="text" value={seriesForm.actors} onChange={(e) => setSeriesForm(prev => ({ ...prev, actors: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Actor1, Actor2, Actor3" />
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">{t('upload.description', 'Description')}</label>
+          <textarea rows={4} value={seriesForm.description} onChange={(e) => setSeriesForm(prev => ({ ...prev, description: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.descriptionPlaceholder', 'Enter series description')} />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">{t('upload.rating', 'Rating')}</label>
-          <input type="number" min="0" max="10" step="0.1" value={seriesForm.rating} onChange={(e) => setSeriesForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="8.5" />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <label className="block text-sm font-medium mb-2">{t('upload.region', 'Region')}</label>
-          <input type="text" value={seriesForm.region} onChange={(e) => setSeriesForm(prev => ({ ...prev, region: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="e.g., USA, China, etc." />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">{t('upload.language', 'Language')}</label>
-          <input type="text" value={seriesForm.language} onChange={(e) => setSeriesForm(prev => ({ ...prev, language: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="e.g., English, Chinese, etc." />
-        </div>
-      </div>
-
-      <div className="mb-6">
-  <label className="block text-sm font-medium mb-2">{t('upload.tags', 'Tags')}</label>
-        <div className="flex gap-2 mb-3">
-          <input type="text" value={seriesForm.tagInput} onChange={(e) => setSeriesForm(prev => ({ ...prev, tagInput: e.target.value }))} onKeyPress={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }} className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.addTag', 'Add a tag and press Enter')} />
-          <button type="button" onClick={addTag} className="px-4 py-3 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus /></button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {seriesForm.tags.map((tag, index) => (
-            <span key={index} className="flex items-center px-3 py-1 bg-gray-700 text-white rounded-full text-sm">
-              {tag}
-              <button type="button" onClick={() => removeTag(tag)} className="ml-2 text-gray-400 hover:text-red-400"><FiX /></button>
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-md font-medium">{t('upload.episodes', 'Episodes')}</h4>
-          <button type="button" onClick={addEpisode} className="flex items-center px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus className="mr-2" />{t('uploadForm.addEpisode', 'Add Episode')}</button>
+        <div className="grid grid-cols-1 gap-6 mb-6">
+          <label className="block text-sm font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover Image')}</label>
+          <div className="flex items-center gap-4">
+            <input type="file" accept="image/*" id="series-cover-file" onChange={handleCoverFileSelect} className="hidden" />
+            <label htmlFor="series-cover-file" className="px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer text-white">{t('uploadForm.selectCoverFile', 'Choose Image')}</label>
+            {seriesCoverPreviewUrl ? (
+              <div className="flex items-center gap-3">
+                <img src={seriesCoverPreviewUrl} alt="cover preview" className="w-28 h-16 object-cover rounded" />
+                <button type="button" onClick={clearCoverFile} className="px-3 py-2 bg-red-600 rounded text-white">{t('uploadForm.clearCover', 'Remove')}</button>
+              </div>
+            ) : (
+              <span className="text-sm text-gray-400">{t('upload.noCoverSelected', 'No cover selected. You may also paste an external URL into the customCoverUrl field later if needed.')}</span>
+            )}
+          </div>
         </div>
 
-        {seriesForm.episodes.map((episode, index) => (
-          <div key={index} className="mb-4 p-4 bg-gray-600 rounded-lg">
-            <div className="flex items-center justify-between mb-3">
-              <h5 className="font-medium">{t('upload.episodeLabel', `Episode ${episode.number}`)}</h5>
-              {seriesForm.episodes.length > 1 && (
-                <button type="button" onClick={() => removeEpisode(index)} className="text-red-400 hover:text-red-300"><FiTrash2 /></button>
-              )}
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('upload.director', 'Director')}</label>
+            <input type="text" value={seriesForm.director} onChange={(e) => setSeriesForm(prev => ({ ...prev, director: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Director name" />
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">{t('upload.episodeTitle', 'Episode Title')}</label>
-                <input type="text" value={episode.title} onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, title: e.target.value } : ep) }))} className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={`Episode ${episode.number} title`} />
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('upload.actors', 'Actors')}</label>
+            <input type="text" value={seriesForm.actors} onChange={(e) => setSeriesForm(prev => ({ ...prev, actors: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Actor1, Actor2, Actor3" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('upload.rating', 'Rating')}</label>
+            <input type="number" min="0" max="10" step="0.1" value={seriesForm.rating} onChange={(e) => setSeriesForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="8.5" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('upload.region', 'Region')}</label>
+            <input type="text" value={seriesForm.region} onChange={(e) => setSeriesForm(prev => ({ ...prev, region: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="e.g., USA, China, etc." />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('upload.language', 'Language')}</label>
+            <input type="text" value={seriesForm.language} onChange={(e) => setSeriesForm(prev => ({ ...prev, language: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="e.g., English, Chinese, etc." />
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">{t('upload.tags', 'Tags')}</label>
+          <div className="flex gap-2 mb-3">
+            <input type="text" value={seriesForm.tagInput} onChange={(e) => setSeriesForm(prev => ({ ...prev, tagInput: e.target.value }))} onKeyPress={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }} className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.addTag', 'Add a tag and press Enter')} />
+            <button type="button" onClick={addTag} className="px-4 py-3 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus /></button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {seriesForm.tags.map((tag, index) => (
+              <span key={index} className="flex items-center px-3 py-1 bg-gray-700 text-white rounded-full text-sm">
+                {tag}
+                <button type="button" onClick={() => removeTag(tag)} className="ml-2 text-gray-400 hover:text-red-400"><FiX /></button>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-md font-medium">{t('upload.episodes', 'Episodes')}</h4>
+            <button type="button" onClick={addEpisode} className="flex items-center px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus className="mr-2" />{t('uploadForm.addEpisode', 'Add Episode')}</button>
+          </div>
+
+          {seriesForm.episodes.map((episode, index) => (
+            <div key={index} className="mb-4 p-4 bg-gray-600 rounded-lg">
+              <div className="flex items-center justify-between mb-3">
+                <h5 className="font-medium">{t('upload.episodeLabel', `Episode ${episode.number}`)}</h5>
+                {seriesForm.episodes.length > 1 && (
+                  <button type="button" onClick={() => removeEpisode(index)} className="text-red-400 hover:text-red-300"><FiTrash2 /></button>
+                )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File')}</label>
-                <div className="flex items-center">
-                  {!episode.file || seriesPreviewIndex !== index ? (
-                    <>
-                      <input type="file" accept="video/*" onChange={(e) => handleFileSelect(e, index)} className="hidden" ref={index === 0 ? fileInputRef : undefined} id={`episode-file-${index}`} />
-                      <label htmlFor={`episode-file-${index}`} className="flex-1 flex items-center justify-center px-3 py-2 bg-gray-500 border border-gray-400 rounded cursor-pointer hover:bg-gray-400 transition-colors">
-                        <FiUpload className="mr-2" />
-                        {episode.file ? episode.file.name : t('upload.selectVideoFile', 'Select video file')}
-                      </label>
-                    </>
-                  ) : (
-                    <div className="flex-1 flex items-center justify-between gap-4">
-                      <video src={episodePreviewUrl as string} controls className="w-full rounded bg-black" />
-                      <button type="button" onClick={() => clearEpisodeFile(index)} className="ml-4 px-3 py-2 bg-red-600 rounded text-white hover:bg-red-500">{t('common.delete', 'Delete')}</button>
-                    </div>
-                  )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">{t('upload.episodeTitle', 'Episode Title')}</label>
+                  <input type="text" value={episode.title} onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, title: e.target.value } : ep) }))} className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={`Episode ${episode.number} title`} />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File')}</label>
+                  <div className="flex items-center">
+                    {!episode.file || seriesPreviewIndex !== index ? (
+                      <>
+                        <input type="file" accept="video/*" onChange={(e) => handleFileSelect(e, index)} className="hidden" ref={index === 0 ? fileInputRef : undefined} id={`episode-file-${index}`} />
+                        <label htmlFor={`episode-file-${index}`} className="flex-1 flex items-center justify-center px-3 py-2 bg-gray-500 border border-gray-400 rounded cursor-pointer hover:bg-gray-400 transition-colors">
+                          <FiUpload className="mr-2" />
+                          {episode.file ? episode.file.name : t('upload.selectVideoFile', 'Select video file')}
+                        </label>
+                      </>
+                    ) : (
+                      <div className="flex-1 flex items-center justify-between gap-4">
+                        <video src={episodePreviewUrl as string} controls className="w-full rounded bg-black" />
+                        <button type="button" onClick={() => clearEpisodeFile(index)} className="ml-4 px-3 py-2 bg-red-600 rounded text-white hover:bg-red-500">{t('common.delete', 'Delete')}</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">{t('upload.episodeDescription', 'Episode Description')}</label>
+                <textarea rows={2} value={episode.description} onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, description: e.target.value } : ep) }))} className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.episodeDescriptionPlaceholder', `Episode ${episode.number} description`)} />
+              </div>
             </div>
+          ))}
+        </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">{t('upload.episodeDescription', 'Episode Description')}</label>
-              <textarea rows={2} value={episode.description} onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, description: e.target.value } : ep) }))} className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.episodeDescriptionPlaceholder', `Episode ${episode.number} description`)} />
-            </div>
-          </div>
-        ))}
-      </div>
+        {renderProgressBar()}
 
-      {renderProgressBar()}
-
-      <div className="flex justify-end mt-8">
-        <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex items-center px-8 py-4 bg-[#fbb033] text-black font-semibold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          {isSubmitting ? (
-            <>
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-3"></div>
-              {t('uploadForm.uploading', 'Uploading Series...')}
-            </>
-          ) : (
-            <>
-              <FiUpload className="mr-3" />
-              {t('upload.uploadSeries', 'Upload Series')}
-            </>
-          )}
-        </button>
-      </div>
-    </form>
+        <div className="flex justify-end mt-8">
+          <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex items-center px-8 py-4 bg-[#fbb033] text-black font-semibold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-3"></div>
+                {t('uploadForm.uploading', 'Uploading Series...')}
+              </>
+            ) : (
+              <>
+                <FiUpload className="mr-3" />
+                {t('upload.uploadSeries', 'Upload Series')}
+              </>
+            )}
+          </button>
+        </div>
+      </form>
     </>
   );
 }

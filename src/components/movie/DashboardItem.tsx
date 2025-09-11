@@ -33,6 +33,9 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
     setIsLandscape(img.naturalWidth > img.naturalHeight);
+    if(img.naturalWidth > img.naturalHeight){
+      console.log("Landscape image detected:", video.title);
+    }
   };
 
   return (
@@ -41,7 +44,7 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
       onClick={onClick}
       className={`flex flex-1 flex-col bg-black shadow-[0px_0px_2px_1px] pb-2 shadow-[#fbb033] rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer`}
     >
-      <div className={`relative w-full ${isLandscape ? 'aspect-[3/2]' : 'aspect-[2/3]'} rounded-lg mb-2 bg-gray-800`}>
+      <div className={`relative w-full aspect-[2/3] rounded-lg mb-2 bg-gray-800`}>
         <div className="absolute w-full h-full bg-gradient-to-t from-black via-black/30 to-transparent z-1" />
         <Image
           src={computedSrc}

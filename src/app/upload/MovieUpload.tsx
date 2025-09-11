@@ -159,8 +159,12 @@ export default function MovieUpload() {
 
   const handleMovieUpload = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!movieForm.file || !movieForm.title.trim()) {
-      setUploadProgress({ progress: 0, status: 'error', error: t('uploadForm.provideTitleAndFile', 'Please provide title and select a file') });
+    if (!movieForm.file || !movieForm.coverFile) {
+      const missingFields = [];
+      if (!movieForm.file) missingFields.push(t('uploadForm.videoFileLabel', 'Video File'));
+      if (!movieForm.coverFile) missingFields.push(t('uploadForm.coverImageLabel', 'Cover Image'));
+      const errorMessage = t('uploadForm.missingFields', 'Please provide the following:') + ' ' + missingFields.join(', ');
+      setUploadProgress({ progress: 0, status: 'error', error: errorMessage });
       return;
     }
 
@@ -293,17 +297,39 @@ export default function MovieUpload() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <label className="block text-sm font-medium mb-2">{t('uploadForm.titlePlaceholder', 'Title *')}</label>
-          <input type="text" required value={movieForm.title} onChange={(e) => setMovieForm(prev => ({ ...prev, title: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.titlePlaceholder', 'Enter movie title')} />
+          <input
+  type="text"
+  required
+  value={movieForm.title}
+  onChange={(e) => setMovieForm(prev => ({ ...prev, title: e.target.value }))}
+  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+  placeholder={t('uploadForm.titlePlaceholder', 'Enter movie title')}
+/>
         </div>
         <div>
           <label className="block text-sm font-medium mb-2">{t('upload.year', 'Year')}</label>
-          <input type="number" min="1900" max="2030" value={movieForm.year} onChange={(e) => setMovieForm(prev => ({ ...prev, year: parseInt(e.target.value) || new Date().getFullYear() }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" />
+          <input
+  type="number"
+  required
+  min="1900"
+  max="2030"
+  value={movieForm.year}
+  onChange={(e) => setMovieForm(prev => ({ ...prev, year: parseInt(e.target.value) || new Date().getFullYear() }))}
+  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+/>
         </div>
       </div>
 
       <div className="mb-6">
         <label className="block text-sm font-medium mb-2">{t('upload.description', 'Description')}</label>
-        <textarea rows={4} value={movieForm.description} onChange={(e) => setMovieForm(prev => ({ ...prev, description: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.descriptionPlaceholder', 'Enter movie description')} />
+        <textarea
+  rows={4}
+  required
+  value={movieForm.description}
+  onChange={(e) => setMovieForm(prev => ({ ...prev, description: e.target.value }))}
+  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+  placeholder={t('uploadForm.descriptionPlaceholder', 'Enter movie description')}
+/>
       </div>
 
       <div className="grid grid-cols-1 gap-6 mb-6">
@@ -342,11 +368,25 @@ export default function MovieUpload() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <label className="block text-sm font-medium mb-2">{t('upload.region', 'Region')}</label>
-          <input type="text" value={movieForm.region} onChange={(e) => setMovieForm(prev => ({ ...prev, region: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="e.g., USA, China, etc." />
+          <input
+  type="text"
+  required
+  value={movieForm.region}
+  onChange={(e) => setMovieForm(prev => ({ ...prev, region: e.target.value }))}
+  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+  placeholder="e.g., USA, China, etc."
+/>
         </div>
         <div>
           <label className="block text-sm font-medium mb-2">{t('upload.language', 'Language')}</label>
-          <input type="text" value={movieForm.language} onChange={(e) => setMovieForm(prev => ({ ...prev, language: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="e.g., English, Chinese, etc." />
+          <input
+  type="text"
+  required
+  value={movieForm.language}
+  onChange={(e) => setMovieForm(prev => ({ ...prev, language: e.target.value }))}
+  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+  placeholder="e.g., English, Mandarin, etc."
+/>
         </div>
       </div>
 
@@ -354,7 +394,7 @@ export default function MovieUpload() {
   <label className="block text-sm font-medium mb-2">{t('upload.tags', 'Tags')}</label>
         <div className="flex gap-2 mb-3">
           <input type="text" value={movieForm.tagInput} onChange={(e) => setMovieForm(prev => ({ ...prev, tagInput: e.target.value }))} onKeyPress={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }} className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.addTag', 'Add a tag and press Enter')} />
-          <button type="button" onClick={addTag} className="px-4 py-3 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus /></button>
+          <button type="button" onClick={addTag} className="px-4 py-3 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors cursor-pointer"><FiPlus /></button>
         </div>
         <div className="flex flex-wrap gap-2">
           {movieForm.tags.map((tag, index) => (
@@ -369,7 +409,7 @@ export default function MovieUpload() {
       {renderProgressBar()}
 
       <div className="flex justify-end mt-8">
-        <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex items-center px-8 py-4 bg-[#fbb033] text-black font-semibold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+        <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex items-center px-8 py-4 bg-[#fbb033] text-black font-semibold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer">
               {isSubmitting ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-3"></div>

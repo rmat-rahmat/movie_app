@@ -144,8 +144,12 @@ export default function SeriesUpload() {
 
   const handleSeriesUpload = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!seriesForm.title.trim() || seriesForm.episodes.length === 0) {
-      setUploadProgress({ progress: 0, status: 'error', error: t('uploadForm.provideSeriesTitleAndEpisode', 'Please provide series title and at least one episode') });
+    if (!seriesForm.coverFile || seriesForm.episodes.every(ep => !ep.file)) {
+      const missingFields = [];
+      if (!seriesForm.coverFile) missingFields.push(t('uploadForm.coverImageLabel', 'Cover Image'));
+      if (seriesForm.episodes.every(ep => !ep.file)) missingFields.push(t('uploadForm.episodeFiles', 'Episode Files'));
+      const errorMessage = t('uploadForm.missingFields', 'Please provide the following:') + ' ' + missingFields.join(', ');
+      setUploadProgress({ progress: 0, status: 'error', error: errorMessage });
       return;
     }
 
@@ -295,12 +299,26 @@ export default function SeriesUpload() {
       <form onSubmit={handleSeriesUpload} className="bg-gray-800 rounded-xl p-8 shadow-2xl">
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">{t('uploadForm.titlePlaceholder', 'Title *')}</label>
-          <input type="text" required value={seriesForm.title} onChange={(e) => setSeriesForm(prev => ({ ...prev, title: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.titlePlaceholder', 'Enter series title')} />
+          <input
+            type="text"
+            required
+            value={seriesForm.title}
+            onChange={(e) => setSeriesForm(prev => ({ ...prev, title: e.target.value }))}
+            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+            placeholder={t('uploadForm.titlePlaceholder', 'Enter series title')}
+          />
         </div>
 
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">{t('upload.description', 'Description')}</label>
-          <textarea rows={4} value={seriesForm.description} onChange={(e) => setSeriesForm(prev => ({ ...prev, description: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.descriptionPlaceholder', 'Enter series description')} />
+          <textarea
+            rows={4}
+            required
+            value={seriesForm.description}
+            onChange={(e) => setSeriesForm(prev => ({ ...prev, description: e.target.value }))}
+            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+            placeholder={t('uploadForm.descriptionPlaceholder', 'Enter series description')}
+          />
         </div>
 
         <div className="grid grid-cols-1 gap-6 mb-6">
@@ -332,18 +350,42 @@ export default function SeriesUpload() {
 
           <div>
             <label className="block text-sm font-medium mb-2">{t('upload.rating', 'Rating')}</label>
-            <input type="number" min="0" max="10" step="0.1" value={seriesForm.rating} onChange={(e) => setSeriesForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="8.5" />
+            <input
+              type="number"
+              required
+              min="0"
+              max="10"
+              step="0.1"
+              value={seriesForm.rating}
+              onChange={(e) => setSeriesForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              placeholder="8.5"
+            />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label className="block text-sm font-medium mb-2">{t('upload.region', 'Region')}</label>
-            <input type="text" value={seriesForm.region} onChange={(e) => setSeriesForm(prev => ({ ...prev, region: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="e.g., USA, China, etc." />
+            <input
+              type="text"
+              required
+              value={seriesForm.region}
+              onChange={(e) => setSeriesForm(prev => ({ ...prev, region: e.target.value }))}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              placeholder="e.g., USA, China, etc."
+            />
           </div>
           <div>
             <label className="block text-sm font-medium mb-2">{t('upload.language', 'Language')}</label>
-            <input type="text" value={seriesForm.language} onChange={(e) => setSeriesForm(prev => ({ ...prev, language: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="e.g., English, Chinese, etc." />
+            <input
+              type="text"
+              required
+              value={seriesForm.language}
+              onChange={(e) => setSeriesForm(prev => ({ ...prev, language: e.target.value }))}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              placeholder="e.g., English, Mandarin, etc."
+            />
           </div>
         </div>
 
@@ -351,7 +393,7 @@ export default function SeriesUpload() {
           <label className="block text-sm font-medium mb-2">{t('upload.tags', 'Tags')}</label>
           <div className="flex gap-2 mb-3">
             <input type="text" value={seriesForm.tagInput} onChange={(e) => setSeriesForm(prev => ({ ...prev, tagInput: e.target.value }))} onKeyPress={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }} className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.addTag', 'Add a tag and press Enter')} />
-            <button type="button" onClick={addTag} className="px-4 py-3 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus /></button>
+            <button type="button" onClick={addTag} className="px-4 cursor-pointer py-3 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus /></button>
           </div>
           <div className="flex flex-wrap gap-2">
             {seriesForm.tags.map((tag, index) => (
@@ -366,7 +408,7 @@ export default function SeriesUpload() {
         <div className="mb-4">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-md font-medium">{t('upload.episodes', 'Episodes')}</h4>
-            <button type="button" onClick={addEpisode} className="flex items-center px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus className="mr-2" />{t('uploadForm.addEpisode', 'Add Episode')}</button>
+            <button type="button" onClick={addEpisode} className="flex cursor-pointer ßitems-center px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus className="mr-2" />{t('uploadForm.addEpisode', 'Add Episode')}</button>
           </div>
 
           {seriesForm.episodes.map((episode, index) => (
@@ -374,7 +416,7 @@ export default function SeriesUpload() {
               <div className="flex items-center justify-between mb-3">
                 <h5 className="font-medium">{t('upload.episodeLabel', `Episode ${episode.number}`)}</h5>
                 {seriesForm.episodes.length > 1 && (
-                  <button type="button" onClick={() => removeEpisode(index)} className="text-red-400 hover:text-red-300"><FiTrash2 /></button>
+                  <button type="button" onClick={() => removeEpisode(index)} className="text-red-400 hover:text-red-300 cursor-pointer"><FiTrash2 /></button>
                 )}
               </div>
 
@@ -398,7 +440,7 @@ export default function SeriesUpload() {
                     ) : (
                       <div className="flex-1 flex items-center justify-between gap-4">
                         <video src={episodePreviewUrl as string} controls className="w-full rounded bg-black" />
-                        <button type="button" onClick={() => clearEpisodeFile(index)} className="ml-4 px-3 py-2 bg-red-600 rounded text-white hover:bg-red-500">{t('common.delete', 'Delete')}</button>
+                        <button type="button" onClick={() => clearEpisodeFile(index)} className="ml-4 cursor-pointer px-3 py-2 bg-red-600 rounded text-white hover:bg-red-500">{t('common.delete', 'Delete')}</button>
                       </div>
                     )}
                   </div>
@@ -416,7 +458,7 @@ export default function SeriesUpload() {
         {renderProgressBar()}
 
         <div className="flex justify-end mt-8">
-          <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex items-center px-8 py-4 bg-[#fbb033] text-black font-semibold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex items-center cursor-pointer px-8 py-4 bg-[#fbb033] text-black font-semibold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors disabled:bg-gray-500">
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-3"></div>

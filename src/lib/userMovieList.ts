@@ -1,4 +1,3 @@
-import { getShort } from "./movieApi";
 import type { VideoSrc } from "@/types/VideoSrc";
 /**
  * Fetches the last seen videos from localStorage or sessionStorage.
@@ -17,19 +16,6 @@ export const getLastSeenVideos = async (
     count: number = 10,
     useSessionStorage: boolean = false // Option to use sessionStorage
 ): Promise<VideoSrc[]> => {
-    if (typeof window !== "undefined") {
-        const storage = useSessionStorage ? sessionStorage : localStorage;
-        const stored = storage.getItem(storageKey);
-        // if (stored) {
-        //     try {
-        //         return JSON.parse(stored) as VideoSrc[];
-        //     } catch {
-        //         // fallback if parsing fails
-        //     }
-        // }
-        const listA = await getShort(channelId, count);
-        storage.setItem(storageKey, JSON.stringify(listA));
-        return listA;
-    }
+    
     return [];
 };

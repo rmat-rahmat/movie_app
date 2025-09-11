@@ -132,7 +132,7 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
                                 sizes="100vw"
                                 priority={idx === current}
                                 onError={() => setImageErrorMap(s => ({ ...s, [idx]: true }))}
-                                onLoadingComplete={() => {
+                                onLoad={() => {
                                     // clear any previous error if the image successfully loads
                                     setImageErrorMap(s => {
                                         if (!s[idx]) return s;

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getGridVideos, getCachedCategories } from '@/lib/movieApi';
 import type { VideosApiResponse, VideoVO, CategoryItem } from '@/types/Dashboard';
 import LoadingPage from '@/components/ui/LoadingPage';
+import DashboardItem from './DashboardItem';
 
 interface GridVideosProps {
   id: string;
@@ -137,54 +138,16 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, src }) => {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {videos?.map((video, index) => {
-                const fallbackSrc1 = '/fallback_poster/sample_poster.png';
-                const fallbackSrc2 = '/fallback_poster/sample_poster1.png';
-                const imageSrc = video.coverUrl || video.coverUrl || (index % 2 === 0 ? fallbackSrc1 : fallbackSrc2);
-                
-                return (
-                  <article key={`${video.id || index}`} className="bg-[#0b0b0b] rounded-md overflow-hidden hover:bg-[#1a1a1a] transition-colors">
-                    <div className="aspect-[2/3] relative">
-                      <img
-                        src={imageSrc}
-                        alt={video.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = index % 2 === 0 ? fallbackSrc2 : fallbackSrc1;
-                        }}
-                      />
-                      {video.year && (
-                        <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                          {video.year}
-                        </div>
-                      )}
-                      {video.rating && (
-                        <div className="absolute bottom-2 left-2 bg-[#fbb033] text-black text-xs px-2 py-1 rounded font-bold">
-                          ⭐ {video.rating.toFixed(1)}
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <h3 className="font-semibold text-white line-clamp-2 mb-1">{video.title}</h3>
-                      {video.description && (
-                        <p className="text-sm text-gray-400 line-clamp-3 mb-2">{video.description}</p>
-                      )}
-                      <div className="flex flex-wrap gap-1 text-xs">
-                        {video.region && (
-                          <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded">{video.region}</span>
-                        )}
-                        {video.language && (
-                          <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded">{video.language}</span>
-                        )}
-                        {video.isSeries && (
-                          <span className="bg-blue-600 text-white px-2 py-1 rounded">Series</span>
-                        )}
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
+              {videos?.map((video, index) => (
+                <DashboardItem
+                  key={video.id || index}
+                  video={video}
+                  index={index}
+                  showRating={!!video.rating} // Show rating if available
+                  showViewer={!!video.views} // Show viewer count if available
+                  onClick={() => console.log(`Clicked on video: ${video.title}`)} // Example click handler
+                />
+              ))}
             </div>
 
             {/* Load More Button */}

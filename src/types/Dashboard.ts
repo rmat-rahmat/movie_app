@@ -81,6 +81,7 @@ export interface DashboardApiResponse {
 
 // Video VO type for category videos API
 export interface VideoVO {
+  id: string; // Make id mandatory to align with DashboardItemType
   title: string;
   description?: string;
   fileName?: string;
@@ -98,12 +99,12 @@ export interface VideoVO {
   region?: string;
   language?: string;
   director?: string;
-  actors?: string;
+  actors?: string[]; // Update actors to match DashboardItem
   rating?: number;
   tags?: string[];
   createBy?: string;
   createTime?: string;
-  id?: string; // Adding id for consistency
+  views?: number; // Add views property to align with DashboardItem
 }
 
 // Episode details returned from content detail endpoint

@@ -185,57 +185,6 @@ export const getSeries = async (country: string) => {
   return transformEpisodesToSlides(episodes, 10);
 };
 
-export const getShort = async (channel_id: string, limit: number): Promise<VideoSrc[]> => {
-  const corsProxy = "https://corsproxy.io/?";
-  const feedUrl = corsProxy + encodeURIComponent("https://www.youtube.com/feeds/videos.xml?channel_id=" + channel_id);
-
-  const res = await axios.get(feedUrl, { responseType: 'text' });
-  const xmlText = res.data;
-  const parsed = await parseStringPromise(xmlText);
-
-  const entries = parsed.feed.entry || [];
-
-  type YoutubeFeedEntry = {
-    'yt:videoId': string[];
-    title: string[];
-    published: string[];
-    'media:group': Array<{
-      'media:description': string[];
-      'media:community': Array<{
-        'media:statistics': Array<{ $: { views: string } }>;
-        'media:starRating': Array<{ $: { count: string; average: string } }>;
-      }>;
-    }>;
-  };
-
-  const mockMovies: VideoSrc[] = entries.slice(0, limit).map((entry: unknown) => {
-    const e = entry as YoutubeFeedEntry;
-    const id = e['yt:videoId'][0];
-    const title = e.title[0];
-    const description = e['media:group'][0]['media:description'][0];
-    const videoId = e['yt:videoId'][0];
-    const publishDate = e.published[0];
-    const popularity = Number(e['media:group'][0]['media:community'][0]['media:statistics'][0].$.views || "0");
-    const vote_count = Number(e['media:group'][0]['media:community'][0]['media:starRating'][0].$.count || "0");
-    const vote_average = Number(e['media:group'][0]['media:community'][0]['media:starRating'][0].$.average || "0");
-    const thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-
-    return {
-      id,
-      title,
-      description,
-      backdrop_image: thumbnail,
-      potrait_image: thumbnail,
-      release_date: new Date(publishDate).toISOString().split("T")[0],
-      vote_average,
-      vote_count,
-      popularity,
-      casts: [],
-    };
-  });
-
-  return mockMovies;
-};
 
 // Fetch live dashboard from backend and map to VideoSrc
 // Simple module-level cache to support server/runtime environments where localStorage
@@ -476,12 +425,12 @@ export async function searchVideos(
 export async function getPlayMain(uploadId: string, expires: number | string = 100000, signature: string = '2', apiKey?: string): Promise<string | null> {
   try {
     const url = `${BASE_URL}/api-net/play/${uploadId}/expires=${expires}&signature=${signature}`;
-  const params: Record<string, string> = {};
-  if (expires !== undefined && expires !== null) params.expires = String(expires);
-  if (signature !== undefined && signature !== null) params.signature = String(signature);
+    const params: Record<string, string> = {};
+    if (expires !== undefined && expires !== null) params.expires = String(expires);
+    if (signature !== undefined && signature !== null) params.signature = String(signature);
     const headers: Record<string, string> = {};
     if (apiKey) headers['api-key'] = apiKey;
-  const query = new URLSearchParams(params).toString();
+    const query = new URLSearchParams(params).toString();
     const requestUrl = query ? `${url}?${query}` : url;
     const response = await fetch(requestUrl, { method: 'GET', headers });
     if (!response.ok) throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);

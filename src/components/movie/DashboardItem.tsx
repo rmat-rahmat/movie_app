@@ -13,6 +13,7 @@ interface DashboardItemProps {
 
 const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, showRating, showViewer }) => {
   const [imageError, setImageError] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
 
   const potrait = video.imageQuality?.p360 || '';
   const release_date = video.createTime ? String(video.createTime).split('T')[0] : (video.year ? String(video.year) : '');
@@ -24,34 +25,57 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
   const fallbackSrc1 = '/fallback_poster/sample_poster1.png';
   const computedSrc = (!potrait) ? fallbackSrc2 : (imageError ? (index % 2 === 0 ? fallbackSrc1 : fallbackSrc2) : potrait);
 
+  // Truncate description if too long
+  const truncatedDescription = video.description && video.description.length > 100
+    ? `${video.description.slice(0, 50)}...`
+    : video.description;
+
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    setIsLandscape(img.naturalWidth > img.naturalHeight);
+  };
+
   return (
     <div
       key={video.id}
       onClick={onClick}
       className={`flex flex-1 flex-col bg-black shadow-[0px_0px_2px_1px] pb-2 shadow-[#fbb033] rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer`}
     >
-      <div className="relative w-full h-auto rounded-lg mb-2" >
+      <div className={`relative w-full ${isLandscape ? 'aspect-[3/2]' : 'aspect-[2/3]'} rounded-lg mb-2 bg-gray-800`}>
         <div className="absolute w-full h-full bg-gradient-to-t from-black via-black/30 to-transparent z-1" />
-        <div className="relative w-full h-[300px]">
-          <Image
-            src={computedSrc}
-            alt={video.title || ''}
-            fill
-            className="z-0 rounded-t-lg object-cover"
-            sizes="100vw"
-            priority={index === 0}
-            onError={() => setImageError(true)}
-            onLoadingComplete={() => setImageError(false)}
-          />
-        </div>
+        <Image
+          src={computedSrc}
+          alt={video.title || ''}
+          fill
+          className="z-0 rounded-lg object-cover"
+          sizes="100vw"
+          priority={index === 0}
+          onError={() => setImageError(true)}
+          onLoad={(e) => {
+            setImageError(false);
+            handleImageLoad(e);
+          }}
+        />
       </div>
-      <div className='relative px-4 mt-[-70px] lg::mt-[-40px]  overflow-y-visible z-1'>
+      <div className='relative px-4 mt-[-70px] lg::mt-[-40px] overflow-y-visible z-1'>
         {video.title && video.title.length > 30 ? (
           <h3 className="text-xs lg::text-lg: font-semibold">{video.title}</h3>
         ) : (
           <h3 className="text-lg: lg::text-lg font-semibold">{video.title}</h3>
         )}
         <p className="text-xs lg::text-sm text-gray-400">{release_date}</p>
+        <p className="text-sm text-gray-400 mt-2">{truncatedDescription}</p>
+        <div className="flex flex-wrap gap-1 mt-2">
+          {video.tags && video.tags.length > 0 && video.tags.map((tag, idx) => (
+            <span key={idx} className="bg-[#fbb033] text-black px-2 py-1 rounded text-xs">{tag}</span>
+          ))}
+          {video.region && (
+            <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded text-xs">{video.region}</span>
+          )}
+          {video.language && (
+            <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded text-xs">{video.language}</span>
+          )}
+        </div>
       </div>
 
       {showRating && vote_average !== undefined && vote_average > 0 && (

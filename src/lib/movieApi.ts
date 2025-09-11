@@ -495,3 +495,5 @@ export async function getContentDetail(contentId: string): Promise<import('@/typ
     return null;
   }
 }
+
+export type { CategoryItem };

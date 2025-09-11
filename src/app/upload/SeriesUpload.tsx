@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { FiUpload, FiX, FiPlus, FiTrash2 } from 'react-icons/fi';
 import { createSeries, createEpisode, initializeEpisodeUpload, uploadFile, initializeImageUpload, getImageById, type SeriesCreateRequest, type EpisodeCreateRequest, type EpisodeUploadRequest } from '@/lib/uploadAPI';
 import UploadSuccessModal from '@/components/ui/UploadSuccessModal';
+import TagSelector from '@/components/ui/TagSelector';
+import { getCachedCategories, type CategoryItem } from '@/lib/movieApi';
 
 interface Episode {
   number: number;
@@ -29,6 +31,7 @@ export default function SeriesUpload() {
   const [uploadProgress, setUploadProgress] = useState({ progress: 0, status: 'idle' as 'idle' | 'uploading' | 'success' | 'error', error: '' });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [uploadedSeriesId, setUploadedSeriesId] = useState<string | null>(null);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
 
   const [seriesForm, setSeriesForm] = useState({
     title: '',
@@ -43,13 +46,19 @@ export default function SeriesUpload() {
     actors: '',
     rating: 0,
     tags: [] as string[],
-    tagInput: '',
     seasonNumber: 1,
     totalEpisodes: 1,
     episodes: [
       { number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }
     ] as Episode[]
   });
+
+  useEffect(() => {
+    const cachedCategories = getCachedCategories();
+    if (cachedCategories) {
+      setCategories(cachedCategories);
+    }
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -88,15 +97,9 @@ export default function SeriesUpload() {
     if (seriesPreviewIndex === index) setSeriesPreviewIndex(0);
   };
 
-  const addTag = () => {
-    if (seriesForm.tagInput.trim() && !seriesForm.tags.includes(seriesForm.tagInput.trim())) {
-      debugLog('Adding series tag', { tag: seriesForm.tagInput.trim() });
-      setSeriesForm(prev => ({ ...prev, tags: [...prev.tags, prev.tagInput.trim()], tagInput: '' }));
-    }
-    else {
-      alert(t('uploadForm.tagAlreadyExists', 'This tag already exists.'));
-      setSeriesForm(prev => ({ ...prev, tagInput: '' }));
-    }
+  const handleTagsChange = (tags: string[]) => {
+    debugLog('Series tags changed', { tags });
+    setSeriesForm(prev => ({ ...prev, tags }));
   };
 
   const handleCoverFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -273,7 +276,7 @@ export default function SeriesUpload() {
 
   const handleUploadMore = () => {
     // Reset form for new upload
-    setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], tagInput: '', seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }] });
+    setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }] });
     if (episodePreviewUrl) {
       try { URL.revokeObjectURL(episodePreviewUrl); } catch { }
     }
@@ -320,7 +323,29 @@ export default function SeriesUpload() {
             placeholder={t('uploadForm.descriptionPlaceholder', 'Enter series description')}
           />
         </div>
-
+      <div className="mb-6">
+          <label htmlFor="category" className="block text-sm font-medium mb-2">
+            {t('uploadForm.categoryLabel', 'Category')}
+          </label>
+          <select
+            required
+            id="category"
+            name="category"
+            value={seriesForm.categoryId}
+            onChange={(e) => setSeriesForm((prev) => ({ ...prev, categoryId: e.target.value }))}
+            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+          >
+            <option value="" disabled>
+              {t('uploadForm.selectCategoryPlaceholder', 'Select category')}
+            </option>
+            <option value="series">{t('uploadForm.defaultCategorySeries', 'Series')}</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+              {category.categoryName || category.categoryAlias || category.id}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="grid grid-cols-1 gap-6 mb-6">
           <label className="block text-sm font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover Image')}</label>
           <div className="flex items-center gap-4">
@@ -391,18 +416,11 @@ export default function SeriesUpload() {
 
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">{t('upload.tags', 'Tags')}</label>
-          <div className="flex gap-2 mb-3">
-            <input type="text" value={seriesForm.tagInput} onChange={(e) => setSeriesForm(prev => ({ ...prev, tagInput: e.target.value }))} onKeyPress={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }} className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.addTag', 'Add a tag and press Enter')} />
-            <button type="button" onClick={addTag} className="px-4 cursor-pointer py-3 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus /></button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {seriesForm.tags.map((tag, index) => (
-              <span key={index} className="flex items-center px-3 py-1 bg-gray-700 text-white rounded-full text-sm">
-                {tag}
-                <button type="button" onClick={() => removeTag(tag)} className="ml-2 text-gray-400 hover:text-red-400"><FiX /></button>
-              </span>
-            ))}
-          </div>
+          <TagSelector
+            selectedTags={seriesForm.tags}
+            onTagsChange={handleTagsChange}
+            placeholder={t('upload.searchTags', 'Search and select tags...')}
+          />
         </div>
 
         <div className="mb-4">

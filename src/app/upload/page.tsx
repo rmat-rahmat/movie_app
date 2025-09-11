@@ -1,14 +1,28 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiVideo, FiTv } from 'react-icons/fi';
 import MovieUpload from './MovieUpload';
 import SeriesUpload from './SeriesUpload';
+import { fetchTags } from '@/lib/tagAPI';
 
 export default function UploadPage() {
   const { t } = useTranslation('common');
   const [uploadType, setUploadType] = useState<'movie' | 'series'>('movie');
+
+  // Preload tags when the page is visited
+  useEffect(() => {
+    const preloadTags = async () => {
+      try {
+        await fetchTags({ page: 1, size: 100 }); // Load first 100 tags
+      } catch (error) {
+        console.error('Failed to preload tags:', error);
+      }
+    };
+
+    preloadTags();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white">

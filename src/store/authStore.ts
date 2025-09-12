@@ -13,16 +13,16 @@ import {
   restoreAuthFromStorage as restoreAuthFromStorage,
 } from '@/lib/authAPI';
 
-type User = { 
-  id: string; 
-  email: string; 
-  name?: string; 
+type User = {
+  id: string;
+  email: string;
+  name?: string;
   phone?: string;
   avatar?: string;
   nickname?: string;
   gender?: number;
   birthday?: string;
-  [key: string]: unknown 
+  [key: string]: unknown
 };
 
 interface AuthState {
@@ -32,7 +32,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
   login: (email: string, password: string, form?: boolean) => Promise<void>;
   register: (payload: {
@@ -47,7 +47,7 @@ interface AuthState {
     birthday?: string;
   }, form?: boolean) => Promise<void>;
   logout: () => Promise<void>;
-  checkAuth: () => Promise<void>;
+  checkAuth: (retryCount?: number) => Promise<void>;
   refreshAuthToken: () => Promise<void>;
   sendEmailVerification: (email: string) => Promise<string>;
   updateProfile: (payload: {
@@ -65,6 +65,24 @@ interface AuthState {
   setLoading: (loading: boolean) => void;
 }
 
+// Helper function to wrap API calls with token refresh logic
+export const withTokenRefresh = async <T>(apiCall: () => Promise<T>): Promise<T> => {
+  try {
+    return await apiCall();
+  } catch (err: unknown) {
+    const error = err as { response?: { status?: number } } | undefined;
+    if (error?.response?.status === 401) {
+      try {
+        await useAuthStore.getState().refreshAuthToken();
+        return await apiCall();
+      } catch (refreshErr: unknown) {
+        throw refreshErr;
+      }
+    }
+    throw err;
+  }
+};
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -75,38 +93,24 @@ export const useAuthStore = create<AuthState>()(
       isLoading: true,
       error: null,
 
+      // Example usage in existing actions
       login: async (email: string, password: string, form = false) => {
-        try {
-          set({ isLoading: true, error: null });
-              // call renamed API helper to avoid shadowing the store method
-              const response = await apiLogin(email, password, form);
-              console.log('[authStore] login response:', response);
-          set({
-            user: response.user,
-            token: response.token,
-            refreshToken: response.refreshToken,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          });
-              console.log('[authStore] state after login set:', { user: response.user, isAuthenticated: true });
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Login failed',
-            isLoading: false,
-            isAuthenticated: false,
-            user: null,
-            token: null,
-            refreshToken: null,
-          });
-          throw error;
-        }
+        set({ isLoading: true, error: null });
+        const response = await apiLogin(email, password, form);
+        set({
+          user: response.user,
+          token: response.token,
+          refreshToken: response.refreshToken,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
       },
 
-    register: async (payload, form = false) => {
+      register: async (payload, form = false) => {
         try {
           set({ isLoading: true, error: null });
-      const response = await apiRegister(payload, form);
+          const response = await apiRegister(payload, form);
           set({
             user: response.user,
             token: response.token,
@@ -128,10 +132,10 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-    logout: async () => {
+      logout: async () => {
         try {
           set({ isLoading: true });
-      await apiLogout();
+          await apiLogout();
         } catch (error) {
           console.error('Logout error:', error);
         } finally {
@@ -152,7 +156,6 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: true });
           // Use API helper that restores headers if needed
           const response = await apiIsLogin();
-          console.log('[authStore] checkAuth response:', response);
           if (response) {
             set({
               user: response.user,
@@ -164,32 +167,50 @@ export const useAuthStore = create<AuthState>()(
             });
             console.log('[authStore] state after checkAuth (logged in)');
           } else {
-            set({
-              user: null,
-              token: null,
-              refreshToken: null,
-              isAuthenticated: false,
-              isLoading: false,
-              error: null,
-            });
-            console.log('[authStore] state after checkAuth (not logged in)');
+            console.log('[authStore] checkAuth failed, attempting token refresh');
+            alert("Check Auth Failed, attempting token refresh");
+            await get().refreshAuthToken();
+            const retryResponse = await apiIsLogin(); // Retry the authentication check after refreshing the token
+            if (retryResponse) {
+              set({
+                user: retryResponse.user,
+                token: retryResponse.token,
+                refreshToken: retryResponse.refreshToken,
+                isAuthenticated: true,
+                isLoading: false,
+                error: null,
+              });
+              console.log('[authStore] state after retry checkAuth (logged in)');
+            } else {
+              set({
+                user: null,
+                // token: null,
+                // refreshToken: null,
+                isAuthenticated: false,
+                isLoading: false,
+                error: null,
+              });
+              console.log('[authStore] state after retry checkAuth (not logged in)');
+            }
           }
-        } catch {
+        } catch (error) {
+          console.error('[authStore] checkAuth failed completely', error);
           set({
             user: null,
-            token: null,
-            refreshToken: null,
+            // token: null,
+            // refreshToken: null,
             isAuthenticated: false,
             isLoading: false,
-            error: null,
+            error: error instanceof Error ? error.message : 'Authentication failed',
           });
         }
       },
 
-    refreshAuthToken: async () => {
+      refreshAuthToken: async () => {
+        console.log("refreshAuthToken called");
         try {
           set({ isLoading: true, error: null });
-      const response = await apiRefreshToken();
+          const response = await apiRefreshToken();
           const currentUser = get().user; // Keep existing user data
           set({
             token: response.token,
@@ -203,8 +224,8 @@ export const useAuthStore = create<AuthState>()(
           // On refresh failure, log out the user
           set({
             user: null,
-            token: null,
-            refreshToken: null,
+            // token: null,
+            // refreshToken: null,
             isAuthenticated: false,
             isLoading: false,
             error: error instanceof Error ? error.message : 'Token refresh failed',
@@ -213,10 +234,10 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-    sendEmailVerification: async (email: string) => {
+      sendEmailVerification: async (email: string) => {
         try {
           // set({ isLoading: true, error: null });
-      const result = await apiSendEmailCaptcha(email);
+          const result = await apiSendEmailCaptcha(email);
           set({ isLoading: false });
           return result;
         } catch (error) {
@@ -228,10 +249,10 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-    updateProfile: async (payload, form = false) => {
-        try {
+      updateProfile: async (payload, form = false) => {
+        return await withTokenRefresh(async () => {
           set({ isLoading: true, error: null });
-      const response = await apiUpdateUserInfo(payload, form);
+          const response = await apiUpdateUserInfo(payload, form);
           set({
             user: response.user,
             token: response.token,
@@ -239,19 +260,13 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: null,
           });
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Update failed',
-            isLoading: false,
-          });
-          throw error;
-        }
+        });
       },
 
-    changePassword: async (payload, form = false) => {
+      changePassword: async (payload, form = false) => {
         try {
           set({ isLoading: true, error: null });
-      const result = await apiChangePassword(payload, form);
+          const result = await apiChangePassword(payload, form);
           set({ isLoading: false, error: null });
           return result;
         } catch (error) {
@@ -285,7 +300,7 @@ export const useAuthStore = create<AuthState>()(
             // attempt to restore from storage if no token in persisted state
             restoreAuthFromStorage();
             console.log('[authStore] attempted restoreAuthFromStorage');
-            
+
           }
         } catch (e) {
           // ignore

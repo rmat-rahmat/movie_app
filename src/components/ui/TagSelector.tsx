@@ -8,14 +8,15 @@ import { TagVo, searchTags } from '@/lib/tagAPI';
 // Simple cache for tag searches
 const tagCache = new Map<string, TagVo[]>();
 
-interface TagSelectorProps {
+interface TagSelectorProps extends React.HTMLAttributes<HTMLDivElement> {
   selectedTags: string[];
   onTagsChange: (tags: string[]) => void;
   placeholder?: string;
   className?: string;
+  required?: boolean; // Explicitly added the required property
 }
 
-export default function TagSelector({ selectedTags, onTagsChange, placeholder, className = '' }: TagSelectorProps) {
+export default function TagSelector({ selectedTags, onTagsChange, placeholder, className = '', required, ...props }: TagSelectorProps) {
   const { t } = useTranslation('common');
   const [searchInput, setSearchInput] = useState('');
   const [availableTags, setAvailableTags] = useState<TagVo[]>([]);
@@ -33,7 +34,7 @@ export default function TagSelector({ selectedTags, onTagsChange, placeholder, c
   // Filter tags based on search input
   useEffect(() => {
     if (searchInput.trim()) {
-      const filtered = availableTags.filter(tag => 
+      const filtered = availableTags.filter(tag =>
         tag.name.toLowerCase().includes(searchInput.toLowerCase()) &&
         !selectedTags.includes(tag.name)
       );
@@ -82,7 +83,7 @@ export default function TagSelector({ selectedTags, onTagsChange, placeholder, c
     // Search tags from server when user types
     if (value.trim()) {
       const cacheKey = `search_${value.toLowerCase()}`;
-      
+
       if (tagCache.has(cacheKey)) {
         const cached = tagCache.get(cacheKey) || [];
         // Merge with existing tags
@@ -100,7 +101,7 @@ export default function TagSelector({ selectedTags, onTagsChange, placeholder, c
         setIsLoading(true);
         const searchResults = await searchTags(value);
         tagCache.set(cacheKey, searchResults);
-        
+
         // Merge with existing tags to avoid losing data
         const merged = [...availableTags];
         searchResults.forEach(newTag => {
@@ -142,7 +143,7 @@ export default function TagSelector({ selectedTags, onTagsChange, placeholder, c
   };
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className}`} {...props}>
       {/* Selected tags */}
       {selectedTags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
@@ -169,6 +170,13 @@ export default function TagSelector({ selectedTags, onTagsChange, placeholder, c
       <div className="relative" ref={dropdownRef}>
         <div className="relative">
           <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+
+          <input
+            name="tag-indicator"
+            value={selectedTags.length > 0 ? "tag" : ""}
+            className="visually-hidden opacity-0 absolute w-full h-full z-[-100]"
+            required={required} // Use the `required` attribute directly
+          />
           <input
             ref={inputRef}
             type="text"
@@ -215,6 +223,7 @@ export default function TagSelector({ selectedTags, onTagsChange, placeholder, c
           </div>
         )}
       </div>
+
     </div>
   );
 }

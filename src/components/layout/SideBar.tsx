@@ -42,7 +42,7 @@ const SideBar = ({ show }: { show: boolean }) => {
     }
   }, []);
 
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated, logout, user } = useAuthStore();
 
   // Create menu based on authentication status (labels come from translations)
   const getMenu = () => {
@@ -74,7 +74,8 @@ const SideBar = ({ show }: { show: boolean }) => {
 
     if (isAuthenticated) {
       baseMenu.splice(2, 0, { href: "/profile", label: t('navigation.profile'), icon: <FiUser className="h-5 w-5 mr-2" /> });
-      baseMenu.splice(3, 0, { href: "/upload", label: t('navigation.upload', 'Upload'), icon: <FiUpload className="h-5 w-5 mr-2" /> });
+      if(user && user.userType==1 )
+      {baseMenu.splice(3, 0, { href: "/upload", label: t('navigation.upload', 'Upload'), icon: <FiUpload className="h-5 w-5 mr-2" /> });}
     }
 
     return baseMenu;

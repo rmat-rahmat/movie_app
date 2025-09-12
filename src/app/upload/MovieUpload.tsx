@@ -45,7 +45,8 @@ export default function MovieUpload() {
     director: '',
     actors: '',
     rating: 0,
-    tags: [] as string[]
+    tags: [] as string[],
+    duration: 30000 // default duration in ms
   });
 
   useEffect(() => {
@@ -86,6 +87,12 @@ export default function MovieUpload() {
     }
     setMovieCoverPreviewUrl(null);
     setMovieForm(prev => ({ ...prev, coverFile: null }));
+
+    // Clear the input field for the image upload
+    const coverInput = document.getElementById('movie-cover-file') as HTMLInputElement;
+    if (coverInput) {
+      coverInput.value = '';
+    }
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,9 +163,31 @@ export default function MovieUpload() {
   const handleMovieUpload = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!movieForm.file || !movieForm.coverFile) {
+      console.log('Missing fields:', { file: movieForm.file, coverFile: movieForm.coverFile });
       const missingFields = [];
-      if (!movieForm.file) missingFields.push(t('uploadForm.videoFileLabel', 'Video File'));
-      if (!movieForm.coverFile) missingFields.push(t('uploadForm.coverImageLabel', 'Cover Image'));
+      if (!movieForm.file) {
+        const box=document.getElementById('upload-video-box');
+        if (box) {
+          box.classList.add('border-red-500');
+          try {
+            box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            (box as HTMLElement).tabIndex = -1;
+            try {
+              (box as HTMLElement).focus({ preventScroll: true });
+            } catch (err) {
+              console.error('Failed to focus upload box', err);
+            }
+
+          } catch (err) {
+            console.error('Failed to focus upload box', err);
+          }
+        }
+      }
+      if (!movieForm.coverFile) {
+        const box = document.getElementById('upload-cover-box');
+        if (box) box.classList.add('border-red-500');
+        missingFields.push(t('uploadForm.coverImageLabel', 'Cover Image'));
+      }
       const errorMessage = t('uploadForm.missingFields', 'Please provide the following:') + ' ' + missingFields.join(', ');
       setUploadProgress({ progress: 0, status: 'error', error: errorMessage });
       return;
@@ -169,6 +198,7 @@ export default function MovieUpload() {
 
     try {
       // If user selected a cover file, upload it first and set coverUrl
+      let coverUrl: string | undefined;
       if (movieForm.coverFile) {
         try {
           setIsUploadingCover(true);
@@ -185,7 +215,8 @@ export default function MovieUpload() {
           });
 
           const imageMeta = await getImageById(init.id, '360');
-          if (imageMeta?.url) setMovieForm(prev => ({ ...prev, coverUrl: imageMeta.url || '' }));
+          if (imageMeta?.url) setMovieForm(prev => ({ ...prev, customCoverUrl: imageMeta.url || '' }));
+          coverUrl = imageMeta?.url;
         } catch (imgErr) {
           console.error('Cover upload failed', imgErr);
         } finally {
@@ -199,8 +230,8 @@ export default function MovieUpload() {
         fileSize: movieForm.file.size,
         description: movieForm.description || undefined,
         coverUrl: movieForm.coverUrl || undefined,
-        customCoverUrl: movieForm.customCoverUrl || undefined,
-        duration: undefined,
+        customCoverUrl: movieForm.customCoverUrl || coverUrl || undefined,
+        duration: movieForm.duration || 30000,
         categoryId: movieForm.categoryId,
         year: movieForm.year,
         region: movieForm.region || undefined,
@@ -239,7 +270,7 @@ export default function MovieUpload() {
 
   const handleUploadMore = () => {
     // Reset form for new upload
-    setMovieForm({ title: '', description: '', file: null, coverUrl: '', coverFile: null, customCoverUrl: '', categoryId: 'movie', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [] });
+    setMovieForm({ title: '', description: '', file: null, coverUrl: '', coverFile: null, customCoverUrl: '', categoryId: 'movie', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], duration: 30000 });
     if (moviePreviewUrl) {
       try { URL.revokeObjectURL(moviePreviewUrl); } catch { }
     }
@@ -265,15 +296,15 @@ export default function MovieUpload() {
       <form onSubmit={handleMovieUpload} className="bg-gray-800 rounded-xl p-8 shadow-2xl">
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File *')}</label>
-          <div className="flex items-center justify-center w-full mb-4">
+          <div  className="flex items-center justify-center w-full mb-4">
             {!moviePreviewUrl ? (
-              <label htmlFor="movie-file-top" className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
+              <label id="upload-video-box" htmlFor="movie-file-top" className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <FiUpload className="w-12 h-12 mb-3 text-gray-400" />
                   <p className="mb-2 text-sm text-gray-400">{movieForm.file ? movieForm.file.name : t('upload.clickOrDrag', 'Click to upload or drag and drop')}</p>
                   <p className="text-xs text-gray-500">{t('upload.fileTypes', 'MP4, MOV, AVI, MKV (MAX. 10GB)')}</p>
                 </div>
-                <input id="movie-file-top" type="file" accept="video/*" onChange={handleFileSelect} className="hidden" ref={fileInputRef} required />
+                <input id="movie-file-top" type="file" accept="video/*" onChange={handleFileSelect} className="visually-hidden opacity-0" ref={fileInputRef} required />
               </label>
             ) : (
               <div className="w-full flex items-center justify-between gap-4">
@@ -282,7 +313,14 @@ export default function MovieUpload() {
                     <button type="button" onClick={clearMovieFile} aria-label="Delete movie file" className="absolute top-2 right-2 z-10 p-2 bg-red-600 rounded-full text-white hover:bg-red-500">
                       <FiX className="w-4 h-4" />
                     </button>
-                    <video src={moviePreviewUrl} controls className="w-full rounded bg-black" />
+                    <video onLoadedData={(e) => {
+                      const video = e.currentTarget;
+                      if (video && video.duration) {
+                        const durationMs = Math.floor(video.duration * 1000);
+                        debugLog('Video duration loaded', { durationMs });
+                        setMovieForm(prev => ({ ...prev, duration: durationMs }));
+                      }
+                    }} src={moviePreviewUrl} controls className="w-full rounded bg-black" />
                   </div>
                 </div>
               </div>
@@ -352,7 +390,7 @@ export default function MovieUpload() {
         <div className="grid grid-cols-1 gap-6 mb-6">
           <label className="block text-sm font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover Image')}</label>
           <div className="flex items-center gap-4">
-            <input type="file" accept="image/*" id="movie-cover-file" onChange={handleCoverFileSelect} className="hidden" />
+            <input type="file" accept="image/*" id="movie-cover-file" onChange={handleCoverFileSelect} className="visually-hidden opacity-0 absolute" required />
             <label htmlFor="movie-cover-file" className="px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer text-white">Choose Image</label>
             {movieCoverPreviewUrl ? (
               <div className="flex items-center gap-3">
@@ -368,17 +406,17 @@ export default function MovieUpload() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           <div>
             <label className="block text-sm font-medium mb-2">{t('upload.director', 'Director')}</label>
-            <input type="text" value={movieForm.director} onChange={(e) => setMovieForm(prev => ({ ...prev, director: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Director name" />
+            <input required type="text" value={movieForm.director} onChange={(e) => setMovieForm(prev => ({ ...prev, director: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Director name" />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">{t('upload.actors', 'Actors')}</label>
-            <input type="text" value={movieForm.actors} onChange={(e) => setMovieForm(prev => ({ ...prev, actors: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Actor1, Actor2, Actor3" />
+            <input required type="text" value={movieForm.actors} onChange={(e) => setMovieForm(prev => ({ ...prev, actors: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Actor1, Actor2, Actor3" />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">{t('upload.rating', 'Rating')}</label>
-            <input type="number" min="0" max="10" step="0.1" value={movieForm.rating} onChange={(e) => setMovieForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="8.5" />
+            <input required type="number" min="0" max="10" step="0.1" value={movieForm.rating} onChange={(e) => setMovieForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="8.5" />
           </div>
         </div>
 
@@ -413,6 +451,7 @@ export default function MovieUpload() {
             selectedTags={movieForm.tags}
             onTagsChange={handleTagsChange}
             placeholder={t('upload.searchTags', 'Search and select tags...')}
+            required
           />
         </div>
 

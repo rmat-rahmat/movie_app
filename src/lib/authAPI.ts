@@ -30,6 +30,7 @@ type LoginUserVo = {
   token?: string;
   refreshToken?: string;
   [key: string]: unknown;
+  userType?: string;
 };
 
 type StandardResponse<T> = {
@@ -344,7 +345,7 @@ export async function refreshToken(): Promise<AuthResponse> {
   try {
     const res = await axios.post<StandardResponse<{ token: string; refreshToken: string }>>(url, '', {
       headers: {
-        'Authorization': currentToken,
+        'Authorization': `Bearer ${currentToken}`,
         'refreshToken': currentRefreshToken,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -370,7 +371,7 @@ export async function refreshToken(): Promise<AuthResponse> {
     return { token: newToken, refreshToken: newRefreshToken, user };
   } catch (err: unknown) {
     // Clear tokens on refresh failure
-    clearAllTokensFromStorage();
+    // clearAllTokensFromStorage();
     setAuthHeader(null);
     const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
     throw new Error(tr('auth.error.refresh_failed', `Token refresh failed: ${message}`));

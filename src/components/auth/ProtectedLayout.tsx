@@ -26,7 +26,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         .slice(0, 2)
         .toUpperCase();
     const avatarRaw = user && (user.avatar || user.avatarUrl || user.photoUrl || user.picture || null);
-    console.log('User:', user);
+    // console.log('User:', user);
     // Only accept string avatar URLs for next/image. If not a string, fall back to initials avatar.
     const avatarUrl = typeof avatarRaw === 'string' ? avatarRaw : null;
 
@@ -71,14 +71,14 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                         </Suspense>
                     </div>
                     <ul className="hidden md:flex gap-1 items-center">
-                        <li>
+                       {user && user.userType==1 &&  <li>
                             <Link href="/upload" className="text-gray-200 hover:underline">
                                 <p className="flex items-center rounded-lg block py-2 px-4 mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] transform transition-transform duration-200 hover:scale-105">
                                     <FiUpload className="h-5 w-6 mb-1" />
                                     {t('navigation.upload')}
                                 </p>
                             </Link>
-                        </li>
+                        </li>}
                         <li>
                             <Link href="/profile" className="text-gray-200 ">
                                 <div className="flex items-center py-2 px-4 mb-2 transform transition-transform duration-200 hover:scale-105">
@@ -114,10 +114,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                         <FiVideo className="h-6 w-6 mb-1" />
                         <span className="text-xs">{t('navigation.short')}</span>
                     </Link>
-                    <Link href="/upload" className="flex-1 flex flex-col items-center py-2 text-[#fbb033] hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
-                        <FiUpload className="h-8 w-8 mb-1" />
-                        <span className="text-xs">{t('navigation.upload')}</span>
-                    </Link>
+                {user && user.userType==1 && <Link href="/upload" className="flex-1 flex flex-col items-center py-2 text-[#fbb033] hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
+                    <FiUpload className="h-8 w-8 mb-1" />
+                    <span className="text-xs">{t('navigation.upload')}</span>
+                </Link>}
                     <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
                         <FiLogIn className="h-6 w-6 mb-1" />
                         <span className="text-xs">{t('navigation.subscribe')}</span>

@@ -1,5 +1,6 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { BASE_URL } from '../config';
+import { withTokenRefresh } from '@/store/authStore';
 
 // Debug logging utility
 const debugLog = (message: string, data?: unknown) => {
@@ -51,7 +52,7 @@ export interface EpisodeCreateRequest {
   seriesId: string;
   title: string;
   description?: string;
-  customCoverUrl?: string;
+  coverUrl?: string;
   episodeNumber: number;
   duration?: number;
 }
@@ -173,7 +174,8 @@ async function apiCall<T>(
       data: body ?? undefined,
     };
 
-    const res: AxiosResponse<StandardResponse<T>> = await axios.request<StandardResponse<T>>(axiosConfig);
+    // Wrap the axios request with token refresh helper so 401 triggers refresh and retry
+    const res: AxiosResponse<StandardResponse<T>> = await withTokenRefresh(() => axios.request<StandardResponse<T>>(axiosConfig));
     debugLog(`Response status: ${res.status}`, { url, ok: res.status >= 200 && res.status < 300 });
 
     const data: StandardResponse<T> = res.data as StandardResponse<T>;

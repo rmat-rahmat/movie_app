@@ -51,8 +51,9 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
       setLoading(true);
       setError(null);
       try {
+        console.log('Fetched content id', video.id);
         const data = await getContentDetail(String(video.id));
-        console.log('Fetched content detail', data);
+        console.log('Fetched content detail', data);  
         if (!mounted) return;
         if (data) {
           // merge fetched data into existing detail to fill missing keys
@@ -92,6 +93,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
     const id = uploadId || (isVideoDetails(source) && source.uploadId) || source.id;
     if (!id) return;
     
+    console.log(uploadId)
     // Store video metadata in Zustand store
     const { setVideoFromDetails } = useVideoStore.getState();
     if (isVideoDetails(source)) {
@@ -99,7 +101,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
     }
     
     // push to query-param based player route so static export works
-    router.push(`/videoplayer?id=${encodeURIComponent(String(id))}`);
+    // router.push(`/videoplayer?id=${encodeURIComponent(String(id))}`);
   };
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center">
@@ -274,9 +276,10 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
               </div>
             ) : (
               <div className="mt-4 w-full">
-                <button type="button" onClick={() => navigateToPlayer((isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].uploadId) || (isVideoDetails(source) && source.uploadId) || source.id || '')} className="bg-[#fbb033] text-white font-bold hover:bg-red-500 px-3 py-3 rounded w-full cursor-pointer">
+               {isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].uploadId && 
+                <button type="button" onClick={() => navigateToPlayer((isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].uploadId) || (isVideoDetails(source) && source.uploadId) || '')} className="bg-[#fbb033] text-white font-bold hover:bg-red-500 px-3 py-3 rounded w-full cursor-pointer">
                   {t('modal.watchNow')}
-                </button>
+                </button>}
               </div>
             )}
           </div>

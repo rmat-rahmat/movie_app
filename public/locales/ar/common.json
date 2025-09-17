@@ -187,7 +187,9 @@
       "tagAlreadyExists": "هذا الوسم موجود بالفعل",
       "provideSeriesTitleAndEpisode": "يرجى تقديم عنوان المسلسل وحلقة واحدة على الأقل",
       "provideAtLeastOneEpisodeFile": "يرجى اختيار ملفات الفيديو لحلقة واحدة على الأقل",
-      "seriesUploadFailed": "فشل رفع المسلسل"
+      "seriesUploadFailed": "فشل رفع المسلسل",
+      "unsupportedPreviewNote": "This file will be uploaded normally but this file type cannot be previewed in the browser",
+      "unsupportedFormatMessage": "التنسيق غير مدعوم من قبل هذا المتصفح وغير متاح للمعاينة."
     },
     "settings": {
       "title": "الإعدادات",

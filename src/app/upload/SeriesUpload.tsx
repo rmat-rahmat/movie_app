@@ -6,6 +6,7 @@ import { FiUpload, FiX, FiPlus, FiTrash2 } from 'react-icons/fi';
 import { createSeries, createEpisode, initializeEpisodeUpload, uploadFile, initializeImageUpload, getImageById, type SeriesCreateRequest, type EpisodeCreateRequest, type EpisodeUploadRequest } from '@/lib/uploadAPI';
 import UploadSuccessModal from '@/components/ui/UploadSuccessModal';
 import TagSelector from '@/components/ui/TagSelector';
+import VideoPlayer from '@/components/ui/VideoPlayer';
 import { getCachedCategories, type CategoryItem } from '@/lib/movieApi';
 
 interface Episode {
@@ -28,6 +29,7 @@ export default function SeriesUpload() {
   const [episodePreviewUrlList, setEpisodePreviewUrlList] = useState<string[]>([]);
   const [seriesPreviewIndex, setSeriesPreviewIndex] = useState<number>(0);
   const [seriesCoverPreviewUrl, setSeriesCoverPreviewUrl] = useState<string | null>(null);
+  const [unsupportedFormatsMsg, setUnsupportedFormatsMsg] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ progress: 0, status: 'idle' as 'idle' | 'uploading' | 'success' | 'error', error: '' });
@@ -83,6 +85,34 @@ export default function SeriesUpload() {
     const files = event.target.files;
     if (!files?.length) return;
     const file = files[0];
+
+    // Check for unsupported formats
+    const fileName = file.name.toLowerCase();
+    const unsupportedFormats = ['.flv', '.avi', '.wmv'];
+    const isUnsupported = unsupportedFormats.some(format => fileName.endsWith(format));
+
+    if (isUnsupported) {
+      const format = fileName.split('.').pop()?.toUpperCase();
+      // Set episode-level unsupported format message (do not alert)
+      setUnsupportedFormatsMsg(prev => ({ ...prev, [episodeIndex]: `${format} format is not supported by this browser and is unavailable for preview.` }));
+      // Clear any existing selection for this episode
+      setSeriesForm(prev => ({
+        ...prev, episodes: prev.episodes.map((ep, idx) => {
+          if (idx !== episodeIndex) return ep;
+          const { duration, ...rest } = ep;
+          return { ...rest };
+        })
+      }));
+
+    } else {
+      // Clear any previous unsupported-format message for this episode
+      setUnsupportedFormatsMsg(prev => {
+        const copy = { ...prev };
+        delete copy[episodeIndex];
+        return copy;
+      });
+    }
+
     setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === episodeIndex ? { ...ep, file } : ep) }));
     try {
       const url = URL.createObjectURL(file);
@@ -208,7 +238,7 @@ export default function SeriesUpload() {
         } finally {
           setIsUploadingCover(false);
         }
-        
+
       }
       console.log('Cover URL after upload:', coverUrl);
       console.log('Final series form before submission', seriesForm);
@@ -245,7 +275,7 @@ export default function SeriesUpload() {
           seriesId,
           title: episode.title,
           description: episode.description || undefined,
-          coverUrl: episode.customCoverUrl || coverUrl|| undefined,
+          coverUrl: episode.customCoverUrl || coverUrl || undefined,
           episodeNumber: episode.number,
           duration: episode.duration || 30000
         };
@@ -254,11 +284,16 @@ export default function SeriesUpload() {
         currentProgress += progressPerEpisode * 0.2;
         setUploadProgress(prev => ({ ...prev, progress: currentProgress }));
 
+
+        const chunkSize = 8 * 1024 * 1024; // 8MB chunks
+        const totalChunks = Math.ceil(episode.file!.size / chunkSize);
+
         const uploadRequest: EpisodeUploadRequest = {
           seriesId,
           episodeNumber: episode.number,
           fileName: episode.file!.name,
-          fileSize: episode.file!.size
+          fileSize: episode.file!.size,
+          totalParts: totalChunks
         };
 
         const uploadCredential = await initializeEpisodeUpload(uploadRequest);
@@ -390,7 +425,7 @@ export default function SeriesUpload() {
         <div className="grid grid-cols-1 gap-6 mb-6">
           <label className="block text-sm font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover Image')}</label>
           <div className="flex items-center gap-4">
-            <input type="file" accept="image/*" id="series-cover-file" onChange={handleCoverFileSelect} className="visually-hidden opacity-0 absolute" required/>
+            <input type="file" accept="image/*" id="series-cover-file" onChange={handleCoverFileSelect} className="visually-hidden opacity-0 absolute" required />
             <label htmlFor="series-cover-file" className="px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer text-white">{t('uploadForm.selectCoverFile', 'Choose Image')}</label>
             {seriesCoverPreviewUrl ? (
               <div className="flex items-center gap-3">
@@ -482,48 +517,68 @@ export default function SeriesUpload() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <div className='mb-4'> 
-                  <label className="block text-sm font-medium mb-2">{t('upload.episodeTitle', 'Episode Title')}</label>
-                  <input
-                    type="text"
-                    required
-                    value={episode.title}
-                    onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, title: e.target.value } : ep) }))}
-                    className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
-                    placeholder={`Episode ${episode.number} title`}
-                  />
+                  <div className='mb-4'>
+                    <label className="block text-sm font-medium mb-2">{t('upload.episodeTitle', 'Episode Title')}</label>
+                    <input
+                      type="text"
+                      required
+                      value={episode.title}
+                      onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, title: e.target.value } : ep) }))}
+                      className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+                      placeholder={`Episode ${episode.number} title`}
+                    />
                   </div>
-                   <div>
-                  <label className="block text-sm font-medium mb-2">{t('upload.episodeDuration', 'Episode Duration')}</label>
-                  <input
-                    type="number"
-                    required
-                    value={episode.duration|| ''}
-                    onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, duration: parseInt(e.target.value) || 0 } : ep) }))}
-                    className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
-                    placeholder={`Episode ${episode.number} duration`}
-                  />
+                  <div>
+                    <label className="block text-sm font-medium mb-2">{t('upload.episodeDuration', 'Episode Duration')}</label>
+                    <input
+                      type="number"
+                      required
+                      value={episode.duration || ''}
+                      onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, duration: parseInt(e.target.value) || 0 } : ep) }))}
+                      className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+                      placeholder={`Episode ${episode.number} duration`}
+                    />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File')}</label>
-                  {!episode.file  ? (
-                      <>
-                        <input type="file" accept="video/*" onChange={(e) => handleFileSelect(e, index)} className="visually-hidden opacity-0 absolute" ref={index === 0 ? fileInputRef : undefined} id={`episode-file-${index}`} required/>
-                        <label htmlFor={`episode-file-${index}`} className="flex-1 flex items-center justify-center px-3 py-2 bg-gray-500 border border-gray-400 rounded cursor-pointer hover:bg-gray-400 transition-colors">
-                          <FiUpload className="mr-2" />
-                          {t('upload.selectVideoFile', 'Select video file')}
-                        </label>
-                      </>
-                    ) : (
-                      <div className="flex-1 flex items-center justify-between gap-4 relative">
-                        <video onLoadedData={(e) => handleVideoLoad(e, index)} src={episodePreviewUrlList[index] as string} controls className="w-full rounded bg-black" />
-                        <button type="button" onClick={() => clearEpisodeFile(index)} className="cursor-pointer p-2 bg-red-600/50 rounded-full text-white hover:bg-red-500 absolute top-2 right-2 z-10 cursor-pointer">
-                          <FiX className="w-4 h-4" />
-                        </button>
-                      </div>
-                    )}
+                  {!episode.file ? (
+                    <>
+                      <input type="file" accept="video/*,video/x-flv,video/x-matroska,video/x-msvideo,video/x-ms-wmv,.flv,.mkv,.avi,.wmv" onChange={(e) => handleFileSelect(e, index)} className="visually-hidden opacity-0 absolute" ref={index === 0 ? fileInputRef : undefined} id={`episode-file-${index}`} required />
+                      <label htmlFor={`episode-file-${index}`} className="flex-1 flex items-center justify-center px-3 py-2 bg-gray-500 border border-gray-400 rounded cursor-pointer hover:bg-gray-400 transition-colors">
+                        <FiUpload className="mr-2" />
+                        {t('upload.selectVideoFile', 'Select video file')}
+                      </label>
+                    </>
+                  ) : (
+
+                    <div className="flex-1 flex items-center justify-between gap-4 relative">
+                      {unsupportedFormatsMsg[index] ? (
+                        <div className="mt-3 mr-3 p-3 bg-yellow-800 text-yellow-100 rounded">
+                          <strong>{unsupportedFormatsMsg[index]}</strong>
+                          <div className="text-sm mt-1">{t('uploadForm.unsupportedPreviewNote', 'This file will be uploaded normally but this file type cannot be previewed in the browser.')}</div>
+                        </div>
+                      ) :
+                        <VideoPlayer
+                          src={episodePreviewUrlList[index] as string}
+                          onDuration={(durationMs) => {
+                            console.log('Detected video duration (ms):', durationMs);
+                            setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, duration: durationMs } : ep) }));
+                          }}
+                          className="w-full rounded bg-black"
+                          onError={(error) => {
+                            console.error('Video player error:', error);
+                          }}
+                        />}
+                      <button type="button" onClick={() => clearEpisodeFile(index)} className="cursor-pointer p-2 bg-red-600/50 rounded-full text-white hover:bg-red-500 absolute top-2 right-2 z-10 cursor-pointer">
+                        <FiX className="w-4 h-4" />
+                      </button>
+
+                    </div>
+                  )}
+                  {/* Unsupported format message box */}
+
                 </div>
               </div>
 

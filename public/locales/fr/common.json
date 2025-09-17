@@ -187,7 +187,9 @@
       "tagAlreadyExists": "Ce tag existe déjà",
       "provideSeriesTitleAndEpisode": "Veuillez fournir le titre de la série et au moins un épisode",
       "provideAtLeastOneEpisodeFile": "Veuillez sélectionner des fichiers vidéo pour au moins un épisode",
-      "seriesUploadFailed": "Échec du téléversement de la série"
+      "seriesUploadFailed": "Échec du téléversement de la série",
+      "unsupportedPreviewNote": "This file will be uploaded normally but this file type cannot be previewed in the browser",
+      "unsupportedFormatMessage": "Ce format n'est pas pris en charge par ce navigateur, aperçu non disponible"
     },
     "settings": {
       "title": "Paramètres",

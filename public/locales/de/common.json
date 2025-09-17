@@ -6,7 +6,8 @@
       "profile": "Profil",
       "brand": "OTalk TV",
       "upload": "Hochladen",
-      "short": "Kurz",
+      "search": "Suchen",
+      "sort": "Kurz",
       "subscribe": "Abonnieren",
       "openMenu": "Menü öffnen",
       "categories": "Kategorien",
@@ -187,7 +188,9 @@
       "tagAlreadyExists": "Dieser Tag existiert bereits",
       "provideSeriesTitleAndEpisode": "Bitte geben Sie den Serientitel und mindestens eine Episode an",
       "provideAtLeastOneEpisodeFile": "Bitte wählen Sie Videodateien für mindestens eine Episode aus",
-      "seriesUploadFailed": "Serien-Upload fehlgeschlagen"
+      "seriesUploadFailed": "Serien-Upload fehlgeschlagen",
+      "unsupportedPreviewNote": "This file will be uploaded normally but this file type cannot be previewed in the browser",
+      "unsupportedFormatMessage": "Dieses Format wird von diesem Browser nicht unterstützt, Vorschau nicht verfügbar"
     },
     "settings": {
       "title": "Einstellungen",

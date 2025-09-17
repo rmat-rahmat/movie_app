@@ -13,6 +13,8 @@
     "generate:icons": "node scripts/generate-favicon.js && node scripts/generate-social-images.js"
   },
   "dependencies": {
+    "@ffmpeg/core": "^0.12.10",
+    "@ffmpeg/ffmpeg": "^0.12.15",
     "@types/hls.js": "^1.0.0",
     "@use-gesture/react": "^10.3.1",
     "axios": "^1.11.0",
@@ -24,6 +26,7 @@
     "react-dom": "19.1.0",
     "react-i18next": "^15.6.1",
     "react-icons": "^5.5.0",
+    "react-player": "^3.3.2",
     "xml2js": "^0.6.2",
     "zustand": "^5.0.8"
   },

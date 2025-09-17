@@ -187,7 +187,9 @@
       "tagAlreadyExists": "Teg ini sudah wujud",
       "provideSeriesTitleAndEpisode": "Sila berikan tajuk siri dan sekurang-kurangnya satu episod",
       "provideAtLeastOneEpisodeFile": "Sila pilih fail video untuk sekurang-kurangnya satu episod",
-      "seriesUploadFailed": "Muat naik siri gagal"
+      "seriesUploadFailed": "Muat naik siri gagal",
+      "unsupportedPreviewNote": "This file will be uploaded normally but this file type cannot be previewed in the browser",
+      "unsupportedFormatMessage": "Format ini tidak disokong oleh pelayar ini, pratonton tidak tersedia"
     },
     "settings": {
       "title": "Tetapan",

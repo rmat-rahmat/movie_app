@@ -187,7 +187,9 @@
       "tagAlreadyExists": "Этот тег уже существует",
       "provideSeriesTitleAndEpisode": "Пожалуйста, укажите название сериала и как минимум один эпизод",
       "provideAtLeastOneEpisodeFile": "Пожалуйста, выберите виде файлы хотя бы для одного эпизода",
-      "seriesUploadFailed": "Не удалось загрузить сериал"
+      "seriesUploadFailed": "Не удалось загрузить сериал",
+      "unsupportedPreviewNote": "This file will be uploaded normally but this file type cannot be previewed in the browser",
+      "unsupportedFormatMessage": "Этот формат не поддерживается данным браузером, предварительный просмотр недоступен"
     },
     "settings": {
       "title": "Настройки",

@@ -13,6 +13,7 @@ import {
 } from '@/lib/uploadAPI';
 import UploadSuccessModal from '@/components/ui/UploadSuccessModal';
 import TagSelector from '@/components/ui/TagSelector';
+import VideoPlayer from '@/components/ui/VideoPlayer';
 import { getCachedCategories, type CategoryItem } from '@/lib/movieApi';
 
 const debugLog = (message: string, data?: unknown) => {
@@ -24,6 +25,7 @@ export default function MovieUpload() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [moviePreviewUrl, setMoviePreviewUrl] = useState<string | null>(null);
   const [movieCoverPreviewUrl, setMovieCoverPreviewUrl] = useState<string | null>(null);
+  const [unsupportedFormatMsg, setUnsupportedFormatMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ progress: 0, status: 'idle' as 'idle' | 'uploading' | 'success' | 'error', error: '' });
@@ -101,6 +103,27 @@ export default function MovieUpload() {
     if (!files?.length) return;
     const file = files[0];
     debugLog('File selected', { name: file.name, size: file.size });
+    // Check for unsupported formats (keep UI message box, no alerts)
+    const fileName = file.name.toLowerCase();
+    const unsupportedFormats = ['.flv', '.avi', '.wmv'];
+    const isUnsupported = unsupportedFormats.some(format => fileName.endsWith(format));
+
+    if (isUnsupported) {
+      const format = fileName.split('.').pop()?.toUpperCase();
+      setUnsupportedFormatMsg(t('unsupportedFormatMessage', `${format} format is not supported by this browser and is unavailable for preview.`));
+      // Clear any existing selection
+      // remove duration key from form state
+      setMovieForm(prev => {
+        const { duration, ...rest } = prev;
+        return rest as typeof prev;
+      });
+    }
+    else {
+      setUnsupportedFormatMsg(null);
+    }
+
+    // Clear any previous unsupported-format message
+
     setMovieForm(prev => ({ ...prev, file }));
     try {
       const url = URL.createObjectURL(file);
@@ -138,7 +161,7 @@ export default function MovieUpload() {
         <div className="w-full bg-gray-700 rounded-full h-2">
           <div
             className={`h-2 rounded-full transition-all duration-300 ${uploadProgress.status === 'success' ? 'bg-green-500' :
-                uploadProgress.status === 'error' ? 'bg-red-500' : 'bg-[#fbb033]'
+              uploadProgress.status === 'error' ? 'bg-red-500' : 'bg-[#fbb033]'
               }`}
             style={{ width: `${uploadProgress.progress}%` }}
           />
@@ -167,7 +190,7 @@ export default function MovieUpload() {
       console.log('Missing fields:', { file: movieForm.file, coverFile: movieForm.coverFile });
       const missingFields = [];
       if (!movieForm.file) {
-        const box=document.getElementById('upload-video-box');
+        const box = document.getElementById('upload-video-box');
         if (box) {
           box.classList.add('border-red-500');
           try {
@@ -225,6 +248,9 @@ export default function MovieUpload() {
         }
       }
 
+      const chunkSize = 8 * 1024 * 1024; // 8MB chunks
+      const totalChunks = Math.ceil(movieForm.file.size / chunkSize);
+
       const movieRequest: MovieUploadRequest = {
         title: movieForm.title,
         fileName: movieForm.file.name,
@@ -240,7 +266,8 @@ export default function MovieUpload() {
         director: movieForm.director || undefined,
         actors: movieForm.actors || undefined,
         rating: movieForm.rating || undefined,
-        tags: movieForm.tags.length > 0 ? movieForm.tags : undefined
+        tags: movieForm.tags.length > 0 ? movieForm.tags : undefined,
+        totalParts: totalChunks
       };
 
       debugLog('Creating movie upload credential', movieRequest);
@@ -297,35 +324,58 @@ export default function MovieUpload() {
       <form onSubmit={handleMovieUpload} className="bg-gray-800 rounded-xl p-8 shadow-2xl">
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File *')}</label>
-          <div  className="flex items-center justify-center w-full mb-4">
+          <div className="flex items-center justify-center w-full mb-4">
             {!moviePreviewUrl ? (
+
               <label id="upload-video-box" htmlFor="movie-file-top" className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <FiUpload className="w-12 h-12 mb-3 text-gray-400" />
                   <p className="mb-2 text-sm text-gray-400">{movieForm.file ? movieForm.file.name : t('upload.clickOrDrag', 'Click to upload or drag and drop')}</p>
                   <p className="text-xs text-gray-500">{t('upload.fileTypes', 'MP4, MOV, AVI, MKV (MAX. 10GB)')}</p>
                 </div>
-                <input id="movie-file-top" type="file" accept="video/*" onChange={handleFileSelect} className="visually-hidden opacity-0" ref={fileInputRef} required />
+                <input
+                  id="movie-file-top"
+                  type="file"
+                  accept="video/*,video/x-flv,video/x-matroska,.flv,.mkv"
+                  onChange={handleFileSelect}
+                  className="visually-hidden opacity-0"
+                  ref={fileInputRef}
+                  required
+                />
               </label>
-            ) : (
-              <div className="w-full flex items-center justify-between gap-4">
-                <div className="flex-1">
-                  <div className="relative">
-                    <button type="button" onClick={clearMovieFile} aria-label="Delete movie file" className="absolute top-2 right-2 z-10 p-2 bg-red-600/50 rounded-full text-white hover:bg-red-500 cursor-pointer">
-                      <FiX className="w-4 h-4" />
-                    </button>
-                    <video onLoadedData={(e) => {
-                      const video = e.currentTarget;
-                      if (video && video.duration) {
-                        const durationMs = Math.floor(video.duration * 1000);
-                        debugLog('Video duration loaded', { durationMs });
-                        setMovieForm(prev => ({ ...prev, duration: durationMs }));
+            )
+              : (
+                <div className="w-full flex items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      {
+                        unsupportedFormatMsg ? (
+                          <div className="mt-3  p-3 bg-yellow-800 text-yellow-100 rounded">
+                            <strong>{unsupportedFormatMsg}</strong>
+                            <div className="text-sm mt-1">{t('uploadForm.unsupportedPreviewNote', 'This file will be uploaded normally but this file type cannot be previewed in the browser.')}</div>
+                          </div>
+                        ) : (
+                          <VideoPlayer
+                            src={moviePreviewUrl}
+                            onDuration={(durationMs) => {
+                              debugLog('Video duration loaded', { durationMs });
+                              setMovieForm(prev => ({ ...prev, duration: durationMs }));
+                            }}
+                            className="w-full rounded bg-black"
+                            onError={(error) => {
+                              console.error('Video player error:', error);
+                            }}
+                          />
+                        )
                       }
-                    }} src={moviePreviewUrl} controls className="w-full rounded bg-black" />
+                      <button type="button" onClick={clearMovieFile} aria-label="Delete movie file" className="absolute top-2 right-2 z-10 p-2 bg-red-600/50 rounded-full text-white hover:bg-red-500 cursor-pointer">
+                        <FiX className="w-4 h-4" />
+                      </button>
+
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         </div>
 

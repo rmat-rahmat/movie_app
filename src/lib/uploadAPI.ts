@@ -24,6 +24,7 @@ export interface MovieUploadRequest {
   actors?: string;
   rating?: number;
   tags?: string[];
+  totalParts: number;
 }
 
 export interface UploadCredential {
@@ -62,6 +63,8 @@ export interface EpisodeUploadRequest {
   episodeNumber: number;
   fileName: string;
   fileSize: number;
+  totalParts: number;
+
 }
 
 // Upload Part Types

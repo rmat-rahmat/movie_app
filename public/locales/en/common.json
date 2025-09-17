@@ -187,7 +187,9 @@
       "tagAlreadyExists": "This tag already exists",
       "provideSeriesTitleAndEpisode": "Please provide series title and at least one episode",
       "provideAtLeastOneEpisodeFile": "Please select video files for at least one episode",
-      "seriesUploadFailed": "Series upload failed"
+      "seriesUploadFailed": "Series upload failed",
+      "unsupportedPreviewNote": "This file will be uploaded normally but this file type cannot be previewed in the browser",
+      "unsupportedFormatMessage": "format is not supported by this browser and is unavailable for preview"
     },
     "settings": {
       "title": "Settings",

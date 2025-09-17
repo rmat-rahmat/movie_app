@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'next/navigation';
 import { FiPlay } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
+import VideoPlayer from '@/components/ui/VideoPlayer';
 
 interface VideoPlayerClientProps {
   id?: string;

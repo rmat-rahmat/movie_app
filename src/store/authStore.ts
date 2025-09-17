@@ -168,7 +168,6 @@ export const useAuthStore = create<AuthState>()(
             console.log('[authStore] state after checkAuth (logged in)');
           } else {
             console.log('[authStore] checkAuth failed, attempting token refresh');
-            alert("Check Auth Failed, attempting token refresh");
             await get().refreshAuthToken();
             const retryResponse = await apiIsLogin(); // Retry the authentication check after refreshing the token
             if (retryResponse) {

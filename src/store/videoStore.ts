@@ -37,6 +37,7 @@ interface VideoStore {
   clearCurrentVideo: () => void;
   // Helper to set video from VideoDetails
   setVideoFromDetails: (details: VideoDetails, episodeUploadId?: string) => void;
+  setCurrentEpisode: (uploadID: string) => void;
 }
 
 export const useVideoStore = create<VideoStore>()(
@@ -45,6 +46,32 @@ export const useVideoStore = create<VideoStore>()(
       currentVideo: null,
       
       setCurrentVideo: (video) => set({ currentVideo: video }),
+
+      setCurrentEpisode: (uploadID) => {
+        set((state) => {
+          if (!state.currentVideo) return state;
+          const currentVideo = state.currentVideo;
+          if (!currentVideo.episodes || currentVideo.episodes.length === 0) return state;
+          
+          const episode = currentVideo.episodes.find(ep => 
+            ep.uploadId === uploadID || ep.id === uploadID
+          );
+          if (!episode) return state;
+
+          return {
+            ...state,
+            currentVideo: {
+              ...currentVideo,
+              currentEpisode: {
+                episodeNumber: episode.episodeNumber,
+                episodeTitle: episode.title,
+                duration: episode.duration,
+                uploadId: episode.uploadId || episode.id,
+              },
+            },
+          };
+        });
+      },
       
       clearCurrentVideo: () => set({ currentVideo: null }),
       

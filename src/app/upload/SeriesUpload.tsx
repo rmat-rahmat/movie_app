@@ -198,10 +198,10 @@ export default function SeriesUpload() {
           });
 
           // After upload, the backend should have an image id in init.id; retrieve full metadata
-          const imageMeta = await getImageById(init.id, '360');
-          if (imageMeta?.url) {
-            setSeriesForm(prev => ({ ...prev, customCoverUrl: imageMeta.url || '' }));
-            coverUrl = imageMeta.url;
+          // const imageMeta = await getImageById(init.id, '360');
+          if (init?.id) {
+            setSeriesForm(prev => ({ ...prev, customCoverUrl: init.id || '' }));
+            coverUrl = init.id;
           }
         } catch (imgErr) {
           console.error('Cover upload failed', imgErr);
@@ -327,14 +327,14 @@ export default function SeriesUpload() {
       />
       <form onSubmit={handleSeriesUpload} className="bg-gray-800 rounded-xl p-8 shadow-2xl">
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">{t('uploadForm.titlePlaceholder', 'Title *')}</label>
+          <label className="block text-sm font-medium mb-2">{t('uploadForm.seriesTitlePlaceholder', t('uploadForm.titlePlaceholder', 'Title *'))}</label>
           <input
             type="text"
             required
             value={seriesForm.title}
             onChange={(e) => setSeriesForm(prev => ({ ...prev, title: e.target.value }))}
             className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
-            placeholder={t('uploadForm.titlePlaceholder', 'Enter series title')}
+            placeholder={t('uploadForm.seriesTitlePlaceholder', 'Enter series title')}
           />
         </div>
 
@@ -361,15 +361,30 @@ export default function SeriesUpload() {
             onChange={(e) => setSeriesForm((prev) => ({ ...prev, categoryId: e.target.value }))}
             className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
           >
-            <option value="" disabled>
+            <option value="" >
               {t('uploadForm.selectCategoryPlaceholder', 'Select category')}
             </option>
-            <option value="series">{t('uploadForm.defaultCategorySeries', 'Series')}</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.categoryName || category.categoryAlias || category.id}
-              </option>
-            ))}
+            {categories.map((category) => {
+              // If category has children, render as an optgroup (parent not selectable)
+              if (category.children && category.children.length > 0) {
+                return (
+                  <optgroup key={category.id} label={category.categoryName || category.categoryAlias || category.id}>
+                    {category.children.map((child) => (
+                      <option key={child.id} value={child.id}>
+                        {child.categoryName || child.categoryAlias || child.id}
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              }
+
+              // No children - render as a normal selectable option
+              return (
+                <option key={category.id} value={category.id}>
+                  {category.categoryName || category.categoryAlias || category.id}
+                </option>
+              );
+            })}
           </select>
         </div>
         <div className="grid grid-cols-1 gap-6 mb-6">
@@ -404,9 +419,9 @@ export default function SeriesUpload() {
             <input
               type="number"
               required
-              min="0"
+              min="1"
               max="10"
-              step="0.1"
+              step="1"
               value={seriesForm.rating}
               onChange={(e) => setSeriesForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
@@ -502,9 +517,11 @@ export default function SeriesUpload() {
                         </label>
                       </>
                     ) : (
-                      <div className="flex-1 flex items-center justify-between gap-4">
+                      <div className="flex-1 flex items-center justify-between gap-4 relative">
                         <video onLoadedData={(e) => handleVideoLoad(e, index)} src={episodePreviewUrlList[index] as string} controls className="w-full rounded bg-black" />
-                        <button type="button" onClick={() => clearEpisodeFile(index)} className="ml-4 cursor-pointer px-3 py-2 bg-red-600 rounded text-white hover:bg-red-500">{t('common.delete', 'Delete')}</button>
+                        <button type="button" onClick={() => clearEpisodeFile(index)} className="cursor-pointer p-2 bg-red-600/50 rounded-full text-white hover:bg-red-500 absolute top-2 right-2 z-10 cursor-pointer">
+                          <FiX className="w-4 h-4" />
+                        </button>
                       </div>
                     )}
                 </div>

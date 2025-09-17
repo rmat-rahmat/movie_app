@@ -52,6 +52,7 @@ export default function MovieUpload() {
   useEffect(() => {
     const cachedCategories = getCachedCategories();
     if (cachedCategories) {
+      console.log('Loaded cached categories', JSON.stringify(cachedCategories, null, 2));
       setCategories(cachedCategories);
     }
   }, []);
@@ -214,9 +215,9 @@ export default function MovieUpload() {
             // optional: integrate into uploadProgress
           });
 
-          const imageMeta = await getImageById(init.id, '360');
-          if (imageMeta?.url) setMovieForm(prev => ({ ...prev, customCoverUrl: imageMeta.url || '' }));
-          coverUrl = imageMeta?.url;
+          // const imageMeta = await getImageById(init.id, '360');
+          if (init?.id) setMovieForm(prev => ({ ...prev, customCoverUrl: init?.id || '' }));
+          coverUrl = init?.id;
         } catch (imgErr) {
           console.error('Cover upload failed', imgErr);
         } finally {
@@ -310,7 +311,7 @@ export default function MovieUpload() {
               <div className="w-full flex items-center justify-between gap-4">
                 <div className="flex-1">
                   <div className="relative">
-                    <button type="button" onClick={clearMovieFile} aria-label="Delete movie file" className="absolute top-2 right-2 z-10 p-2 bg-red-600 rounded-full text-white hover:bg-red-500">
+                    <button type="button" onClick={clearMovieFile} aria-label="Delete movie file" className="absolute top-2 right-2 z-10 p-2 bg-red-600/50 rounded-full text-white hover:bg-red-500 cursor-pointer">
                       <FiX className="w-4 h-4" />
                     </button>
                     <video onLoadedData={(e) => {
@@ -378,13 +379,28 @@ export default function MovieUpload() {
             onChange={(e) => setMovieForm((prev) => ({ ...prev, categoryId: e.target.value }))}
             className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
           >
-            <option value="">{t('uploadForm.selectCategory', 'Please select')}</option>
-            <option value="movie">{t('uploadForm.defaultCategoryMovie', 'Movie')}</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.categoryName || category.categoryAlias || category.id}
-              </option>
-            ))}
+            <option value="" >{t('uploadForm.selectCategory', 'Please select')}</option>
+            {categories.map((category) => {
+              // If category has children, render as an optgroup (parent not selectable)
+              if (category.children && category.children.length > 0) {
+                return (
+                  <optgroup key={category.id} label={category.categoryName || category.categoryAlias || category.id}>
+                    {category.children.map((child) => (
+                      <option key={child.id} value={child.id}>
+                        {child.categoryName || child.categoryAlias || child.id}
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              }
+
+              // No children - render as a normal selectable option
+              return (
+                <option key={category.id} value={category.id}>
+                  {category.categoryName || category.categoryAlias || category.id}
+                </option>
+              );
+            })}
           </select>
         </div>
         <div className="grid grid-cols-1 gap-6 mb-6">
@@ -416,7 +432,7 @@ export default function MovieUpload() {
 
           <div>
             <label className="block text-sm font-medium mb-2">{t('upload.rating', 'Rating')}</label>
-            <input required type="number" min="0" max="10" step="0.1" value={movieForm.rating} onChange={(e) => setMovieForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="8.5" />
+            <input required type="number" min="1" max="10" step="1" value={movieForm.rating} onChange={(e) => setMovieForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="8.5" />
           </div>
         </div>
 

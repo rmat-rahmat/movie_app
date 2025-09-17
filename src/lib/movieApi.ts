@@ -4,6 +4,7 @@ import axios from 'axios';
 import { BASE_URL } from '../config';
 import type { VideoSrc } from "@/types/VideoSrc";
 import type { DashboardApiResponse, DashboardItem, CategoryItem, VideosApiResponse, SearchApiResponse } from '@/types/Dashboard';
+import { parseJsonFile } from "next/dist/build/load-jsconfig";
 
 // Build hierarchical category tree from flat list (parents contain `children` array)
 function buildCategoryTree(flat: CategoryItem[] = []): CategoryItem[] {
@@ -469,8 +470,16 @@ export async function getPlaybackUrl(uploadId: string, quality: '360p' | '720p' 
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
     }
+    // console.log(response)
     const text = await response.text();
-    console.log('getPlaybackUrl -> fetched URL:', url, 'response length:', text.length);
+    try {
+      const parsed = await JSON.parse(text);
+      console.log('getPlaybackUrl -> parsed JSON response:', parsed);
+      return null;
+    } catch (parseErr) {
+      // console.error('Failed to parse JSON:', parseErr);
+    }
+    console.log('getPlaybackUrl -> fetched URL:', url, 'response length:', text);
     return text;
   } catch (err) {
     console.error('Failed to fetch playback URL for', uploadId, quality, err);

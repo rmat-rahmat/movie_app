@@ -6,6 +6,8 @@ import { BASE_URL } from '@/config';
 import { useVideoStore } from '@/store/videoStore';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'next/navigation';
+import { FiPlay } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
 
 interface VideoPlayerClientProps {
   id?: string;
@@ -25,8 +27,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const hlsRef = useRef<Hls | null>(null);
   const loadedQualityRef = useRef<string | null>(null);
 
+    const router = useRouter();
+
   // Get video metadata from store
-  const { currentVideo } = useVideoStore();
+  const { currentVideo,setCurrentEpisode } = useVideoStore();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -37,6 +41,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       setError(null);
       try {
         // Note: getPlayMain result not used currently, focusing on quality variants
+        if(currentVideo && currentVideo.isSeries && currentVideo.currentEpisode && currentVideo.currentEpisode.uploadId !== id ){
+          setCurrentEpisode(id);
+        }
         await getPlayMain(id);
         if (!mounted) return;
         const qualities: ('360p' | '720p' | '1080p')[] = ['1080p', '720p', '360p'];
@@ -216,45 +223,45 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
             {currentVideo && (
               <div className="grid mt-6 h-full w-full md:grid-cols-[70%_30%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
                 {/* Video Info Overlay */}
-                  <div className="w-full">
-                    <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                      {currentVideo.title}
-                      {currentVideo.currentEpisode && (
-                        <span className="text-xl md:text-2xl text-gray-300 ml-2">
-                          - Episode {currentVideo.currentEpisode.episodeNumber}
-                          {currentVideo.currentEpisode.episodeTitle && `: ${currentVideo.currentEpisode.episodeTitle}`}
-                        </span>
-                      )}
-                    </h1>
+                <div className="w-full">
+                  <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                    {currentVideo.title}
+                    {currentVideo.currentEpisode && (
+                      <span className="text-xl md:text-2xl text-gray-300 ml-2">
+                        - Episode {currentVideo.currentEpisode.episodeNumber}
+                        {currentVideo.currentEpisode.episodeTitle && `: ${currentVideo.currentEpisode.episodeTitle}`}
+                      </span>
+                    )}
+                  </h1>
 
-                    <div className="flex flex-wrap items-center gap-4 mb-3">
-                      {currentVideo.releaseDate && (
-                        <span className="text-gray-300">{currentVideo.releaseDate}</span>
-                      )}
-                      {currentVideo.rating && currentVideo.rating > 0 && (
-                        <div className="flex items-center">
-                          <svg className="w-5 h-5 text-[#fbb033] mr-1" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                          </svg>
-                          <span className="text-[#fbb033]">{currentVideo.rating.toFixed(1)}</span>
-                        </div>
-                      )}
-                      {currentVideo.isSeries && (
-                        <span className="bg-blue-600 px-2 py-1 rounded text-xs">Series</span>
-                      )}
-                      {currentVideo.currentEpisode?.duration && (
-                        <span className="text-gray-300">{Math.floor(currentVideo.currentEpisode.duration / 60)}min</span>
-                      )}
-                    </div>
-
-                    {currentVideo.description && (
-                      <p className="text-gray-200 text-sm md:text-base max-w-3xl">
-                        {currentVideo.description.length > 200
-                          ? `${currentVideo.description.substring(0, 200)}...`
-                          : currentVideo.description}
-                      </p>
+                  <div className="flex flex-wrap items-center gap-4 mb-3">
+                    {currentVideo.releaseDate && (
+                      <span className="text-gray-300">{currentVideo.releaseDate}</span>
+                    )}
+                    {currentVideo.rating && currentVideo.rating > 0 && (
+                      <div className="flex items-center">
+                        <svg className="w-5 h-5 text-[#fbb033] mr-1" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                        </svg>
+                        <span className="text-[#fbb033]">{currentVideo.rating.toFixed(1)}</span>
+                      </div>
+                    )}
+                    {currentVideo.isSeries && (
+                      <span className="bg-blue-600 px-2 py-1 rounded text-xs">Series</span>
+                    )}
+                    {currentVideo.currentEpisode?.duration && (
+                      <span className="text-gray-300">{Math.floor(currentVideo.currentEpisode.duration / 60)}min</span>
                     )}
                   </div>
+
+                  {currentVideo.description && (
+                    <p className="text-gray-200 text-sm md:text-base max-w-3xl">
+                      {currentVideo.description.length > 200
+                        ? `${currentVideo.description.substring(0, 200)}...`
+                        : currentVideo.description}
+                    </p>
+                  )}
+                </div>
                 {/* Quality Selection */}
                 <div className="mt-4 mx-auto w-full">
                   <h3 className="text-lg font-semibold mb-2">{t('video.selectQuality')}</h3>
@@ -321,22 +328,22 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                 )}
               </div>
               {currentVideo.tags && currentVideo.tags.length > 0 && (
-              <div>
-                <h3 className="text-xl font-semibold mb-3">{t('video.tags')}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {currentVideo.tags.map((tag, index) => (
-                    <span key={index} className="bg-[#fbb033] text-black px-3 py-1 rounded text-sm">
-                      {tag}
-                    </span>
-                  ))}
+                <div>
+                  <h3 className="text-xl font-semibold mb-3">{t('video.tags')}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {currentVideo.tags.map((tag, index) => (
+                      <span key={index} className="bg-[#fbb033] text-black px-3 py-1 rounded text-sm">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             </div>
 
             {/* Tags */}
-            
+
             {/* Episodes List for Series */}
             {currentVideo.isSeries && currentVideo.episodes && currentVideo.episodes.length > 0 && (
               <div>
@@ -357,13 +364,18 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                         <div className="text-sm text-gray-400">
                           {t('video.duration')}: {episode.duration ? `${Math.floor(episode.duration / 60)}min` : 'N/A'}
                         </div>
-                        <div className="text-sm text-gray-400">
-                          {t('video.uploadId')}: {episode.uploadId || 'N/A'}
-                        </div>
                       </div>
-                      {id === episode.uploadId && (
+                      {id === episode.uploadId ? (
                         <span className="text-[#fbb033] text-sm font-medium">{t('video.currentlyPlaying')}</span>
-                      )}
+                      ) :
+                        <button
+                          onClick={() => router.push(`/videoplayer?id=${encodeURIComponent(episode.uploadId || episode.id || '')}`)}
+                          className="flex items-center px-3 py-1 bg-[#fbb033] text-black rounded hover:bg-yellow-500 transition-colors cursor-pointer"
+                        >
+                          <FiPlay className="mr-1" />
+                          {t('videoInfo.watch', 'Watch')}
+                        </button>
+                      }
                     </div>
                   ))}
                 </div>

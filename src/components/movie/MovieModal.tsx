@@ -52,6 +52,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
       setError(null);
       try {
         const data = await getContentDetail(String(video.id));
+        console.log('Fetched content detail', data);
         if (!mounted) return;
         if (data) {
           // merge fetched data into existing detail to fill missing keys

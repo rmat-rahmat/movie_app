@@ -240,8 +240,8 @@ export default function SeriesUpload() {
         }
 
       }
-      console.log('Cover URL after upload:', coverUrl);
-      console.log('Final series form before submission', seriesForm);
+      // console.log('Cover URL after upload:', coverUrl);
+      // console.log('Final series form before submission', seriesForm);
 
       const seriesRequest: SeriesCreateRequest = {
         title: seriesForm.title,
@@ -345,7 +345,7 @@ export default function SeriesUpload() {
     const video = e.currentTarget;
     if (video && video.duration) {
       const durationMs = Math.round(video.duration * 1000);
-      console.log('Detected video duration (ms):', durationMs);
+      // console.log('Detected video duration (ms):', durationMs);
       setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, duration: durationMs } : ep) }));
     }
   };
@@ -561,7 +561,7 @@ export default function SeriesUpload() {
                         <VideoPlayer
                           src={episodePreviewUrlList[index] as string}
                           onDuration={(durationMs) => {
-                            console.log('Detected video duration (ms):', durationMs);
+                            // console.log('Detected video duration (ms):', durationMs);
                             setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, duration: durationMs } : ep) }));
                           }}
                           className="w-full rounded bg-black"

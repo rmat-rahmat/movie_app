@@ -54,7 +54,7 @@ export default function MovieUpload() {
   useEffect(() => {
     const cachedCategories = getCachedCategories();
     if (cachedCategories) {
-      console.log('Loaded cached categories', JSON.stringify(cachedCategories, null, 2));
+      // console.log('Loaded cached categories', JSON.stringify(cachedCategories, null, 2));
       setCategories(cachedCategories);
     }
   }, []);

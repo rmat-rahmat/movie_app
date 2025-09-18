@@ -227,7 +227,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                 <div className="w-full">
                   <h1 className="text-3xl md:text-4xl font-bold mb-2">
                     {currentVideo.title}
-                    {currentVideo.currentEpisode && (
+                    {currentVideo.isSeries && currentVideo.currentEpisode && (
                       <span className="text-xl md:text-2xl text-gray-300 ml-2">
                         - Episode {currentVideo.currentEpisode.episodeNumber}
                         {currentVideo.currentEpisode.episodeTitle && `: ${currentVideo.currentEpisode.episodeTitle}`}

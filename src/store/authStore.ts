@@ -15,7 +15,7 @@ import {
 import { getImageById } from '@/lib/uploadAPI';
 
 type User = {
-  id: string;
+  id?: string;
   email: string;
   name?: string;
   phone?: string;
@@ -182,7 +182,7 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: true });
           // Use API helper that restores headers if needed
           const response = await apiIsLogin();
-
+          console.log("checkAuth response:", response);
           if (response?.user?.avatar && typeof response.user.avatar === 'string' && !response.user.avatar.startsWith('http')) {
             const avatarUrl = await getImageById(response.user.avatar, '360');
             response.user.avatar = avatarUrl?.url ?? '';

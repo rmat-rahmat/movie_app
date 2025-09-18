@@ -11,26 +11,24 @@ import i18next from 'i18next';
 // - getCurrentUser() -> User | null
 // - getDeviceId() -> string (generates/retrieves unique device identifier)
 
-type User = { id: string; email: string; name?: string; [key: string]: unknown };
+type User = { id?: string; email: string; name?: string;[key: string]: unknown };
 type AuthResponse = { token: string; refreshToken: string; user: User };
 
 // Types matching the provided API documentation
-type LoginUserVo = {
-  id: string;
-  passwordHash?: string;
+type userInfo = {
+  id?: string; // Added 'id' property
   email?: string;
   phone?: string;
   avatar?: string;
   nickname?: string;
   gender?: number;
   birthday?: string;
-  status?: number;
-  createdAt?: string;
-  updatedAt?: string;
+  userType?: string;
+}
+type LoginUserVo = {
+  user: userInfo;
   token?: string;
   refreshToken?: string;
-  [key: string]: unknown;
-  userType?: string;
 };
 
 type StandardResponse<T> = {
@@ -64,14 +62,14 @@ function generateDeviceId(): string {
   // Generate a unique device ID using timestamp, random values, and browser info
   const timestamp = Date.now().toString(36);
   const randomPart = Math.random().toString(36).substring(2);
-  
+
   if (typeof navigator !== 'undefined') {
     // Use browser fingerprinting for consistency
     const userAgent = navigator.userAgent;
     const language = navigator.language;
     const platform = navigator.platform;
     const screenResolution = `${screen.width}x${screen.height}`;
-    
+
     // Create a simple hash from browser info
     const browserInfo = `${userAgent}-${language}-${platform}-${screenResolution}`;
     let hash = 0;
@@ -81,10 +79,10 @@ function generateDeviceId(): string {
       hash = hash & hash; // Convert to 32bit integer
     }
     const browserHash = Math.abs(hash).toString(36);
-    
+
     return `${timestamp}-${randomPart}-${browserHash}`;
   }
-  
+
   return `${timestamp}-${randomPart}-server`;
 }
 
@@ -101,7 +99,7 @@ function getDeviceId(): string {
   } catch {
     // Fallback for SSR or when localStorage is not available
   }
-  
+
   return generateDeviceId();
 }
 
@@ -168,7 +166,7 @@ export function restoreAuthFromStorage() {
 export async function login(email: string, password: string, form = false): Promise<AuthResponse> {
   const url = `${BASE_URL}/api-movie/v1/auth/login`;
   const deviceId = getDeviceId();
-  
+
   try {
     let res;
     if (form) {
@@ -180,10 +178,10 @@ export async function login(email: string, password: string, form = false): Prom
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
     } else {
-      res = await axios.post<StandardResponse<LoginUserVo>>(url, { 
-        email, 
-        password, 
-        deviceId 
+      res = await axios.post<StandardResponse<LoginUserVo>>(url, {
+        email,
+        password,
+        deviceId
       });
     }
 
@@ -197,7 +195,11 @@ export async function login(email: string, password: string, form = false): Prom
     const refreshToken = userVo?.refreshToken || '';
     const userData: Partial<User> = (userVo.user as Partial<User>) || {};
 
-    const user: User = { ...userData, id: userVo.id, email: userData.email || '' };
+    const user: User = { 
+      ...userVo.user, 
+      id: userVo.user.id ?? '', // Ensure 'id' is a string
+      email: userVo.user.email ?? '' // Ensure 'email' is a string
+    };
     setAuthHeader(token || null);
     saveTokenToStorage(token || null);
     saveRefreshTokenToStorage(refreshToken || null);
@@ -261,7 +263,7 @@ export async function register(
     const userVo = body.data as LoginUserVo;
     const token = userVo?.token || '';
     const refreshToken = userVo?.refreshToken || '';
-    const user: User = { ...userVo, id: userVo.id, email: userVo.email || '' };
+    const user: User = { ...userVo.user, email: userVo.user.email || '' };
     setAuthHeader(token || null);
     saveTokenToStorage(token || null);
     saveRefreshTokenToStorage(refreshToken || null);
@@ -393,9 +395,9 @@ export async function isLogin(): Promise<AuthResponse | null> {
     const res = await axios.get<StandardResponse<LoginUserVo>>(url);
     const body = res.data as StandardResponse<LoginUserVo>;
     if (!body || !body.success) return null;
-    const userVo = body.data as LoginUserVo;
-    const token = userVo?.token || loadTokenFromStorage() || '';
-    const refreshToken = userVo?.refreshToken || loadRefreshTokenFromStorage() || '';
+    const userVo = body.data as userInfo;
+    const token = loadTokenFromStorage() || '';
+    const refreshToken = loadRefreshTokenFromStorage() || '';
     const user: User = { ...userVo, id: userVo.id, email: userVo.email || '' };
     // ensure header and storage are up-to-date
     setAuthHeader(token || null);
@@ -403,7 +405,6 @@ export async function isLogin(): Promise<AuthResponse | null> {
     saveRefreshTokenToStorage(refreshToken || null);
     return { token: token || '', refreshToken: refreshToken || '', user };
   } catch {
-    console.log('isLogin check failed');
     return null;
   }
 }
@@ -450,14 +451,14 @@ export async function updateUserInfo(
     const userVo = body.data as LoginUserVo;
     const token = userVo?.token || '';
     const refreshToken = userVo?.refreshToken || loadRefreshTokenFromStorage() || '';
-    const user: User = { ...userVo, id: userVo.id, email: userVo.email || '' };
+    const user: User = { ...userVo, id: userVo.user.id, email: userVo.user.email || '' };
     setAuthHeader(token || null);
     saveTokenToStorage(token || null);
     saveRefreshTokenToStorage(refreshToken || null);
     return { token: token || '', refreshToken: refreshToken || '', user };
   } catch (err: unknown) {
-  const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
-  throw new Error(tr('auth.error.update_failed', `Update user info failed: ${message}`));
+    const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
+    throw new Error(tr('auth.error.update_failed', `Update user info failed: ${message}`));
   }
 }
 

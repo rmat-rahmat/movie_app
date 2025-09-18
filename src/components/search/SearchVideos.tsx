@@ -76,7 +76,7 @@ const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
       }
 
       const response = await searchVideos(query, categoryId, page, pageSize);
-      
+      console.log('Search response:', response);
       if (!response) {
         throw new Error('Failed to search videos');
       }
@@ -86,9 +86,9 @@ const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
       }
 
       if (append) {
-        setVideos(prev => [...prev, ...response.data]);
+        setVideos(prev => [...prev, ...response.data.contents]);
       } else {
-        setVideos(response.data);
+        setVideos(response.data.contents);
         setHasSearched(true);
       }
       

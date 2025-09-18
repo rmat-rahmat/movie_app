@@ -105,6 +105,8 @@ export interface VideoVO {
   createBy?: string;
   createTime?: string;
   views?: number; // Add views property to align with DashboardItem
+  hlsUrl?: string; // Added for HLS source
+  source?: string; // Added for video source
 }
 
 // Episode details returned from content detail endpoint
@@ -183,12 +185,17 @@ export interface VideosApiResponse {
 }
 
 // Search API response
+interface searchResult {
+  contents: VideoVO[];
+  page: number;
+  size: number;
+}
 export interface SearchApiResponse {
   status: number;
   code?: string;
   success: boolean;
   message?: string;
-  data: VideoVO[];
+  data: searchResult;
   timestamp?: number;
   errorId?: string;
   path?: string;

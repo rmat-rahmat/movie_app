@@ -8,8 +8,9 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'next/navigation';
 import { FiPlay } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
-import VideoPlayer from '@/components/ui/VideoPlayer';
-
+// import Plyr from "plyr-react";
+import type Plyr from "plyr";
+import "plyr-react/plyr.css";
 
 interface VideoPlayerClientProps {
   id?: string;
@@ -26,6 +27,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const [selectedQuality, setSelectedQuality] = useState<string>('720p');
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const newPlayerRef = useRef<Plyr | null >(null);
   const hlsRef = useRef<Hls | null>(null);
   const loadedQualityRef = useRef<string | null>(null);
 
@@ -82,8 +84,8 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   // HLS playback function
   const playVideo = (quality: string) => {
     // If we've already prepared this quality, just play
-    if (loadedQualityRef.current === quality && hlsRef.current && videoRef.current) {
-      videoRef.current.play().catch(console.error);
+    if (loadedQualityRef.current === quality && hlsRef.current && newPlayerRef.current) {
+      newPlayerRef.current.play()
       setIsPlaying(true);
       setSelectedQuality(quality);
       return;
@@ -98,9 +100,12 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     const videoElement = videoRef.current;
     if (!videoElement || !variants[quality]) return;
 
+// @ts-expect-error: use UMD version of Plyr
+    const player = new Plyr(videoElement, {captions: {active: true, update: true, language: 'en'}});
+
     // Clean up existing HLS instance
     if (hlsRef.current) {
-      try { hlsRef.current.destroy(); } catch (_e) { }
+      try { hlsRef.current.destroy(); } catch (_e) { }``
       hlsRef.current = null;
     }
 
@@ -116,13 +121,15 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       hlsRef.current = hls;
       hls.loadSource(playlistUrl);
       hls.attachMedia(videoElement);
-
+      newPlayerRef.current = player;
+      
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         loadedQualityRef.current = quality;
         setSelectedQuality(quality);
         if (autoplay) {
           setIsPlaying(true);
-          videoElement.play().catch(console.error);
+          // videoElement.play().catch(console.error);
+          player.play()
         }
       });
 
@@ -132,6 +139,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
           setError(`Playback error: ${data.details}`);
         }
       });
+
     } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
       videoElement.src = playlistUrl;
       videoElement.addEventListener('loadedmetadata', () => {
@@ -157,11 +165,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   }, []);
 
   // Set default volume programmatically
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.volume = 1; // Set default volume to 100%
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (videoRef.current) {
+  //     videoRef.current.volume = 1; // Set default volume to 100%
+  //   }
+  // }, []);
 
   // Show fallback when no video ID is provided
   if (!id) {

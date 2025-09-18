@@ -23,6 +23,12 @@ const SearchInput: React.FC<SearchInputProps> = ({
       const stored = typeof window !== 'undefined' ? sessionStorage.getItem('seefu_search_query') : null;
       const initial = qParam || stored || '';
       setQuery(initial);
+
+      // Clear searchParams if the current URL is not '/search'
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/search')) {
+        sessionStorage.removeItem('seefu_search_query');
+        setQuery('');
+      }
     } catch (_e) {
       // ignore storage errors
     }

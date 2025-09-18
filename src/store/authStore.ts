@@ -95,9 +95,10 @@ export const useAuthStore = create<AuthState>()(
 
       // Example usage in existing actions
       login: async (email: string, password: string, form = false) => {
+        try {
         set({ isLoading: true, error: null });
         const response = await apiLogin(email, password, form);
-        set({
+         set({
           user: response.user,
           token: response.token,
           refreshToken: response.refreshToken,
@@ -105,6 +106,18 @@ export const useAuthStore = create<AuthState>()(
           isLoading: false,
           error: null,
         });
+        } catch (error) {
+          set({
+            error: error instanceof Error ? error.message : 'Login failed',
+            isLoading: false,
+            isAuthenticated: false,
+            user: null,
+            token: null,
+            refreshToken: null,
+          });
+          throw error;
+        }
+       
       },
 
       register: async (payload, form = false) => {

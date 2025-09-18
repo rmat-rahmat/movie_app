@@ -101,7 +101,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
     }
     
     // push to query-param based player route so static export works
-    // router.push(`/videoplayer?id=${encodeURIComponent(String(id))}`);
+    router.push(`/videoplayer?id=${encodeURIComponent(String(id))}`);
   };
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center">

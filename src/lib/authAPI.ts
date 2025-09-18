@@ -403,6 +403,7 @@ export async function isLogin(): Promise<AuthResponse | null> {
     saveRefreshTokenToStorage(refreshToken || null);
     return { token: token || '', refreshToken: refreshToken || '', user };
   } catch {
+    console.log('isLogin check failed');
     return null;
   }
 }

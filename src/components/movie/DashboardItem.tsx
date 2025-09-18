@@ -16,6 +16,10 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
   const [isLandscape, setIsLandscape] = useState(false);
 
   const potrait = video.imageQuality?.p360 || '';
+  const p144 = video.imageQuality?.p144 || '';
+  const p360 = video.imageQuality?.p360 || '';
+  const p720 = video.imageQuality?.p720 || '';
+  // console.log("Image URLs:", { p144, p360, p720 });
   const release_date = video.createTime ? String(video.createTime).split('T')[0] : (video.year ? String(video.year) : '');
   const vote_average = (video.rating ?? 0) as number;
   const rawPopularity = video.popularity ?? video.views ?? 0;
@@ -23,7 +27,7 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
 
   const fallbackSrc2 = '/fallback_poster/sample_poster.png';
   const fallbackSrc1 = '/fallback_poster/sample_poster1.png';
-  const computedSrc = (!potrait) ? fallbackSrc2 : (imageError ? (index % 2 === 0 ? fallbackSrc1 : fallbackSrc2) : potrait);
+  const computedSrc = (!potrait) ? p720 : (imageError ? (index % 2 === 0 ? p360 : p144) : potrait);
 
   // Truncate description if too long
   const truncatedDescription = video.description && video.description.length > 100

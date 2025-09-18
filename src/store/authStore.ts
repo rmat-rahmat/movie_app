@@ -193,7 +193,7 @@ export const useAuthStore = create<AuthState>()(
             }
           }
         } catch (error) {
-          console.error('[authStore] checkAuth failed completely', error);
+          console.log('[authStore] checkAuth failed completely', error);
           set({
             user: null,
             // token: null,

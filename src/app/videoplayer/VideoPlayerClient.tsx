@@ -367,7 +367,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                         </div>
                       </div>
                       {id === episode.uploadId ? (
-                        <span className="text-[#fbb033] text-sm font-medium">{t('video.currentlyPlaying')}</span>
+                        <span className="text-[#fbb033] text-sm font-medium">{isPlaying ? `(${t('video.currentlyPlaying')})` : ''}</span>
                       ) :
                         <button
                           onClick={() => router.push(`/videoplayer?id=${encodeURIComponent(episode.uploadId || episode.id || '')}`)}

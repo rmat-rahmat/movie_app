@@ -91,9 +91,8 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
       }
 
       // Convert 1-based page to 0-based for API call
-      console.log(page);
       const response = await getCategoryVideos(categoryId, page, pageSize);
-      console.log(response);
+      // console.log(response);
       if (!response) {
         throw new Error('Failed to fetch videos');
       }
@@ -142,6 +141,7 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
           title: it.title || '',
           description: it.description || '',
           coverUrl: it.coverUrl || '',
+          imageQuality: it.imageQuality || { customCoverUrl:'', p144: '', p360: '', p720: '' },
           fileName: it.fileName || '',
           region: it.region || '',
           language: it.language || '',

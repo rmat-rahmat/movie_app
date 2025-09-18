@@ -64,7 +64,7 @@ export default function SettingsPage() {
           avatarUrl = imageUrl?.url ?? '';
         }
 
-        const rawBirthday: any = user.birthday;
+        const rawBirthday: string | Date | undefined = user.birthday;
         let birthday = '';
         if (rawBirthday) {
           if (typeof rawBirthday === 'string') {
@@ -75,13 +75,12 @@ export default function SettingsPage() {
             } else {
               birthday = rawBirthday;
             }
-          } else if (rawBirthday instanceof Date) {
-            const y = rawBirthday.getFullYear();
-            const m = String(rawBirthday.getMonth() + 1).padStart(2, '0');
-            const d = String(rawBirthday.getDate()).padStart(2, '0');
+          } else if (rawBirthday) {
+            const date = rawBirthday as Date; // Explicit cast to Date
+            const y: number = date.getFullYear();
+            const m: string = String(date.getMonth() + 1).padStart(2, '0');
+            const d: string = String(date.getDate()).padStart(2, '0');
             birthday = `${y}-${m}-${d}`;
-          } else {
-            birthday = String(rawBirthday);
           }
         }
 

@@ -69,7 +69,7 @@ const SideBar = ({ show }: { show: boolean }) => {
             // { href: "/?", label: t('navigation.technology') || 'Technology', icon: <FiCpu className="h-5 w-5 mr-2" /> },
           ]
       },
-      { href: "/?", label: t('navigation.contact') || 'Contact', icon: <FiMail className="h-5 w-5 mr-2" /> },
+      // { href: "/?", label: t('navigation.contact') || 'Contact', icon: <FiMail className="h-5 w-5 mr-2" /> },
     ];
 
     if (isAuthenticated) {

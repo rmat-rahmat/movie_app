@@ -12,6 +12,7 @@ import {
   setAuthHeader as setAuthHeader,
   restoreAuthFromStorage as restoreAuthFromStorage,
 } from '@/lib/authAPI';
+import { getImageById } from '@/lib/uploadAPI';
 
 type User = {
   id: string;
@@ -98,6 +99,10 @@ export const useAuthStore = create<AuthState>()(
         try {
         set({ isLoading: true, error: null });
         const response = await apiLogin(email, password, form);
+         if (response?.user?.avatar && typeof response.user.avatar === 'string' && !response.user.avatar.startsWith('http')) {
+            const avatarUrl = await getImageById(response.user.avatar, '360');
+            response.user.avatar = avatarUrl?.url ?? '';
+          }
          set({
           user: response.user,
           token: response.token,
@@ -162,13 +167,26 @@ export const useAuthStore = create<AuthState>()(
           });
         }
       },
-
+      getAvatarUrl: async (avatarID: string) => {
+        try {
+           // fetch full URL from upload API
+                    const imageUrl = await getImageById(avatarID, '360');
+                    // guard against undefined and provide empty string fallback
+                    return imageUrl?.url ?? '';
+        } catch (error) {
+        }
+      },
       checkAuth: async () => {
         console.log("checkAuth called");
         try {
           set({ isLoading: true });
           // Use API helper that restores headers if needed
           const response = await apiIsLogin();
+
+          if (response?.user?.avatar && typeof response.user.avatar === 'string' && !response.user.avatar.startsWith('http')) {
+            const avatarUrl = await getImageById(response.user.avatar, '360');
+            response.user.avatar = avatarUrl?.url ?? '';
+          }
           if (response) {
             set({
               user: response.user,
@@ -263,7 +281,7 @@ export const useAuthStore = create<AuthState>()(
 
       updateProfile: async (payload, form = false) => {
         return await withTokenRefresh(async () => {
-          set({ isLoading: true, error: null });
+          // set({ isLoading: true, error: null });
           const response = await apiUpdateUserInfo(payload, form);
           set({
             user: response.user,

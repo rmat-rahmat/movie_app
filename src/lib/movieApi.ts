@@ -459,7 +459,7 @@ export async function getPlayVariant(uploadId: string, type: string, apiKey?: st
 }
 
 // Get playback URL for a specific quality using the otaik.cc endpoint
-export async function getPlaybackUrl(uploadId: string, quality: '360p' | '720p' | '1080p', apiKey?: string): Promise<string | null> {
+export async function getPlaybackUrl(uploadId: string, quality: '144p' | '360p' | '720p' | '1080p', apiKey?: string): Promise<string | null> {
   try {
     const url = `${BASE_URL}/api-net/play/${uploadId}/${quality}.m3u8`;
     // const url = `https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8`;

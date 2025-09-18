@@ -40,7 +40,7 @@ export default function MovieUpload() {
     coverUrl: '',
     coverFile: null as File | null,
     customCoverUrl: '',
-    categoryId: 'movie',
+    categoryId: '',
     year: new Date().getFullYear(),
     region: '',
     language: '',
@@ -429,7 +429,7 @@ export default function MovieUpload() {
             onChange={(e) => setMovieForm((prev) => ({ ...prev, categoryId: e.target.value }))}
             className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
           >
-            <option value="" >{t('uploadForm.selectCategory', 'Please select')}</option>
+            <option value="" disabled ></option>
             {categories.map((category) => {
               // If category has children, render as an optgroup (parent not selectable)
               if (category.children && category.children.length > 0) {

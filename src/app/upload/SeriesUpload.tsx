@@ -42,7 +42,7 @@ export default function SeriesUpload() {
     description: '',
     customCoverUrl: '',
     coverFile: null as File | null,
-    categoryId: 'series',
+    categoryId: '',
     year: new Date().getFullYear(),
     region: '',
     language: '',
@@ -396,9 +396,7 @@ export default function SeriesUpload() {
             onChange={(e) => setSeriesForm((prev) => ({ ...prev, categoryId: e.target.value }))}
             className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
           >
-            <option value="" >
-              {t('uploadForm.selectCategoryPlaceholder', 'Select category')}
-            </option>
+            <option value="" disabled></option>
             {categories.map((category) => {
               // If category has children, render as an optgroup (parent not selectable)
               if (category.children && category.children.length > 0) {

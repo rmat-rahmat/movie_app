@@ -49,9 +49,9 @@ export default function Profile() {
                                     {t('profile.welcome', { name: user?.name || user?.nickname || 'User' })}
                                 </p>
                                 <div className="flex items-center gap-2 flex-col md:flex-row pr-15 md:pr-0">
-                                    <button className="bg-[#fbb033] text-white px-4 py-2 rounded font-semibold w-full md:w-fit hover:bg-red-700 transition">
+                                    {/* <button className="bg-[#fbb033] text-white px-4 py-2 rounded font-semibold w-full md:w-fit hover:bg-red-700 transition">
                                         {`${t('profile.subscribeLabel') || 'Subscribe'} ${subscribersCount ? `(${formatSubscribers(Number(subscribersCount))})` : ''}`}
-                                    </button>
+                                    </button> */}
                                     <Link href="/settings" className="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 w-full md:w-fit rounded font-medium hover:bg-gray-700 transition">
                                         <FiSettings className="h-4 w-4" />
                                         <span className="text-sm">{t('profile.settings') || 'Settings'}</span>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, use } from "react";
 import { SearchInput } from '@/components/search';
 import { useTranslation } from 'react-i18next';
 import Footer from "../layout/Footer";
@@ -9,10 +9,12 @@ import SideBar from "../layout/SideBar";
 import Link from "next/link";
 import { FiUpload, FiHome, FiVideo, FiMenu, FiLogIn } from "react-icons/fi";
 import { useAuthStore } from "@/store/authStore";
+import { getImageById } from "@/lib/uploadAPI";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState<string>('');
     const { user } = useAuthStore();
     const { t } = useTranslation('common');
 
@@ -25,11 +27,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         .join('')
         .slice(0, 2)
         .toUpperCase();
-    const avatarRaw = user && (user.avatar || user.avatarUrl || user.photoUrl || user.picture || null);
-    // console.log('User:', user);
-    // Only accept string avatar URLs for next/image. If not a string, fall back to initials avatar.
-    const avatarUrl = typeof avatarRaw === 'string' ? avatarRaw : null;
-
+    
     useEffect(() => {
         function handleScroll() {
             setScrolled(window.scrollY > 0);
@@ -37,6 +35,24 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    // when user changes, update avatar URL
+    useEffect(() => {
+        const fetchAvatar = async () => {
+            if (user) {
+                let avatar = user.avatar || '';
+                if (user.avatar && !user.avatar.startsWith('http')) {
+                    // fetch full URL from upload API
+                    const imageUrl = await getImageById(user.avatar, '360')
+                    avatar = imageUrl.url || '';
+                }
+                setAvatarUrl(avatar);
+            } else {
+                setAvatarUrl('');
+            }
+        };
+        fetchAvatar();
+    }, [user]);
 
     return (
         <div className="flex">
@@ -71,7 +87,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                         </Suspense>
                     </div>
                     <ul className="hidden md:flex gap-1 items-center">
-                       {user && user.userType==1 &&  <li>
+                        {user && user.userType == 1 && <li>
                             <Link href="/upload" className="text-gray-200 hover:underline">
                                 <p className="flex items-center rounded-lg block py-2 px-4 mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] transform transition-transform duration-200 hover:scale-105">
                                     <FiUpload className="h-5 w-6 mb-1" />
@@ -114,10 +130,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                         <FiVideo className="h-6 w-6 mb-1" />
                         <span className="text-xs">{t('navigation.short')}</span>
                     </Link>
-                {user && user.userType==1 && <Link href="/upload" className="flex-1 flex flex-col items-center py-2 text-[#fbb033] hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
-                    <FiUpload className="h-8 w-8 mb-1" />
-                    <span className="text-xs">{t('navigation.upload')}</span>
-                </Link>}
+                    {user && user.userType == 1 && <Link href="/upload" className="flex-1 flex flex-col items-center py-2 text-[#fbb033] hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
+                        <FiUpload className="h-8 w-8 mb-1" />
+                        <span className="text-xs">{t('navigation.upload')}</span>
+                    </Link>}
                     <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
                         <FiLogIn className="h-6 w-6 mb-1" />
                         <span className="text-xs">{t('navigation.subscribe')}</span>

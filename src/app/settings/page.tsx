@@ -5,13 +5,15 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import { useAuthStore } from '@/store/authStore';
 import Image from 'next/image';
+import { getImageById, initializeImageUpload, uploadFile } from '@/lib/uploadAPI';
+import { } from '@/lib/uploadAPI';
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation('common');
   const currentLang = i18n.language || 'en';
 
   const user = useAuthStore((s) => s.user);
-  const isLoading = useAuthStore((s) => s.isLoading);
+  // const isLoading = useAuthStore((s) => s.isLoading);
   const error = useAuthStore((s) => s.error);
   // const checkAuth = useAuthStore((s) => s.checkAuth);
   const updateProfile = useAuthStore((s) => s.updateProfile);
@@ -46,27 +48,62 @@ export default function SettingsPage() {
     if (!user) {
       // checkAuth().catch(() => { });
     }
+    console.log('user changed', user);
   }, []);
 
   // when user changes, populate form
   useEffect(() => {
-    if (user) {
-      setForm({
-        email: user.email || '',
-        nickname: (user.nickname as string) || (user.name as string) || '',
-        phone: (user.phone as string) || '',
-        avatar: (user.avatar as string) || '',
-        gender: user.gender != null ? String(user.gender) : '',
-        birthday: (user.birthday as string) || '',
-      });
+
+    const populateForm = async () => {
+      if (user) {
+        let avatarUrl = user.avatar || '';
+        if (user.avatar && !user.avatar.startsWith('http')) {
+          // fetch full URL from upload API
+          const imageUrl = await getImageById(user.avatar, '360');
+          // guard against undefined and provide empty string fallback
+          avatarUrl = imageUrl?.url ?? '';
+        }
+
+        const rawBirthday: any = user.birthday;
+        let birthday = '';
+        if (rawBirthday) {
+          if (typeof rawBirthday === 'string') {
+            if (rawBirthday.includes(' ')) {
+              birthday = rawBirthday.split(' ')[0]; // "1983-10-04 20:00:00" -> "1983-10-04"
+            } else if (rawBirthday.includes('T')) {
+              birthday = rawBirthday.split('T')[0]; // ISO -> "YYYY-MM-DD"
+            } else {
+              birthday = rawBirthday;
+            }
+          } else if (rawBirthday instanceof Date) {
+            const y = rawBirthday.getFullYear();
+            const m = String(rawBirthday.getMonth() + 1).padStart(2, '0');
+            const d = String(rawBirthday.getDate()).padStart(2, '0');
+            birthday = `${y}-${m}-${d}`;
+          } else {
+            birthday = String(rawBirthday);
+          }
+        }
+
+        setForm({
+          email: user.email || '',
+          nickname: (user.nickname as string) || (user.name as string) || '',
+          phone: (user.phone as string) || '',
+          avatar: avatarUrl,
+          gender: user.gender != null ? String(user.gender) : '',
+          birthday: birthday || '',
+        });
+      }
     }
+    populateForm();
   }, [user]);
 
   const handleChange = (k: string, v: string) => setForm((s) => ({ ...s, [k]: v }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLocalLoading(true);
+    setLocalLoading(true); // Ensure loading state is set immediately
+
     setSuccess(null);
     try {
       type UpdateProfilePayload = {
@@ -87,32 +124,29 @@ export default function SettingsPage() {
       // if avatarFileRef has a File (not a data URL string), upload it first
       if (avatarFileRef.current) {
         try {
-          const file = avatarFileRef.current;
-          const reader = new FileReader();
-          const dataUrl: string = await new Promise((resolve, reject) => {
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
+          const init = await initializeImageUpload({
+            fileName: avatarFileRef.current.name,
+            contentType: avatarFileRef.current.type || 'image/jpeg',
+            fileSize: avatarFileRef.current.size,
+            totalParts: 1,
+            imageType: 'avatar',
           });
-          // create filename safe
-          const ext = (file.type.split('/')[1] || 'png').split('+')[0];
-          const filename = `avatar_${Date.now()}.${ext}`;
-          const res = await fetch('/api/upload', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ filename, data: dataUrl }),
+
+          await uploadFile(avatarFileRef.current, { uploadId: init.uploadId, key: init.key }, (p) => {
+            // optional: integrate into uploadProgress
           });
-          const json = await res.json();
-          if (json.url) payload.avatar = json.url;
-        } catch (err) {
-          console.error('avatar upload failed', err);
+          if (init?.id) payload.avatar = init.id;
+        } catch (imgErr) {
+          console.error('Avatar upload failed', imgErr);
         }
       }
       const res = await updateProfile(payload, false);
       setSuccess(t('settings.save') ? `${t('settings.save')} ✅` : 'Saved ✅');
+
     } catch (err) {
       // error is stored in auth store; we also show it below
     } finally {
+
       setLocalLoading(false);
     }
   };
@@ -175,7 +209,7 @@ export default function SettingsPage() {
 
               <div>
                 <div className="flex items-center gap-2">
-                 
+
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -214,8 +248,8 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex items-center space-x-3">
-                <button type="submit" disabled={localLoading || isLoading} className="bg-[#fbb033] px-4 py-2 rounded disabled:opacity-60 w-full">
-                  {localLoading || isLoading ? (t('common.loading') || 'Loading...') : (t('common.save') || 'Save')}
+                <button type="submit" disabled={localLoading } className="bg-[#fbb033] px-4 py-2 rounded disabled:opacity-60 w-full">
+                  {localLoading  ? (t('common.loading') || 'Loading...') : (t('common.save') || 'Save')}
                 </button>
                 {success && <span className="text-green-400">{success}</span>}
                 {error && <span className="text-red-400">{error}</span>}
@@ -230,10 +264,10 @@ export default function SettingsPage() {
                     .map(part => part[0])
                     .join('')
                     .slice(0, 2)
-                    .toUpperCase(): 'U'}
+                    .toUpperCase() : 'U'}
                 </div>
               )}
-              
+
               <div>
                 <input value={form.nickname} onChange={(e) => handleChange('nickname', e.target.value)} className="w-full px-3 mt-2 py-2 rounded text-white text-center focus:outline-none border-b-1 focus:border-[#fbb033]" />
               </div>

@@ -47,7 +47,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         }
         await getPlayMain(id);
         if (!mounted) return;
-        const qualities: ('360p' | '720p' | '1080p')[] = ['1080p', '720p', '360p'];
+        const qualities: ('144p' | '360p' | '720p' | '1080p')[] = ['1080p', '720p', '360p', '144p'];
         const results: Record<string, string | null> = {};
         for (const quality of qualities) {
           const v = await getPlaybackUrl(id, quality);

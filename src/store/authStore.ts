@@ -5,7 +5,7 @@ import {
   register as apiRegister,
   logout as apiLogout,
   isLogin as apiIsLogin,
-  updateUserInfo as apiUpdateUserInfo,
+   apiUpdateUserInfo,
   changePassword as apiChangePassword,
   sendEmailCaptcha as apiSendEmailCaptcha,
   refreshToken as apiRefreshToken,
@@ -281,15 +281,13 @@ export const useAuthStore = create<AuthState>()(
 
       updateProfile: async (payload, form = false) => {
         return await withTokenRefresh(async () => {
-          // set({ isLoading: true, error: null });
-          const response = await apiUpdateUserInfo(payload, form);
+          set({ isLoading: true, error: null });
+          await apiUpdateUserInfo(payload);
           set({
-            user: response.user,
-            token: response.token,
-            refreshToken: response.refreshToken,
             isLoading: false,
             error: null,
           });
+          get().checkAuth(); // Refresh user data after profile update
         });
       },
 

@@ -414,6 +414,36 @@ export async function isLogin(): Promise<AuthResponse | null> {
  * Accepts JSON by default; set `form = true` to send application/x-www-form-urlencoded
  * payload may include: phone?, avatar?, nickname?, gender?, birthday?, password?
  */
+
+export async function apiUpdateUserInfo(payload: {
+  phone?: string;
+  avatar?: string;
+  nickname?: string;
+  gender?: number;
+  birthday?: string;
+  password?: string;
+}): Promise<boolean> {
+  const url = `${BASE_URL}/api-movie/v1/auth/updateUserInfo`;
+
+  try {
+    const res = await axios.post<StandardResponse<LoginUserVo>>(url, payload);
+    const body = res.data;
+
+    if (!body?.success) {
+      throw new Error(tr('auth.error.update_failed', body?.message || 'Update user info failed'));
+    }
+
+    return true
+  } catch (err) {
+    const message = axios.isAxiosError(err)
+      ? err.response?.data?.message || err.message
+      : String(err);
+    throw new Error(tr('auth.error.update_failed', `Update user info failed: ${message}`));
+  }
+}
+
+
+
 export async function updateUserInfo(
   payload: {
     phone?: string;
@@ -515,6 +545,7 @@ const authAPI = {
   loadTokenFromStorage,
   loadRefreshTokenFromStorage,
   clearAllTokensFromStorage,
+  apiUpdateUserInfo,
 };
 
 export default authAPI;

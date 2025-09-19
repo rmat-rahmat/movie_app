@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getCachedCategories } from '@/lib/movieApi';
+import { getCachedCategories, getCategoryTree } from '@/lib/movieApi';
 import type { CategoryItem } from '@/types/Dashboard';
 import { useAuthStore } from '@/store/authStore';
 import { useTranslation } from 'react-i18next';
@@ -34,14 +34,17 @@ const SideBar = ({ show }: { show: boolean }) => {
 
   useEffect(() => {
     // Load cached categories on client mount
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
     try {
-      const cats = getCachedCategories();
+      const cats = await getCategoryTree();
       if (cats && Array.isArray(cats)) setCategories(cats);
     } catch (_e) {
       // ignore
     }
-  }, []);
-
+  }
   const { isAuthenticated, logout, user } = useAuthStore();
 
   // Create menu based on authentication status (labels come from translations)

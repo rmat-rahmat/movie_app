@@ -12,13 +12,12 @@ interface SearchVideosProps {
   initialQuery?: string;
 }
 
-const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
+const SearchVideos: React.FC<SearchVideosProps> = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [videos, setVideos] = useState<VideoVO[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageInfo, setPageInfo] = useState<SearchApiResponse['pageInfo'] | null>(null);
@@ -36,30 +35,19 @@ const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
     if (cachedCategories) {
       setCategories(cachedCategories);
     }
-    
     // Initialize category from URL params
     const categoryParam = searchParams?.get('category') || '';
     setSelectedCategory(categoryParam);
   }, [searchParams]);
 
-  // Initial search if query is provided
+  // Perform search based on URL query
   useEffect(() => {
-    // If parent provided an initialQuery, run search.
-    if (initialQuery && initialQuery.trim()) {
-      setSearchQuery(initialQuery);
-      handleSearch();
-      return;
-    }
-
-    // Also support direct page loads with a q query parameter (handles encoded values)
     const qParam = searchParams?.get('q') || '';
-    if (qParam && qParam.trim()) {
-      // URLSearchParams returns decoded values, so this handles encoded characters correctly
-      setSearchQuery(qParam);
+    if (qParam.trim()) {
+      console.log("sini",qParam,selectedCategory);
       performSearch(qParam, selectedCategory, 1);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialQuery, searchParams?.toString()]);
+  }, [searchParams?.get('q'), selectedCategory]);
 
   const performSearch = useCallback(async (query: string, categoryId: string, page: number, append: boolean = false) => {
     if (!query.trim()) {
@@ -91,10 +79,10 @@ const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
         setVideos(response.data.contents);
         setHasSearched(true);
       }
-      
+
       setPageInfo(response.pageInfo || null);
       setCurrentPage(page);
-      
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       setError(errorMessage);
@@ -109,45 +97,39 @@ const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
   }, []);
 
   const handleSearch = () => {
-    if (!searchQuery.trim()) {
+    const qParam = searchParams?.get('q') || '';
+    if (!qParam.trim()) {
       setError("Please enter a search term");
       return;
     }
-    
+
     // Update URL with search query
     const params = new URLSearchParams(searchParams?.toString() || '');
-    params.set('q', searchQuery.trim());
     if (selectedCategory) {
       params.set('category', selectedCategory);
     } else {
       params.delete('category');
     }
     router.push(`/search?${params.toString()}`);
-    
+
     setCurrentPage(1);
-    performSearch(searchQuery, selectedCategory, 1);
+    performSearch(qParam, selectedCategory, 1);
   };
 
   const handleLoadMore = () => {
-    if (pageInfo?.hasNext && !loadingMore && searchQuery.trim()) {
-      performSearch(searchQuery, selectedCategory, currentPage + 1, true);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
+    const qParam = searchParams?.get('q') || '';
+    if (pageInfo?.hasNext && !loadingMore && qParam.trim()) {
+      performSearch(qParam, selectedCategory, currentPage + 1, true);
     }
   };
 
   const handleClearSearch = () => {
-    setSearchQuery("");
     setVideos([]);
     setError(null);
     setHasSearched(false);
     setPageInfo(null);
     setCurrentPage(1);
-    
+
     // Clear URL parameters
     router.push('/search');
   };
@@ -165,7 +147,7 @@ const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
   // Flatten categories for dropdown
   const flattenCategories = (categories: CategoryItem[]): CategoryItem[] => {
     const result: CategoryItem[] = [];
-    
+
     const flatten = (items: CategoryItem[], depth = 0) => {
       items.forEach(item => {
         result.push({ ...item, depth });
@@ -174,7 +156,7 @@ const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
         }
       });
     };
-    
+
     flatten(categories);
     return result;
   };
@@ -195,9 +177,8 @@ const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
               <div className="flex-1">
                 <input
                   type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  value={searchParams?.get('q') || ''}
+                  onChange={(e) => router.push(`/search?q=${encodeURIComponent(e.target.value)}`)}
                   placeholder="Search for movies, TV shows..."
                   className="w-full px-4 py-3 bg-[#0b0b0b] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#fbb033] focus:ring-1 focus:ring-[#fbb033]"
                 />
@@ -222,7 +203,7 @@ const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
               {/* Search Button */}
               <button
                 onClick={handleSearch}
-                disabled={loading || !searchQuery.trim()}
+                disabled={loading || !(searchParams?.get('q') || '').trim()}
                 className="px-6 py-3 bg-[#fbb033] text-black font-semibold rounded-lg hover:bg-[#f69c05] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Searching...' : 'Search'}
@@ -230,7 +211,7 @@ const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
             </div>
 
             {/* Clear Search */}
-            {(searchQuery || hasSearched) && (
+            {(searchParams?.get('q') || hasSearched) && (
               <button
                 onClick={handleClearSearch}
                 className="text-sm text-gray-400 hover:text-white underline"
@@ -261,9 +242,9 @@ const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
           {/* Results Count */}
           {pageInfo && (
             <div className="mb-4 text-sm text-gray-400">
-              {searchQuery && (
+              {searchParams?.get('q') && (
                 <>
-                  Search results for {"\""}<span className="text-[#fbb033]">{searchQuery}</span>{"\""}
+                  Search results for {"\""}<span className="text-[#fbb033]">{searchParams?.get('q')}</span>{"\""}
                   {selectedCategory && (
                     <> in category <span className="text-[#fbb033]">{
                       flatCategories.find(cat => cat.id === selectedCategory)?.categoryName || 
@@ -310,7 +291,7 @@ const SearchVideos: React.FC<SearchVideosProps> = ({ initialQuery = "" }) => {
           ) : (
             <div className="text-center py-12">
               <div className="text-gray-400 text-lg mb-4">
-                No videos found for {"\""}{searchQuery}{"\""}
+                No videos found for {"\""}{searchParams?.get('q')}{"\""}
                 {selectedCategory && (
                   <> in category {"\""}{
                     flatCategories.find(cat => cat.id === selectedCategory)?.categoryName || 

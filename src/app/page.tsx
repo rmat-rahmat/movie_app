@@ -9,11 +9,14 @@ import { allCategories } from "@/lib/categoryList";
 import { useAuthStore } from "@/store/authStore";
 import DashboardSection from "@/components/movie/DashboardSection";
 import DashboardSlider from "@/components/movie/DashboardSlider";
+import { getCategoryList,type CategoryItem} from "@/lib/movieApi";
+
 
 export default function Home() {
   const [headerMovies, setHeaderMovies] = useState<DashboardItem[]>([]);
   const [isloading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>(allCategories);
+  const [categoryList, setCategoryList] = useState<CategoryItem[]>([]); // Store fetched category list
   const [sections, setSections] = useState<ContentSection[]>([]);
   const [allSections, setAllSections] = useState<ContentSection[]>([]); // Store original sections
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({}); // Map category IDs to names
@@ -21,7 +24,29 @@ export default function Home() {
 
   useEffect(() => {
     fetchMovies();
+    fetchCategories();
   }, []);
+
+  // Fetch categories from API
+  const fetchCategories = async () => {
+    try {
+      const fetchedCategories = await getCategoryList();
+      if (fetchedCategories && Array.isArray(fetchedCategories)) {
+        setCategoryList(fetchedCategories);
+        // Map category IDs to names
+        const idToNameMap: Record<string, string> = {};
+        fetchedCategories.forEach(cat => {
+          if (cat.id) {
+            idToNameMap[cat.id] = cat.categoryName || cat.categoryAlias || cat.id;
+          }
+        });
+        console.log("Category ID to Name Map:", idToNameMap);
+        setCategoryMap(idToNameMap);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   const fetchMovies = async () => {
     setIsLoading(true);
@@ -45,13 +70,13 @@ export default function Home() {
           setCategories(categoriesWithAll);
           
           // Create a map of category IDs to names for better filtering
-          const categoryIdToName: Record<string, string> = {};
-          dashboardCategories.forEach(cat => {
-            if (cat.id) {
-              categoryIdToName[cat.id] = cat.categoryName || cat.categoryAlias || cat.id;
-            }
-          });
-          setCategoryMap(categoryIdToName);
+          // const categoryIdToName: Record<string, string> = {};
+          // dashboardCategories.forEach(cat => {
+          //   if (cat.id) {
+          //     categoryIdToName[cat.id] = cat.categoryName || cat.categoryAlias || cat.id;
+          //   }
+          // });
+          // setCategoryMap(categoryIdToName);
           setIsLoading(false);
           return;
         }
@@ -131,16 +156,16 @@ export default function Home() {
             className="flex w-full gap-2 md:gap-4 px-2 py-1 justify-center"
             style={{ scrollbarWidth: "none" }}
           >
-            {categories.map((category) => (
+            {categoryList.map(cat => (
               <button
-                key={category}
-                onClick={() => setSelectedCategory(category === selectedCategory ? null : category)}
-                className={`px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-md hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === category
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.categoryName === selectedCategory ? null : cat.categoryName||"All")}
+                className={`px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-md hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === cat.categoryName
                   ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"
                   : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] hover:text-white transition-colors duration-300"
                   }`}
               >
-                {category}
+                {cat.categoryName}
               </button>
             ))}
           </div>
@@ -193,8 +218,8 @@ export default function Home() {
               <div className="py-8 px-4 text-center">
                 <p className="text-gray-400 text-lg">No content found for &quot;{selectedCategory}&quot;</p>
                 <button 
-                  onClick={() => setSelectedCategory(null)}
-                  className="mt-2 px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors"
+                  onClick={() => location.href = `/category/${categoryList.find(cat => cat.categoryName === selectedCategory)?.id}`}
+                  className="mt-2 px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors cursor-pointer"
                 >
                   Show All Content
                 </button>

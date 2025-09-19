@@ -16,32 +16,24 @@ const SearchInput: React.FC<SearchInputProps> = ({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Initialize from URL param `q` or from sessionStorage fallback so header retains value across navigation
+  // Initialize from URL param `q`
   useEffect(() => {
     try {
       const qParam = searchParams?.get('q') || '';
-      const stored = typeof window !== 'undefined' ? sessionStorage.getItem('seefu_search_query') : null;
-      const initial = qParam || stored || '';
-      setQuery(initial);
+      setQuery(qParam);
 
       // Clear searchParams if the current URL is not '/search'
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/search')) {
-        sessionStorage.removeItem('seefu_search_query');
         setQuery('');
       }
     } catch (_e) {
-      // ignore storage errors
+      // ignore errors
     }
   }, [searchParams?.toString()]);
 
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const value = query.trim();
-    try {
-      if (typeof window !== 'undefined') sessionStorage.setItem('seefu_search_query', value);
-    } catch (err) {
-      // ignore
-    }
     if (value) {
       router.push(`/search?q=${encodeURIComponent(value)}`);
     } else {
@@ -51,7 +43,6 @@ const SearchInput: React.FC<SearchInputProps> = ({
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      // call handleSearch without passing keyboard event (it expects FormEvent)
       handleSearch();
     }
   };
@@ -61,15 +52,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
       <input
         type="text"
         value={query}
-        onChange={(e) => {
-          const v = e.target.value;
-          setQuery(v);
-          try {
-            if (typeof window !== 'undefined') sessionStorage.setItem('seefu_search_query', v);
-          } catch (err) {
-            // ignore
-          }
-        }}
+        onChange={(e) => setQuery(e.target.value)}
         onKeyPress={handleKeyPress}
         placeholder={placeholder}
         className="w-full px-4 py-2 pr-10 bg-[#0b0b0b] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#fbb033] focus:ring-1 focus:ring-[#fbb033] text-sm"

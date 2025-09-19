@@ -8,7 +8,9 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'next/navigation';
 import { FiPlay } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
-import VideoPlayer from '@/components/ui/VideoPlayer';
+
+import Plyr from 'plyr-react';
+import 'plyr-react/plyr.css'; // Import Plyr's CSS
 
 
 interface VideoPlayerClientProps {
@@ -20,19 +22,19 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const searchParams = useSearchParams();
   const urlId = searchParams.get('id');
   const id = propId || urlId || '';
-  const [variants, setVariants] = useState<Record<string, string | null>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedQuality, setSelectedQuality] = useState<string>('720p');
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
-  const loadedQualityRef = useRef<string | null>(null);
+  const [masterPlaylist, setMasterPlaylist] = useState<string | null>(null);
+  const [availableQualities,setAvailableQualities] = useState<string[]>([]);
+  const [currentlyPlayingQuality,setCurrentlyPlayingQuality] = useState<number>(-1);
 
-    const router = useRouter();
+  const router = useRouter();
 
   // Get video metadata from store
-  const { currentVideo,setCurrentEpisode } = useVideoStore();
+  const { currentVideo, setCurrentEpisode } = useVideoStore();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -43,29 +45,35 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       setError(null);
       try {
         // Note: getPlayMain result not used currently, focusing on quality variants
-        if(currentVideo && currentVideo.isSeries && currentVideo.currentEpisode && currentVideo.currentEpisode.uploadId !== id ){
+        if (currentVideo && currentVideo.isSeries && currentVideo.currentEpisode && currentVideo.currentEpisode.uploadId !== id) {
           setCurrentEpisode(id);
         }
         await getPlayMain(id);
         if (!mounted) return;
         const qualities: ('144p' | '360p' | '720p' | '1080p')[] = ['1080p', '720p', '360p', '144p'];
-        const results: Record<string, string | null> = {};
+        const bandwidthMap: Record<string, number> = {
+          '144p': 150000,   // ~150 kbps
+          '360p': 800000,   // ~800 kbps
+          '720p': 1500000,  // ~1.5 Mbps
+          '1080p': 3000000, // ~3 Mbps
+        };
+        const resolutionMap: Record<string, string> = {
+          '144p': '256x144',
+          '360p': '640x360',
+          '720p': '1280x720',
+          '1080p': '1920x1080',
+        };
+        let masterPlaylist: string = '#EXTM3U\n#EXT-X-VERSION:3\n\n';
         for (const quality of qualities) {
           const v = await getPlaybackUrl(id, quality);
           if (!mounted) return;
           if (v !== null) {
-            results[quality] = v;
+            masterPlaylist += `#EXT-X-STREAM-INF:BANDWIDTH=${bandwidthMap[quality]},RESOLUTION=${resolutionMap[quality]}\n${BASE_URL}/api-net/play/${id}/${quality}.m3u8\n\n`;
           }
         }
-        setVariants(results);
-        // pick a sensible default quality for the UI (do not autoplay)
-        const defaultQ = results['720p'] ? '720p' : (results['1080p'] ? '1080p' : (results['360p'] ? '360p' : ''));
-        if (defaultQ) {
-          setSelectedQuality(defaultQ);
-          // prepare player for the default quality without autoplay
-          console.log('Preparing player for default quality:', defaultQ);
-          preparePlayer(defaultQ, false);
-        }
+        loadFromMaster(masterPlaylist);
+        setMasterPlaylist(masterPlaylist);
+      
       } catch (err: unknown) {
         if (!mounted) return;
         const message = err instanceof Error ? err.message : String(err);
@@ -79,24 +87,16 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     return () => { mounted = false; };
   }, [id]);
 
-  // HLS playback function
-  const playVideo = (quality: string) => {
-    // If we've already prepared this quality, just play
-    if (loadedQualityRef.current === quality && hlsRef.current && videoRef.current) {
-      videoRef.current.play().catch(console.error);
-      setIsPlaying(true);
-      setSelectedQuality(quality);
-      return;
-    }
-
-    // otherwise prepare and autoplay
-    preparePlayer(quality, true);
-  };
 
   // preparePlayer: loads HLS source and optionally autoplay when ready
-  const preparePlayer = (quality: string, autoplay: boolean) => {
+
+  const playVideo = () => {
+    loadFromMaster(masterPlaylist || '')
+  };
+  const loadFromMaster = (masterplaylist: string) => {
+
     const videoElement = videoRef.current;
-    if (!videoElement || !variants[quality]) return;
+    if (!videoElement || !masterplaylist) return;
 
     // Clean up existing HLS instance
     if (hlsRef.current) {
@@ -104,8 +104,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       hlsRef.current = null;
     }
 
-    const playlistUrl = `${BASE_URL}/api-net/play/${id}/${quality}.m3u8`;
+    // const playlistUrl = `${BASE_URL}/api-net/play/${id}/${quality}.m3u8`;
+    const blob = new Blob([masterplaylist], { type: 'application/vnd.apple.mpegurl' });
+    const masterUrl = URL.createObjectURL(blob);
 
+    console.log('master url :', masterUrl)
     if (Hls.isSupported()) {
       const hls = new Hls({
         xhrSetup: (xhr) => {
@@ -114,16 +117,23 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       });
 
       hlsRef.current = hls;
-      hls.loadSource(playlistUrl);
+      hls.loadSource(masterUrl); ``
       hls.attachMedia(videoElement);
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        loadedQualityRef.current = quality;
-        setSelectedQuality(quality);
-        if (autoplay) {
-          setIsPlaying(true);
-          videoElement.play().catch(console.error);
-        }
+        setAvailableQualities(hlsRef.current?.levels.map(({ height }) => `${height}p`) || []);
+        // loadedQualityRef.current = quality;
+        // setSelectedQuality(quality);s
+        // if (autoplay) {
+        setIsPlaying(true);
+        videoElement.play().catch(console.error);
+
+        setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
+
+        // }
+      });
+      hls.on(Hls.Events.LEVEL_SWITCHED, () => {
+        setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
       });
 
       hls.on(Hls.Events.ERROR, (event, data) => {
@@ -133,19 +143,34 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         }
       });
     } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-      videoElement.src = playlistUrl;
+      videoElement.src = masterUrl;
       videoElement.addEventListener('loadedmetadata', () => {
-        loadedQualityRef.current = quality;
-        setSelectedQuality(quality);
-        if (autoplay) {
-          setIsPlaying(true);
-          videoElement.play().catch(console.error);
-        }
+        // loadedQualityRef.current = quality;
+        // setSelectedQuality(quality);
+        // if (autoplay) {
+        setIsPlaying(true);
+        videoElement.play().catch(console.error);
+        // }
       });
     } else {
-      setError('HLS is not supported in this browser');
+      alert('HLS is not supported in this browser');
     }
-  };
+  }
+  
+
+  const dynamicQualityChange = (newQuality: number) => {
+    console.log('Requested quality change to:', newQuality);
+    console.log('currentQuality:',hlsRef.current?.currentLevel);
+    console.log('AvailableQualities:',hlsRef.current?.levels);
+    if (hlsRef.current) {
+      hlsRef.current.currentLevel = newQuality;
+    }
+    // if (newQuality === selectedQuality) return;
+    // if (!variants[newQuality]) {
+    //   setError(`Quality ${newQuality} not available`);
+    //   return;
+    // }
+  }
 
   // Cleanup on unmount
   useEffect(() => {
@@ -191,16 +216,21 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
           <div className="w-full lg:w-[60vw] mx-auto pb-6">
             <div className="bg-black rounded-lg overflow-hidden mx-auto relative">
-              <video
+                <video
                 ref={videoRef}
                 className="w-full h-auto bg-black max-h-[70vh]"
                 controls
                 preload="metadata"
                 poster={currentVideo?.backdropImage || "/fallback_poster/sample_poster.png"}
+                onEnded={() => {
+                  setIsPlaying(false);
+                  // Reload the video element to reset its state
+                  videoRef.current?.load();
+                }}
                 muted={false} // Ensure the video is not muted
-              >
+                >
                 {t('video.browserNotSupported')}
-              </video>
+                </video>
 
               {/* Large centered play overlay when not playing */}
               {!isPlaying && (
@@ -208,10 +238,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                   type="button"
                   aria-label={t('video.play')}
                   onClick={() => {
-                    const q = selectedQuality || Object.keys(variants)[0];
-                    if (q) playVideo(q);
+                    playVideo();
                   }}
-                  className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/25 transition-colors"
+                  className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/25 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center justify-center w-20 h-20 md:w-28 md:h-28 bg-white/95 text-black rounded-full shadow-lg cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 md:w-12 md:h-12 ml-1">
@@ -268,19 +297,19 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                 <div className="mt-4 mx-auto w-full">
                   <h3 className="text-lg font-semibold mb-2">{t('video.selectQuality')}</h3>
                   <div className="flex gap-2 flex-wrap">
-                    {Object.entries(variants).map(([quality, playlist]) => (
+                    {availableQualities.map((quality, idx) => (
                       <button
-                        key={quality}
-                        onClick={() => playVideo(quality)}
-                        disabled={!playlist || loading}
-                        className={`px-4 py-2 rounded font-medium transition-colors ${selectedQuality === quality
+                        key={idx}
+                        onClick={() => dynamicQualityChange(idx)}
+                        // disabled={!playlist || loading}
+                        className={`px-4 py-2 rounded font-medium transition-colors ${idx === currentlyPlayingQuality
                           ? 'bg-[#fbb033] text-black'
-                          : playlist
-                            ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                          : true
+                            ? 'bg-gray-700 hover:bg-gray-600 text-white cursor-pointer'
                             : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                           }`}
                       >
-                        {quality} {selectedQuality === quality && isPlaying && `(${t('video.currentlyPlaying')})`}
+                        {quality}{idx === currentlyPlayingQuality && isPlaying && `(${t('video.currentlyPlaying')})`}
                       </button>
                     ))}
                   </div>

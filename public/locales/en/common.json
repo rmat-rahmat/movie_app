@@ -213,6 +213,7 @@
       "playerTitle": "Video Player - {{id}}",
       "browserNotSupported": "Your browser does not support the video tag.",
       "play": "Play",
+      "pause": "Pause",
       "selectQuality": "Select Quality:",
       "currentlyPlaying": "Currently Playing",
       "uploadId": "uploadID",
@@ -223,7 +224,17 @@
       "region": "Region",
       "tags": "Tags",
       "duration": "Duration",
-      "loadingPlaylists": "Loading playlists..."
+      "loadingPlaylists": "Loading playlists...",
+      "loading": "Loading...",
+      "skipForward": "Skip forward 10 seconds",
+      "skipBackward": "Skip backward 10 seconds",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "fullscreen": "Enter fullscreen",
+      "exitFullscreen": "Exit fullscreen",
+      "settings": "Settings",
+      "playbackSpeed": "Playback Speed",
+      "quality": "Quality"
     },
     "modal": {
       "loadingDetails": "Loading details...",

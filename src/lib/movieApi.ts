@@ -269,7 +269,8 @@ export const getDashboard = async (force = false): Promise<DashboardApiResponse 
     const payload = res.data as DashboardApiResponse;
 
     // ensure categories are stored as hierarchical tree
-    const flatCats = payload?.data?.categories || [];
+
+    const flatCats = await getCategoryList() || payload?.data?.categories || [];
     const catsTree = Array.isArray(flatCats) ? buildCategoryTree(flatCats as CategoryItem[]) : [];
     // create a new payload object with hierarchical categories
     const newPayload = { ...payload, data: { ...payload.data, categories: catsTree } } as DashboardApiResponse;
@@ -325,6 +326,23 @@ export const getCachedCategories = (): CategoryItem[] | null => {
     return null;
   }
 };
+
+export const getCategoryTree = async (): Promise<CategoryItem[] | null> => {
+  const cats = await getCategoryList();
+  if (!cats || !Array.isArray(cats)) return null;
+  return buildCategoryTree(cats);
+}
+export const getCategoryList = async (): Promise<CategoryItem[] | null> => {
+  const url = `${BASE_URL}/api-movie/v1/category/list`;
+  try {
+    const response = await axios.get(url);
+    const categories = response.data?.data || [];
+    return Array.isArray(categories) ? categories : null;
+  } catch (error) {
+    console.error('Failed to fetch category list:', error);
+    return null;
+  }
+}
 
 // Helper: convert featuredContent to VideoSrc[] when a VideoSrc view is needed
 export const mapFeaturedToVideoSrc = (payload: DashboardApiResponse | null): VideoSrc[] => {
@@ -479,7 +497,7 @@ export async function getPlaybackUrl(uploadId: string, quality: '144p' | '360p' 
     } catch (parseErr) {
       // console.error('Failed to parse JSON:', parseErr);
     }
-    console.log('getPlaybackUrl -> fetched URL:', url, 'response length:', text);
+    // console.log('getPlaybackUrl -> fetched URL:', url, 'response length:', text);
     return text;
   } catch (err) {
     console.error('Failed to fetch playback URL for', uploadId, quality, err);

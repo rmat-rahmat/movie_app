@@ -7,6 +7,7 @@ import { createSeries, createEpisode, initializeEpisodeUpload, uploadFile, initi
 import UploadSuccessModal from '@/components/ui/UploadSuccessModal';
 import TagSelector from '@/components/ui/TagSelector';
 import VideoPlayer from '@/components/ui/VideoPlayer';
+import DurationInput from '@/components/ui/DurationInput';
 import { getCachedCategories, type CategoryItem } from '@/lib/movieApi';
 
 interface Episode {
@@ -209,14 +210,14 @@ export default function SeriesUpload() {
     e?.preventDefault();
 
     const episodesWithInvalidDuration = seriesForm.episodes.filter(
-      (ep) => ep.duration === null || ep.duration === undefined || ep.duration < 0 || ep.duration > 10
+      (ep) => ep.duration === null || ep.duration === undefined || ep.duration <= 0
     );
 
     if (episodesWithInvalidDuration.length > 0) {
       setUploadProgress({
         progress: 0,
         status: 'error',
-        error: t('uploadForm.invalidDuration', 'Please ensure all episode durations are between 0 and 10'),
+        error: t('uploadForm.invalidDuration', 'Please ensure all episode durations are valid'),
       });
       return;
     }
@@ -560,12 +561,11 @@ export default function SeriesUpload() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">{t('upload.episodeDuration', 'Episode Duration')}</label>
-                    <input
-                      type="number"
+                    <DurationInput
+                      value={episode.duration}
+                      onChange={(durationMs) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, duration: durationMs } : ep) }))}
                       required
-                      value={episode.duration || ''}
-                      onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, duration: parseInt(e.target.value) || 0 } : ep) }))}
-                      className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+                      className="w-full"
                       placeholder={`Episode ${episode.number} duration`}
                     />
                   </div>

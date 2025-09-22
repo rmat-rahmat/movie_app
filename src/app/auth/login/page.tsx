@@ -9,12 +9,13 @@ const LoginPage: React.FC = () => {
     const [password, setPassword] = useState('');
     const [localError, setLocalError] = useState<string | null>(null);
     const router = useRouter();
-    const { login, isLoading, error } = useAuthStore();
+    const { login, isLoading, error,clearError } = useAuthStore();
     const { t } = useTranslation('common');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLocalError(null);
+        clearError();
 
         if (email === '' || password === '') {
             setLocalError('Please enter both email and password.');
@@ -136,7 +137,8 @@ const LoginPage: React.FC = () => {
                     {t('auth.dontHaveAccount')}{' '}
                     <span
                         className="text-[#fbb033] hover:underline font-semibold cursor-pointer"
-                        onClick={() => router.replace('/auth/register')}
+                        onClick={() => {clearError()
+                            router.replace('/auth/register')}}
                     >
                         {t('navigation.register')}
                     </span>

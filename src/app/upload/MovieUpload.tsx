@@ -14,6 +14,7 @@ import {
 import UploadSuccessModal from '@/components/ui/UploadSuccessModal';
 import TagSelector from '@/components/ui/TagSelector';
 import VideoPlayer from '@/components/ui/VideoPlayer';
+import DurationInput from '@/components/ui/DurationInput';
 import { getCachedCategories, type CategoryItem } from '@/lib/movieApi';
 
 const debugLog = (message: string, data?: unknown) => {
@@ -396,16 +397,11 @@ export default function MovieUpload() {
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label className="block text-sm font-medium mb-2">{t('movie.duration', 'Duration *')}</label>
-            <input
-              type="number"
+            <DurationInput
+              value={movieForm.duration}
+              onChange={(durationMs) => setMovieForm(prev => ({ ...prev, duration: durationMs }))}
               required
-              step="100"
-              value={movieForm.duration ?? ''} // Show empty if null
-              onChange={(e) => {
-                const value = e.target.value === '' ? null : parseInt(e.target.value);
-                setMovieForm(prev => ({ ...prev, duration: value }));
-              }}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              className="w-full"
               placeholder="Enter duration"
             />
           </div>

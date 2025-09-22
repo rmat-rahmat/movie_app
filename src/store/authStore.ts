@@ -231,7 +231,7 @@ export const useAuthStore = create<AuthState>()(
             // refreshToken: null,
             isAuthenticated: false,
             isLoading: false,
-            error: error instanceof Error ? error.message : 'Authentication failed',
+            // error: error instanceof Error ? error.message : 'Authentication failed',
           });
         }
       },
@@ -258,7 +258,7 @@ export const useAuthStore = create<AuthState>()(
             // refreshToken: null,
             isAuthenticated: false,
             isLoading: false,
-            error: error instanceof Error ? error.message : 'Token refresh failed',
+            // error: error instanceof Error ? error.message : 'Token refresh failed',
           });
           throw error;
         }

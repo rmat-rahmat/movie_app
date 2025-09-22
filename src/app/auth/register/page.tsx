@@ -20,7 +20,7 @@ const RegisterPage: React.FC = () => {
     const [localError, setLocalError] = useState<string | null>(null);
     const [captchaLoading, setCaptchaLoading] = useState(false);
     const router = useRouter();
-    const { register, sendEmailVerification, isLoading, error } = useAuthStore();
+    const { register, sendEmailVerification, isLoading, error, clearError } = useAuthStore();
     const { t } = useTranslation('common');
     // compute password strength for render-time checks
     const passwordStrength = checkPasswordStrength(password);
@@ -265,7 +265,8 @@ const RegisterPage: React.FC = () => {
                         {t('auth.alreadyHaveAccount')}{' '}
                         <span
                             className="text-[#fbb033] hover:underline font-semibold cursor-pointer"
-                            onClick={() => router.replace('/auth/login')}
+                            onClick={() => {clearError()
+                                router.replace('/auth/login')}}
                         >
                             {t('navigation.login')}
                         </span>

@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'next/navigation';
 import { FiPlay } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
+import { formatDuration } from '@/utils/durationUtils';
 
 import Plyr from 'plyr-react';
 import 'plyr-react/plyr.css'; // Import Plyr's CSS
@@ -281,7 +282,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                       <span className="bg-blue-600 px-2 py-1 rounded text-xs">Series</span>
                     )}
                     {currentVideo.currentEpisode?.duration && (
-                      <span className="text-gray-300">{Math.floor(currentVideo.currentEpisode.duration / 60)}min</span>
+                      <span className="text-gray-300">{formatDuration(currentVideo.currentEpisode.duration)}</span>
                     )}
                   </div>
 
@@ -393,7 +394,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                           {t('video.episodes')} {episode.episodeNumber || ''} - {episode.title || t('common.other')}
                         </div>
                         <div className="text-sm text-gray-400">
-                          {t('video.duration')}: {episode.duration ? `${Math.floor(episode.duration / 60)}min` : 'N/A'}
+                          {t('video.duration')}: {episode.duration ? `${Math.floor(episode.duration / 60)} min` : 'N/A'}
                         </div>
                       </div>
                       {id === episode.uploadId ? (

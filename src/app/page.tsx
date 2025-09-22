@@ -9,30 +9,31 @@ import { allCategories } from "@/lib/categoryList";
 import { useAuthStore } from "@/store/authStore";
 import DashboardSection from "@/components/movie/DashboardSection";
 import DashboardSlider from "@/components/movie/DashboardSlider";
-import { getCategoryList,type CategoryItem} from "@/lib/movieApi";
+import { getCategoryList,getCategoryTree,type CategoryItem} from "@/lib/movieApi";
 
 
 export default function Home() {
   const [headerMovies, setHeaderMovies] = useState<DashboardItem[]>([]);
   const [isloading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>(allCategories);
-  const [categoryList, setCategoryList] = useState<CategoryItem[]>([]); // Store fetched category list
+  const [categoryList, setCategoryList] = useState<CategoryItem[]>([{id:"All",categoryName:"All"}]); // Store fetched category list
   const [sections, setSections] = useState<ContentSection[]>([]);
   const [allSections, setAllSections] = useState<ContentSection[]>([]); // Store original sections
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({}); // Map category IDs to names
+  const [selectedCategory, setSelectedCategory] = useState<string | null>("All");
   const { user } = useAuthStore();
 
   useEffect(() => {
-    fetchMovies();
     fetchCategories();
+    fetchMovies();
   }, []);
 
   // Fetch categories from API
   const fetchCategories = async () => {
     try {
-      const fetchedCategories = await getCategoryList();
+      const fetchedCategories = await getCategoryTree();
       if (fetchedCategories && Array.isArray(fetchedCategories)) {
-        setCategoryList(fetchedCategories);
+        setCategoryList([{id:"All",categoryName:"All"},...fetchedCategories]);
         // Map category IDs to names
         const idToNameMap: Record<string, string> = {};
         fetchedCategories.forEach(cat => {
@@ -87,7 +88,6 @@ export default function Home() {
     }
   };
 
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
   // Filter sections based on selected category
   useEffect(() => {
@@ -191,7 +191,7 @@ export default function Home() {
             
             {/* Show selected category indicator */}
             {selectedCategory && selectedCategory !== "All" && (
-              <div className="py-4 px-4">
+              <div className="py-4 px-4 flex flex-row justify-between items-center width-full ">
                 <p className="text-gray-300 text-sm">
                   Showing content for: <span className="text-[#fbb033] font-semibold">{selectedCategory}</span>
                   <button 
@@ -201,6 +201,12 @@ export default function Home() {
                     Clear filter
                   </button>
                 </p>
+                {sections.length>0 && <button 
+                  onClick={() => location.href = `/category/${categoryList.find(cat => cat.categoryName === selectedCategory)?.id}`}
+                  className="mt-2 px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors cursor-pointer"
+                >
+                  Show All Content
+                </button>}
               </div>
             )}
             

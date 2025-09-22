@@ -46,9 +46,9 @@ export default function MovieUpload() {
     language: '',
     director: '',
     actors: '',
-    rating: 0,
+    rating: null as number | null, // Allow rating to be null or a number
     tags: [] as string[],
-    duration: 30000 // default duration in ms
+    duration: null as number | null // Allow duration to be null or a number
   });
 
   useEffect(() => {
@@ -248,7 +248,7 @@ export default function MovieUpload() {
         }
       }
 
-      const chunkSize = 8 * 1024 * 1024; // 8MB chunks
+      const chunkSize = 10 * 1024 * 1024; // 10MB chunks
       const totalChunks = Math.ceil(movieForm.file.size / chunkSize);
 
       const movieRequest: MovieUploadRequest = {
@@ -265,7 +265,7 @@ export default function MovieUpload() {
         language: movieForm.language || undefined,
         director: movieForm.director || undefined,
         actors: movieForm.actors || undefined,
-        rating: movieForm.rating || undefined,
+        rating: movieForm.rating || 0,
         tags: movieForm.tags.length > 0 ? movieForm.tags : undefined,
         totalParts: totalChunks
       };
@@ -298,7 +298,7 @@ export default function MovieUpload() {
 
   const handleUploadMore = () => {
     // Reset form for new upload
-    setMovieForm({ title: '', description: '', file: null, coverUrl: '', coverFile: null, customCoverUrl: '', categoryId: 'movie', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], duration: 30000 });
+    setMovieForm({ title: '', description: '', file: null, coverUrl: '', coverFile: null, customCoverUrl: '', categoryId: 'movie', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: null, tags: [], duration: 30000 });
     if (moviePreviewUrl) {
       try { URL.revokeObjectURL(moviePreviewUrl); } catch { }
     }
@@ -327,22 +327,22 @@ export default function MovieUpload() {
           <div className="flex items-center justify-center w-full mb-4">
             {!moviePreviewUrl ? (
 
-              <label id="upload-video-box" htmlFor="movie-file-top" className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
+                <label id="upload-video-box" htmlFor="movie-file-top" className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <FiUpload className="w-12 h-12 mb-3 text-gray-400" />
                   <p className="mb-2 text-sm text-gray-400">{movieForm.file ? movieForm.file.name : t('upload.clickOrDrag', 'Click to upload or drag and drop')}</p>
-                  <p className="text-xs text-gray-500">{t('upload.fileTypes', 'MP4, MOV, AVI, MKV (MAX. 10GB)')}</p>
+                  <p className="text-xs text-gray-500">{t('upload.fileTypes', 'MP4, MOV, MKV, WEBM (MAX. 10GB)')}</p>
                 </div>
                 <input
                   id="movie-file-top"
                   type="file"
-                  accept="video/*,video/x-flv,video/x-matroska,.flv,.mkv"
+                  accept="video/mp4,video/quicktime,video/x-matroska,video/webm,.mp4,.mov,.mkv,.webm"
                   onChange={handleFileSelect}
                   className="visually-hidden opacity-0"
                   ref={fileInputRef}
                   required
                 />
-              </label>
+                </label>
             )
               : (
                 <div className="w-full flex items-center justify-between gap-4">
@@ -379,7 +379,7 @@ export default function MovieUpload() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
           <div>
             <label className="block text-sm font-medium mb-2">{t('uploadForm.titlePlaceholder', 'Title *')}</label>
             <input
@@ -389,6 +389,24 @@ export default function MovieUpload() {
               onChange={(e) => setMovieForm(prev => ({ ...prev, title: e.target.value }))}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
               placeholder={t('uploadForm.titlePlaceholder', 'Enter movie title')}
+            />
+          </div>
+         
+        </div>
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('movie.duration', 'Duration *')}</label>
+            <input
+              type="number"
+              required
+              step="100"
+              value={movieForm.duration ?? ''} // Show empty if null
+              onChange={(e) => {
+                const value = e.target.value === '' ? null : parseInt(e.target.value);
+                setMovieForm(prev => ({ ...prev, duration: value }));
+              }}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              placeholder="Enter duration"
             />
           </div>
           <div>
@@ -482,7 +500,20 @@ export default function MovieUpload() {
 
           <div>
             <label className="block text-sm font-medium mb-2">{t('upload.rating', 'Rating')}</label>
-            <input required type="number" min="1" max="10" step="1" value={movieForm.rating} onChange={(e) => setMovieForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="8.5" />
+            <input
+              type="number"
+              required
+              min="0"
+              max="10"
+              step="1"
+              value={movieForm.rating ?? ''} // Show empty if null
+              onChange={(e) => {
+                const value = e.target.value === '' ? null : Math.max(0, Math.min(10, parseFloat(e.target.value)));
+                setMovieForm(prev => ({ ...prev, rating: value }));
+              }}
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              placeholder="Enter rating (0-10)"
+            />
           </div>
         </div>
 

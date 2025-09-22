@@ -579,7 +579,7 @@ export async function uploadFile(
     uploadCredential 
   });
   
-  const chunkSize = 8 * 1024 * 1024; // 8MB chunks
+  const chunkSize = 10 * 1024 * 1024; // 10MB chunks
   const totalChunks = Math.ceil(file.size / chunkSize);
   const parts: UploadPart[] = [];
   

@@ -15,7 +15,7 @@ interface Episode {
   description: string;
   file: File | null;
   customCoverUrl?: string;
-  duration?: number;
+  duration?: number | null;
 }
 
 const debugLog = (message: string, data?: unknown) => {
@@ -37,24 +37,42 @@ export default function SeriesUpload() {
   const [uploadedSeriesId, setUploadedSeriesId] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
 
-  const [seriesForm, setSeriesForm] = useState({
+  interface SeriesForm {
+    title: string;
+    description: string;
+    customCoverUrl: string;
+    coverFile: File | null;
+    categoryId: string;
+    year: number;
+    region: string;
+    language: string;
+    director: string;
+    actors: string;
+    rating: number | null;
+    tags: string[];
+    seasonNumber: number;
+    totalEpisodes: number;
+    episodes: Episode[];
+  }
+
+  const [seriesForm, setSeriesForm] = useState<SeriesForm>({
     title: '',
     description: '',
     customCoverUrl: '',
-    coverFile: null as File | null,
+    coverFile: null,
     categoryId: '',
     year: new Date().getFullYear(),
     region: '',
     language: '',
     director: '',
     actors: '',
-    rating: 0,
-    tags: [] as string[],
+    rating: null,
+    tags: [],
     seasonNumber: 1,
     totalEpisodes: 1,
     episodes: [
-      { number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }
-    ] as Episode[]
+      { number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '', duration: null }
+    ]
   });
 
   useEffect(() => {
@@ -189,6 +207,20 @@ export default function SeriesUpload() {
 
   const handleSeriesUpload = async (e?: React.FormEvent) => {
     e?.preventDefault();
+
+    const episodesWithInvalidDuration = seriesForm.episodes.filter(
+      (ep) => ep.duration === null || ep.duration === undefined || ep.duration < 0 || ep.duration > 10
+    );
+
+    if (episodesWithInvalidDuration.length > 0) {
+      setUploadProgress({
+        progress: 0,
+        status: 'error',
+        error: t('uploadForm.invalidDuration', 'Please ensure all episode durations are between 0 and 10'),
+      });
+      return;
+    }
+
     if (!seriesForm.coverFile || seriesForm.episodes.every(ep => !ep.file)) {
       const missingFields = [];
       if (!seriesForm.coverFile) missingFields.push(t('uploadForm.coverImageLabel', 'Cover Image'));
@@ -255,7 +287,7 @@ export default function SeriesUpload() {
         language: seriesForm.language || undefined,
         director: seriesForm.director || undefined,
         actors: seriesForm.actors || undefined,
-        rating: seriesForm.rating || undefined,
+        rating: seriesForm.rating || 0,
         tags: seriesForm.tags.length > 0 ? seriesForm.tags : undefined,
         seasonNumber: seriesForm.seasonNumber,
         totalEpisodes: seriesForm.totalEpisodes
@@ -285,7 +317,7 @@ export default function SeriesUpload() {
         setUploadProgress(prev => ({ ...prev, progress: currentProgress }));
 
 
-        const chunkSize = 8 * 1024 * 1024; // 8MB chunks
+        const chunkSize = 10 * 1024 * 1024; // 10MB chunks
         const totalChunks = Math.ceil(episode.file!.size / chunkSize);
 
         const uploadRequest: EpisodeUploadRequest = {
@@ -328,7 +360,7 @@ export default function SeriesUpload() {
 
   const handleUploadMore = () => {
     // Reset form for new upload
-    setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }] });
+    setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: null, tags: [], seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }] });
     if (episodePreviewUrl) {
       try { URL.revokeObjectURL(episodePreviewUrl); } catch { }
     }
@@ -452,11 +484,11 @@ export default function SeriesUpload() {
             <input
               type="number"
               required
-              min="1"
+              min="0"
               max="10"
               step="1"
-              value={seriesForm.rating}
-              onChange={(e) => setSeriesForm(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))}
+              value={seriesForm.rating ?? ''}
+              onChange={(e) => setSeriesForm(prev => ({ ...prev, rating: e.target.value === '' ? null : parseFloat(e.target.value) }))}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
               placeholder="8.5"
             />
@@ -543,7 +575,7 @@ export default function SeriesUpload() {
                   <label className="block text-sm font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File')}</label>
                   {!episode.file ? (
                     <>
-                      <input type="file" accept="video/*,video/x-flv,video/x-matroska,video/x-msvideo,video/x-ms-wmv,.flv,.mkv,.avi,.wmv" onChange={(e) => handleFileSelect(e, index)} className="visually-hidden opacity-0 absolute" ref={index === 0 ? fileInputRef : undefined} id={`episode-file-${index}`} required />
+                      <input type="file" accept="video/mp4,video/quicktime,video/x-matroska,video/webm,.mp4,.mov,.mkv,.webm" onChange={(e) => handleFileSelect(e, index)} className="visually-hidden opacity-0 absolute" ref={index === 0 ? fileInputRef : undefined} id={`episode-file-${index}`} required />
                       <label htmlFor={`episode-file-${index}`} className="flex-1 flex items-center justify-center px-3 py-2 bg-gray-500 border border-gray-400 rounded cursor-pointer hover:bg-gray-400 transition-colors">
                         <FiUpload className="mr-2" />
                         {t('upload.selectVideoFile', 'Select video file')}

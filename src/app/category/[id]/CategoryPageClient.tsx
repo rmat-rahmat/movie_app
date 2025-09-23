@@ -73,11 +73,11 @@ export default function CategoryPageClient({ id }: { id: string }) {
         }
 
         // Validate that category exists by trying to fetch some content
-        const initialData = await getCategoryVideos(id, 1, 1);
-        if (!initialData || !initialData.success) {
-          setError('Category not found');
-          return;
-        }
+        // const initialData = await getCategoryVideos(id, 1, 10);
+        // if (!initialData || !initialData.success) {
+        //   setError('Category not found');
+        //   return;
+        // }
 
         setError(null);
       } catch (err) {

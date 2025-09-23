@@ -159,7 +159,10 @@ export default function Home() {
             {categoryList.map(cat => (
               <button
                 key={cat.id}
-                onClick={() => setSelectedCategory(cat.categoryName === selectedCategory ? null : cat.categoryName||"All")}
+                onClick={() => {
+                  location.href = `/category/${cat.id}`
+                  // setSelectedCategory(cat.categoryName === selectedCategory ? null : cat.categoryName||"All")
+                }}
                 className={`px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-md hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === cat.categoryName
                   ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"
                   : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] hover:text-white transition-colors duration-300"

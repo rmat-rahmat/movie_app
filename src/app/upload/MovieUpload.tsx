@@ -47,7 +47,7 @@ export default function MovieUpload() {
     language: '',
     director: '',
     actors: '',
-    rating: null as number | null, // Allow rating to be null or a number
+    rating: 0, // Allow rating to be null or a number
     tags: [] as string[],
     duration: null as number | null // Allow duration to be null or a number
   });
@@ -299,7 +299,7 @@ export default function MovieUpload() {
 
   const handleUploadMore = () => {
     // Reset form for new upload
-    setMovieForm({ title: '', description: '', file: null, coverUrl: '', coverFile: null, customCoverUrl: '', categoryId: 'movie', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: null, tags: [], duration: 30000 });
+    setMovieForm({ title: '', description: '', file: null, coverUrl: '', coverFile: null, customCoverUrl: '', categoryId: 'movie', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], duration: 30000 });
     if (moviePreviewUrl) {
       try { URL.revokeObjectURL(moviePreviewUrl); } catch { }
     }
@@ -504,7 +504,7 @@ export default function MovieUpload() {
               step="1"
               value={movieForm.rating ?? ''} // Show empty if null
               onChange={(e) => {
-                const value = e.target.value === '' ? null : Math.max(0, Math.min(10, parseFloat(e.target.value)));
+                const value = e.target.value === '' ? 0 : Math.max(0, Math.min(10, parseFloat(e.target.value)));
                 setMovieForm(prev => ({ ...prev, rating: value }));
               }}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"

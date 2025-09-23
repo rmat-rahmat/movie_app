@@ -67,7 +67,7 @@ export default function SeriesUpload() {
     language: '',
     director: '',
     actors: '',
-    rating: null,
+    rating: 0,
     tags: [],
     seasonNumber: 1,
     totalEpisodes: 1,
@@ -361,7 +361,7 @@ export default function SeriesUpload() {
 
   const handleUploadMore = () => {
     // Reset form for new upload
-    setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: null, tags: [], seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }] });
+    setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }] });
     if (episodePreviewUrl) {
       try { URL.revokeObjectURL(episodePreviewUrl); } catch { }
     }
@@ -489,7 +489,7 @@ export default function SeriesUpload() {
               max="10"
               step="1"
               value={seriesForm.rating ?? ''}
-              onChange={(e) => setSeriesForm(prev => ({ ...prev, rating: e.target.value === '' ? null : parseFloat(e.target.value) }))}
+              onChange={(e) => setSeriesForm(prev => ({ ...prev, rating: e.target.value === '' ? 0 : parseFloat(e.target.value) }))}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
               placeholder="8.5"
             />

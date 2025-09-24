@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { getCachedCategories, getCategoryTree } from '@/lib/movieApi';
 import type { CategoryItem } from '@/types/Dashboard';
 import { useAuthStore } from '@/store/authStore';
 import { useTranslation } from 'react-i18next';
+import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 import {
   FiHome,
   FiInfo,
@@ -17,7 +18,7 @@ import {
 } from 'react-icons/fi';
 import RecursiveMenu, { type MenuItem } from './RecursiveMenu';
 
-const SideBar = ({ show }: { show: boolean }) => {
+const SideBar = ({ show, hide }: { show: boolean, hide: () => void }) => {
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState<string[]>([]);
   const [userToggled, setUserToggled] = useState<boolean>(false);
@@ -26,16 +27,27 @@ const SideBar = ({ show }: { show: boolean }) => {
 
   useEffect(() => {
     setOpenDropdown([]); // Reset dropdown on pathname change
-  setUserToggled(false);
+    setUserToggled(false);
     // This effect runs on mount and whenever the pathname changes
     const segments = pathname ? pathname.split("/").filter(item => item) : [];
     setOpenDropdown(segments);
+
+    if (show) {
+      try {
+        const isPortrait = window.matchMedia && window.matchMedia('(orientation: portrait)').matches;
+        if (isPortrait || window.innerWidth < 1024) hide();
+      } catch (err) {
+        // Fallback: if matchMedia fails, close menu on narrow screens
+        if (window.innerWidth < 768) hide();
+      }
+    }
   }, [pathname]);
 
   useEffect(() => {
     // Load cached categories on client mount
     fetchCategories();
   }, []);
+
 
   const fetchCategories = async () => {
     try {
@@ -54,13 +66,13 @@ const SideBar = ({ show }: { show: boolean }) => {
       { href: "/about", label: t('navigation.about'), icon: <FiInfo className="h-5 w-5 mr-2" /> },
       {
         label: t('navigation.categories') || 'Categories',
-        name:"category",
+        name: "category",
         icon: <FiGrid className="h-5 w-5 mr-2" />,
         subMenu: (categories && categories.length)
           ? categories.map((c) => ({
-            href: `/category/${c.id}`, label: c.categoryName || c.categoryAlias || c.id, icon: <FiGrid className="h-5 w-5 mr-2" />,
-            name:c.id,
-            subMenu: c.children && c.children.length ? c.children.map((sub: CategoryItem) => ({ href: `/category/${sub.id}`, label: sub.categoryName || sub.categoryAlias || sub.id, icon: <FiGrid className="h-5 w-5 mr-2" /> })) : []
+            href: `/category/${c.id}`, label: getLocalizedCategoryName(c), icon: <FiGrid className="h-5 w-5 mr-2" />,
+            name: c.id,
+            subMenu: c.children && c.children.length ? c.children.map((sub: CategoryItem) => ({ href: `/category/${sub.id}`, label: getLocalizedCategoryName(sub), icon: <FiGrid className="h-5 w-5 mr-2" /> })) : []
           }))
           : [
             // { href: "/movies", label: t('navigation.movies'), icon: <FiFilm className="h-5 w-5 mr-2" /> },
@@ -77,8 +89,7 @@ const SideBar = ({ show }: { show: boolean }) => {
 
     if (isAuthenticated) {
       baseMenu.splice(2, 0, { href: "/profile", label: t('navigation.profile'), icon: <FiUser className="h-5 w-5 mr-2" /> });
-      if(user && user.userType==1 )
-      {baseMenu.splice(3, 0, { href: "/upload", label: t('navigation.upload', 'Upload'), icon: <FiUpload className="h-5 w-5 mr-2" /> });}
+      if (user && user.userType == 1) { baseMenu.splice(3, 0, { href: "/upload", label: t('navigation.upload', 'Upload'), icon: <FiUpload className="h-5 w-5 mr-2" /> }); }
     }
 
     return baseMenu;
@@ -89,7 +100,7 @@ const SideBar = ({ show }: { show: boolean }) => {
   };
 
   const handleDropdownToggle = (labelOrArray: string | string[]) => {
-  setUserToggled(true);
+    setUserToggled(true);
     if (Array.isArray(labelOrArray)) {
       // Replace the dropdown state directly when an array is provided.
       // If the provided array is equal to current state, collapse one level (remove last item).

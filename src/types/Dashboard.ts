@@ -35,6 +35,9 @@ export interface ImageItem {
   p720: string;
 }
 
+export interface categoryLangLabel {
+  [key: string]: string;
+}
 export interface CategoryItem {
   id: string;
   parentId?: string | null;
@@ -42,6 +45,7 @@ export interface CategoryItem {
   categoryAlias?: string;
   categoryIcon?: string;
   categoryCover?: string;
+  categoryLangLabel?: categoryLangLabel;
   sortWeight?: string | number;
   state?: string;
   description?: string;

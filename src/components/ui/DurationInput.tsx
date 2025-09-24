@@ -76,6 +76,11 @@ export default function DurationInput({
   // Determine if we should show seconds based on includeSeconds prop or if there are seconds in the value
   const shouldShowSeconds = includeSeconds || (value && (Math.floor(value / 1000) % 60) > 0);
 
+  // The inputs should only be required when the component-level `required` is true
+  // AND none of the three inputs has a value. This allows the form to validate
+  // as satisfied when the user fills any of hours/minutes/seconds.
+  const isFieldRequired = required && hours === '' && minutes === '' && seconds === '';
+
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {/* Hours */}
@@ -88,6 +93,7 @@ export default function DurationInput({
           onChange={handleHoursChange}
           className="w-16 px-2 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
           placeholder="0"
+          required={isFieldRequired}
         />
         <span className="text-gray-400 ml-1 text-sm">h</span>
       </div>
@@ -102,7 +108,7 @@ export default function DurationInput({
           onChange={handleMinutesChange}
           className="w-16 px-2 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
           placeholder="0"
-          required={required}
+          required={isFieldRequired}
         />
         <span className="text-gray-400 ml-1 text-sm">m</span>
       </div>
@@ -118,13 +124,14 @@ export default function DurationInput({
             onChange={handleSecondsChange}
             className="w-16 px-2 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
             placeholder="0"
+            required={isFieldRequired}
           />
           <span className="text-gray-400 ml-1 text-sm">s</span>
         </div>
       )}
 
       {/* Toggle seconds button */}
-      {!shouldShowSeconds && (
+      {/* {!shouldShowSeconds && (
         <button
           type="button"
           onClick={() => setSeconds('0')} // This will trigger shouldShowSeconds to become true
@@ -132,7 +139,7 @@ export default function DurationInput({
         >
           +s
         </button>
-      )}
+      )} */}
     </div>
   );
 }

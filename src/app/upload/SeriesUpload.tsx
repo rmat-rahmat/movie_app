@@ -9,6 +9,7 @@ import TagSelector from '@/components/ui/TagSelector';
 import VideoPlayer from '@/components/ui/VideoPlayer';
 import DurationInput from '@/components/ui/DurationInput';
 import { getCachedCategories, type CategoryItem } from '@/lib/movieApi';
+import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 
 interface Episode {
   number: number;
@@ -434,10 +435,10 @@ export default function SeriesUpload() {
               // If category has children, render as an optgroup (parent not selectable)
               if (category.children && category.children.length > 0) {
                 return (
-                  <optgroup key={category.id} label={category.categoryName || category.categoryAlias || category.id}>
+                  <optgroup key={category.id} label={getLocalizedCategoryName(category)}>
                     {category.children.map((child) => (
                       <option key={child.id} value={child.id}>
-                        {child.categoryName || child.categoryAlias || child.id}
+                        {getLocalizedCategoryName(child)}
                       </option>
                     ))}
                   </optgroup>
@@ -447,7 +448,7 @@ export default function SeriesUpload() {
               // No children - render as a normal selectable option
               return (
                 <option key={category.id} value={category.id}>
-                  {category.categoryName || category.categoryAlias || category.id}
+                  {getLocalizedCategoryName(category)}
                 </option>
               );
             })}
@@ -623,7 +624,7 @@ export default function SeriesUpload() {
         {renderProgressBar()}
 
         <div className="flex justify-end mt-8">
-          <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex items-center cursor-pointer px-8 py-4 bg-[#fbb033] text-black font-semibold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors disabled:bg-gray-500">
+          <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex justify-center w-full  lg:w-auto  items-center px-8 py-4 bg-[#fbb033] text-black text-center font-semibold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer">
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-3"></div>

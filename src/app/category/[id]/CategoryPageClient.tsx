@@ -5,6 +5,7 @@ import { getCategoryVideos, getCachedCategories, getDashboard } from '@/lib/movi
 import CategoryVideos from '@/components/movie/CategoryVideos';
 import LoadingPage from '@/components/ui/LoadingPage';
 import type { CategoryItem } from '@/types/Dashboard';
+import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 
 export default function CategoryPageClient({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
@@ -19,7 +20,7 @@ export default function CategoryPageClient({ id }: { id: string }) {
     const searchCategory = (items: (CategoryItem & { children?: CategoryItem[] })[]): string | null => {
       for (const item of items) {
         if (item.id === categoryId) {
-          return item.categoryName || item.categoryAlias || null;
+          return getLocalizedCategoryName(item);
         }
         if (item.children && item.children.length > 0) {
           const found = searchCategory(item.children);
@@ -53,7 +54,7 @@ export default function CategoryPageClient({ id }: { id: string }) {
             if (categories) {
               const category = categories.find((cat: CategoryItem) => cat.id === id);
               if (category) {
-                foundCategoryName = category.categoryName || category.categoryAlias || null;
+                foundCategoryName = getLocalizedCategoryName(category);
               }
             }
           } catch (dashboardError) {

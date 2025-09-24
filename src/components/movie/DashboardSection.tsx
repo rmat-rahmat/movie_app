@@ -48,7 +48,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
                     </button>
                 )}
             </div>
-            <div className={`hide-scrollbar grid grid-flow-col auto-cols-[70%] sm:auto-cols-[45%] ${frameSize ? `xl:auto-cols-[${frameSize}%]` : "xl:auto-cols-[20%]"}  gap-4 py-4 px-1 overflow-x-scroll`}>
+            <div className={`hide-scrollbar grid grid-flow-col auto-cols-[45%] sm:auto-cols-[45%] ${frameSize ? `xl:auto-cols-[${frameSize}%]` : "xl:auto-cols-[20%]"}  gap-4 py-4 px-1 overflow-x-scroll`}>
                 {videos.map((video: DashboardItemType, index: number) => (
                     <DashboardItem
                         key={video.id}

@@ -6,6 +6,7 @@ import type { VideosApiResponse, VideoVO, CategoryItem } from '@/types/Dashboard
 import LoadingPage from '@/components/ui/LoadingPage';
 import DashboardItem from './DashboardItem';
 import MovieModal from './MovieModal';
+import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 
 interface CategoryVideosProps {
   categoryId: string;
@@ -60,7 +61,7 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
     const searchCategory = (items: (CategoryItem & { children?: CategoryItem[] })[]): string | null => {
       for (const item of items) {
         if (item.id === categoryId) {
-          return item.categoryName || item.categoryAlias || null;
+          return getLocalizedCategoryName(item);
         }
         if (item.children && item.children.length > 0) {
           const found = searchCategory(item.children);
@@ -261,7 +262,7 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
           <p className="text-gray-400">No videos found in this category.</p>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-1 md:gap-4 gap-y-2">
               {safeVideos.map((video, index) => (
                 <DashboardItem
                   key={video.id || index}

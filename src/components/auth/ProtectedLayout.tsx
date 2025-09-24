@@ -113,7 +113,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                     </ul>
                 </nav>
                 <div className="flex">
-                    <SideBar show={menuOpen} />
+                    <SideBar show={menuOpen} hide={() => setMenuOpen(false)} />
                     <div className={`flex-1 pt-16 w-full ${menuOpen ? 'lg:w-[85vw]' : 'lg:w-full'} transition-width duration-300 ease-in`}>
                         {children}
                     </div>
@@ -126,18 +126,18 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                         <FiHome className="h-6 w-6 mb-1" />
                         <span className="text-xs">{t('navigation.home')}</span>
                     </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
+                    {/* <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
                         <FiVideo className="h-6 w-6 mb-1" />
                         <span className="text-xs">{t('navigation.short')}</span>
-                    </Link>
+                    </Link> */}
                     {user && user.userType == 1 && <Link href="/upload" className="flex-1 flex flex-col items-center py-2 text-[#fbb033] hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
                         <FiUpload className="h-8 w-8 mb-1" />
                         <span className="text-xs">{t('navigation.upload')}</span>
                     </Link>}
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
+                    {/* <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
                         <FiLogIn className="h-6 w-6 mb-1" />
                         <span className="text-xs">{t('navigation.subscribe')}</span>
-                    </Link>
+                    </Link> */}
                     <Link href="/profile" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
                         {/* Greeting */}
 

@@ -2,7 +2,7 @@
 import React from "react";
 import { useTranslation } from "next-i18next";
 
-const LoadingPage: React.FC = () =>{ 
+const LoadingPage: React.FC<{ message?: string }> = ({ message }) =>{ 
   const { t } = useTranslation('common');
   
   return(
@@ -27,7 +27,7 @@ const LoadingPage: React.FC = () =>{
         d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
       />
     </svg>
-    <span className="text-white text-xl font-semibold">{t('common.loading')}</span>
+    <span className="text-white text-xl font-semibold">{message ? message : t('common.loading')}</span>
   </div>
 );
 }

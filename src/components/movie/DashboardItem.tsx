@@ -46,9 +46,9 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
     <div
       key={video.id}
       onClick={onClick}
-      className={`flex flex-1 flex-col bg-black shadow-[0px_0px_2px_1px] pb-2 shadow-[#fbb033] rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer`}
+      className={`flex flex-1 flex-col bg-black shadow-[0px_0px_2px_1px] pb-1 md:pb-2 shadow-[#fbb033] rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer`}
     >
-      <div className={`relative w-full aspect-[2/3] rounded-lg mb-2 bg-gray-800`}>
+      <div className={`relative w-full aspect-[2/3] rounded-lg md:mb-2 bg-gray-800`}>
         <div className="absolute w-full h-full bg-gradient-to-t from-black via-black/30 to-transparent z-1" />
         <Image
           src={computedSrc}
@@ -64,29 +64,36 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
           }}
         />
       </div>
-      <div className='relative px-4 mt-[-70px] lg::mt-[-40px] overflow-y-visible z-1'>
+      <div className='relative px-1 md:px-4 mt-[-70px] lg::mt-[-40px] overflow-y-visible z-1'>
         {video.title && video.title.length > 30 ? (
           <h3 className="text-xs lg::text-lg: font-semibold">{video.title}</h3>
         ) : (
           <h3 className="text-lg: lg::text-lg font-semibold">{video.title}</h3>
         )}
         <p className="text-xs lg::text-sm text-gray-400">{release_date}</p>
-        <p className="text-sm text-gray-400 mt-2">{truncatedDescription}</p>
+        <p className="hidden md:block text-sm text-gray-400 mt-2">{truncatedDescription}</p>
         <div className="flex flex-wrap gap-1 mt-2">
-          {video.tags && video.tags.length > 0 && video.tags.map((tag, idx) => (
-            <span key={idx} className="bg-[#fbb033] text-black px-2 py-1 rounded text-xs">{tag}</span>
-          ))}
+          {video.tags && video.tags.length > 0 && (
+            <>
+              {video.tags.slice(0, 3).map((tag, idx) => (
+                <span key={idx} className="bg-[#fbb033] text-black px-1 py-1 md:px-2 rounded text-[8px] md:text-xs">{tag}</span>
+              ))}
+              {/* {video.tags.length > 3 && (
+                <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded text-xs">...</span>
+              )} */}
+            </>
+          )}
           {video.region && (
-            <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded text-xs">{video.region}</span>
+            <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded  text-[8px] md:text-xs">{video.region}</span>
           )}
           {video.language && (
-            <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded text-xs">{video.language}</span>
+            <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded text-[8px] md:text-xs">{video.language}</span>
           )}
         </div>
       </div>
 
       {showRating && vote_average !== undefined && vote_average > 0 && (
-        <div className="flex items-center mt-auto mb-2 align-center px-4 py-1">
+        <div className="flex items-center mt-auto md:mb-2 align-center px-1 md:px-4 py-1">
           {[...Array(5)].map((_, idx: number) => (
             <svg
               key={idx}

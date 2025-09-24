@@ -49,7 +49,7 @@ interface AuthState {
   }, form?: boolean) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: (retryCount?: number) => Promise<void>;
-  refreshAuthToken: () => Promise<void>;
+  refreshAuthToken: () => Promise<string>;
   sendEmailVerification: (email: string) => Promise<string>;
   updateProfile: (payload: {
     phone?: string;
@@ -237,9 +237,8 @@ export const useAuthStore = create<AuthState>()(
       },
 
       refreshAuthToken: async () => {
-        console.log("refreshAuthToken called");
         try {
-          set({ isLoading: true, error: null });
+          // set({ isLoading: true, error: null });
           const response = await apiRefreshToken();
           const currentUser = get().user; // Keep existing user data
           set({
@@ -247,9 +246,10 @@ export const useAuthStore = create<AuthState>()(
             refreshToken: response.refreshToken,
             user: currentUser || response.user, // Prefer existing user data
             isAuthenticated: true,
-            isLoading: false,
+            // isLoading: false,
             error: null,
           });
+          return response.token;
         } catch (error) {
           // On refresh failure, log out the user
           set({
@@ -257,7 +257,7 @@ export const useAuthStore = create<AuthState>()(
             // token: null,
             // refreshToken: null,
             isAuthenticated: false,
-            isLoading: false,
+            // isLoading: false,
             // error: error instanceof Error ? error.message : 'Token refresh failed',
           });
           throw error;

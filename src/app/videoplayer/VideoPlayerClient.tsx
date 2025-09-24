@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import { FiPlay } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { formatDuration } from '@/utils/durationUtils';
+import LoadingPage from '@/components/ui/LoadingPage';
 
 import Plyr from 'plyr-react';
 import 'plyr-react/plyr.css'; // Import Plyr's CSS
@@ -31,6 +32,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const [masterPlaylist, setMasterPlaylist] = useState<string | null>(null);
   const [availableQualities,setAvailableQualities] = useState<string[]>([]);
   const [currentlyPlayingQuality,setCurrentlyPlayingQuality] = useState<number>(-1);
+  
 
   const router = useRouter();
 
@@ -80,7 +82,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         const message = err instanceof Error ? err.message : String(err);
         setError(message);
       } finally {
-        if (mounted) setLoading(false);
+        // if (mounted) setLoading(false);
       }
     };
 
@@ -95,6 +97,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     loadFromMaster(masterPlaylist || '')
   };
   const loadFromMaster = (masterplaylist: string) => {
+    if(!loading) setLoading(true);
 
     const videoElement = videoRef.current;
     if (!videoElement || !masterplaylist) return;
@@ -156,6 +159,8 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     } else {
       alert('HLS is not supported in this browser');
     }
+
+        setLoading(false);
   }
   
 
@@ -198,7 +203,6 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       </div>
     );
   }
-
   return (
     <div className="min-h-screen  text-white">
       {/* Video Header with Metadata */}
@@ -209,7 +213,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
           <h1 className="text-2xl font-bold mb-4">{t('video.playerTitle', { id })}</h1>
         )}
 
-        {loading && <p>{t('video.loadingPlaylists')}</p>}
+        {/* {loading && <p>{t('video.loadingPlaylists')}</p>} */}
         {error && <p className="text-red-400">{error}</p>}
 
         {/* Video Player */}
@@ -234,7 +238,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                 </video>
 
               {/* Large centered play overlay when not playing */}
-              {!isPlaying && (
+              {/* {!isPlaying && (
                 <button
                   type="button"
                   aria-label={t('video.play')}
@@ -249,6 +253,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     </svg>
                   </div>
                 </button>
+              )} */}
+              {loading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/25 transition-colors">
+                  <LoadingPage message={t('video.loadingPlaylists')} />
+                </div>
               )}
 
             </div>

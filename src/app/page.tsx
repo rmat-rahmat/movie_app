@@ -10,13 +10,14 @@ import { useAuthStore } from "@/store/authStore";
 import DashboardSection from "@/components/movie/DashboardSection";
 import DashboardSlider from "@/components/movie/DashboardSlider";
 import { getCategoryList,getCategoryTree,type CategoryItem} from "@/lib/movieApi";
+import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 
 
 export default function Home() {
   const [headerMovies, setHeaderMovies] = useState<DashboardItem[]>([]);
   const [isloading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>(allCategories);
-  const [categoryList, setCategoryList] = useState<CategoryItem[]>([{id:"All",categoryName:"All"}]); // Store fetched category list
+  const [categoryList, setCategoryList] = useState<CategoryItem[]>([{id:"All",categoryLangLabel:{"en":"All"}}]); // Store fetched category list
   const [sections, setSections] = useState<ContentSection[]>([]);
   const [allSections, setAllSections] = useState<ContentSection[]>([]); // Store original sections
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({}); // Map category IDs to names
@@ -33,12 +34,12 @@ export default function Home() {
     try {
       const fetchedCategories = await getCategoryTree();
       if (fetchedCategories && Array.isArray(fetchedCategories)) {
-        setCategoryList([{id:"All",categoryName:"All"},...fetchedCategories]);
+        setCategoryList([{id:"All",categoryLangLabel:{"en":"All"}},...fetchedCategories]);
         // Map category IDs to names
         const idToNameMap: Record<string, string> = {};
         fetchedCategories.forEach(cat => {
           if (cat.id) {
-            idToNameMap[cat.id] = cat.categoryName || cat.categoryAlias || cat.id;
+            idToNameMap[cat.id] = getLocalizedCategoryName(cat);
           }
         });
         console.log("Category ID to Name Map:", idToNameMap);
@@ -64,7 +65,7 @@ export default function Home() {
           setAllSections(originalSections); // Store original sections for filtering
           // derive categories from dashboard response, fallback to existing list
           const dashboardCategories = dashboard.data.categories || [];
-          const mappedCategories = dashboardCategories.map((c) => c.categoryName || c.categoryAlias || c.id).filter(Boolean) as string[];
+          const mappedCategories = dashboardCategories.map((c) => getLocalizedCategoryName(c)).filter(Boolean) as string[];
           const finalCategories = mappedCategories.length > 0 ? Array.from(new Set(mappedCategories)) : allCategories;
           // Ensure "All" is at the beginning
           const categoriesWithAll = finalCategories.includes("All") ? finalCategories : ["All", ...finalCategories];
@@ -161,14 +162,14 @@ export default function Home() {
                 key={cat.id}
                 onClick={() => {
                   location.href = `/category/${cat.id}`
-                  // setSelectedCategory(cat.categoryName === selectedCategory ? null : cat.categoryName||"All")
+                  // setSelectedCategory(getLocalizedCategoryName(cat) === selectedCategory ? null : getLocalizedCategoryName(cat)||"All")
                 }}
-                className={`px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-md hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === cat.categoryName
+                className={`px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-md hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === getLocalizedCategoryName(cat)
                   ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"
                   : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] hover:text-white transition-colors duration-300"
                   }`}
               >
-                {cat.categoryName}
+                {getLocalizedCategoryName(cat)}
               </button>
             ))}
           </div>
@@ -205,7 +206,7 @@ export default function Home() {
                   </button>
                 </p>
                 {sections.length>0 && <button 
-                  onClick={() => location.href = `/category/${categoryList.find(cat => cat.categoryName === selectedCategory)?.id}`}
+                  onClick={() => location.href = `/category/${categoryList.find(cat => getLocalizedCategoryName(cat) === selectedCategory)?.id}`}
                   className="mt-2 px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors cursor-pointer"
                 >
                   Show All Content
@@ -227,7 +228,7 @@ export default function Home() {
               <div className="py-8 px-4 text-center">
                 <p className="text-gray-400 text-lg">No content found for &quot;{selectedCategory}&quot;</p>
                 <button 
-                  onClick={() => location.href = `/category/${categoryList.find(cat => cat.categoryName === selectedCategory)?.id}`}
+                  onClick={() => location.href = `/category/${categoryList.find(cat => getLocalizedCategoryName(cat) === selectedCategory)?.id}`}
                   className="mt-2 px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors cursor-pointer"
                 >
                   Show All Content

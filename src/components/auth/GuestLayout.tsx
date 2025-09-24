@@ -76,7 +76,7 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                     </ul>
                 </nav>
                 <div className="flex">
-                    <SideBar show={menuOpen} />
+                    <SideBar show={menuOpen}  hide={() => setMenuOpen(false)} />
                     <div className={`flex-1 pt-16 w-full ${menuOpen ? 'lg:w-[85vw]' : 'lg:w-full'} transition-width duration-300 ease-in`}>
                         {children}
                     </div>
@@ -90,22 +90,15 @@ export default function GuestLayout({ children }: { children: React.ReactNode })
                         <FiHome className="h-6 w-6 mb-1" />
                         <span className="text-xs">{t('navigation.home')}</span>
                     </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#f69c05]">
-                        <FiVideo className="h-6 w-6 mb-1" />
-                        <span className="text-xs">{t('navigation.movies')}</span>
-                    </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-[#f69c05] hover:text-[#f69c05]">
-                        <FiUpload className="h-8 w-8 mb-1" />
-                        <span className="text-xs">{t('navigation.upload')}</span>
-                    </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#f69c05]">
+                   
+                    <Link href="/auth/login" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#f69c05]">
                         <FiLogIn className="h-6 w-6 mb-1" />
                         <span className="text-xs">{t('navigation.login')}</span>
                     </Link>
-                    <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#f69c05]">
+                    {/* <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#f69c05]">
                         <FiUser className="h-6 w-6 mb-1" />
                         <span className="text-xs">{t('navigation.profile')}</span>
-                    </Link>
+                    </Link> */}
                 </nav>
             </div>
         </div>

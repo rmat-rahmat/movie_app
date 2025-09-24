@@ -5,6 +5,7 @@ import { BASE_URL } from '../config';
 import type { VideoSrc } from "@/types/VideoSrc";
 import type { DashboardApiResponse, DashboardItem, CategoryItem, VideosApiResponse, SearchApiResponse } from '@/types/Dashboard';
 import { parseJsonFile } from "next/dist/build/load-jsconfig";
+import i18next from 'i18next';
 
 // Build hierarchical category tree from flat list (parents contain `children` array)
 function buildCategoryTree(flat: CategoryItem[] = []): CategoryItem[] {
@@ -333,7 +334,8 @@ export const getCategoryTree = async (): Promise<CategoryItem[] | null> => {
   return buildCategoryTree(cats);
 }
 export const getCategoryList = async (): Promise<CategoryItem[] | null> => {
-  const url = `${BASE_URL}/api-movie/v1/category/list`;
+  const lang = (i18next && i18next.language) ? i18next.language : (typeof window !== 'undefined' && navigator.language ? navigator.language.split('-')[0] : 'en');
+  const url = `${BASE_URL}/api-movie/v1/category/list?lang=${encodeURIComponent(lang)}`;
   try {
     const response = await axios.get(url);
     const categories = response.data?.data || [];

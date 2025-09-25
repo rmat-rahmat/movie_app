@@ -146,17 +146,13 @@ export default function Home() {
         {display === 'mobile' && <hr className="flex md:hidden h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0 mt-3" />}
         <div
           className={`
-            flex justify-center w-full overflow-x-auto mt-2 mb-5
+            flex  w-[99vw] mx-auto overflow-x-auto mt-2 mb-5
             ${display === 'mobile'
               ? "overflow-x-auto mt-2 mb-5 md:hidden"
               : "hidden md:flex"}
           `}
           style={{ scrollbarWidth: "none" }}
         >
-          <div
-            className="flex w-full gap-2 md:gap-4 px-2 py-1 justify-center"
-            style={{ scrollbarWidth: "none" }}
-          >
             {categoryList.map(cat => (
               <button
                 key={cat.id}
@@ -164,7 +160,7 @@ export default function Home() {
                   location.href = `/category/${cat.id}`
                   // setSelectedCategory(getLocalizedCategoryName(cat) === selectedCategory ? null : getLocalizedCategoryName(cat)||"All")
                 }}
-                className={`px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-md hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === getLocalizedCategoryName(cat)
+                className={`mx-1 px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-md hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === getLocalizedCategoryName(cat)
                   ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"
                   : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] hover:text-white transition-colors duration-300"
                   }`}
@@ -172,7 +168,6 @@ export default function Home() {
                 {getLocalizedCategoryName(cat)}
               </button>
             ))}
-          </div>
           <style jsx>{`
             div::-webkit-scrollbar {
               display: none;
@@ -189,7 +184,7 @@ export default function Home() {
         <>
           <MovieCategoryFilter display="mobile" categories={categories} />
           <DashboardSlider videos={headerMovies} />
-          <div className="flex flex-col md:px-20 px-0 w-[100%] mt-4">
+          <div className="flex relative flex-col md:px-20 px-0 w-[100%] mt-4">
             <MovieCategoryFilter categories={categories} />
             <hr className="h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0" />
             

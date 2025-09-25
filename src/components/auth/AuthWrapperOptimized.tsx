@@ -1,14 +1,13 @@
  'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { usePathname, useRouter } from 'next/navigation';
-import { shallow } from 'zustand/shallow';
-import GuestLayoutSimplified from '@/components/auth/GuestLayoutSimplified';
-import ProtectedLayoutSimplified from '@/components/auth/ProtectedLayoutSimplified';
+import BaseLayout from '@/components/layout/BaseLayout';
 import LoadingPage from '@/components/ui/LoadingPage';
+import { getImageById } from "@/lib/uploadAPI";
 
-interface AuthWrapperProps {
+interface AuthWrapperOptimizedProps {
   children: React.ReactNode;
 }
 
@@ -24,7 +23,7 @@ const hybridRoutes = ['/', '/about', '/movies', '/category', '/search','/videopl
   '/viewmore'
 ];
 
-export default function AuthWrapper({ children }: AuthWrapperProps) {
+export default function AuthWrapperOptimized({ children }: AuthWrapperOptimizedProps) {
   // Select only the fields we need to avoid re-renders when unrelated parts of the store change
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isLoading = useAuthStore((s) => s.isLoading);
@@ -32,6 +31,18 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
   const user = useAuthStore((s) => s.user);
   const pathname = usePathname();
   const router = useRouter();
+  
+  // State for user avatar
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
+
+  // Derive display name and avatar
+  const displayName = (user && (user.nickname || user.name || (user.email && user.email.split('@')[0]))) || 'User';
+  const initials = displayName
+    .split(' ')
+    .map(part => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   // Run initial auth check once on mount
   useEffect(() => {
@@ -55,6 +66,24 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
     };
   }, [checkAuth]);
 
+  // Fetch user avatar when user changes
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      if (user) {
+        let avatar = user.avatar || '';
+        if (user.avatar && !user.avatar.startsWith('http')) {
+          // fetch full URL from upload API
+          const imageUrl = await getImageById(user.avatar, '360')
+          avatar = imageUrl.url || '';
+        }
+        setAvatarUrl(avatar);
+      } else {
+        setAvatarUrl('');
+      }
+    };
+    fetchAvatar();
+  }, [user]);
+
   // Redirects must run in effects to avoid render-side navigation and extra renders
   useEffect(() => {
     if (!pathname) return;
@@ -76,18 +105,26 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
     }
   }, [pathname, isAuthenticated, isLoading, router]);
 
-
   // While auth is being determined, show loading
   if (isLoading) return <LoadingPage />;
   
   // If pathname is not available yet, show a loading placeholder
-  if (!pathname) return <GuestLayoutSimplified>{children}</GuestLayoutSimplified>;
-
+  if (!pathname) return <BaseLayout type="guest">{children}</BaseLayout>;
 
   // Protected routes - if not authenticated we already redirected above; show layout for authenticated users
   if (protectedRoutes.some((route) => pathname.startsWith(route))) {
     if (!isAuthenticated) return <LoadingPage />; // fallback while redirect happens
-    return <ProtectedLayoutSimplified>{children}</ProtectedLayoutSimplified>;
+    return (
+      <BaseLayout 
+        type="protected" 
+        user={user} 
+        avatarUrl={avatarUrl} 
+        displayName={displayName} 
+        initials={initials}
+      >
+        {children}
+      </BaseLayout>
+    );
   }
 
   // Auth pages (login/register) - render raw children when not authenticated
@@ -99,14 +136,28 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
   // For other /auth/* routes
   if (pathname.startsWith('/auth/')) {
     if (isAuthenticated) return <LoadingPage />;
-    return <GuestLayoutSimplified>{children}</GuestLayoutSimplified>;
+    return <BaseLayout type="guest">{children}</BaseLayout>;
   }
 
   // Hybrid routes: show ProtectedLayout for authenticated users, GuestLayout otherwise
   if (hybridRoutes.some((route) => pathname === route || pathname.startsWith(route + '/'))) {
-    return isAuthenticated ? <ProtectedLayoutSimplified>{children}</ProtectedLayoutSimplified> : <GuestLayoutSimplified>{children}</GuestLayoutSimplified>;
+    if (isAuthenticated) {
+      return (
+        <BaseLayout 
+          type="protected" 
+          user={user} 
+          avatarUrl={avatarUrl} 
+          displayName={displayName} 
+          initials={initials}
+        >
+          {children}
+        </BaseLayout>
+      );
+    } else {
+      return <BaseLayout type="guest">{children}</BaseLayout>;
+    }
   }
 
   // Default to guest layout
-  return <GuestLayoutSimplified>{children}</GuestLayoutSimplified>;
+  return <BaseLayout type="guest">{children}</BaseLayout>;
 }

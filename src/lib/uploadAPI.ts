@@ -1,6 +1,6 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { BASE_URL } from '../config';
-import { withTokenRefresh } from '@/store/authStore';
+import { withTokenRefresh, useAuthStore } from '@/store/authStore';
 
 // Debug logging utility
 const debugLog = (message: string, data?: unknown) => {
@@ -143,7 +143,8 @@ interface StandardResponse<T> {
 
 // Get API headers
 const getHeaders = ({ withApiKey = true }: { withApiKey?: boolean } = {}): Record<string, string> => {
-  const authToken = localStorage.getItem('auth_token');
+  // Use token from Zustand store for immediate access to refreshed tokens
+  const authToken = useAuthStore.getState().token;
   const apiKey = localStorage.getItem('api-key') || process.env.UPLOAD_API_KEY||"123";
   console.log('Using API Key:', apiKey);
   const headers: Record<string, string> = {
@@ -155,7 +156,7 @@ const getHeaders = ({ withApiKey = true }: { withApiKey?: boolean } = {}): Recor
     headers['api-key'] = apiKey;
   }
   
-  debugLog('API Headers prepared', { hasApiKey: !!apiKey });
+  debugLog('API Headers prepared', { hasApiKey: !!apiKey, hasAuthToken: !!authToken });
   return headers;
 };
 
@@ -178,7 +179,17 @@ async function apiCall<T>(
     };
 
     // Wrap the axios request with token refresh helper so 401 triggers refresh and retry
-    const res: AxiosResponse<StandardResponse<T>> = await withTokenRefresh(() => axios.request<StandardResponse<T>>(axiosConfig));
+    const res: AxiosResponse<StandardResponse<T>> = await withTokenRefresh((newToken) => {
+      // If a new token is provided (during retry), update the authorization header
+      if (newToken) {
+        console.log('[UploadAPI] Using refreshed token for retry:', newToken);
+        axiosConfig.headers = {
+          ...axiosConfig.headers,
+          'Authorization': `Bearer ${newToken}`
+        };
+      }
+      return axios.request<StandardResponse<T>>(axiosConfig);
+    });
     debugLog(`Response status: ${res.status}`, { url, ok: res.status >= 200 && res.status < 300 });
 
     const data: StandardResponse<T> = res.data as StandardResponse<T>;

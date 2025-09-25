@@ -3,6 +3,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthWrapper from "@/components/auth/AuthWrapper";
+import AuthWrapperOptimized from "@/components/auth/AuthWrapperOptimized";
 import I18nProvider from "@/components/i18n/I18nProvider";
 import { useEffect } from "react";
 import { initializeAuthInterceptor } from "@/lib/authInterceptor";
@@ -33,7 +34,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       { name: "description", content: "Watch your favorite movies and TV shows on OTalk.TV - Your ultimate streaming destination" },
       { name: "keywords", content: "movies, tv shows, streaming, entertainment, watch online" },
       { name: "author", content: "OTalk.TV" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=5" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" },
       { name: "theme-color", content: "#FBAF32" },
       { name: "color-scheme", content: "dark light" },
       { property: "og:type", content: "website" },
@@ -97,9 +98,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <I18nProvider>
-          <AuthWrapper>
+          <AuthWrapperOptimized>
             {children}
-          </AuthWrapper>
+          </AuthWrapperOptimized>
         </I18nProvider>
       </body>
     </html>

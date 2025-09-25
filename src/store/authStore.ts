@@ -14,7 +14,7 @@ import {
 } from '@/lib/authAPI';
 import { getImageById } from '@/lib/uploadAPI';
 
-type User = {
+export type User = {
   id?: string;
   email: string;
   name?: string;
@@ -66,17 +66,53 @@ interface AuthState {
   setLoading: (loading: boolean) => void;
 }
 
+
+// init token 
 // Helper function to wrap API calls with token refresh logic
-export const withTokenRefresh = async <T>(apiCall: () => Promise<T>): Promise<T> => {
+export const withTokenRefresh = async <T>(apiCall: (newToken?: string) => Promise<T>): Promise<T> => {
   try {
+    const currentToken = useAuthStore.getState().token;
+    console.log('withTokenRefresh current token:', currentToken);
     return await apiCall();
   } catch (err: unknown) {
     const error = err as { response?: { status?: number } } | undefined;
     if (error?.response?.status === 401) {
       try {
-        await useAuthStore.getState().refreshAuthToken();
-        return await apiCall();
+        const currentToken = useAuthStore.getState().token;
+        const newToken = await useAuthStore.getState().refreshAuthToken();
+        
+        // Retry the original call up to 5 times after a token refresh
+        let lastErr: unknown;
+        for (let attempt = 1; attempt <= 5; attempt++) {
+          try {
+            const authToken = useAuthStore.getState().token;
+            // Pass the new token to the callback so it can update headers if needed
+            return await apiCall(newToken);
+          } catch (retryErr: unknown) {
+            lastErr = retryErr;
+            const retryError = retryErr as { response?: { status?: number } } | undefined;
+            // If we get another 401, don't retry further - token refresh didn't work
+            // if (retryError?.response?.status === 401) {
+            //   console.error('Still getting 401 after token refresh, logging out user');
+            //   await useAuthStore.getState().logout();
+            //   throw new Error('Authentication failed after token refresh');
+            // }
+            
+            // If this was the last attempt, rethrow the error
+            if (attempt === 5) {
+              throw lastErr;
+            }
+
+            // Small delay before next retry (3 seconds)
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+          }
+        }
+        // Fallback in case loop exits unexpectedly
+        throw new Error('Retry attempts exhausted');
       } catch (refreshErr: unknown) {
+        console.error('Token refresh failed:', refreshErr);
+        // If token refresh fails, log out the user
+        await useAuthStore.getState().logout();
         throw refreshErr;
       }
     }
@@ -103,6 +139,10 @@ export const useAuthStore = create<AuthState>()(
             const avatarUrl = await getImageById(response.user.avatar, '360');
             response.user.avatar = avatarUrl?.url ?? '';
           }
+          
+         // CRITICAL: Set auth header after successful login
+         setAuthHeader(response.token);
+          
          set({
           user: response.user,
           token: response.token,
@@ -122,13 +162,16 @@ export const useAuthStore = create<AuthState>()(
           });
           throw error;
         }
-       
       },
 
       register: async (payload, form = false) => {
         try {
           set({ isLoading: true, error: null });
           const response = await apiRegister(payload, form);
+          
+          // CRITICAL: Set auth header after successful registration
+          setAuthHeader(response.token);
+          
           set({
             user: response.user,
             token: response.token,
@@ -188,6 +231,9 @@ export const useAuthStore = create<AuthState>()(
             response.user.avatar = avatarUrl?.url ?? '';
           }
           if (response) {
+            // CRITICAL: Set auth header when checkAuth succeeds
+            setAuthHeader(response.token);
+            
             set({
               user: response.user,
               token: response.token,
@@ -202,6 +248,9 @@ export const useAuthStore = create<AuthState>()(
             await get().refreshAuthToken();
             const retryResponse = await apiIsLogin(); // Retry the authentication check after refreshing the token
             if (retryResponse) {
+              // CRITICAL: Set auth header when retry checkAuth succeeds
+              setAuthHeader(retryResponse.token);
+              
               set({
                 user: retryResponse.user,
                 token: retryResponse.token,
@@ -238,27 +287,28 @@ export const useAuthStore = create<AuthState>()(
 
       refreshAuthToken: async () => {
         try {
-          // set({ isLoading: true, error: null });
+          console.log('Attempting to refresh auth token...');
           const response = await apiRefreshToken();
           const currentUser = get().user; // Keep existing user data
+          
+          // Note: apiRefreshToken already calls setAuthHeader() and saveTokenToStorage()
+          
           set({
             token: response.token,
             refreshToken: response.refreshToken,
             user: currentUser || response.user, // Prefer existing user data
             isAuthenticated: true,
-            // isLoading: false,
             error: null,
           });
+          
+          console.log('Auth token refreshed successfully');
           return response.token;
         } catch (error) {
+          console.error('Token refresh failed:', error);
           // On refresh failure, log out the user
           set({
             user: null,
-            // token: null,
-            // refreshToken: null,
             isAuthenticated: false,
-            // isLoading: false,
-            // error: error instanceof Error ? error.message : 'Token refresh failed',
           });
           throw error;
         }
@@ -280,7 +330,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       updateProfile: async (payload, form = false) => {
-        return await withTokenRefresh(async () => {
+        return await withTokenRefresh(async (newToken) => {
           set({ isLoading: true, error: null });
           await apiUpdateUserInfo(payload);
           set({

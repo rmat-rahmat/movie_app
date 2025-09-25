@@ -63,17 +63,19 @@ export default function Profile() {
                     <div className="relative bg-[#fbb033] order-first md:order-last flex items-center justify-center">
                         <video
                             src="https://www.w3schools.com/html/mov_bbb.mp4"
-                            controls
+                            muted
+                            playsInline
                             autoPlay
                             loop
-                            className="object-cover w-full h-full absolute inset-0"
+                            controls={false}
+                            className="object-cover w-full h-full inset-0"
                             style={{ width: "100%", height: "100%" }}
                         />
                         <div className="absolute inset-0 h-full bg-gradient-to-t from-black via-black/30 to-black/30 md:bg-[radial-gradient(circle_at_60%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
                         <div className="absolute inset-0 h-full md:bg-[radial-gradient(circle_at_70%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
                     </div>
                 </div>
-                <div className="container mx-auto px-4 py-8 mt-0">
+                <div className="container min-h-[40vh] mx-auto px-4 py-8 mt-0">
 
 {/* 
                     <MovieSection

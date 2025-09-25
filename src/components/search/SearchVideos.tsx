@@ -7,6 +7,7 @@ import type { SearchApiResponse, VideoVO, CategoryItem } from '@/types/Dashboard
 import LoadingPage from '@/components/ui/LoadingPage';
 import DashboardItem from '../movie/DashboardItem';
 import MovieModal from '../movie/MovieModal';
+import SearchInput from './SearchInput';
 
 interface SearchVideosProps {
   initialQuery?: string;
@@ -85,7 +86,7 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Search Videos</h1>
-
+      <SearchInput className='md:hidden mx-2 mb-6'/>
       {/* Loading State */}
       {loading && <LoadingPage />}
 
@@ -102,7 +103,7 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
       {/* Search Results */}
       {!loading && videos.length > 0 && (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+          <div className="grid grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-1 md:gap-4 gap-y-2 px-2 mb-8">
             {videos.map((video, index) => (
               <DashboardItem
                 key={video.id || index}

@@ -1,13 +1,16 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useState, Suspense, use } from "react";
-import { SearchInput } from '@/components/search';
-import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from "react";
 import Footer from "../layout/Footer";
 import SideBar from "../layout/SideBar";
-import Link from "next/link";
-import { FiUpload, FiHome, FiVideo, FiMenu, FiLogIn } from "react-icons/fi";
+import Logo from "../layout/Logo";
+import MenuToggle from "../layout/MenuToggle";
+import NavSearch from "../layout/NavSearch";
+import NavActions from "../layout/NavActions";
+import NavigationBar from "../layout/NavigationBar";
+import BottomTabBar from "../layout/BottomTabBar";
+import { FiHome, FiUpload } from "react-icons/fi";
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from "@/store/authStore";
 import { getImageById } from "@/lib/uploadAPI";
 
@@ -54,112 +57,71 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         fetchAvatar();
     }, [user]);
 
+    // Bottom tab items for mobile
+    const bottomTabItems = [
+        {
+            href: "/",
+            icon: <FiHome className="h-6 w-6" />,
+            label: t('navigation.home')
+        },
+        ...(user && user.userType == 1 ? [{
+            href: "/upload",
+            icon: <FiUpload className="h-8 w-8" />,
+            label: t('navigation.upload'),
+            highlight: true,
+            active: true
+        }] : []),
+        {
+            href: "/profile",
+            icon: null, // Will be handled specially in BottomTabBar
+            label: t('profile.greeting', { name: displayName.split(' ')[0] })
+        }
+    ];
+
     return (
-        <div className="flex">
-
-            <div className="w-full min-h-screen lg:pb-0 pb-20 flex flex-col">
-
-                <nav
-                    className={`w-full flex items-center justify-between py-4 px-4 fixed top-0 left-0 lg:left-auto lg:right-0 z-50 transition-colors duration-300 
-                    ${scrolled ? "bg-gradient-to-b from-black  to-black/30" : "bg-gradient-to-b from-black via-black to-transparent"}
-                  `}
-                >
+         <div className="max-w-[100vw] overflow-x-hidden">
+            <div className="w-[100vw] min-h-screen lg:pb-0 pb-20 flex flex-col">
+                <NavigationBar scrolled={scrolled}>
                     {/* Logo */}
                     <div className="flex items-center">
-                        <button
-                            className=" z-100 flex items-center justify-center p-2 rounded text-gray-200"
-                            onClick={() => setMenuOpen(!menuOpen)}
-                            aria-label={t('navigation.openMenu')}
-                        >
-                            <FiMenu size={28} />
-                        </button>
-                        <Link href="/" className="flex items-center gap-2 cursor-pointer">
-
-                            <Image src="/logo_dark.svg" className="mx-2" alt="Logo" width={40} height={40} />
-                            <span className="font-bold text-lg lg:text-3xl text-white">{t('navigation.brand')}</span>
-                        </Link>
+                        <MenuToggle onToggle={() => setMenuOpen(!menuOpen)} />
+                        <Logo />
                     </div>
 
                     {/* Search Bar (hidden on mobile) */}
-                    <div className="hidden md:block mx-6 flex-1 max-w-md">
-                        <Suspense fallback={<div className="h-10 bg-gray-800 rounded"></div>}>
-                            <SearchInput placeholder={t('common.searchPlaceholder')} />
-                        </Suspense>
-                    </div>
-                    <ul className="hidden md:flex gap-1 items-center">
-                        {user && user.userType == 1 && <li>
-                            <Link href="/upload" className="text-gray-200 hover:underline">
-                                <p className="flex items-center rounded-lg block py-2 px-4 mb-2 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] transform transition-transform duration-200 hover:scale-105">
-                                    <FiUpload className="h-5 w-6 mb-1" />
-                                    {t('navigation.upload')}
-                                </p>
-                            </Link>
-                        </li>}
-                        <li>
-                            <Link href="/profile" className="text-gray-200 ">
-                                <div className="flex items-center py-2 px-4 mb-2 transform transition-transform duration-200 hover:scale-105">
-                                    {/* Avatar on desktop: image when available, otherwise initials */}
-                                    {avatarUrl ? (
-                                        <Image src={avatarUrl} alt={displayName} width={28} height={28} className="rounded-full w-10 h-10 mr-2 object-cover" />
-                                    ) : (
-                                        <div className="h-7 w-7 mr-2 rounded-full bg-[#fbb033] text-black flex items-center justify-center font-semibold text-sm">
-                                            {initials}
-                                        </div>
-                                    )}
-                                    <span className="hidden md:inline">{t('profile.greeting', { name: displayName.split(' ')[0] })}</span>
-                                </div>
-                            </Link>
-                        </li>
-                    </ul>
-                </nav>
+                    <NavSearch className="hidden md:block mx-6 flex-1 max-w-md" />
+                    
+                    {/* Actions */}
+                    <NavActions 
+                        type="protected" 
+                        user={user} 
+                        avatarUrl={avatarUrl} 
+                        displayName={displayName} 
+                        initials={initials}
+                        className="hidden md:flex gap-1 items-center"
+                    />
+                </NavigationBar>
+
                 <div className="flex">
                     <SideBar show={menuOpen} hide={() => setMenuOpen(false)} />
-                    <div className={`flex-1 pt-16 w-full ${menuOpen ? 'lg:w-[85vw]' : 'lg:w-full'} transition-width duration-300 ease-in`}>
+                    <div
+                        className={`flex-1 pt-16 w-[100vw] ${menuOpen ? 'lg:w-[85vw]' : 'lg:w-[100vw]'} transition-width duration-300 ease-in overflow-x-hidden`}
+                        style={{ touchAction: 'pan-y', overscrollBehaviorX: 'none' }}
+                    >
                         {children}
                     </div>
                 </div>
+                
                 <Footer />
 
                 {/* Bottom Tab Bar for Mobile */}
-                <nav className="fixed bottom-0 left-0 w-full bg-black/90 border-t border-[#fbb033] flex md:hidden z-50">
-                    <Link href="/" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
-                        <FiHome className="h-6 w-6 mb-1" />
-                        <span className="text-xs">{t('navigation.home')}</span>
-                    </Link>
-                    {/* <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
-                        <FiVideo className="h-6 w-6 mb-1" />
-                        <span className="text-xs">{t('navigation.short')}</span>
-                    </Link> */}
-                    {user && user.userType == 1 && <Link href="/upload" className="flex-1 flex flex-col items-center py-2 text-[#fbb033] hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
-                        <FiUpload className="h-8 w-8 mb-1" />
-                        <span className="text-xs">{t('navigation.upload')}</span>
-                    </Link>}
-                    {/* <Link href="/?" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
-                        <FiLogIn className="h-6 w-6 mb-1" />
-                        <span className="text-xs">{t('navigation.subscribe')}</span>
-                    </Link> */}
-                    <Link href="/profile" className="flex-1 flex flex-col items-center py-2 text-gray-300 hover:text-[#fbb033] transform transition-transform duration-200 hover:scale-105">
-                        {/* Greeting */}
-
-                        {/* Avatar: image when available, otherwise letter avatar from initials */}
-                        {avatarUrl ? (
-                            // next/image prefers width/height numbers
-                            <Image
-                                src={avatarUrl}
-                                alt={displayName}
-                                width={28}
-                                height={28}
-                                className="rounded-full w-7 h-7 mb-1 object-cover"
-                            />
-                        ) : (
-                            <div className="h-6 w-6 mb-1 rounded-full bg-[#fbb033] flex items-center justify-center font-semibold text-sm">
-                                {initials}
-                            </div>
-
-                        )}
-                        <span className="text-xs">{t('profile.greeting', { name: displayName.split(' ')[0] })}</span>
-                    </Link>
-                </nav>
+                <BottomTabBar 
+                    items={bottomTabItems}
+                    avatarUrl={avatarUrl}
+                    displayName={displayName}
+                    initials={initials}
+                    className="fixed bottom-0 left-0 w-[100vw] bg-black/90 border-t border-[#fbb033] flex md:hidden z-50"
+                />
             </div>
         </div>
     );

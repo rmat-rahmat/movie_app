@@ -12,6 +12,7 @@ import BottomTabBar from './BottomTabBar';
 import { FiHome, FiLogIn, FiUpload } from "react-icons/fi";
 import { useTranslation } from 'react-i18next';
 import { type User } from '../../store/authStore';
+import { usePathname } from "next/navigation";
 
 interface BaseLayoutProps {
   children: ReactNode;
@@ -41,6 +42,7 @@ export default function BaseLayout({
   const { t } = useTranslation('common');
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     function handleScroll() {
@@ -56,6 +58,7 @@ export default function BaseLayout({
       {
         href: "/",
         icon: <FiHome className="h-6 w-6" />,
+        highlight: pathname === '/',
         label: t('navigation.home')
       }
     ];
@@ -66,6 +69,7 @@ export default function BaseLayout({
         {
           href: "/auth/login",
           icon: <FiLogIn className="h-6 w-6" />,
+           highlight: pathname === '/auth/login',
           label: t('navigation.login')
         }
       ];
@@ -77,9 +81,9 @@ export default function BaseLayout({
     if (user && user.userType == 1) {
       protectedItems.push({
         href: "/upload",
-        icon: <FiUpload className="h-8 w-8" />,
+        icon: <FiUpload className="h-6 w-6" />,
         label: t('navigation.upload'),
-        highlight: true,
+        highlight: pathname === '/upload',
         active: true
       });
     }
@@ -87,6 +91,7 @@ export default function BaseLayout({
     protectedItems.push({
       href: "/profile",
       icon: null, // Will be handled specially in BottomTabBar
+      highlight: pathname === '/profile',
       label: t('profile.greeting', { name: displayName.split(' ')[0] })
     });
 

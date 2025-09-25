@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Image from 'next/image';
+import StarRating from '@/components/ui/StarRating';
 import type { DashboardItem as DashboardItemType } from '@/types/Dashboard';
 
 interface DashboardItemProps {
@@ -93,20 +94,8 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
       </div>
 
       {showRating && vote_average !== undefined && vote_average > 0 && (
-        <div className="flex items-center mt-auto md:mb-2 align-center px-1 md:px-4 py-1">
-          {[...Array(5)].map((_, idx: number) => (
-            <svg
-              key={idx}
-              xmlns="http://www.w3.org/2000/svg"
-              className={`h-5 w-5 ${idx < Math.ceil((vote_average || 0) / 2) ? 'text-[#fbb033]' : 'text-gray-400'}`}
-              fill={idx < Math.ceil((vote_average || 0) / 2) ? 'currentColor' : 'none'}
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={idx < Math.ceil((vote_average || 0) / 2) ? 0 : 1}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-            </svg>
-          ))}
+        <div className="mt-auto md:mb-2 px-1 md:px-4 py-1">
+          <StarRating rating={vote_average} size="md" />
         </div>
       )}
 

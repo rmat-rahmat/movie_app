@@ -134,7 +134,7 @@ const SideBar = ({ show, hide }: { show: boolean, hide: () => void }) => {
     <div className={`pt-18 md:pt-25 bg-black/80 fixed lg:relative h-screen text-white py-6 z-40  ${show ? 'w-[70vw] lg:w-[20vw]' : 'w-0'} transition-width duration-300 ease-in-out`}>
       <div className={`fixed bg-black/80  px-4 h-full ${show ? 'w-[70vw] lg:w-[20vw]' : 'w-0 hidden'} transition-width duration-300 ease-in-out`}>
         {/* <h1 className="text-3xl font-bold mt-2 mb-10">OTalk.TV</h1> */}
-        <ul>
+        <ul className='max-h-[70vh] overflow-y-auto'>
           <RecursiveMenu
             items={getMenu() as MenuItem[]}
             pathname={pathname}

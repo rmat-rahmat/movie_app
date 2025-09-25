@@ -10,9 +10,8 @@ import { FiPlay } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { formatDuration } from '@/utils/durationUtils';
 import LoadingPage from '@/components/ui/LoadingPage';
-
-import Plyr from 'plyr-react';
-import 'plyr-react/plyr.css'; // Import Plyr's CSS
+import { type BufferAppendedData } from 'hls.js';
+import StarRating from '@/components/ui/StarRating';
 
 
 interface VideoPlayerClientProps {
@@ -30,9 +29,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const [masterPlaylist, setMasterPlaylist] = useState<string | null>(null);
-  const [availableQualities,setAvailableQualities] = useState<string[]>([]);
-  const [currentlyPlayingQuality,setCurrentlyPlayingQuality] = useState<number>(-1);
-  
+  const [availableQualities, setAvailableQualities] = useState<string[]>([]);
+  const [currentlyPlayingQuality, setCurrentlyPlayingQuality] = useState<number>(-1);
+  const [calcDuration, setCalcDuration] = useState<number>(0);
+  const [tOffset, setTOffset] = useState<number>(0);
+
 
   const router = useRouter();
 
@@ -50,6 +51,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         // Note: getPlayMain result not used currently, focusing on quality variants
         if (currentVideo && currentVideo.isSeries && currentVideo.currentEpisode && currentVideo.currentEpisode.uploadId !== id) {
           setCurrentEpisode(id);
+          setCalcDuration((currentVideo.currentEpisode.duration ?? 0) | 0);
         }
         await getPlayMain(id);
         if (!mounted) return;
@@ -76,7 +78,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         }
         loadFromMaster(masterPlaylist);
         setMasterPlaylist(masterPlaylist);
-      
+
       } catch (err: unknown) {
         if (!mounted) return;
         const message = err instanceof Error ? err.message : String(err);
@@ -91,13 +93,8 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   }, [id]);
 
 
-  // preparePlayer: loads HLS source and optionally autoplay when ready
-
-  const playVideo = () => {
-    loadFromMaster(masterPlaylist || '')
-  };
   const loadFromMaster = (masterplaylist: string) => {
-    if(!loading) setLoading(true);
+    if (!loading) setLoading(true);
 
     const videoElement = videoRef.current;
     if (!videoElement || !masterplaylist) return;
@@ -126,15 +123,14 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setAvailableQualities(hlsRef.current?.levels.map(({ height }) => `${height}p`) || []);
-        // loadedQualityRef.current = quality;
-        // setSelectedQuality(quality);s
-        // if (autoplay) {
+        setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
+        
+        // Start playback
         setIsPlaying(true);
         videoElement.play().catch(console.error);
-
-        setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
-
-        // }
+        
+        // Load duration information
+        loadPlayTime();
       });
       hls.on(Hls.Events.LEVEL_SWITCHED, () => {
         setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
@@ -146,28 +142,89 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
           setError(`Playback error: ${data.details}`);
         }
       });
+
+      let local_tOffset = 0;
+      const getAppendedOffset = (eventName: string, bufferData: BufferAppendedData) => {
+        const { frag } = bufferData;
+        if (frag.type === 'main' && frag.sn !== 'initSegment' && frag.elementaryStreams.video) {
+          const { start, startDTS, startPTS, maxStartPTS, elementaryStreams } = frag;
+          local_tOffset = elementaryStreams ? elementaryStreams.video ? elementaryStreams.video.startPTS - start : 0 : 0;
+          hls.off(Hls.Events.BUFFER_APPENDED, getAppendedOffset);
+          console.log('video timestamp offset:', local_tOffset, { start, startDTS, startPTS, maxStartPTS, elementaryStreams });
+          
+          // Update global tOffset and recalculate duration
+          setTOffset(local_tOffset);
+          
+          // Recalculate duration now that we have the offset
+          if (videoElement.duration && !isNaN(videoElement.duration) && isFinite(videoElement.duration)) {
+            const calculatedDuration = Math.max(0, videoElement.duration - local_tOffset);
+            setCalcDuration(calculatedDuration);
+            console.log('Duration recalculated with offset:', calculatedDuration);
+          }
+        }
+      }
+      hls.on(Hls.Events.BUFFER_APPENDED, getAppendedOffset);
+      // and account for this offset, for example like this:
+
+
+      // const getDuration = () => videoElement.duration - tOffset;
+      // const seek = (t) => videoElement.currentTime = t + tOffset;
+
     } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
       videoElement.src = masterUrl;
       videoElement.addEventListener('loadedmetadata', () => {
-        // loadedQualityRef.current = quality;
-        // setSelectedQuality(quality);
-        // if (autoplay) {
         setIsPlaying(true);
         videoElement.play().catch(console.error);
-        // }
+        loadPlayTime();
       });
     } else {
       alert('HLS is not supported in this browser');
     }
 
-        setLoading(false);
+    setLoading(false);
   }
-  
+  const loadPlayTime = () => {
+    if (videoRef.current) {
+      const videoElement = videoRef.current;
+      
+      // Wait for loadedmetadata event to ensure duration is available
+      const handleLoadedMetadata = () => {
+        console.log('Video metadata loaded. Duration:', videoElement.duration, 'tOffset:', tOffset);
+        if (!isNaN(videoElement.duration) && isFinite(videoElement.duration)) {
+          const calculatedDuration = Math.max(0, videoElement.duration - tOffset);
+          setCalcDuration(calculatedDuration);
+          console.log('Calculated duration set to:', calculatedDuration);
+        }
+        // Remove this event listener once we have the duration
+        videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      };
+
+      const handleDurationChange = () => {
+        console.log('Duration changed:', videoElement.duration, 'tOffset:', tOffset);
+        if (!isNaN(videoElement.duration) && isFinite(videoElement.duration)) {
+          const calculatedDuration = Math.max(0, videoElement.duration - tOffset);
+          setCalcDuration(calculatedDuration);
+          console.log('Duration updated to:', calculatedDuration);
+        }
+      };
+
+      // Check if duration is already available
+      if (!isNaN(videoElement.duration) && isFinite(videoElement.duration)) {
+        const calculatedDuration = Math.max(0, videoElement.duration - tOffset);
+        setCalcDuration(calculatedDuration);
+        console.log('Duration immediately available:', calculatedDuration);
+      } else {
+        // Wait for metadata to load
+        videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+        videoElement.addEventListener('durationchange', handleDurationChange);
+      }
+    }
+  };
 
   const dynamicQualityChange = (newQuality: number) => {
     console.log('Requested quality change to:', newQuality);
-    console.log('currentQuality:',hlsRef.current?.currentLevel);
-    console.log('AvailableQualities:',hlsRef.current?.levels);
+    console.log('currentQuality:', hlsRef.current?.currentLevel);
+    console.log('AvailableQualities:', hlsRef.current?.levels);
     if (hlsRef.current) {
       hlsRef.current.currentLevel = newQuality;
     }
@@ -215,13 +272,24 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
         {/* {loading && <p>{t('video.loadingPlaylists')}</p>} */}
         {error && <p className="text-red-400">{error}</p>}
+        
+        {/* Debug info - remove this in production */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="bg-gray-800 p-4 rounded mb-4 text-sm">
+            <p>Debug Info:</p>
+            <p>calcDuration: {calcDuration}</p>
+            <p>tOffset: {tOffset}</p>
+            <p>video.duration: {videoRef.current?.duration || 'N/A'}</p>
+            <p>isPlaying: {isPlaying.toString()}</p>
+          </div>
+        )}
 
         {/* Video Player */}
         <section className="mb-6">
 
           <div className="w-full lg:w-[60vw] mx-auto pb-6">
             <div className="bg-black rounded-lg overflow-hidden mx-auto relative">
-                <video
+              <video
                 ref={videoRef}
                 className="w-full h-auto bg-black max-h-[70vh]"
                 controls
@@ -232,10 +300,16 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                   // Reload the video element to reset its state
                   videoRef.current?.load();
                 }}
+                onLoadedMetadata={() => {
+                  // Fallback for non-HLS scenarios
+                  if (!hlsRef.current) {
+                    loadPlayTime();
+                  }
+                }}
                 muted={false} // Ensure the video is not muted
-                >
+              >
                 {t('video.browserNotSupported')}
-                </video>
+              </video>
 
               {/* Large centered play overlay when not playing */}
               {/* {!isPlaying && (
@@ -279,19 +353,12 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     {currentVideo.releaseDate && (
                       <span className="text-gray-300">{currentVideo.releaseDate}</span>
                     )}
-                    {currentVideo.rating && currentVideo.rating > 0 && (
-                      <div className="flex items-center">
-                        <svg className="w-5 h-5 text-[#fbb033] mr-1" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                        </svg>
-                        <span className="text-[#fbb033]">{currentVideo.rating.toFixed(1)}</span>
-                      </div>
-                    )}
+                    {typeof currentVideo.rating === 'number' &&  <StarRating rating={currentVideo.rating} size="sm" />}
                     {currentVideo.isSeries && (
                       <span className="bg-blue-600 px-2 py-1 rounded text-xs">Series</span>
                     )}
-                    {currentVideo.currentEpisode?.duration && (
-                      <span className="text-gray-300">{formatDuration(currentVideo.currentEpisode.duration)}</span>
+                    {calcDuration && (
+                      <span className="text-gray-300">{formatDuration(calcDuration)}</span>
                     )}
                   </div>
 
@@ -365,6 +432,12 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                   <div>
                     <span className="text-gray-400">{t('video.region')}: </span>
                     <span className="text-white">{currentVideo.region}</span>
+                  </div>
+                )}
+                {calcDuration > 0 && (
+                  <div>
+                    <span className="text-gray-400">{t('video.duration')}: </span>
+                    <span className="text-white">{formatDuration(calcDuration)}</span>
                   </div>
                 )}
               </div>

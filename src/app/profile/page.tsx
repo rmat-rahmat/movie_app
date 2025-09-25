@@ -38,7 +38,7 @@ export default function Profile() {
 
     return (
         <>
-            {isloading || authLoading || !user ? <LoadingPage /> : <div className="container mx-auto overflow-hidden">
+            {isloading || authLoading || !user ? <LoadingPage /> : <div className=" mx-auto overflow-hidden">
                 <div className="grid h-[40vh] md:h-[30vh] w-full md:grid-cols-[30%_70%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
                     <div className="bg-black order-last md:order-first flex items-end md:pl-20 overflow-visible">
                         <div className="flex items-center gap-4 p-4 min-w-[200%] z-1">
@@ -60,8 +60,8 @@ export default function Profile() {
                             </div>
                         </div>
                     </div>
-                    <div className="relative bg-[#fbb033] order-first md:order-last flex items-center justify-center">
-                        <video
+                    <div className="relative w-[full] bg-[#fbb033] order-first md:order-last flex items-center justify-center">
+                        {/* <video
                             src="https://www.w3schools.com/html/mov_bbb.mp4"
                             muted
                             playsInline
@@ -70,7 +70,7 @@ export default function Profile() {
                             controls={false}
                             className="object-cover w-full h-full inset-0"
                             style={{ width: "100%", height: "100%" }}
-                        />
+                        /> */}
                         <div className="absolute inset-0 h-full bg-gradient-to-t from-black via-black/30 to-black/30 md:bg-[radial-gradient(circle_at_60%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
                         <div className="absolute inset-0 h-full md:bg-[radial-gradient(circle_at_70%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
                     </div>

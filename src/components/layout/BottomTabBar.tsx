@@ -4,6 +4,8 @@ import Link from "next/link";
 import { FiHome, FiLogIn, FiUpload } from "react-icons/fi";
 import Image from "next/image";
 import { useTranslation } from 'react-i18next';
+import { usePathname } from 'next/navigation';
+
 
 interface BottomTabItem {
   href: string;
@@ -29,6 +31,7 @@ export default function BottomTabBar({
   className = "fixed bottom-0 left-0 w-[100vw] bg-black/90 border-t border-[#fbb033] flex lg:hidden z-50" 
 }: BottomTabBarProps) {
   const { t } = useTranslation('common');
+    const pathname = usePathname();
 
   return (
     <nav className={className}>
@@ -49,7 +52,7 @@ export default function BottomTabBar({
                   alt={displayName || 'User'}
                   width={28}
                   height={28}
-                  className="rounded-full w-7 h-7 mb-1 object-cover"
+                  className={`rounded-full w-7 h-7 mb-1 object-cover ${item.highlight ? 'ring-2 ring-[#fbb033]' : ''} `}
                 />
               ) : (
                 <div className="h-6 w-6 mb-1 rounded-full bg-[#fbb033] flex items-center justify-center font-semibold text-sm">
@@ -61,7 +64,7 @@ export default function BottomTabBar({
           ) : item.icon ? (
             <>
               {item.highlight ? (
-                <div className="h-8 w-8 mb-1 flex items-center justify-center">
+                <div className="h-8 w-8 mb-1 flex items-center justify-center text-[#fbb033]">
                   {item.icon}
                 </div>
               ) : (

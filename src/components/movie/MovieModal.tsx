@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useVideoStore } from '@/store/videoStore';
 import { formatDuration } from '@/utils/durationUtils';
 import { useTranslation } from 'react-i18next';
+import { encryptUrl } from '@/utils/urlEncryption';
 
 interface MovieModalProps {
   video: DashboardItem;
@@ -89,19 +90,27 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
   const portraitImage = source.imageQuality?.p360 || "";
   const rating = source.rating || 0;
 
-  const navigateToPlayer = (uploadId?: string | number | undefined) => {
-    const id = uploadId || (isVideoDetails(source) && source.uploadId) || source.id;
-    if (!id) return;
-    
-    console.log(uploadId)
-    // Store video metadata in Zustand store
+  const navigateToPlayer = (id: string) => {
+    if (!detail) return;
+    const source = detail;
     const { setVideoFromDetails } = useVideoStore.getState();
-    if (isVideoDetails(source)) {
+
+    if (useVideoStore.getState().currentVideo?.id !== source.id) {
       setVideoFromDetails(source, String(id));
     }
     
     // push to query-param based player route so static export works
     router.push(`/videoplayer?id=${encodeURIComponent(String(id))}`);
+  };
+
+  const navigateToExternalPlayer = (playUrl: string) => {
+    if (!playUrl) return;
+    
+    // Encrypt the external URL for security
+    const encryptedUrl = encryptUrl(playUrl);
+    
+    // Navigate to external player with encrypted URL
+    router.push(`/videoplayerExternal?url=${encodeURIComponent(encryptedUrl)}`);
   };
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center">
@@ -255,17 +264,31 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
                             {t('modal.duration')}: {formatDuration(ep.duration)}
                           </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => navigateToPlayer(ep.uploadId || ep.id)}
-                          className="flex items-center gap-2 border border-gray-700 text-gray-400 hover:text-white px-3 py-1 rounded-lg cursor-pointer hover:border-[#fbb033] transition-colors"
-                          title="Watch episode"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#fbb033]" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path d="M6 4l10 6-10 6V4z" />
-                          </svg>
-                          <span>{t('modal.watch')}</span>
-                        </button>
+                        {ep.uploadId ? (
+                          <button
+                            type="button"
+                            onClick={() => navigateToPlayer(ep.uploadId || ep.id || '')}
+                            className="flex items-center gap-2 border border-gray-700 text-gray-400 hover:text-white px-3 py-1 rounded-lg cursor-pointer hover:border-[#fbb033] transition-colors"
+                            title="Watch episode"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#fbb033]" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <path d="M6 4l10 6-10 6V4z" />
+                            </svg>
+                            <span>{t('modal.watch')}</span>
+                          </button>
+                        ) : ep.playUrl ? (
+                          <button
+                            type="button"
+                            onClick={() => navigateToExternalPlayer(ep.playUrl || '')}
+                            className="flex items-center gap-2 border border-gray-700 text-gray-400 hover:text-white px-3 py-1 rounded-lg cursor-pointer hover:border-[#fbb033] transition-colors"
+                            title="Watch external episode"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#fbb033]" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <path d="M6 4l10 6-10 6V4z" />
+                            </svg>
+                            <span>{t('modal.watch')} (Ext)</span>
+                          </button>
+                        ) : null}
                         {/* <div className="text-xs text-gray-300">UploadId: <span className="text-[#fbb033]">{ep.uploadId || ep.id}</span></div> */}
                       </div>
                     ))}
@@ -276,10 +299,14 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
               </div>
             ) : (
               <div className="mt-4 w-full">
-               {isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].uploadId && 
+               {isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].uploadId ?
                 <button type="button" onClick={() => navigateToPlayer((isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].uploadId) || (isVideoDetails(source) && source.uploadId) || '')} className="bg-[#fbb033] text-white font-bold hover:bg-red-500 px-3 py-3 rounded w-full cursor-pointer">
                   {t('modal.watchNow')}
-                </button>}
+                </button> : isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].playUrl ? (
+                <button type="button" onClick={() => navigateToExternalPlayer((isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].playUrl) || '')} className="bg-[#fbb033] text-white font-bold hover:bg-red-500 px-3 py-3 rounded w-full cursor-pointer">
+                  {t('modal.watchNow')} (External)
+                </button>
+                ) : null}
               </div>
             )}
           </div>

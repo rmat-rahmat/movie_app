@@ -9,7 +9,7 @@ import NavSearch from "../layout/NavSearch";
 import NavActions from "../layout/NavActions";
 import NavigationBar from "../layout/NavigationBar";
 import BottomTabBar from "../layout/BottomTabBar";
-import { FiHome, FiUpload } from "react-icons/fi";
+import { FiHome, FiPlusCircle, FiUpload } from "react-icons/fi";
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from "@/store/authStore";
 import { getImageById } from "@/lib/uploadAPI";
@@ -66,7 +66,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         },
         ...(user && user.userType == 1 ? [{
             href: "/upload",
-            icon: <FiUpload className="h-8 w-8" />,
+            icon: <FiPlusCircle className="h-8 w-8" />,
             label: t('navigation.upload'),
             highlight: true,
             active: true

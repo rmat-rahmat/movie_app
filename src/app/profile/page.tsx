@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import LoadingPage from "@/components/ui/LoadingPage";
 import { VideoSrc } from "@/types/VideoSrc";
 import { getLastSeenVideos } from "@/lib/userMovieList";
-import { FiSettings } from "react-icons/fi";
+import { FiLogOut, FiSettings } from "react-icons/fi";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from '@/store/authStore';
@@ -56,6 +56,10 @@ export default function Profile() {
                                         <FiSettings className="h-4 w-4" />
                                         <span className="text-sm">{t('profile.settings') || 'Settings'}</span>
                                     </Link>
+                                    <button className="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 w-full md:w-fit rounded font-medium hover:bg-gray-700 transition" onClick={() => useAuthStore.getState().logout()}>
+                                        <FiLogOut className="h-4 w-4" />
+                                        <span className="text-sm">{t('navigation.logout') || 'Logout'}</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>

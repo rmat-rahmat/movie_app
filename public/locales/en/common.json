@@ -91,9 +91,11 @@
       "gender": "Gender",
       "male": "Male",
       "female": "Female",
-      "other": "Other"
+      "other": "Other",
+      "noMoreContent": "No more content to load"
     },
     "movie": {
+      "moreInfo": "More Info",
       "genres": "Genres",
       "rating": "Rating",
       "duration": "Duration",
@@ -115,6 +117,8 @@
       "currentPlan": "Current Plan"
     },
     "profile": {
+      "me": "Me",
+      "you": "You",
       "personalInfo": "Personal Information",
       "changePassword": "Change Password",
       "preferences": "Preferences",
@@ -128,6 +132,24 @@
       "lastSeen": "Last Seen",
       "uploadedVideos": "Uploaded Videos",
       "playlists": "Playlists"
+    },
+    "profileEmpty": {
+      "welcome": "Welcome to OTalk TV",
+      "subtitle": "Your entertainment journey starts here",
+      "encourageText": "Join millions of users and discover your next favorite show",
+      "feature1Title": "Unlimited Movies",
+      "feature1Desc": "Stream thousands of movies and TV shows",
+      "feature2Title": "Personalized",
+      "feature2Desc": "Get recommendations based on your taste", 
+      "feature3Title": "Multi-language",
+      "feature3Desc": "Content in multiple languages",
+      "termsText": "By continuing, you agree to our",
+      "termsLink": "Terms and Conditions",
+      "andText": "and",
+      "privacyLink": "Privacy Policy",
+      "moviesCount": "Movies",
+      "usersCount": "Users",
+      "countriesCount": "Countries"
     },
     "upload": {
       "title": "Upload Content",
@@ -199,6 +221,9 @@
       "changePassword": "Change Password",
       "save": "Save"
     },
+    "language": {
+      "current": "Language"
+    },
     "languages": {
       "en": "English",
       "ms": "Bahasa Melayu",
@@ -211,6 +236,7 @@
     ,
     "video": {
       "playerTitle": "Video Player - {{id}}",
+      "externalPlayerTitle": "External Video Player",
       "browserNotSupported": "Your browser does not support the video tag.",
       "play": "Play",
       "pause": "Pause",
@@ -234,7 +260,13 @@
       "exitFullscreen": "Exit fullscreen",
       "settings": "Settings",
       "playbackSpeed": "Playback Speed",
-      "quality": "Quality"
+      "quality": "Quality",
+      "loadingVideoPlayer": "Loading video player...",
+      "recommendedVideos": "Recommended Videos",
+      "loadingRecommendations": "Loading recommendations...",
+      "externalSource": "External Source",
+      "externalSourceInfo": "This video is hosted externally",
+      "externalSourceDomain": "Source"
     },
     "modal": {
       "loadingDetails": "Loading details...",

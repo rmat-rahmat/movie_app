@@ -9,7 +9,7 @@ import NavSearch from './NavSearch';
 import NavActions from './NavActions';
 import NavigationBar from './NavigationBar';
 import BottomTabBar from './BottomTabBar';
-import { FiHome, FiLogIn, FiUpload } from "react-icons/fi";
+import { FiHome, FiLogIn, FiPlusCircle, FiUpload, FiUser } from "react-icons/fi";
 import { useTranslation } from 'react-i18next';
 import { type User } from '../../store/authStore';
 import { usePathname } from "next/navigation";
@@ -67,10 +67,10 @@ export default function BaseLayout({
       return [
         ...baseItems,
         {
-          href: "/auth/login",
-          icon: <FiLogIn className="h-6 w-6" />,
-           highlight: pathname === '/auth/login',
-          label: t('navigation.login')
+          href: "/profileempty",
+          icon: <FiUser className="h-6 w-6" />,
+          highlight: pathname === '/profileempty' || pathname === '/profileempty/' ,
+          label: t('profile.you')
         }
       ];
     }
@@ -81,9 +81,9 @@ export default function BaseLayout({
     if (user && user.userType == 1) {
       protectedItems.push({
         href: "/upload",
-        icon: <FiUpload className="h-6 w-6" />,
+        icon: <FiPlusCircle className="h-6 w-6" />,
         label: t('navigation.upload'),
-        highlight: pathname === '/upload',
+        highlight: pathname === '/upload'|| (pathname?.startsWith?.('/upload/') ?? false),
         active: true
       });
     }
@@ -91,8 +91,8 @@ export default function BaseLayout({
     protectedItems.push({
       href: "/profile",
       icon: null, // Will be handled specially in BottomTabBar
-      highlight: pathname === '/profile',
-      label: t('profile.greeting', { name: displayName.split(' ')[0] })
+      highlight: pathname === '/profile' || (pathname?.startsWith?.('/profile/') ?? false),
+      label: t('profile.me') || displayName.split(' ')[0]
     });
 
     return protectedItems;
@@ -109,7 +109,7 @@ export default function BaseLayout({
         <NavigationBar scrolled={scrolled}>
           {/* Logo */}
           <div className="flex items-center">
-            <MenuToggle onToggle={() => setMenuOpen(!menuOpen)} />
+            <MenuToggle className="hidden md:block" onToggle={() => setMenuOpen(!menuOpen)} />
             <Logo />
           </div>
 

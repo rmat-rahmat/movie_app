@@ -44,7 +44,7 @@ const RecursiveMenu: React.FC<RecursiveMenuProps> = ({ items, pathname, openDrop
                                 userAction=true;
                                 onToggle([...parentStack, name || label])
                             }}
-                            className={`flex w-full cursor-pointer items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033] ${isOpen ? 'bg-gradient-to-l from-[#fbb033] to-transparent font-bold' : ''
+                            className={`text-[4vw] md:text-lg flex w-full cursor-pointer items-center rounded-md block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033] ${isOpen ? 'bg-gradient-to-l from-[#fbb033] to-transparent font-bold' : ''
                                 }`}
                         >
                             {icon}
@@ -66,7 +66,7 @@ const RecursiveMenu: React.FC<RecursiveMenuProps> = ({ items, pathname, openDrop
                 <li key={key}>
                     <Link href={href || '#'}>
                         <p
-                            className={`flex w-full rounded-md items-center block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033] ${pathname === href ? 'bg-gradient-to-l from-[#fbb033] to-transparent font-bold' : ''
+                            className={`text-[4vw] md:text-lg flex w-full rounded-md items-center block p-2 mb-2 hover:shadow-[0px_0px_10px_1px] shadow-[#fbb033] ${pathname === href ? 'bg-gradient-to-l from-[#fbb033] to-transparent font-bold' : ''
                                 }`}
                         >
                             {icon}

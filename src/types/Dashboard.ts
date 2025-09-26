@@ -83,6 +83,33 @@ export interface DashboardApiResponse {
   serverError?: boolean;
 }
 
+// Content List VO for recommendation API
+export interface ContentListVO {
+  page: number;
+  size: number;
+  contents: VideoVO[];
+  errorMessage?: string;
+  hasError?: boolean;
+}
+
+// Recommendation API response
+export interface RecommendationApiResponse {
+  status: number;
+  code?: string;
+  success: boolean;
+  message?: string;
+  data: ContentListVO;
+  timestamp?: number;
+  errorId?: string;
+  path?: string;
+  error?: ErrorDetail;
+  validationErrors?: ValidationError[];
+  pageInfo?: PageInfo;
+  metadata?: Record<string, unknown>;
+  clientError?: boolean;
+  serverError?: boolean;
+}
+
 // Video VO type for category videos API
 export interface VideoVO {
   id: string; // Make id mandatory to align with DashboardItemType
@@ -117,6 +144,7 @@ export interface VideoVO {
 export interface Episode {
   id?: string;
   uploadId?: string;
+  playUrl?: string;
   title?: string;
   description?: string;
   episodeNumber?: number;

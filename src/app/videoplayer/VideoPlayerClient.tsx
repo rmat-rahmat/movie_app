@@ -12,6 +12,7 @@ import { formatDuration } from '@/utils/durationUtils';
 import LoadingPage from '@/components/ui/LoadingPage';
 import { type BufferAppendedData } from 'hls.js';
 import StarRating from '@/components/ui/StarRating';
+import RecommendationGrid from '@/components/movie/RecommendationGrid';
 
 
 interface VideoPlayerClientProps {
@@ -330,7 +331,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
               )} */}
               {loading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/25 transition-colors">
-                  <LoadingPage message={t('video.loadingPlaylists')} />
+                  <LoadingPage message={t('video.loadingVideoPlayer')} className='relative bg-white/10 w-full h-full' />
                 </div>
               )}
 
@@ -399,7 +400,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
         {/* Additional Video Information */}
         {currentVideo && (
-          <div className="w-full lg:w-[60vw] mx-auto space-y-6">
+          <div className="w-full lg:w-[60vw] mx-auto space-y-6 ">
             {/* Cast and Crew */}
             <div className="grid md:grid-cols-[40%_30%_30%] gap-6">
               {currentVideo.actors && currentVideo.actors.length > 0 && (
@@ -495,6 +496,28 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Recommended Videos Section */}
+        {currentVideo?.id && (
+          <div className="mt-8">
+            <RecommendationGrid
+              videoId={String(currentVideo.id)}
+              title={t('video.recommendedVideos', 'Recommended Videos')}
+              icon={
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-[#fbb033]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              }
+            />
           </div>
         )}
       </div>

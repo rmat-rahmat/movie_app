@@ -17,10 +17,21 @@ const publicRoutes = ['/auth/login', '/auth/register', '/', '/about', '/movies']
 // Routes that require authentication
 const protectedRoutes = ['/profile', '/settings', '/upload'];
 
+// Function to check if a pathname matches a protected route more precisely
+const isProtectedRoute = (pathname: string) => {
+  return protectedRoutes.some(route => {
+    if (route === '/profile') {
+      // Only match /profile exactly, not /profileempty or other variations
+      return pathname === '/profile' || pathname.startsWith('/profile/');
+    }
+    return pathname.startsWith(route);
+  });
+};
+
 // Routes that can be accessed by both authenticated and unauthenticated users
 // but show different layouts
 const hybridRoutes = ['/', '/about', '/movies', '/category', '/search','/videoplayer',
-  '/viewmore'
+  '/viewmore', '/profileempty'
 ];
 
 export default function AuthWrapperOptimized({ children }: AuthWrapperOptimizedProps) {
@@ -89,7 +100,7 @@ export default function AuthWrapperOptimized({ children }: AuthWrapperOptimizedP
     if (!pathname) return;
 
     // Protected route redirect when not authenticated and not loading
-    if (protectedRoutes.some((r) => pathname.startsWith(r))) {
+    if (isProtectedRoute(pathname)) {
       if (!isLoading && !isAuthenticated) {
         router.push('/auth/login');
       }
@@ -112,7 +123,7 @@ export default function AuthWrapperOptimized({ children }: AuthWrapperOptimizedP
   if (!pathname) return <BaseLayout type="guest">{children}</BaseLayout>;
 
   // Protected routes - if not authenticated we already redirected above; show layout for authenticated users
-  if (protectedRoutes.some((route) => pathname.startsWith(route))) {
+  if (isProtectedRoute(pathname)) {
     if (!isAuthenticated) return <LoadingPage />; // fallback while redirect happens
     return (
       <BaseLayout 
@@ -127,16 +138,16 @@ export default function AuthWrapperOptimized({ children }: AuthWrapperOptimizedP
     );
   }
 
-  // Auth pages (login/register) - render raw children when not authenticated
+  // Auth pages (login/register) - render raw children without BaseLayout
   if (pathname === '/auth/login' || pathname === '/auth/register') {
     if (isAuthenticated) return <LoadingPage />; // redirect is handled in effect
     return <>{children}</>;
   }
 
-  // For other /auth/* routes
+  // For other /auth/* routes - also render without BaseLayout
   if (pathname.startsWith('/auth/')) {
     if (isAuthenticated) return <LoadingPage />;
-    return <BaseLayout type="guest">{children}</BaseLayout>;
+    return <>{children}</>;
   }
 
   // Hybrid routes: show ProtectedLayout for authenticated users, GuestLayout otherwise

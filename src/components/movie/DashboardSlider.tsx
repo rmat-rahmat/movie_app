@@ -85,7 +85,7 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
     return (
         <div
             style={{ backgroundColor: "black" }}
-            className="w-full relative h-[457px] md:h-[400px] overflow-hidden"
+            className="w-full relative h-[500px] md:h-[70vh] lg:h-[80vh] overflow-hidden"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -115,64 +115,29 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
                 return (
                     <div
                         key={`${video.id}-${idx}`}
-                        className={`absolute inset-0 transition-opacity duration-1000 ${x < 0 && idx === (current + 1) % videos.length ? 'z-2 opacity-100' : x > 0 && idx === (current - 1 + videos.length) % videos.length ? 'z-2 opacity-100' : idx === current ? 'z-9 opacity-100' : 'z-1 opacity-50'}`}
+                        className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                            x < 0 && idx === (current + 1) % videos.length 
+                                ? 'z-20 opacity-100 scale-105' 
+                                : x > 0 && idx === (current - 1 + videos.length) % videos.length 
+                                    ? 'z-20 opacity-100 scale-105' 
+                                    : idx === current 
+                                        ? 'z-30 opacity-100 scale-100' 
+                                        : 'z-10 opacity-40 scale-95'
+                        }`}
                         style={idx === current ? { transform: `translateX(${x}px)` } : undefined}
                     >
-                        <div className="grid h-full w-full md:grid-cols-[30%_70%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
-                            <div className="bg-black w-[90vw] md:w-full order-last md:order-first flex items-end pb-12 mx-auto md:pl-20 overflow-visible">
-
-                                <div className="text-white min-w-full md:min-w-[50vw] md:max-w-[50vw] z-1">
-                                    <h2 className="text-2xl md:text-4xl font-bold mb-2">{title}</h2>
-                                    <div className="bg-gradient-to-b from-[#fbb033] to-[#f69c05] mb-3 py-2 rounded-lg text-center inline-block w-auto px-4">
-                                        {releaseLabel}
-                                    </div>
-                                    <p className="text-base md:text-lg">
-                                        {description.split(" ").slice(0, 50).join(" ") + (description.split(" ").length > 50 ? "..." : "")}
-                                    </p>
-                                    <button
-                                        onClick={() => handleDashboardItemClick(video)}
-                                        className="mt-4 bg-[#fbb033] hover:bg-[#f69c05] text-black font-semibold py-2 px-4 rounded inline-flex items-center cursor-pointer"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="h-5 w-5 mr-2"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            strokeWidth={2}
-                                        >
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                       {t('modal.watchNow')}
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="relative bg-[#fbb033] order-first md:order-last">
-                                {/* <img
-                                src={computedSrc}
-                                alt={title}
-                                className="object-cover w-full h-full"
-                                onError={() => setImageErrorMap(s => ({ ...s, [idx]: true }))}
-                                onLoad={() => {
-                                    setImageErrorMap(s => {
-                                        if (!s[idx]) return s;
-                                        const copy = { ...s };
-                                        delete copy[idx];
-                                        return copy;
-                                    });
-                                }}
-                            /> */}
+                        <div className="relative w-full h-full">
+                            {/* Background Image with Enhanced Gradients */}
+                            <div className="absolute inset-0">
                                 <Image
                                     src={computedSrc}
                                     alt={title}
                                     fill
-                                    className="object-cover w-full h-full"
+                                    className="object-cover"
                                     sizes="100vw"
                                     priority={idx === current}
                                     onError={() => setImageErrorMap(s => ({ ...s, [idx]: true }))}
                                     onLoad={() => {
-                                        // clear any previous error if the image successfully loads
                                         setImageErrorMap(s => {
                                             if (!s[idx]) return s;
                                             const copy = { ...s };
@@ -181,33 +146,120 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
                                         });
                                     }}
                                 />
-                                <div className="absolute inset-0 h-full bg-gradient-to-t from-black via-black/30 to-black/30 md:bg-[radial-gradient(circle_at_60%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
-                                <div className="absolute inset-0 h-full md:bg-[radial-gradient(circle_at_70%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
+                                {/* Netflix-style gradient overlays */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
+                                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
                             </div>
+
+                            {/* Content Container */}
+                            <div className="relative z-10 h-full flex items-center justify-start">
+                                <div className="px-14 md:px-16 lg:px-20 max-w-2xl">
+                                    {/* Title */}
+                                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-2xl leading-tight">
+                                        {title}
+                                    </h1>
+                                    
+                                    {/* Release Info Badge */}
+                                    {releaseLabel && (
+                                        <div className="inline-flex items-center bg-gradient-to-r from-[#fbb033] to-[#f69c05] text-black font-bold px-3 md:px-4 py-2 rounded-full text-xs md:text-base mb-6 shadow-lg">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            {releaseLabel}
+                                        </div>
+                                    )}
+                                    
+                                    {/* Description */}
+                                    <p className="text-sm md:text-xl text-gray-200 mb-2 md:mb-8 leading-relaxed drop-shadow-lg max-w-xl line-clamp-3">
+                                        {description.split(" ").slice(0, 30).join(" ")}
+                                        {description.split(" ").length > 30 ? "..." : ""}
+                                    </p>
+                                    
+                                    {/* Action Buttons */}
+                                    <div className="flex flex-wrap gap-2 md:gap-4">
+                                        <button
+                                            onClick={() => handleDashboardItemClick(video)}
+                                            className="text-xs md:text-sm bg-white hover:bg-gray-200 text-black font-bold py-2 md:py-3 px-8 rounded-full inline-flex items-center cursor-pointer transition-all duration-200 transform hover:scale-105 shadow-xl"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-6 w-6 mr-3"
+                                                fill="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                            {t('modal.watchNow')}
+                                        </button>
+                                        
+                                        <button
+                                            onClick={() => handleDashboardItemClick(video)}
+                                            className="text-xs md:text-sm bg-gray-600/80 hover:bg-gray-500/80 text-white font-semibold py-2 md:py-3 px-8 rounded-full inline-flex items-center cursor-pointer transition-all duration-200 backdrop-blur-sm border border-gray-400/30"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-5 w-5 mr-2"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                strokeWidth={2}
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            {t('movie.moreInfo')}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Age Rating Badge (if applicable) */}
+                            {video.rating && (
+                                <div className="absolute top-8 right-8 bg-gray-800/80 backdrop-blur-sm border border-gray-600 text-white px-3 py-1 rounded text-sm font-semibold">
+                                    {video.rating}/10
+                                </div>
+                            )}
                         </div>
                     </div>
                 );
             })}
-            <div className="absolute bottom-0 flex gap-0 z-10 justify-center w-full px-5">
+            {/* Netflix-style Indicators */}
+            <div className="absolute bottom-4 md:bottom-8 right-4 md:right-8 flex gap-2 z-40">
                 {videos.map((_, idx) => (
                     <button
                         key={idx}
                         className={`
-                            ${idx === 0 ? "rounded-l-lg" : ""}
-                            ${idx === videos.length - 1 ? "rounded-r-lg" : ""}
-                            z-100 w-[calc(100vw-16rem)] h-2 cursor-pointer
-                            
+                            h-1 transition-all duration-500 ease-in-out rounded-full cursor-pointer
                             ${idx === current
-                                ? "bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-gray-400/50 transition-colors duration-1000 ease-in-out"
-                                : idx < current
-                                    ? "bg-[#fbb033] "
-                                    : "bg-gray-400/50"}
+                                ? "bg-white w-8 shadow-lg"
+                                : "bg-gray-400/60 hover:bg-gray-300/80 w-4"}
                         `}
                         onClick={() => setCurrent(idx)}
                         aria-label={`Go to slide ${idx + 1}`}
                     />
                 ))}
             </div>
+
+            {/* Navigation Arrows */}
+            <button
+                onClick={() => setCurrent((prev) => (prev - 1 + videos.length) % videos.length)}
+                className="absolute left-3 md:left-8 top-1/2 transform -translate-y-1/2 z-40  hover:bg-black/60 text-white p-3 rounded-full transition-all duration-200 group"
+                aria-label="Previous slide"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            
+            <button
+                onClick={() => setCurrent((prev) => (prev + 1) % videos.length)}
+                className="absolute right-3 md:right-8 top-1/2 transform -translate-y-1/2 z-40  hover:bg-black/60 text-white p-3 rounded-full transition-all duration-200  group"
+                aria-label="Next slide"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
         </div>
     );
 };

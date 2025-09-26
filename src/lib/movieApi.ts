@@ -3,7 +3,7 @@ import { parseStringPromise } from 'xml2js';
 import axios from 'axios';
 import { BASE_URL } from '../config';
 import type { VideoSrc } from "@/types/VideoSrc";
-import type { DashboardApiResponse, DashboardItem, CategoryItem, VideosApiResponse, SearchApiResponse } from '@/types/Dashboard';
+import type { DashboardApiResponse, DashboardItem, CategoryItem, VideosApiResponse, SearchApiResponse, RecommendationApiResponse } from '@/types/Dashboard';
 import { parseJsonFile } from "next/dist/build/load-jsconfig";
 import i18next from 'i18next';
 
@@ -521,6 +521,39 @@ export async function getContentDetail(contentId: string): Promise<import('@/typ
     return null;
   } catch (err) {
     console.error('Failed to fetch content detail for', contentId, err);
+    return null;
+  }
+}
+
+/**
+ * Get recommended videos based on a video ID
+ * @param videoId - The video ID to get recommendations for
+ * @param page - Page number (defaults to 1)
+ * @param size - Page size (defaults to 20, max 100)
+ * @returns Promise<RecommendationApiResponse | null>
+ */
+export async function getVideoRecommendations(videoId: string, page: number = 1, size: number = 20): Promise<RecommendationApiResponse | null> {
+  try {
+    const response = await axios.get(`${BASE_URL}/api-movie/v1/home/videoRecommendationList`, {
+      params: {
+        videoId,
+        page,
+        size: Math.min(size, 100) // Ensure size doesn't exceed 100
+      },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+
+    const data = response.data;
+    
+    if (data?.success && data?.data) {
+      return data as RecommendationApiResponse;
+    }
+    
+    return null;
+  } catch (err) {
+    console.error('Failed to fetch video recommendations for', videoId, err);
     return null;
   }
 }

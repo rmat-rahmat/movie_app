@@ -143,37 +143,40 @@ export default function Home() {
   const MovieCategoryFilter: React.FC<MovieCategoryFilterProps> = ({ categories, display }) => {
     return (
       <>
-        {display === 'mobile' && <hr className="flex md:hidden h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0 mt-3" />}
+        {/* {display === 'mobile' && <hr className="flex w-[90vw] mx-auto md:hidden h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0 mt-3" />} */}
         <div
           className={`
-            flex  w-[99vw] mx-auto overflow-x-auto mt-2 mb-5
+            flex flex-row items-center flex-nowrap overflow-x-auto  w-[90vw] mx-auto mt-2 mb-5 justify-center
             ${display === 'mobile'
               ? "overflow-x-auto mt-2 mb-5 md:hidden"
               : "hidden md:flex"}
           `}
           style={{ scrollbarWidth: "none" }}
         >
-            {categoryList.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => {
-                  location.href = `/category/${cat.id}`
-                  // setSelectedCategory(getLocalizedCategoryName(cat) === selectedCategory ? null : getLocalizedCategoryName(cat)||"All")
-                }}
-                className={`mx-1 px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-md hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === getLocalizedCategoryName(cat)
-                  ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"
-                  : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] hover:text-white transition-colors duration-300"
-                  }`}
-              >
-                {getLocalizedCategoryName(cat)}
-              </button>
-            ))}
+              {categoryList.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    if(cat.id==="All"){
+                      return;
+                    }
+                    location.href = `/category/${cat.id}`
+                    // setSelectedCategory(getLocalizedCategoryName(cat) === selectedCategory ? null : getLocalizedCategoryName(cat)||"All")
+                  }}
+                  className={` md:text-xl mx-1 px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-full hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === getLocalizedCategoryName(cat)
+                    ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"
+                    : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] hover:text-white transition-colors duration-300"
+                    }`}
+                >
+                  {getLocalizedCategoryName(cat)}
+                </button>
+              ))}
+            </div>
           <style jsx>{`
             div::-webkit-scrollbar {
               display: none;
             }
           `}</style>
-        </div>
       </>
     );
   };

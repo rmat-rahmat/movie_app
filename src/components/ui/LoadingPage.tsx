@@ -2,11 +2,11 @@
 import React from "react";
 import { useTranslation } from "next-i18next";
 
-const LoadingPage: React.FC<{ message?: string }> = ({ message }) =>{ 
+const LoadingPage: React.FC<{ message?: string,className?: string }> = ({ message,className }) =>{ 
   const { t } = useTranslation('common');
   
   return(
-  <div className="fixed inset-0 flex flex-col items-center justify-center bg-black/90 z-50">
+  <div className={`fixed inset-0 flex flex-col items-center justify-center bg-black/90 z-50 ${className}`}>
     <svg
       className="animate-spin h-12 w-12 text-[#fbb033] mb-6"
       xmlns="http://www.w3.org/2000/svg"

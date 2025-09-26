@@ -7,15 +7,6 @@
   --foreground: #171717;
 } */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-/* 
-@media (prefers-color-scheme: dark) { */
 /* force dark mode  */
 :root {
   --background: #000000;
@@ -40,5 +31,122 @@ body {
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Custom Video Player Styles */
+.video-slider {
+  appearance: none;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  outline: none;
+}
+
+.video-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #fbb033;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Netflix-style Dashboard Slider Enhancements */
+.dashboard-slider {
+  backdrop-filter: blur(8px);
+}
+
+.slide-fade-in {
+  animation: slideIn 0.8s ease-out forwards;
+}
+
+.text-shadow-strong {
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.gradient-overlay {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    transparent 100%
+  );
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Netflix-style grid utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Smooth transform animations */
+.transform-gpu {
+  transform: translateZ(0);
+}
+
+/* Custom backdrop blur for better performance */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+/* Hover animations */
+@keyframes float-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-float-up {
+  animation: float-up 0.3s ease-out;
+}
+
+.video-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: #fbb033;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
 }
 

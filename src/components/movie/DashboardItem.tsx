@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import StarRating from '@/components/ui/StarRating';
 import type { DashboardItem as DashboardItemType } from '@/types/Dashboard';
+import { FiPlay, FiInfo } from 'react-icons/fi';
 
 interface DashboardItemProps {
   video: DashboardItemType;
@@ -14,6 +15,7 @@ interface DashboardItemProps {
 
 const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, showRating, showViewer }) => {
   const [imageError, setImageError] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
 
   const potrait = video.imageQuality?.p360 || '';
@@ -47,16 +49,22 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
     <div
       key={video.id}
       onClick={onClick}
-      className={`flex flex-1 flex-col bg-black shadow-[0px_0px_2px_1px] pb-1 md:pb-2 shadow-[#fbb033] rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`group relative flex flex-col bg-black/80 backdrop-blur-sm rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ease-out hover:scale-105 hover:z-20 hover:shadow-2xl hover:shadow-[#fbb033]/30 ${
+        isHovered ? 'transform-gpu' : ''
+      }`}
     >
-      <div className={`relative w-full aspect-[2/3] rounded-lg md:mb-2 bg-gray-800`}>
-        <div className="absolute w-full h-full bg-gradient-to-t from-black via-black/30 to-transparent z-1" />
+      {/* Main Image Container */}
+      <div className="relative w-full aspect-[3/4]  bg-gray-900 overflow-hidden rounded-t-lg">
         <Image
           src={computedSrc}
           alt={video.title || ''}
           fill
-          className="z-0 rounded-lg object-cover"
-          sizes="100vw"
+          className={`object-cover transition-all duration-500 ${
+            isHovered ? 'scale-110 brightness-75' : 'scale-100 brightness-100'
+          }`}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           priority={index === 0}
           onError={() => setImageError(true)}
           onLoad={(e) => {
@@ -64,48 +72,99 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
             handleImageLoad(e);
           }}
         />
+        
+        {/* Gradient Overlay */}
+        <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent transition-opacity duration-300 ${
+          isHovered ? 'opacity-100' : 'opacity-70'
+        }`} />
+        
+        {/* Play Button Overlay - appears on hover */}
+        <div className={`absolute flex items-center w-full h-[40%] justify-center transition-all duration-300 ${
+          isHovered ? 'opacity-100 backdrop-blur-sm' : 'opacity-0'
+        }`}>
+          <button className="flex items-center justify-center w-16 h-16 bg-white/90 hover:bg-white text-black rounded-full shadow-xl transform transition-transform duration-200 hover:scale-110 cursor-pointer">
+            <FiPlay className="w-6 h-6 ml-1" />
+          </button>
+        </div>
+
+        {/* Quick Action Buttons - Top Right */}
+        {/* <div className={`absolute top-3 right-3 flex gap-2 transition-all duration-300 ${
+          isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
+        }`}>
+          <button className="flex items-center justify-center w-8 h-8 bg-black/70 hover:bg-[#fbb033] text-white hover:text-black rounded-full transition-all duration-200">
+            <FiInfo className="w-4 h-4" />
+          </button>
+        </div> */}
       </div>
-      <div className='relative px-1 md:px-4 mt-[-70px] lg::mt-[-40px] overflow-y-visible z-1'>
-        {video.title && video.title.length > 30 ? (
-          <h3 className="text-xs lg::text-lg: font-semibold">{video.title}</h3>
-        ) : (
-          <h3 className="text-lg: lg::text-lg font-semibold">{video.title}</h3>
+
+      {/* Content Section */}
+      <div className={`absolute bottom-0 w-full p-4 flex-1 transition-all duration-300 ${
+        isHovered ? 'bg-gradient-to-t from-black via-black/90 to-transparent' : 'bg-gradient-to-t from-black/80 via-black/60 to-transparent'
+      }`}>
+        {/* Title */}
+        <h3 className="text-white font-semibold text-sm md:text-base lg:text-lg mb-2 line-clamp-2 group-hover:text-[#fbb033] transition-colors duration-200">
+          {video.title}
+        </h3>
+
+        {/* Release Date */}
+        <div className="flex items-center gap-3 mb-3 text-xs md:text-sm text-gray-400">
+          {release_date && <span>{release_date}</span>}
+        </div>
+
+        {/* Rating */}
+        {showRating && vote_average > 0 && (
+          <div className="mb-3">
+            <StarRating rating={vote_average} size="sm" />
+          </div>
         )}
-        <p className="text-xs lg::text-sm text-gray-400">{release_date}</p>
-        <p className="hidden md:block text-sm text-gray-400 mt-2">{truncatedDescription}</p>
-        <div className="flex flex-wrap gap-1 mt-2">
-          {video.tags && video.tags.length > 0 && (
-            <>
-              {video.tags.slice(0, 3).map((tag, idx) => (
-                <span key={idx} className="bg-[#fbb033] text-black px-1 py-1 md:px-2 rounded text-[8px] md:text-xs">{tag}</span>
-              ))}
-              {/* {video.tags.length > 3 && (
-                <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded text-xs">...</span>
-              )} */}
-            </>
-          )}
+
+        {/* Description - Only show on larger screens and when hovered */}
+        {truncatedDescription && (
+          <p className={`text-gray-300 text-xs md:text-sm mb-3 transition-all duration-300 ${
+            isHovered ? 'opacity-100 max-h-20' : 'opacity-0 max-h-0 overflow-hidden'
+          } hidden md:block`}>
+            {truncatedDescription}
+          </p>
+        )}
+
+        {/* Tags */}
+        <div className={`flex flex-wrap gap-1 mb-3 transition-all duration-300 ${
+            isHovered ? 'opacity-100 max-h-20' : 'opacity-0 max-h-0 overflow-hidden'
+          } hidden md:flex`}>
+          {video.tags && video.tags.slice(0, 3).map((tag, idx) => (
+            <span 
+              key={idx} 
+              className="bg-[#fbb033] text-black px-2 py-1 rounded-full text-[10px] md:text-xs font-medium"
+            >
+              {tag}
+            </span>
+          ))}
           {video.region && (
-            <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded  text-[8px] md:text-xs">{video.region}</span>
+            <span className="bg-gray-700/80 text-gray-200 px-2 py-1 rounded-full text-[10px] md:text-xs">
+              {video.region}
+            </span>
           )}
           {video.language && (
-            <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded text-[8px] md:text-xs">{video.language}</span>
+            <span className="bg-gray-700/80 text-gray-200 px-2 py-1 rounded-full text-[10px] md:text-xs">
+              {video.language}
+            </span>
           )}
         </div>
+
+        {/* Views Counter */}
+        {showViewer && popularity > 0 && (
+          <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-800">
+            <span className="text-[10px] md:text-xs text-gray-400">
+              {popularity.toLocaleString('en-US', { notation: 'compact' })} views
+            </span>
+          </div>
+        )}
       </div>
 
-      {showRating && vote_average !== undefined && vote_average > 0 && (
-        <div className="mt-auto md:mb-2 px-1 md:px-4 py-1">
-          <StarRating rating={vote_average} size="md" />
-        </div>
-      )}
-
-      {showViewer && (
-        <div className="flex mt-auto justify-center mt-2 mb-2">
-          <span className="text-xs lg::text-sm ml-2 text-gray-400">
-            {popularity.toLocaleString('en-US', { notation: 'compact' })} views
-          </span>
-        </div>
-      )}
+      {/* Bottom Gradient Border on Hover */}
+      <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#fbb033] to-yellow-500 transition-all duration-300 ${
+        isHovered ? 'opacity-100' : 'opacity-0'
+      }`} />
     </div>
   );
 };

@@ -44,7 +44,7 @@ export default function BottomTabBar({
           }`}
         >
           {/* Special handling for profile tab with avatar */}
-          {item.href === '/profile' && (avatarUrl || initials) ? (
+          {(item.href === '/profile'||item.href === '/profile/') && (avatarUrl || initials) ? (
             <>
               {avatarUrl ? (
                 <Image
@@ -64,7 +64,7 @@ export default function BottomTabBar({
           ) : item.icon ? (
             <>
               {item.highlight ? (
-                <div className="h-8 w-8 mb-1 flex items-center justify-center text-[#fbb033]">
+                <div className="h-6 w-6 mb-1 flex items-center justify-center text-[#fbb033]">
                   {item.icon}
                 </div>
               ) : (

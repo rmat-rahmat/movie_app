@@ -95,6 +95,7 @@
       "other": "Andere"
     },
     "movie": {
+      "moreInfo": "Mehr Infos",
       "genres": "Genres",
       "rating": "Bewertung",
       "duration": "Dauer",
@@ -116,6 +117,7 @@
       "currentPlan": "Aktueller Plan"
     },
     "profile": {
+      "me": "Ich",
       "personalInfo": "Persönliche Informationen",
       "changePassword": "Passwort ändern",
       "preferences": "Einstellungen",
@@ -129,6 +131,24 @@
       "lastSeen": "Zuletzt online",
       "uploadedVideos": "Hochgeladene Videos",
       "playlists": "Wiedergabelisten"
+    },
+    "profileEmpty": {
+      "welcome": "Willkommen bei OTalk TV",
+      "subtitle": "Deine Entertainment-Reise beginnt hier",
+      "encourageText": "Schließe dich Millionen von Nutzern an und entdecke deine nächste Lieblingssendung",
+      "feature1Title": "Unbegrenzte Filme",
+      "feature1Desc": "Streame tausende von Filmen und TV-Sendungen",
+      "feature2Title": "Personalisiert",
+      "feature2Desc": "Erhalte Empfehlungen basierend auf deinem Geschmack",
+      "feature3Title": "Mehrsprachig",
+      "feature3Desc": "Inhalte in mehreren Sprachen",
+      "termsText": "Durch Fortfahren stimmst du unseren",
+      "termsLink": "Allgemeinen Geschäftsbedingungen",
+      "andText": "und",
+      "privacyLink": "Datenschutzrichtlinien",
+      "moviesCount": "Filme",
+      "usersCount": "Nutzer",
+      "countriesCount": "Länder"
     },
     "upload": {
       "title": "Inhalt hochladen",

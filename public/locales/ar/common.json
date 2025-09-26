@@ -94,6 +94,7 @@
       "other": "آخر"
     },
     "movie": {
+      "moreInfo": "المزيد من المعلومات",
       "genres": "الأنواع",
       "rating": "التقييم",
       "duration": "المدة",
@@ -115,6 +116,7 @@
       "currentPlan": "الخطة الحالية"
     },
     "profile": {
+      "me": "أنا",
       "personalInfo": "المعلومات الشخصية",
       "changePassword": "تغيير كلمة المرور",
       "preferences": "التفضيلات",
@@ -128,6 +130,24 @@
       "lastSeen": "آخر ظهور",
       "uploadedVideos": "الفيديوهات المرفوعة",
       "playlists": "قوائم التشغيل"
+    },
+    "profileEmpty": {
+      "welcome": "مرحبًا بك في أوتوك تي في",
+      "subtitle": "رحلتك الترفيهية تبدأ هنا",
+      "encourageText": "انضم إلى ملايين المستخدمين واكتشف عرضك المفضل القادم",
+      "feature1Title": "أفلام غير محدودة",
+      "feature1Desc": "شاهد آلاف الأفلام والبرامج التلفزيونية",
+      "feature2Title": "مخصص لك",
+      "feature2Desc": "احصل على توصيات بناءً على ذوقك",
+      "feature3Title": "متعدد اللغات",
+      "feature3Desc": "محتوى بلغات متعددة",
+      "termsText": "بالمتابعة، فإنك توافق على",
+      "termsLink": "الشروط والأحكام",
+      "andText": "و",
+      "privacyLink": "سياسة الخصوصية",
+      "moviesCount": "أفلام",
+      "usersCount": "مستخدمين",
+      "countriesCount": "دول"
     },
     "upload": {
       "title": "رفع المحتوى",

@@ -70,7 +70,7 @@ export default function BaseLayout({
           href: "/profileempty",
           icon: <FiUser className="h-6 w-6" />,
           highlight: pathname === '/profileempty' || pathname === '/profileempty/' ,
-          label: t('profile.you')
+          label: t('profile.me')
         }
       ];
     }

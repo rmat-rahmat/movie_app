@@ -114,7 +114,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     if (Hls.isSupported()) {
       const hls = new Hls({
         xhrSetup: (xhr) => {
-          xhr.setRequestHeader('api-key', process.env.UPLOAD_API_KEY || '');
+          // xhr.setRequestHeader('api-key', process.env.UPLOAD_API_KEY || '');
         }
       });
 

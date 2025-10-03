@@ -7,14 +7,29 @@ const SubscriptionSection: React.FC = () => {
     const { t } = useTranslation('common');
 
     // Load translated package objects. returnObjects enables returning arrays/objects from translations
-    const platinum = t('subscription.platinum', { returnObjects: true }) as any;
-    const diamond = t('subscription.diamond', { returnObjects: true }) as any;
-    const supreme = t('subscription.supreme_family', { returnObjects: true }) as any;
+    type SubscriptionPackage = {
+        title?: string;
+        price?: string;
+        features?: string[];
+        [key: string]: unknown;
+    };
+
+    const platinumRaw = t('subscription.platinum', { returnObjects: true }) as unknown;
+    const diamondRaw = t('subscription.diamond', { returnObjects: true }) as unknown;
+    const supremeRaw = t('subscription.supreme_family', { returnObjects: true }) as unknown;
+
+    const toPackage = (raw: unknown, id: string): SubscriptionPackage & { id: string } => {
+        const obj = (raw && typeof raw === 'object') ? (raw as Record<string, unknown>) : {};
+        const title = typeof obj.title === 'string' ? obj.title : '';
+        const price = typeof obj.price === 'string' ? obj.price : '';
+        const features = Array.isArray(obj.features) ? obj.features.map(f => String(f)) : [];
+        return { id, title, price, features };
+    };
 
     const packages = [
-        { id: 'platinum', ...platinum },
-        { id: 'diamond', ...diamond },
-        { id: 'supreme_family', ...supreme }
+        toPackage(platinumRaw, 'platinum'),
+        toPackage(diamondRaw, 'diamond'),
+        toPackage(supremeRaw, 'supreme_family')
     ];
 
     return (
@@ -31,7 +46,7 @@ const SubscriptionSection: React.FC = () => {
             <div className="flex justify-center rounded-lg ">
 
                 <div className={` w-full mx-auto grid grid-flow-col auto-cols-[80%] sm:auto-cols-[45%] lg:auto-cols-[20%] gap-4 lg:gap-30 p-4 lg:justify-center overflow-x-scroll hide-scrollbar`}>
-                    {packages.map((packageItem: any) => (
+                    {packages.map((packageItem) => (
                         <div
                             key={packageItem.id}
                             className={`flex flex-1 flex-col bg-black shadow-[0px_0px_2px_1px] pb-2 shadow-[#fbb033] rounded-lg touchable hover:scale-105 transition-transform duration-300 cursor-pointer group hover:bg-white/90`}

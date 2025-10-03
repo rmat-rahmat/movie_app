@@ -78,15 +78,19 @@ export default function Home() {
       // derive categories from dashboard response, fallback to existing list
       const dashboardCategories = Array.isArray(dashboard.data.categories) ? dashboard.data.categories : [];
 
-      const safeGetCategoryName = (c: any): string => {
+      const safeGetCategoryName = (c: unknown): string => {
         if (!c) return '';
         try {
-          const name = getLocalizedCategoryName(c);
-          if (name) return name;
-        } catch (e) {
+          // If c already matches CategoryItem shape, pass it through
+          if (typeof c === 'object' && c !== null && 'categoryLangLabel' in (c as Record<string, unknown>)) {
+            return getLocalizedCategoryName(c as unknown as import('@/types/Dashboard').CategoryItem);
+          }
+        } catch (_e) {
           // ignore
         }
-        return c.categoryName || c.categoryAlias || c.id || '';
+
+        const obj = typeof c === 'object' && c !== null ? (c as Record<string, unknown>) : {};
+        return String(obj.categoryName ?? obj.categoryAlias ?? obj.id ?? '');
       };
 
       const mappedCategories = dashboardCategories.map((c) => safeGetCategoryName(c)).filter(Boolean) as string[];

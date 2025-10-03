@@ -661,11 +661,32 @@ export async function getWatchHistoryList(page: number = 0, size: number = 12): 
     });
     const data = res.data;
     if (data && data.success && data.data && Array.isArray(data.data.contents)) {
-      const contents = data.data.contents as any[];
-      // Map API content shape to VideoSrc minimal fields
-      const list: DashboardItem[] = contents.map((it) => ({
-        ...it,
-      } as DashboardItem));
+      const contents = data.data.contents as unknown[];
+      // Map API content shape to DashboardItem minimal fields
+      const list: DashboardItem[] = contents.map((it) => {
+        const record = it as Record<string, unknown>;
+        const id = String(record.id ?? '');
+        const title = String(record.title ?? record.original_title ?? '');
+        const description = typeof record.description === 'string' ? String(record.description) : (typeof record.overview === 'string' ? String(record.overview) : undefined);
+        const coverUrl = typeof record.coverUrl === 'string' ? String(record.coverUrl) : (typeof record.poster_path === 'string' ? String(record.poster_path) : undefined);
+        const createTime = record.createTime as string | undefined;
+        const year = record.year as number | undefined;
+        const rating = typeof record.rating === 'number' ? record.rating as number : (record.rating ? Number(record.rating as unknown) : undefined);
+        const fileSize = typeof record.fileSize === 'number' ? record.fileSize as number : undefined;
+        const actorsArr = Array.isArray(record.actors) ? (record.actors as unknown[]).map(a => String(a)) : undefined;
+
+        return {
+          id,
+          title,
+          description,
+          coverUrl,
+          createTime,
+          year,
+          rating,
+          fileSize,
+          actors: actorsArr,
+        } as DashboardItem;
+      });
       return list;
     }
     return [];
@@ -696,13 +717,13 @@ export async function clearWatchHistory(): Promise<boolean> {
 export async function getDirectorList(name: string = '', gender?: number, page: number = 0, size: number = 50): Promise<string[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/director/list`;
-    const params: Record<string, any> = { page, size };
+    const params: Record<string, string | number | undefined> = { page, size };
     if (name) params.name = name;
     if (typeof gender === 'number') params.gender = gender;
     const res = await axios.get(url, { params, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
     const data = res.data;
     if (data && data.success && data.data && Array.isArray(data.data.records)) {
-      return data.data.records.map((r: any) => String(r.name));
+      return (data.data.records as unknown[]).map((r) => String((r as Record<string, unknown>).name ?? ''));
     }
     return [];
   } catch (err) {
@@ -715,13 +736,13 @@ export async function getDirectorList(name: string = '', gender?: number, page: 
 export async function getActorList(name: string = '', gender?: number, page: number = 0, size: number = 50): Promise<string[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/actor/list`;
-    const params: Record<string, any> = { page, size };
+    const params: Record<string, string | number | undefined> = { page, size };
     if (name) params.name = name;
     if (typeof gender === 'number') params.gender = gender;
     const res = await axios.get(url, { params, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
     const data = res.data;
     if (data && data.success && data.data && Array.isArray(data.data.records)) {
-      return data.data.records.map((r: any) => String(r.name));
+      return (data.data.records as unknown[]).map((r) => String((r as Record<string, unknown>).name ?? ''));
     }
     return [];
   } catch (err) {
@@ -734,12 +755,12 @@ export async function getActorList(name: string = '', gender?: number, page: num
 export async function getRegionList(name: string = '', page: number = 0, size: number = 200): Promise<string[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/region/list`;
-    const params: Record<string, any> = { page, size };
+    const params: Record<string, string | number | undefined> = { page, size };
     if (name) params.name = name;
     const res = await axios.get(url, { params, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
     const data = res.data;
     if (data && data.success && data.data && Array.isArray(data.data.records)) {
-      return data.data.records.map((r: any) => String(r.name));
+      return (data.data.records as unknown[]).map((r) => String((r as Record<string, unknown>).name ?? ''));
     }
     return [];
   } catch (err) {

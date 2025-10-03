@@ -55,36 +55,49 @@ export default function Home() {
     try {
       // Try loading live dashboard from backend first
       const dashboard = await getDashboard(true);
-      if (dashboard && dashboard.data) {
-          // featured content -> header
 
-          setHeaderMovies(dashboard.data.featuredContent || []);
-          const originalSections = dashboard.data.contentSections || [];
-          console.log(originalSections)
-          setSections(originalSections);
-          setAllSections(originalSections); // Store original sections for filtering
-          // derive categories from dashboard response, fallback to existing list
-          const dashboardCategories = dashboard.data.categories || [];
-          const mappedCategories = dashboardCategories.map((c) => getLocalizedCategoryName(c)).filter(Boolean) as string[];
-          const finalCategories = mappedCategories.length > 0 ? Array.from(new Set(mappedCategories)) : allCategories;
-          // Ensure "All" is at the beginning
-          const categoriesWithAll = finalCategories.includes("All") ? finalCategories : ["All", ...finalCategories];
-          setCategories(categoriesWithAll);
-          
-          // Create a map of category IDs to names for better filtering
-          // const categoryIdToName: Record<string, string> = {};
-          // dashboardCategories.forEach(cat => {
-          //   if (cat.id) {
-          //     categoryIdToName[cat.id] = cat.categoryName || cat.categoryAlias || cat.id;
-          //   }
-          // });
-          // setCategoryMap(categoryIdToName);
-          setIsLoading(false);
-          return;
+      // If dashboard or its data is missing, fall back to safe defaults
+      if (!dashboard || !dashboard.data) {
+        console.warn('Dashboard returned empty or missing data; using fallback values');
+        setHeaderMovies([]);
+        setSections([]);
+        setAllSections([]);
+        setCategories(allCategories);
+        return;
+      }
+
+      // Normalize featured content and sections to arrays
+      const featured = Array.isArray(dashboard.data.featuredContent) ? dashboard.data.featuredContent : [];
+      const originalSections = Array.isArray(dashboard.data.contentSections) ? dashboard.data.contentSections : [];
+
+      setHeaderMovies(featured);
+      console.log(originalSections);
+      setSections(originalSections);
+      setAllSections(originalSections); // Store original sections for filtering
+
+      // derive categories from dashboard response, fallback to existing list
+      const dashboardCategories = Array.isArray(dashboard.data.categories) ? dashboard.data.categories : [];
+
+      const safeGetCategoryName = (c: any): string => {
+        if (!c) return '';
+        try {
+          const name = getLocalizedCategoryName(c);
+          if (name) return name;
+        } catch (e) {
+          // ignore
         }
-        setIsLoading(false);
+        return c.categoryName || c.categoryAlias || c.id || '';
+      };
+
+      const mappedCategories = dashboardCategories.map((c) => safeGetCategoryName(c)).filter(Boolean) as string[];
+      const finalCategories = mappedCategories.length > 0 ? Array.from(new Set(mappedCategories)) : allCategories;
+      // Ensure "All" is at the beginning
+      const categoriesWithAll = finalCategories.includes("All") ? finalCategories : ["All", ...finalCategories];
+      setCategories(categoriesWithAll);
     } catch (error) {
       console.error("Error fetching movies:", error);
+    } finally {
+      // Always clear loading flag so UI doesn't spin indefinitely
       setIsLoading(false);
     }
   };
@@ -187,6 +200,26 @@ export default function Home() {
         <>
           <MovieCategoryFilter display="mobile" categories={categories} />
           <DashboardSlider videos={headerMovies} />
+          {/* Fallback UI when dashboard returned empty featured content and no sections */}
+          {!isloading && headerMovies.length === 0 && sections.length === 0 && (
+            <div className="py-12 px-4 text-center w-full">
+              <p className="text-gray-300 text-lg mb-4">No content available right now. We may be updating the catalogue.</p>
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={() => fetchMovies()}
+                  className="px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors"
+                >
+                  Retry
+                </button>
+                <button
+                  onClick={() => { location.href = '/category'; }}
+                  className="px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:text-white"
+                >
+                  Browse categories
+                </button>
+              </div>
+            </div>
+          )}
           <div className="flex relative flex-col md:px-20 px-0 w-[100%] mt-4">
             <MovieCategoryFilter categories={categories} />
             <hr className="h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0" />

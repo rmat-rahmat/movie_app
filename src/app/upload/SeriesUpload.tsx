@@ -98,7 +98,7 @@ export default function SeriesUpload() {
 
   const removeEpisode = (index: number) => {
     if (seriesForm.episodes.length <= 1) return;
-    setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.filter((_, idx) => idx !== index).map((ep, idx) => ({ ...ep, number: idx + 1, title: ep.title.includes('Episode') ? `Episode ${idx + 1}` : ep.title })), totalEpisodes: prev.episodes.length - 1 }));
+    setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.filter((_, idx) => idx !== index).map((ep, idx) => ({ ...ep, number: idx + 1, title: ep.title })), totalEpisodes: prev.episodes.length - 1 }));
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, episodeIndex: number) => {
@@ -191,7 +191,7 @@ export default function SeriesUpload() {
   const renderProgressBar = () => {
     if (uploadProgress.status === 'idle') return null;
     return (
-      <div className="mt-6 p-4 bg-gray-800 rounded-lg">
+      <div className="mt-6 p-4 rounded-3xl">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-white">
             {uploadProgress.status === 'uploading' && t('uploadForm.uploading', 'Uploading...')}
@@ -200,7 +200,7 @@ export default function SeriesUpload() {
           </span>
           <span className="text-sm text-gray-400">{Math.round(uploadProgress.progress)}%</span>
         </div>
-        <div className="w-full bg-gray-700 rounded-full h-2">
+        <div className="w-full  rounded-full h-2">
           <div className={`h-2 rounded-full transition-all duration-300 ${uploadProgress.status === 'success' ? 'bg-green-500' : uploadProgress.status === 'error' ? 'bg-red-500' : 'bg-[#fbb033]'}`} style={{ width: `${uploadProgress.progress}%` }} />
         </div>
       </div>
@@ -394,32 +394,32 @@ export default function SeriesUpload() {
         type="series"
         onUploadMore={handleUploadMore}
       />
-      <form onSubmit={handleSeriesUpload} className="bg-gray-800 rounded-xl p-8 shadow-2xl">
+      <form onSubmit={handleSeriesUpload} className="rounded-xl p-8 shadow-2xl">
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">{t('uploadForm.seriesTitlePlaceholder', t('uploadForm.titlePlaceholder', 'Title *'))}</label>
+          <label className="block text-lg font-medium mb-2">{t('uploadForm.seriesTitlePlaceholder', t('uploadForm.titlePlaceholder', 'Title *'))}</label>
           <input
             type="text"
             required
             value={seriesForm.title}
             onChange={(e) => setSeriesForm(prev => ({ ...prev, title: e.target.value }))}
-            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+            className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
             placeholder={t('uploadForm.seriesTitlePlaceholder', 'Enter series title')}
           />
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">{t('upload.description', 'Description')}</label>
+          <label className="block text-lg font-medium mb-2">{t('upload.description', 'Description')}</label>
           <textarea
             rows={4}
             required
             value={seriesForm.description}
             onChange={(e) => setSeriesForm(prev => ({ ...prev, description: e.target.value }))}
-            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+            className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
             placeholder={t('uploadForm.descriptionPlaceholder', 'Enter series description')}
           />
         </div>
         <div className="mb-6">
-          <label htmlFor="category" className="block text-sm font-medium mb-2">
+          <label htmlFor="category" className="block text-lg font-medium mb-2">
             {t('uploadForm.categoryLabel', 'Category')}
           </label>
           <select
@@ -428,7 +428,7 @@ export default function SeriesUpload() {
             name="category"
             value={seriesForm.categoryId}
             onChange={(e) => setSeriesForm((prev) => ({ ...prev, categoryId: e.target.value }))}
-            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+            className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
           >
             <option value="" disabled></option>
             {categories.map((category) => {
@@ -455,10 +455,10 @@ export default function SeriesUpload() {
           </select>
         </div>
         <div className="grid grid-cols-1 gap-6 mb-6">
-          <label className="block text-sm font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover Image')}</label>
+          <label className="block text-lg font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover Image')}</label>
           <div className="flex items-center gap-4">
             <input type="file" accept="image/*" id="series-cover-file" onChange={handleCoverFileSelect} className="visually-hidden opacity-0 absolute" required />
-            <label htmlFor="series-cover-file" className="px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer text-white">{t('uploadForm.selectCoverFile', 'Choose Image')}</label>
+            <label htmlFor="series-cover-file" className="px-4 py-3  border border-[#fbb033] rounded-3xl cursor-pointer text-white">{t('uploadForm.selectCoverFile', 'Choose Image')}</label>
             {seriesCoverPreviewUrl ? (
               <div className="flex items-center gap-3">
                 <img src={seriesCoverPreviewUrl} alt="cover preview" className="w-28 h-16 object-cover rounded" />
@@ -472,17 +472,17 @@ export default function SeriesUpload() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           <div>
-            <label className="block text-sm font-medium mb-2">{t('upload.director', 'Director')}</label>
-            <input required type="text" value={seriesForm.director} onChange={(e) => setSeriesForm(prev => ({ ...prev, director: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Director name" />
+            <label className="block text-lg font-medium mb-2">{t('upload.director', 'Director')}</label>
+            <input required type="text" value={seriesForm.director} onChange={(e) => setSeriesForm(prev => ({ ...prev, director: e.target.value }))} className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Director name" />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">{t('upload.actors', 'Actors')}</label>
-            <input required type="text" value={seriesForm.actors} onChange={(e) => setSeriesForm(prev => ({ ...prev, actors: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Actor1, Actor2, Actor3" />
+            <label className="block text-lg font-medium mb-2">{t('upload.actors', 'Actors')}</label>
+            <input required type="text" value={seriesForm.actors} onChange={(e) => setSeriesForm(prev => ({ ...prev, actors: e.target.value }))} className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Actor1, Actor2, Actor3" />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">{t('upload.rating', 'Rating')}</label>
+            <label className="block text-lg font-medium mb-2">{t('upload.rating', 'Rating')}</label>
             <input
               type="number"
               required
@@ -491,7 +491,7 @@ export default function SeriesUpload() {
               step="1"
               value={seriesForm.rating ?? ''}
               onChange={(e) => setSeriesForm(prev => ({ ...prev, rating: e.target.value === '' ? 0 : parseFloat(e.target.value) }))}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
               placeholder="8.5"
             />
           </div>
@@ -499,31 +499,31 @@ export default function SeriesUpload() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="block text-sm font-medium mb-2">{t('upload.region', 'Region')}</label>
+            <label className="block text-lg font-medium mb-2">{t('upload.region', 'Region')}</label>
             <input
               type="text"
               required
               value={seriesForm.region}
               onChange={(e) => setSeriesForm(prev => ({ ...prev, region: e.target.value }))}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
               placeholder="e.g., USA, China, etc."
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">{t('upload.language', 'Language')}</label>
+            <label className="block text-lg font-medium mb-2">{t('upload.language', 'Language')}</label>
             <input
               type="text"
               required
               value={seriesForm.language}
               onChange={(e) => setSeriesForm(prev => ({ ...prev, language: e.target.value }))}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
               placeholder="e.g., English, Mandarin, etc."
             />
           </div>
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">{t('upload.tags', 'Tags')}</label>
+          <label className="block text-lg font-medium mb-2">{t('upload.tags', 'Tags')}</label>
           <TagSelector
             required
             selectedTags={seriesForm.tags}
@@ -534,52 +534,41 @@ export default function SeriesUpload() {
 
         <div className="mb-4">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-md font-medium">{t('upload.episodes', 'Episodes')}</h4>
-            <button type="button" onClick={addEpisode} className="flex cursor-pointer ßitems-center px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-yellow-500 transition-colors"><FiPlus className="mr-2" />{t('uploadForm.addEpisode', 'Add Episode')}</button>
+            <h4 className="text-lg font-medium">{t('upload.episodes', 'Episodes')}</h4>
+            <button type="button" onClick={addEpisode} className="flex cursor-pointer ßitems-center px-4 py-2 bg-[#fbb033] text-black rounded-3xl hover:bg-yellow-500 transition-colors"><FiPlus className="mr-2" />{t('uploadForm.addEpisode', 'Add Episode')}</button>
           </div>
 
           {seriesForm.episodes.map((episode, index) => (
-            <div key={index} className="mb-4 p-4 bg-gray-600 rounded-lg">
-              <div className="flex items-center justify-between mb-3">
-                <h5 className="font-medium">{t('upload.episodeLabel', `Episode ${episode.number}`)}</h5>
+            <div key={index} className="mb-4 p-4  rounded-3xl">
+              <hr className="border-none bg-[#fbb033]/[0.8] my-4 w-[90%] mx-auto rounded-full h-[5px]" />
+              <div className="flex text-lg font-bold items-center justify-between mb-3">
+                <h5 className="font-medium">{t('upload.episodeLabel', `Episode`)+" "+episode.number}</h5>
                 {seriesForm.episodes.length > 1 && (
                   <button type="button" onClick={() => removeEpisode(index)} className="text-red-400 hover:text-red-300 cursor-pointer"><FiTrash2 /></button>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <div className='mb-4'>
-                    <label className="block text-sm font-medium mb-2">{t('upload.episodeTitle', 'Episode Title')}</label>
-                    <input
-                      type="text"
-                      required
-                      value={episode.title}
-                      onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, title: e.target.value } : ep) }))}
-                      className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
-                      placeholder={`Episode ${episode.number} title`}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">{t('upload.episodeDuration', 'Episode Duration')}</label>
-                    <DurationInput
-                      value={episode.duration}
-                      onChange={(durationMs) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, duration: durationMs } : ep) }))}
-                      required
-                      className="w-full"
-                      placeholder={`Episode ${episode.number} duration`}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File')}</label>
+                  <label className="block text-lg font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File')}</label>
                   {!episode.file ? (
                     <>
-                      <input type="file" accept="video/mp4,video/quicktime,video/x-matroska,video/webm,.mp4,.mov,.mkv,.webm" onChange={(e) => handleFileSelect(e, index)} className="visually-hidden opacity-0 absolute" ref={index === 0 ? fileInputRef : undefined} id={`episode-file-${index}`} required />
-                      <label htmlFor={`episode-file-${index}`} className="flex-1 flex items-center justify-center px-3 py-2 bg-gray-500 border border-gray-400 rounded cursor-pointer hover:bg-gray-400 transition-colors">
-                        <FiUpload className="mr-2" />
-                        {t('upload.selectVideoFile', 'Select video file')}
+                      <label id={`upload-episode-box-${index}`} htmlFor={`episode-file-${index}`} className="flex flex-col items-center justify-center w-full bg-[#fbb033]/[0.2] rounded-3xl cursor-pointer hover:bg-[#fbb033]/[0.1] transition-colors">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-3">
+                          <FiUpload className="w-12 h-12 mb-3 " />
+                          <p className="mb-2 text-xl ">{episode.file ? (episode.file as File).name : t('upload.clickOrDrag', 'Click to upload or drag and drop')}</p>
+                          <p className="text-xs ">{t('upload.fileTypes', 'MP4, MOV, MKV, WEBM (MAX. 10GB)')}</p>
+                          <p className="text-xl mt-3 mb-6 ">{t('upload.videoPrivacy', 'Your Video Will Remain Private Until It Is Published')}</p>
+                          <span className="px-7 py-2 bg-[#fbb033] rounded-3xl mt-2">{t('uploadForm.chooseFile', 'Choose File')}</span>
+                        </div>
+                        <input
+                          id={`episode-file-${index}`}
+                          type="file"
+                          accept="video/mp4,video/quicktime,video/x-matroska,video/webm,.mp4,.mov,.mkv,.webm"
+                          onChange={(e) => handleFileSelect(e, index)}
+                          className="visually-hidden opacity-0"
+                          ref={index === 0 ? fileInputRef : undefined}
+                          required
+                        />
                       </label>
                     </>
                   ) : (
@@ -597,7 +586,7 @@ export default function SeriesUpload() {
                             // console.log('Detected video duration (ms):', durationMs);
                             setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, duration: durationMs } : ep) }));
                           }}
-                          className="w-full rounded bg-black"
+                          className="max-w-[50%] mx-auto rounded bg-black"
                           onError={(error) => {
                             console.error('Video player error:', error);
                           }}
@@ -611,11 +600,36 @@ export default function SeriesUpload() {
                   {/* Unsupported format message box */}
 
                 </div>
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-4">
+                <div>
+                  <div className='mb-4'>
+                    <label className="block text-lg font-medium mb-2">{t('upload.episodeTitle', 'Episode Title')}</label>
+                    <input
+                      type="text"
+                      required
+                      value={episode.title}
+                      onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, title: e.target.value } : ep) }))}
+                      className="w-full px-3 py-2  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+                      placeholder={`Episode ${episode.number} title`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-lg font-medium mb-2">{t('upload.episodeDuration', 'Episode Duration')}</label>
+                    <DurationInput
+                      value={episode.duration}
+                      onChange={(durationMs) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, duration: durationMs } : ep) }))}
+                      required
+                      className="w-full"
+                      placeholder={`Episode ${episode.number} duration`}
+                    />
+                  </div>
+                </div>
+
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">{t('upload.episodeDescription', 'Episode Description')}</label>
-                <textarea required rows={2} value={episode.description} onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, description: e.target.value } : ep) }))} className="w-full px-3 py-2 bg-gray-500 border border-gray-400 rounded focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.episodeDescriptionPlaceholder', `Episode ${episode.number} description`)} />
+                <label className="block text-lg font-medium mb-2">{t('upload.episodeDescription', 'Episode Description')}</label>
+                <textarea required rows={2} value={episode.description} onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, description: e.target.value } : ep) }))} className="w-full px-3 py-2  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder={t('uploadForm.episodeDescriptionPlaceholder', `Episode ${episode.number} description`)} />
               </div>
             </div>
           ))}
@@ -624,7 +638,7 @@ export default function SeriesUpload() {
         {renderProgressBar()}
 
         <div className="flex justify-end mt-8">
-          <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex justify-center w-full  lg:w-auto  items-center px-8 py-4 bg-[#fbb033] text-black text-center font-semibold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer">
+          <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex justify-center w-full  lg:w-auto  items-center px-8 py-4 bg-[#fbb033] text-black text-center font-semibold rounded-3xl hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer">
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-3"></div>

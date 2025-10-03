@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { searchVideos, getCachedCategories } from '@/lib/movieApi';
+import { getHotKeywords } from '@/lib/movieApi';
 import type { SearchApiResponse, VideoVO, CategoryItem } from '@/types/Dashboard';
 import LoadingPage from '@/components/ui/LoadingPage';
 import DashboardItem from '../movie/DashboardItem';
@@ -21,6 +22,7 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
   const [error, setError] = useState<string | null>(null);
   const [pageInfo, setPageInfo] = useState<SearchApiResponse['pageInfo'] | null>(null);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [hotKeywords, setHotKeywords] = useState<string[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<VideoVO | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -41,6 +43,21 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
 
     if (query) {
       performSearch(query, category, 1);
+    }
+  }, [searchParams]);
+
+  // Load hot keywords when no query present
+  useEffect(() => {
+    const query = searchParams?.get('q')?.trim() || '';
+    if (!query) {
+      (async () => {
+        try {
+          const list = await getHotKeywords(12);
+          if (Array.isArray(list)) setHotKeywords(list);
+        } catch (_e) {
+          // ignore
+        }
+      })();
     }
   }, [searchParams]);
 
@@ -135,6 +152,22 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
         <div className="text-center py-12">
           <div className="text-gray-400 text-lg mb-4">No videos found</div>
           <p className="text-gray-500 text-sm">Try different keywords or check your spelling</p>
+          {hotKeywords.length > 0 && (
+            <div className="mt-6">
+              <p className="text-sm text-gray-400 mb-2">热门搜索</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {hotKeywords.map((k) => (
+                  <button
+                    key={k}
+                    onClick={() => router.push(`/search?q=${encodeURIComponent(k)}`)}
+                    className="px-3 py-1 bg-gray-800 text-sm text-white rounded-full hover:bg-gray-700"
+                  >
+                    {k}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

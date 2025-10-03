@@ -91,11 +91,11 @@ export default function DurationInput({
           max="23"
           value={hours}
           onChange={handleHoursChange}
-          className="w-16 px-2 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
+          className="w-36 px-2 py-3 border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
           placeholder="0"
           required={isFieldRequired}
         />
-        <span className="text-gray-400 ml-1 text-sm">h</span>
+        <span className="text-gray-400 ml-1 text-3xl">h</span>
       </div>
 
       {/* Minutes */}
@@ -106,11 +106,11 @@ export default function DurationInput({
           max="59"
           value={minutes}
           onChange={handleMinutesChange}
-          className="w-16 px-2 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
+          className="w-36 px-2 py-3 border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
           placeholder="0"
           required={isFieldRequired}
         />
-        <span className="text-gray-400 ml-1 text-sm">m</span>
+        <span className="text-gray-400 ml-1 text-3xl">m</span>
       </div>
 
       {/* Seconds (conditional) */}
@@ -122,11 +122,11 @@ export default function DurationInput({
             max="59"
             value={seconds}
             onChange={handleSecondsChange}
-            className="w-16 px-2 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
+            className="w-36 px-2 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
             placeholder="0"
             required={isFieldRequired}
           />
-          <span className="text-gray-400 ml-1 text-sm">s</span>
+          <span className="text-gray-400 ml-1 text-3xl">s</span>
         </div>
       )}
 

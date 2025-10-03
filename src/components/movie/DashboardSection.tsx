@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import MovieModal from "./MovieModal";
 import type { DashboardItem as DashboardItemType } from '@/types/Dashboard';
 import DashboardItem from './DashboardItem';
+import { t } from 'i18next';
 
 
 interface DashboardSectionProps {
@@ -14,13 +15,29 @@ interface DashboardSectionProps {
     showViewer?: boolean;
     frameSize?: number;
     onViewMore?: () => void;
+    onOptionsClick?: (videoId: string) => void;
+    sectionOptionButton?: {
+        title: string;
+        icon?: React.ReactNode;
+        iconRight?: boolean;
+        onClick: () => void;
+    };
 }
 
-const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, showRating, showPlayback, showViewer, frameSize, icon, onViewMore }) => {
+const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, showRating, showPlayback, showViewer, frameSize, icon, onViewMore, onOptionsClick, sectionOptionButton }) => {
     const [selectedMovieIndex, setSelectedMovieIndex] = useState<number | null>(null);
 
     if (!videos || videos.length === 0) {
-        return <div className="text-center text-gray-500">No movies available</div>;
+        return <div className="container mx-auto px-4 py-8">
+            <div className="flex items-center justify-between mb-4 px-0">
+                <div className="flex items-center gap-2">
+                    {icon}
+                    <h2 className="text-2xl font-bold">{title}</h2>
+                </div>
+                <div className="flex items-center gap-2"></div>
+            </div>
+            <div className="text-center text-gray-500">{title + " " + t('profile.notAvailable', 'not available')}</div>
+        </div>
     }
     return (
         <div className="container mx-auto px-4 py-8">
@@ -47,6 +64,15 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
                         </svg>
                     </button>
                 )}
+                {sectionOptionButton &&
+                    <button className="flex items-center gap-1 hover:text-[#fbb033] border hover:border-[#fbb033]  pr-2 pl-4 py-1  rounded-full hover:text-[#fbb033] font-medium text-base cursor-pointer transition-all duration-200 transform hover:scale-105 "
+                        onClick={sectionOptionButton.onClick}
+                    >
+                        {!sectionOptionButton.iconRight && sectionOptionButton.icon}
+                        {sectionOptionButton.title}
+                        {sectionOptionButton.iconRight && sectionOptionButton.icon}
+                    </button>
+                }
             </div>
             <div className={`hide-scrollbar grid grid-flow-col auto-cols-[45%] sm:auto-cols-[45%] ${frameSize ? `xl:auto-cols-[${frameSize}%]` : "xl:auto-cols-[20%]"}  gap-4 py-4 px-1 overflow-x-scroll`}>
                 {videos.map((video: DashboardItemType, index: number) => (
@@ -57,6 +83,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
                         onClick={() => setSelectedMovieIndex(index)}
                         showRating={showRating}
                         showViewer={showViewer}
+                        onOptionsClick={onOptionsClick}
                     />
                 ))}
             </div>

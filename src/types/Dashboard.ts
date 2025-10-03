@@ -26,6 +26,7 @@ export interface DashboardItem {
   isCompleted?: boolean;
   popularity?: number | string | null;
   views?: number | string | null;
+  
 }
 
 export interface ImageItem {

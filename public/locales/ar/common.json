@@ -156,7 +156,7 @@
       "series": "مسلسل تلفزيوني",
       "videoFile": "ملف الفيديو",
       "clickOrDrag": "انقر للرفع أو اسحب وأفلت",
-      "fileTypes": "MP4, MOV, AVI, MKV (بحد أقصى 10 جيجابايت)",
+      "fileTypes": "MP4, MOV, MKV, WEBM (بحد أقصى 10 جيجابايت)",
       "uploadMovie": "رفع فيلم",
       "uploadSeries": "رفع مسلسل",
       "director": "المخرج",

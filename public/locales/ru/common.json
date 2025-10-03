@@ -156,7 +156,7 @@
       "series": "Сериал",
       "videoFile": "Видеофайл",
       "clickOrDrag": "Кликните, чтобы загрузить, или перетащите",
-      "fileTypes": "MP4, MOV, AVI, MKV (МАКС. 10 ГБ)",
+      "fileTypes": "MP4, MOV, MKV, WEBM (МАКС. 10 ГБ)",
       "uploadMovie": "Загрузить фильм",
       "uploadSeries": "Загрузить сериал",
       "director": "Режиссер",

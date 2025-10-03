@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
-import { getPlayMain, getPlaybackUrl } from '@/lib/movieApi';
+import { getPlayMain, getPlaybackUrl, recordWatchHistory, getLastWatchPosition } from '@/lib/movieApi';
 import Hls from 'hls.js';
 import { BASE_URL } from '@/config';
 import { useVideoStore } from '@/store/videoStore';
@@ -34,6 +34,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const [currentlyPlayingQuality, setCurrentlyPlayingQuality] = useState<number>(-1);
   const [calcDuration, setCalcDuration] = useState<number>(0);
   const [tOffset, setTOffset] = useState<number>(0);
+  const watchIntervalRef = useRef<number | null>(null);
+  const sessionWatchTimeRef = useRef<number>(0); // seconds accumulated this session
+  const hasSeekedRef = useRef<boolean>(false);
 
 
   const router = useRouter();
@@ -93,6 +96,67 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     return () => { mounted = false; };
   }, [id]);
 
+  // Periodically record watch history when playing
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
+    const sendRecord = async () => {
+      if (!videoEl) return;
+      try {
+        const dto = {
+          mediaId: currentVideo?.id ? String(currentVideo.id) : String(id),
+          episodeId: id,
+          watchTime: Math.floor(sessionWatchTimeRef.current),
+          duration: Math.floor(calcDuration || videoEl.duration || 0),
+          progress: Math.floor(videoEl.currentTime || 0),
+          source: 'web'
+        };
+        // reset session counter after sending
+        await recordWatchHistory(dto);
+        sessionWatchTimeRef.current = 0;
+      } catch (_e) {
+        // ignore
+      }
+    };
+
+    const onPlay = () => {
+      // start counting watch time per second
+      if (watchIntervalRef.current) window.clearInterval(watchIntervalRef.current);
+      watchIntervalRef.current = window.setInterval(() => {
+        sessionWatchTimeRef.current += 1;
+      }, 1000);
+    };
+
+    const onPauseOrEnd = () => {
+      if (watchIntervalRef.current) {
+        window.clearInterval(watchIntervalRef.current);
+        watchIntervalRef.current = null;
+      }
+      // flush record
+      sendRecord().catch(() => {});
+    };
+
+    const onBeforeUnload = () => {
+      if (watchIntervalRef.current) window.clearInterval(watchIntervalRef.current);
+      // synchronous navigator.sendBeacon fallback could be used, but we'll try fetch
+      sendRecord().catch(() => {});
+    };
+
+    videoEl.addEventListener('play', onPlay);
+    videoEl.addEventListener('pause', onPauseOrEnd);
+    videoEl.addEventListener('ended', onPauseOrEnd);
+    window.addEventListener('beforeunload', onBeforeUnload);
+
+    return () => {
+      videoEl.removeEventListener('play', onPlay);
+      videoEl.removeEventListener('pause', onPauseOrEnd);
+      videoEl.removeEventListener('ended', onPauseOrEnd);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      if (watchIntervalRef.current) window.clearInterval(watchIntervalRef.current);
+    };
+  }, [id, currentVideo, calcDuration]);
+
 
   const loadFromMaster = (masterplaylist: string) => {
     if (!loading) setLoading(true);
@@ -132,6 +196,42 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         
         // Load duration information
         loadPlayTime();
+        // attempt resume: fetch last watch position and seek (once)
+        (async () => {
+          try {
+            if (!hasSeekedRef.current) {
+              const lastPos = await getLastWatchPosition(currentVideo?.id ? String(currentVideo.id) : String(id), id);
+              if (typeof lastPos === 'number' && !isNaN(lastPos) && lastPos > 0) {
+                // account for tOffset when seeking: stored progress is logical playhead (without offset),
+                // so add tOffset to map to media timeline
+                const seekTarget = lastPos + (tOffset || 0);
+                // wait for metadata/duration to be available
+                const waitForMeta = () => new Promise<void>((resolve) => {
+                  if (!videoElement) return resolve();
+                  if (!isNaN(videoElement.duration) && isFinite(videoElement.duration)) return resolve();
+                  const onLoaded = () => { videoElement.removeEventListener('loadedmetadata', onLoaded); resolve(); };
+                  videoElement.addEventListener('loadedmetadata', onLoaded);
+                });
+                await waitForMeta();
+                // clamp seekTarget
+                const maxSeek = (videoElement.duration && isFinite(videoElement.duration)) ? Math.max(0, videoElement.duration - 1) : seekTarget;
+                const finalSeek = Math.min(seekTarget, maxSeek);
+                if (!isNaN(finalSeek) && finalSeek > 0) {
+                  try {
+                    videoElement.currentTime = finalSeek;
+                    console.log('Resumed playback at', finalSeek, 'seconds (lastPos', lastPos, 'tOffset', tOffset, ')');
+                  } catch (e) {
+                    console.warn('Failed to set currentTime for resume', e);
+                  }
+                }
+                hasSeekedRef.current = true;
+              }
+            }
+          } catch (e) {
+            // ignore resume errors
+            console.warn('Resume fetch failed', e);
+          }
+        })();
       });
       hls.on(Hls.Events.LEVEL_SWITCHED, () => {
         setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);

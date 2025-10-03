@@ -114,7 +114,35 @@
     "premium": "高级",
     "pro": "专业",
     "selectPlan": "选择方案",
-    "currentPlan": "当前方案"
+    "currentPlan": "当前方案",
+    "platinum": {
+      "title": "白金VIP",
+      "price": "$20/月",
+      "features": [
+        "抽奖概率 +30%",
+        "高清无广告",
+        "每月5次“求片”权",
+        "可申请创作者"
+      ]
+    },
+    "diamond": {
+      "title": "钻石VIP",
+      "price": "$200/年",
+      "features": [
+        "含白金所有权益",
+        "专属客服",
+        "求片优先处理"
+      ]
+    },
+    "supreme_family": {
+      "title": "至尊VIP家庭版",
+      "price": "$300/年",
+      "features": [
+        "含钻石所有权益",
+        "解锁高级会议功能",
+        "支持5人共享"
+      ]
+    }
   },
   "profile": {
     "me": "我",
@@ -154,11 +182,14 @@
   "upload": {
     "title": "上传内容",
     "description": "上传您的电影或电视剧，与全世界分享",
+    "selectTypeHelp": "选择上传类型。您将被带到专门的页面完成上传。",
+    "movieBrief": "电影上传允许您使用单个文件、封面艺术、元数据和可选字幕发布长片，适用于独立发行。",
+    "seriesBrief": "电视剧上传支持多集和季元数据。用于发布分集内容，每集可拥有独立文件和描述。",
     "movie": "电影",
     "series": "电视剧",
     "videoFile": "视频文件",
     "clickOrDrag": "点击上传或拖拽文件",
-    "fileTypes": "MP4, MOV, AVI, MKV（最大 10GB）",
+    "fileTypes": "MP4, MOV, MKV, WEBM（最大 10GB）",
     "uploadMovie": "上传电影",
     "uploadSeries": "上传剧集",
     "director": "导演",

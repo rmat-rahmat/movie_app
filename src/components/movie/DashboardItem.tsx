@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import StarRating from '@/components/ui/StarRating';
 import type { DashboardItem as DashboardItemType } from '@/types/Dashboard';
-import { FiPlay, FiInfo } from 'react-icons/fi';
+import { FiPlay, FiInfo, FiMoreVertical } from 'react-icons/fi';
 
 interface DashboardItemProps {
   video: DashboardItemType;
@@ -11,9 +11,10 @@ interface DashboardItemProps {
   onClick?: () => void;
   showRating?: boolean;
   showViewer?: boolean;
+  onOptionsClick?: (videoId: string) => void;
 }
 
-const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, showRating, showViewer }) => {
+const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, showRating, showViewer,onOptionsClick }) => {
   const [imageError, setImageError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
@@ -72,7 +73,9 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
             handleImageLoad(e);
           }}
         />
-        
+        { <button onClick={(e)=>{ e.stopPropagation(); onOptionsClick && onOptionsClick(video.id); }} className="absolute top-2 right-2 z-100 flex items-center justify-center w-8 h-8 bg-black/70 hover:bg-[#fbb033] text-white hover:text-black rounded-full transition-all duration-200 cursor-pointer">
+            <FiMoreVertical className="w-4 h-4" />
+          </button>}
         {/* Gradient Overlay */}
         <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent transition-opacity duration-300 ${
           isHovered ? 'opacity-100' : 'opacity-70'

@@ -16,6 +16,8 @@ import TagSelector from '@/components/ui/TagSelector';
 import VideoPlayer from '@/components/ui/VideoPlayer';
 import DurationInput from '@/components/ui/DurationInput';
 import { getCachedCategories, type CategoryItem } from '@/lib/movieApi';
+import { getDirectorList, getActorList, getRegionList } from '@/lib/movieApi';
+import SearchableDropdown from '@/components/ui/SearchableDropdown';
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 
 const debugLog = (message: string, data?: unknown) => {
@@ -34,6 +36,9 @@ export default function MovieUpload() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [uploadedMovieId, setUploadedMovieId] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [directorSuggestions, setDirectorSuggestions] = useState<string[]>([]);
+  const [actorSuggestions, setActorSuggestions] = useState<string[]>([]);
+  const [regionSuggestions, setRegionSuggestions] = useState<string[]>([]);
 
   const [movieForm, setMovieForm] = useState({
     title: '',
@@ -59,6 +64,21 @@ export default function MovieUpload() {
       // console.log('Loaded cached categories', JSON.stringify(cachedCategories, null, 2));
       setCategories(cachedCategories);
     }
+    // preload director/actor/region suggestions
+    (async () => {
+      try {
+        const [dirs, acts, regs] = await Promise.all([
+          getDirectorList('', undefined, 1, 50),
+          getActorList('', undefined, 1, 50),
+          getRegionList('', 1, 200)
+        ]);
+        if (Array.isArray(dirs)) setDirectorSuggestions(dirs.slice(0, 100));
+        if (Array.isArray(acts)) setActorSuggestions(acts.slice(0, 200));
+        if (Array.isArray(regs)) setRegionSuggestions(regs.slice(0, 200));
+      } catch (e) {
+        console.warn('Failed to preload suggestions', e);
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -151,7 +171,7 @@ export default function MovieUpload() {
   const renderProgressBar = () => {
     if (uploadProgress.status === 'idle') return null;
     return (
-      <div className="mt-6 p-4 bg-gray-800 rounded-lg">
+      <div className="mt-6 p-4 rounded-3xl">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-white">
             {uploadProgress.status === 'uploading' && t('uploadForm.uploading', 'Uploading...')}
@@ -160,7 +180,7 @@ export default function MovieUpload() {
           </span>
           <span className="text-sm text-gray-400">{Math.round(uploadProgress.progress)}%</span>
         </div>
-        <div className="w-full bg-gray-700 rounded-full h-2">
+        <div className="w-full rounded-full h-2">
           <div
             className={`h-2 rounded-full transition-all duration-300 ${uploadProgress.status === 'success' ? 'bg-green-500' :
               uploadProgress.status === 'error' ? 'bg-red-500' : 'bg-[#fbb033]'
@@ -323,28 +343,30 @@ export default function MovieUpload() {
         type="movie"
         onUploadMore={handleUploadMore}
       />
-      <form onSubmit={handleMovieUpload} className="bg-gray-800 rounded-xl p-8 shadow-2xl">
+      <form onSubmit={handleMovieUpload} className=" rounded-xl p-8 shadow-2xl">
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File *')}</label>
+          <label className="block text-lg font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File *')}</label>
           <div className="flex items-center justify-center w-full mb-4">
             {!moviePreviewUrl ? (
 
-                <label id="upload-video-box" htmlFor="movie-file-top" className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <FiUpload className="w-12 h-12 mb-3 text-gray-400" />
-                  <p className="mb-2 text-sm text-gray-400">{movieForm.file ? movieForm.file.name : t('upload.clickOrDrag', 'Click to upload or drag and drop')}</p>
-                  <p className="text-xs text-gray-500">{t('upload.fileTypes', 'MP4, MOV, MKV, WEBM (MAX. 10GB)')}</p>
-                </div>
-                <input
-                  id="movie-file-top"
-                  type="file"
-                  accept="video/mp4,video/quicktime,video/x-matroska,video/webm,.mp4,.mov,.mkv,.webm"
-                  onChange={handleFileSelect}
-                  className="visually-hidden opacity-0"
-                  ref={fileInputRef}
-                  required
-                />
-                </label>
+                <label id="upload-video-box" htmlFor="movie-file-top" className="flex flex-col items-center justify-center w-full bg-[#fbb033]/[0.2] rounded-3xl cursor-pointer hover:bg-[#fbb033]/[0.1] transition-colors">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-3">
+                          <FiUpload className="w-12 h-12 mb-3 " />
+                          <p className="mb-2 text-xl ">{movieForm.file ? movieForm.file.name : t('upload.clickOrDrag', 'Click to upload or drag and drop')}</p>
+                          <p className="text-xs ">{t('upload.fileTypes', 'MP4, MOV, MKV, WEBM (MAX. 10GB)')}</p>
+                          <p className="text-xl mt-3 mb-6 ">{t('upload.videoPrivacy', 'Your Video Will Remain Private Until It Is Published')}</p>
+                          <span className="px-7 py-2 bg-[#fbb033] rounded-3xl mt-2">{t('uploadForm.chooseFile', 'Choose File')}</span>
+                        </div>
+                        <input
+                          id="movie-file-top"
+                          type="file"
+                          accept="video/mp4,video/quicktime,video/x-matroska,video/webm,.mp4,.mov,.mkv,.webm"
+                          onChange={handleFileSelect}
+                          className="visually-hidden opacity-0"
+                          ref={fileInputRef}
+                          required
+                        />
+                      </label>
             )
               : (
                 <div className="w-full flex items-center justify-between gap-4">
@@ -381,23 +403,9 @@ export default function MovieUpload() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
-          <div>
-            <label className="block text-sm font-medium mb-2">{t('uploadForm.titlePlaceholder', 'Title *')}</label>
-            <input
-              type="text"
-              required
-              value={movieForm.title}
-              onChange={(e) => setMovieForm(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
-              placeholder={t('uploadForm.titlePlaceholder', 'Enter movie title')}
-            />
-          </div>
-         
-        </div>
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="block text-sm font-medium mb-2">{t('movie.duration', 'Duration *')}</label>
+            <label className="block text-lg font-medium mb-2">{t('movie.duration', 'Duration *')}</label>
             <DurationInput
               value={movieForm.duration}
               onChange={(durationMs) => setMovieForm(prev => ({ ...prev, duration: durationMs }))}
@@ -407,7 +415,7 @@ export default function MovieUpload() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">{t('upload.year', 'Year')}</label>
+            <label className="block text-lg font-medium mb-2">{t('upload.year', 'Year')}</label>
             <input
               type="number"
               required
@@ -415,25 +423,48 @@ export default function MovieUpload() {
               max="2030"
               value={movieForm.year}
               onChange={(e) => setMovieForm(prev => ({ ...prev, year: parseInt(e.target.value) || new Date().getFullYear() }))}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
             />
           </div>
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
+          <div>
+            <label className="block text-lg font-medium mb-2">{t('uploadForm.title', 'Title *')}</label>
+            <input
+              type="text"
+              required
+              value={movieForm.title}
+              onChange={(e) => setMovieForm(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full px-4 py-3 border border-[#fbb033] h-24 rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              placeholder={t('uploadForm.titlePlaceholder', 'Enter movie title')}
+            />
+          </div>
+         
+        </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">{t('upload.description', 'Description')}</label>
+          <label className="block text-lg font-medium mb-2">{t('upload.description', 'Description')}</label>
           <textarea
             rows={4}
             required
             value={movieForm.description}
             onChange={(e) => setMovieForm(prev => ({ ...prev, description: e.target.value }))}
-            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+            className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
             placeholder={t('uploadForm.descriptionPlaceholder', 'Enter movie description')}
+          />
+        </div>
+        <div className="mb-6">
+          <label className="block text-lg font-medium mb-2">{t('upload.tags', 'Tags')}</label>
+          <TagSelector
+            selectedTags={movieForm.tags}
+            onTagsChange={handleTagsChange}
+            placeholder={t('upload.searchTags', 'Search and select tags...')}
+            required
           />
         </div>
 
         <div className="mb-6">
-          <label htmlFor="category" className="block text-sm font-medium mb-2">
+          <label htmlFor="category" className="block text-lg font-medium mb-2">
             {t('uploadForm.categoryLabel', 'Category')}
           </label>
           <select
@@ -442,7 +473,7 @@ export default function MovieUpload() {
             name="category"
             value={movieForm.categoryId}
             onChange={(e) => setMovieForm((prev) => ({ ...prev, categoryId: e.target.value }))}
-            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+            className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
           >
             <option value="" disabled ></option>
             {categories.map((category) => {
@@ -469,10 +500,10 @@ export default function MovieUpload() {
           </select>
         </div>
         <div className="grid grid-cols-1 gap-6 mb-6">
-          <label className="block text-sm font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover Image')}</label>
+          <label className="block text-lg font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover Image')}</label>
           <div className="flex items-center gap-4">
             <input type="file" accept="image/*" id="movie-cover-file" onChange={handleCoverFileSelect} className="visually-hidden opacity-0 absolute" required />
-            <label htmlFor="movie-cover-file" className="px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer text-white">Choose Image</label>
+            <label htmlFor="movie-cover-file" className="px-4 py-3  border border-[#fbb033] rounded-3xl cursor-pointer text-white">Choose Image</label>
             {movieCoverPreviewUrl ? (
               <div className="flex items-center gap-3">
                 <img src={movieCoverPreviewUrl} alt="cover preview" className="w-28 h-16 object-cover rounded" />
@@ -486,17 +517,32 @@ export default function MovieUpload() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           <div>
-            <label className="block text-sm font-medium mb-2">{t('upload.director', 'Director')}</label>
-            <input required type="text" value={movieForm.director} onChange={(e) => setMovieForm(prev => ({ ...prev, director: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Director name" />
+            <label className="block text-lg font-medium mb-2">{t('upload.director', 'Director')}</label>
+            <SearchableDropdown
+              id="director"
+              value={movieForm.director}
+              onChange={(v) => setMovieForm(prev => ({ ...prev, director: v }))}
+              suggestions={directorSuggestions}
+              placeholder="Director name"
+              required
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">{t('upload.actors', 'Actors')}</label>
-            <input required type="text" value={movieForm.actors} onChange={(e) => setMovieForm(prev => ({ ...prev, actors: e.target.value }))} className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Actor1, Actor2, Actor3" />
+            <label className="block text-lg font-medium mb-2">{t('upload.actors', 'Actors')}</label>
+            <SearchableDropdown
+              id="actors"
+              value={movieForm.actors}
+              onChange={(v) => setMovieForm(prev => ({ ...prev, actors: v }))}
+              suggestions={actorSuggestions}
+              placeholder="Actor1, Actor2, Actor3"
+              multi
+              required
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">{t('upload.rating', 'Rating')}</label>
+            <label className="block text-lg font-medium mb-2">{t('upload.rating', 'Rating')}</label>
             <input
               type="number"
               required
@@ -508,7 +554,7 @@ export default function MovieUpload() {
                 const value = e.target.value === '' ? 0 : Math.max(0, Math.min(10, parseFloat(e.target.value)));
                 setMovieForm(prev => ({ ...prev, rating: value }));
               }}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
               placeholder="Enter rating (0-10)"
             />
           </div>
@@ -516,44 +562,35 @@ export default function MovieUpload() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="block text-sm font-medium mb-2">{t('upload.region', 'Region')}</label>
-            <input
-              type="text"
-              required
+            <label className="block text-lg font-medium mb-2">{t('upload.region', 'Region')}</label>
+            <SearchableDropdown
+              id="region"
               value={movieForm.region}
-              onChange={(e) => setMovieForm(prev => ({ ...prev, region: e.target.value }))}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              onChange={(v) => setMovieForm(prev => ({ ...prev, region: v }))}
+              suggestions={regionSuggestions}
               placeholder="e.g., USA, China, etc."
+              required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">{t('upload.language', 'Language')}</label>
+            <label className="block text-lg font-medium mb-2">{t('upload.language', 'Language')}</label>
             <input
               type="text"
               required
               value={movieForm.language}
               onChange={(e) => setMovieForm(prev => ({ ...prev, language: e.target.value }))}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
               placeholder="e.g., English, Mandarin, etc."
             />
           </div>
         </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">{t('upload.tags', 'Tags')}</label>
-          <TagSelector
-            selectedTags={movieForm.tags}
-            onTagsChange={handleTagsChange}
-            placeholder={t('upload.searchTags', 'Search and select tags...')}
-            required
-          />
-        </div>
 
 
         {renderProgressBar()}
 
         <div className="flex justify-end mt-8">
-          <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex justify-center w-full  lg:w-auto  items-center px-8 py-4 bg-[#fbb033] text-black text-center font-semibold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer">
+          <button type="submit" disabled={isSubmitting || uploadProgress.status === 'uploading'} className="flex justify-center w-full  lg:w-auto  items-center px-8 py-4 bg-[#fbb033] text-black text-center font-semibold rounded-3xl hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer">
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-3"></div>

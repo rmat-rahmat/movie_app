@@ -442,6 +442,44 @@ export async function searchVideos(
   }
 }
 
+// Get search suggestions (array of strings)
+export async function getSearchSuggestions(prefix: string = '', limit: number = 10): Promise<string[] | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/search/suggestions`;
+    const response = await axios.get(url, {
+      params: { prefix, limit },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+    const data = response.data;
+    if (data && data.success && Array.isArray(data.data)) {
+      return data.data as string[];
+    }
+    return Array.isArray(data?.data) ? data.data : [];
+  } catch (err) {
+    console.error('Failed to fetch search suggestions', err);
+    return null;
+  }
+}
+
+// Get hot search keywords
+export async function getHotKeywords(limit: number = 10): Promise<string[] | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/search/hot-keywords`;
+    const response = await axios.get(url, {
+      params: { limit },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+    const data = response.data;
+    if (data && data.success && Array.isArray(data.data)) {
+      return data.data as string[];
+    }
+    return Array.isArray(data?.data) ? data.data : [];
+  } catch (err) {
+    console.error('Failed to fetch hot keywords', err);
+    return null;
+  }
+}
+
 // Fetch the main m3u8 (may require expires & signature)
 export async function getPlayMain(uploadId: string, expires: number | string = 100000, signature: string = '2', apiKey?: string): Promise<string | null> {
   try {
@@ -559,3 +597,153 @@ export async function getVideoRecommendations(videoId: string, page: number = 1,
 }
 
 export type { CategoryItem };
+
+// Record watch history
+export interface WatchHistoryDto {
+  mediaId: string;
+  episodeId: string;
+  watchTime: number; // seconds watched this session
+  duration?: number; // total duration in seconds
+  progress: number; // current playhead in seconds
+  source?: string;
+}
+
+export async function recordWatchHistory(dto: WatchHistoryDto): Promise<boolean> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/watch-history/record`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await axios.post(url, dto, { headers });
+    const data = res.data;
+    return !!(data && data.success);
+  } catch (err) {
+    console.error('Failed to record watch history', err);
+    return false;
+  }
+}
+
+// Get last watch position (in seconds) for a given media/episode
+export async function getLastWatchPosition(mediaId: string, episodeId: string): Promise<number | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/watch-history/last-position`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await axios.get(url, {
+      params: { mediaId, episodeId },
+      headers,
+    });
+    const data = res.data;
+    if (data && data.success && typeof data.data === 'number') {
+      return Number(data.data);
+    }
+    return null;
+  } catch (err) {
+    console.error('Failed to fetch last watch position', err);
+    return null;
+  }
+}
+
+// Fetch paginated watch history list for the current user
+export async function getWatchHistoryList(page: number = 0, size: number = 12): Promise<DashboardItem[] | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/watch-history/list`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await axios.get(url, {
+      params: { page, size },
+      headers,
+    });
+    const data = res.data;
+    if (data && data.success && data.data && Array.isArray(data.data.contents)) {
+      const contents = data.data.contents as any[];
+      // Map API content shape to VideoSrc minimal fields
+      const list: DashboardItem[] = contents.map((it) => ({
+        ...it,
+      } as DashboardItem));
+      return list;
+    }
+    return [];
+  } catch (err) {
+    console.error('Failed to fetch watch history list', err);
+    return null;
+  }
+}
+
+// Clear all watch history for the current user
+export async function clearWatchHistory(): Promise<boolean> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/watch-history/clear`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await axios.delete(url, { headers });
+    const data = res.data;
+    return !!(data && data.success);
+  } catch (err) {
+    console.error('Failed to clear watch history', err);
+    return false;
+  }
+}
+
+// Fetch simplified director list (returns array of names)
+export async function getDirectorList(name: string = '', gender?: number, page: number = 0, size: number = 50): Promise<string[] | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/director/list`;
+    const params: Record<string, any> = { page, size };
+    if (name) params.name = name;
+    if (typeof gender === 'number') params.gender = gender;
+    const res = await axios.get(url, { params, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    const data = res.data;
+    if (data && data.success && data.data && Array.isArray(data.data.records)) {
+      return data.data.records.map((r: any) => String(r.name));
+    }
+    return [];
+  } catch (err) {
+    console.error('Failed to fetch director list', err);
+    return null;
+  }
+}
+
+// Fetch simplified actor list (returns array of names)
+export async function getActorList(name: string = '', gender?: number, page: number = 0, size: number = 50): Promise<string[] | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/actor/list`;
+    const params: Record<string, any> = { page, size };
+    if (name) params.name = name;
+    if (typeof gender === 'number') params.gender = gender;
+    const res = await axios.get(url, { params, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    const data = res.data;
+    if (data && data.success && data.data && Array.isArray(data.data.records)) {
+      return data.data.records.map((r: any) => String(r.name));
+    }
+    return [];
+  } catch (err) {
+    console.error('Failed to fetch actor list', err);
+    return null;
+  }
+}
+
+// Fetch region list (returns array of names)
+export async function getRegionList(name: string = '', page: number = 0, size: number = 200): Promise<string[] | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/region/list`;
+    const params: Record<string, any> = { page, size };
+    if (name) params.name = name;
+    const res = await axios.get(url, { params, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    const data = res.data;
+    if (data && data.success && data.data && Array.isArray(data.data.records)) {
+      return data.data.records.map((r: any) => String(r.name));
+    }
+    return [];
+  } catch (err) {
+    console.error('Failed to fetch region list', err);
+    return null;
+  }
+}

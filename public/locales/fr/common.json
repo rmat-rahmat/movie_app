@@ -156,7 +156,7 @@
       "series": "Série TV",
       "videoFile": "Fichier vidéo",
       "clickOrDrag": "Cliquez pour téléverser ou glissez-déposez",
-      "fileTypes": "MP4, MOV, AVI, MKV (MAX. 10GB)",
+      "fileTypes": "MP4, MOV, MKV, WEBM (MAX. 10GB)",
       "uploadMovie": "Téléverser un film",
       "uploadSeries": "Téléverser une série",
       "director": "Réalisateur",

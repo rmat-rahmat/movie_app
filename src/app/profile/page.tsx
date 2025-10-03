@@ -3,17 +3,21 @@
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/ui/LoadingPage";
 import { VideoSrc } from "@/types/VideoSrc";
-import { getLastSeenVideos } from "@/lib/userMovieList";
-import { FiLogOut, FiSettings } from "react-icons/fi";
+import { getWatchHistoryList } from "@/lib/movieApi";
+import { FiChevronRight, FiDelete, FiLogOut, FiSettings, FiTrash, FiTrash2 } from "react-icons/fi";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from '@/store/authStore';
 import Image from "next/image";
+import DashboardSection from "@/components/movie/DashboardSection";
+import { DashboardItem } from "@/types/Dashboard";
 
 
 export default function Profile() {
     const [isloading, setIsLoading] = useState(true);
-    const [lastSeenVid, setLastSeenVid] = useState<VideoSrc[]>([]);
+    const [lastSeenVid, setLastSeenVid] = useState<DashboardItem[]>([]);
+    const [playlists, setPlaylists] = useState<DashboardItem[]>([]);
+    const [yourVideos, setYourVideos] = useState<DashboardItem[]>([]);
     const { t } = useTranslation('common');
 
     const user = useAuthStore((s) => s.user);
@@ -29,8 +33,8 @@ export default function Profile() {
         }
 
         const fetchData = async () => {
-            const listA = await getLastSeenVideos();
-            setLastSeenVid(listA);
+            const listA = await getWatchHistoryList(1, 12);
+            setLastSeenVid(listA || []);
             setIsLoading(false);
         };
         fetchData();
@@ -80,34 +84,60 @@ export default function Profile() {
                     </div>
                 </div>
                 <div className="container min-h-[40vh] mx-auto px-4 py-8 mt-0">
-
-{/* 
-                    <MovieSection
-
-                        icon={<FiPlayCircle className="h-6 w-6 text-[#fbb033]" />}
-                        onViewMore={() => console.log("View More Movies")}
-                        showPlayback={true} showViewer={true}
-                        frameSize={30}
-                        title={t('profile.lastSeen') || t('profile.personalInfo')}
-                        videos={lastSeenVid}
+                    <DashboardSection
+                        onViewMore={undefined}
+                        title={t('profile.WatchHistory', 'Watch History')}
+                        videos={lastSeenVid || []}
+                        sectionOptionButton={{
+                            title: t('viewAll', 'View All'),
+                            icon: <FiChevronRight className="h-4 w-4" />,
+                            iconRight: true,
+                            onClick: () => { location.href = '/profile/history';
+                                // Clear watch history logic here
+                                // setLastSeenVid([]);
+                            }
+                        }}
                     />
-
-
-                    <MovieSection
-                        onViewMore={() => console.log("Uploaded Videos")}
-                        showPlayback={true} showViewer={true}
-                        frameSize={20}
-                        title={t('profile.uploadedVideos') || 'Uploaded Videos'}
-                        videos={lastSeenVid}
+                    <DashboardSection
+                        onViewMore={undefined}
+                        title={t('profile.Playlist', 'Playlist')}
+                        videos={playlists || []}
+                        sectionOptionButton={{
+                            title: t('viewAll', 'View All'),
+                            icon: <FiChevronRight className="h-4 w-4" />,
+                            iconRight: true,
+                            onClick: () => {
+                                // Clear watch history logic here
+                                // setLastSeenVid([]);
+                            }
+                        }}
                     />
+                    <DashboardSection
+                        onViewMore={undefined}
+                        title={t('profile.YourVideos', 'Your Videos')}
+                        videos={yourVideos || []}
+                        sectionOptionButton={{
+                            title: t('viewAll', 'View All'),
+                            icon: <FiChevronRight className="h-4 w-4" />,
+                            iconRight: true,
+                            onClick: () => {
+                                // Clear watch history logic here
+                                // setLastSeenVid([]);
+                            }
+                        }}
+                    />
+                    {/* View history */}
 
-                    <MovieSection
-                        onViewMore={() => console.log("Playlists")} showViewer={true}
-                        frameSize={20}
-                        title={t('profile.playlists') || 'Playlists'}
-                        videos={lastSeenVid}
-                    /> */}
-                   
+                    {/* 
+                <DashboardSection
+                  key={sec.id || sec.title}
+                  onViewMore={sec.hasMore ? () => location.href = `/viewmore/${sec.id}` : undefined}
+                  title={sec.title || ""}
+                  videos={sec.contents || []}
+                />
+
+ */}
+
                 </div>
             </div>
             }

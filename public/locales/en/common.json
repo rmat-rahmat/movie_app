@@ -114,7 +114,35 @@
       "premium": "Premium",
       "pro": "Pro",
       "selectPlan": "Select Plan",
-      "currentPlan": "Current Plan"
+      "currentPlan": "Current Plan",
+      "platinum": {
+        "title": "Platinum VIP",
+        "price": "$20 / month",
+        "features": [
+          "Lottery odds +30%",
+          "HD streaming without ads",
+          "5 monthly 'request' credits",
+          "Eligible to apply as a creator"
+        ]
+      },
+      "diamond": {
+        "title": "Diamond VIP",
+        "price": "$200 / year",
+        "features": [
+          "Includes all Platinum benefits",
+          "Dedicated support",
+          "Priority for content requests"
+        ]
+      },
+      "supreme_family": {
+        "title": "Supreme VIP Family",
+        "price": "$300 / year",
+        "features": [
+          "Includes all Diamond benefits",
+          "Unlock advanced meeting features",
+          "Supports sharing with up to 5 people"
+        ]
+      }
     },
     "profile": {
       "me": "Me",
@@ -154,11 +182,14 @@
     "upload": {
       "title": "Upload Content",
       "description": "Upload your movies or TV series to share with the world",
+      "selectTypeHelp": "Choose a type to upload. You will be taken to a dedicated page to complete the upload.",
+      "movieBrief": "A movie upload lets you publish feature-length films with a single file, cover art, metadata, and optional subtitles. Ideal for standalone releases.",
+      "seriesBrief": "A TV series upload supports multiple episodes and season metadata. Use this to publish episodic content with per-episode files and descriptions.",
       "movie": "Movie",
       "series": "TV Series",
       "videoFile": "Video File",
       "clickOrDrag": "Click to upload or drag and drop",
-      "fileTypes": "MP4, MOV, AVI, MKV (MAX. 10GB)",
+      "fileTypes": "MP4, MOV, MKV, WEBM (MAX. 10GB)",
       "uploadMovie": "Upload Movie",
       "uploadSeries": "Upload Series",
       "director": "Director",

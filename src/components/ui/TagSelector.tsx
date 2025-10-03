@@ -150,16 +150,16 @@ export default function TagSelector({ selectedTags, onTagsChange, placeholder, c
           {selectedTags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-[#fbb033] text-black font-medium"
+              className="inline-flex items-center pl-5 pr-3 py-1 rounded-full text-xl bg-[#fbb033]  font-medium"
             >
               {tag}
               <button
                 type="button"
                 onClick={() => handleTagRemove(tag)}
-                className="ml-2 hover:bg-yellow-600 rounded-full p-0.5 transition-colors"
+                className="ml-2 text-black hover:bg-yellow-600 rounded-full p-0.5 transition-colors cursor-pointer"
                 aria-label={`Remove ${tag} tag`}
               >
-                <FiX className="w-3 h-3" />
+                <FiX className="w-4 h-4" />
               </button>
             </span>
           ))}
@@ -184,7 +184,7 @@ export default function TagSelector({ selectedTags, onTagsChange, placeholder, c
             onChange={handleInputChange}
             onFocus={handleInputFocus}
             onKeyDown={handleKeyDown}
-            className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+            className="w-full pl-10 pr-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
             placeholder={placeholder || t('upload.searchTags', 'Search tags...')}
           />
           {isLoading && (
@@ -196,14 +196,14 @@ export default function TagSelector({ selectedTags, onTagsChange, placeholder, c
 
         {/* Dropdown */}
         {isDropdownOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+          <div className="absolute z-50 w-full mt-1 bg-black border border-[#fbb033] rounded-3xl shadow-lg max-h-48 overflow-y-auto">
             {filteredTags.length > 0 ? (
               filteredTags.map((tag) => (
                 <button
                   key={tag.id}
                   type="button"
                   onClick={() => handleTagSelect(tag.name)}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-600 text-white transition-colors"
+                  className="w-full text-left px-4 py-2 hover:bg-[#fbb033] text-white transition-colors cursor-pointer"
                 >
                   <div className="font-medium">{tag.name}</div>
                   {tag.description && (

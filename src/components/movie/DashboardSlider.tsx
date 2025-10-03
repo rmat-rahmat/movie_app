@@ -153,8 +153,8 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
                             </div>
 
                             {/* Content Container */}
-                            <div className="relative z-10 h-full flex items-center justify-start">
-                                <div className="px-14 md:px-16 lg:px-20 max-w-2xl">
+                            <div className="relative z-10 h-full flex items-baseline md:items-center md:justify-start">
+                                <div className="px-14 md:px-16 lg:px-20 max-w-2xl mt-auto mb-10">
                                     {/* Title */}
                                     <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-2xl leading-tight">
                                         {title}
@@ -162,7 +162,7 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
                                     
                                     {/* Release Info Badge */}
                                     {releaseLabel && (
-                                        <div className="inline-flex items-center bg-gradient-to-r from-[#fbb033] to-[#f69c05] text-black font-bold px-3 md:px-4 py-2 rounded-full text-xs md:text-base mb-6 shadow-lg">
+                                        <div className="hidden md:inline-flex items-center bg-gradient-to-r from-[#fbb033] to-[#f69c05] text-black font-bold px-3 md:px-4 py-2 rounded-full text-xs md:text-base mb-6 shadow-lg">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
@@ -195,7 +195,7 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
                                         
                                         <button
                                             onClick={() => handleDashboardItemClick(video)}
-                                            className="text-xs md:text-sm bg-gray-600/80 hover:bg-gray-500/80 text-white font-semibold py-2 md:py-3 px-8 rounded-full inline-flex items-center cursor-pointer transition-all duration-200 backdrop-blur-sm border border-gray-400/30"
+                                            className="hidden md:inline-flex text-xs md:text-sm bg-gray-600/80 hover:bg-gray-500/80 text-white font-semibold py-2 md:py-3 px-8 rounded-full  items-center cursor-pointer transition-all duration-200 backdrop-blur-sm border border-gray-400/30"
                                         >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -243,7 +243,7 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
             {/* Navigation Arrows */}
             <button
                 onClick={() => setCurrent((prev) => (prev - 1 + videos.length) % videos.length)}
-                className="absolute left-3 md:left-8 top-1/2 transform -translate-y-1/2 z-40  hover:bg-black/60 text-white p-3 rounded-full transition-all duration-200 group"
+                className="absolute left-3 md:left-8 top-2/3 md:top-1/2 transform -translate-y-1/2 z-40  hover:bg-black/60 text-white p-3 rounded-full transition-all duration-200 group"
                 aria-label="Previous slide"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -253,7 +253,7 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
             
             <button
                 onClick={() => setCurrent((prev) => (prev + 1) % videos.length)}
-                className="absolute right-3 md:right-8 top-1/2 transform -translate-y-1/2 z-40  hover:bg-black/60 text-white p-3 rounded-full transition-all duration-200  group"
+                className="absolute right-3 md:right-8 top-2/3 md:top-1/2 transform -translate-y-1/2 z-40  hover:bg-black/60 text-white p-3 rounded-full transition-all duration-200  group"
                 aria-label="Next slide"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

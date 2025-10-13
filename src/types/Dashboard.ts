@@ -34,6 +34,7 @@ export interface ImageItem {
   p144: string;
   p360: string;
   p720: string;
+  url?: string;
 }
 
 export interface categoryLangLabel {
@@ -179,6 +180,7 @@ export interface PageInfo {
   size: number;
   total: number;
   totalPages: number;
+  getTotalPages?: number; // Some APIs use getTotalPages
   hasNext: boolean;
   hasPrevious: boolean;
 }
@@ -222,6 +224,8 @@ interface searchResult {
   contents: VideoVO[];
   page: number;
   size: number;
+  total: number;
+  getTotalPages: number;
 }
 export interface SearchApiResponse {
   status: number;

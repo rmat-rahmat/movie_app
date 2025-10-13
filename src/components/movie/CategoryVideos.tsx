@@ -24,6 +24,8 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
   const [actualCategoryName, setActualCategoryName] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<VideoVO | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [hasIntersected, setHasIntersected] = useState(false);
 
   const pageSize = 20;
 
@@ -74,6 +76,45 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
     return searchCategory(categories as (CategoryItem & { children?: CategoryItem[] })[]);
   }, []);
 
+  // Check if we're on desktop/tablet or mobile
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 768); // md breakpoint
+    };
+    
+    // Initial check
+    checkScreenSize();
+    
+    // Listen for resize events
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  // Set up intersection observer for infinite scroll on mobile
+  useEffect(() => {
+    if (isDesktop || !pageInfo?.hasNext || loadingMore) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      const target = entries[0];
+      if (target.isIntersecting && !hasIntersected) {
+        setHasIntersected(true);
+        handleLoadMore();
+      } else if (!target.isIntersecting) {
+        setHasIntersected(false);
+      }
+    }, {
+      threshold: 0.1, // Trigger when 10% of the target is visible
+      rootMargin: '100px', // Start loading before reaching the end
+    });
+
+    const sentinel = document.getElementById('scroll-sentinel');
+    if (sentinel) {
+      observer.observe(sentinel);
+    }
+
+    return () => observer.disconnect();
+  }, [isDesktop, pageInfo?.hasNext, loadingMore, hasIntersected]);
+
   // Fetch category name on component mount
   useEffect(() => {
     const foundName = findCategoryName(categoryId);
@@ -101,6 +142,7 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
       // Some endpoints return { success, data: [...] , pageInfo } (legacy)
       // while the API you pasted returns { data: { page, size, contents: [...] } }
       // Normalize both shapes into `responseData` array and `normalizedPageInfo` object.
+      console.log(response);
       const resTyped = response as { 
         success?: boolean; 
         message?: string; 
@@ -183,6 +225,8 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
       } else {
         setSafeVideos(responseData);
       }
+
+      console.log('Normalized Page Info:', normalizedPageInfo);
 
       setPageInfo(normalizedPageInfo);
       setCurrentPage(page);
@@ -275,26 +319,43 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
               ))}
             </div>
 
-            {/* Load More Button */}
+            {/* Load More and Pagination Controls */}
             {safePageInfo.hasNext && pageInfo && (
-              <div className="mt-8 text-center">
-                <button
-                  onClick={handleLoadMore}
-                  disabled={loadingMore}
-                  className="bg-[#fbb033] text-black px-6 py-3 rounded-lg hover:bg-[#f69c05] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loadingMore ? 'Loading...' : 'Load More'}
-                </button>
-              </div>
+              <>
+                {/* Desktop Load More Button */}
+                {/* {isDesktop && (
+                  <div className="mt-8 text-center">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                      className="bg-[#fbb033] text-black px-6 py-3 rounded-lg hover:bg-[#f69c05] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loadingMore ? 'Loading...' : 'Load More'}
+                    </button>
+                  </div>
+                )} */}
+
+                {/* Mobile Infinite Scroll Sentinel */}
+                {!isDesktop && (
+                  <div 
+                    id="scroll-sentinel"
+                    className="h-20 flex items-center justify-center"
+                  >
+                    {loadingMore && (
+                      <div className="animate-pulse text-gray-400">Loading more videos...</div>
+                    )}
+                  </div>
+                )}
+              </>
             )}
 
-            {/* Pagination */}
-            {pageInfo && safePageInfo.totalPages > 1 && (
+            {/* Desktop Pagination */}
+            {isDesktop && pageInfo && safePageInfo.totalPages > 1 && (
               <div className="mt-8 flex justify-center items-center gap-2">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={!safePageInfo.hasPrevious}
-                  className="px-3 py-2 rounded bg-gray-700 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600 transition-colors"
+                  className="px-3 py-2 cursor-pointer rounded bg-gray-700 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600 transition-colors"
                 >
                   Previous
                 </button>
@@ -303,7 +364,7 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
                   {Array.from({ length: Math.min(5, safePageInfo.totalPages) }, (_, i) => {
                     let pageNum;
                     if (safePageInfo.totalPages <= 5) {
-                      pageNum = i + 1; // 1-based for display
+                      pageNum = i + 1;
                     } else if (currentPage < 4) {
                       pageNum = i + 1;
                     } else if (currentPage > safePageInfo.totalPages - 3) {
@@ -316,13 +377,13 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`px-3 py-2 rounded transition-colors ${
+                        className={`px-3 py-2 rounded transition-colors cursor-pointer ${
                           pageNum === currentPage
                             ? 'bg-[#fbb033] text-black'
                             : 'bg-gray-700 text-white hover:bg-gray-600'
                         }`}
                       >
-                        {pageNum} {/* Display 1-based page numbers */}
+                        {pageNum}
                       </button>
                     );
                   })}
@@ -331,15 +392,15 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={!safePageInfo.hasNext}
-                  className="px-3 py-2 rounded bg-gray-700 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600 transition-colors"
+                  className="px-3 py-2 cursor-pointer rounded bg-gray-700 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600 transition-colors"
                 >
                   Next
                 </button>
               </div>
             )}
 
-            {/* Page Info */}
-            {pageInfo && (
+            {/* Page Info - Desktop Only */}
+            {isDesktop && pageInfo && (
               <div className="mt-4 text-center text-sm text-gray-400">
                 Page {currentPage} of {safePageInfo.totalPages} • Total: {safePageInfo.total} videos
               </div>

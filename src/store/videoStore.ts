@@ -84,7 +84,7 @@ export const useVideoStore = create<VideoStore>()(
             ? new Date(details.createTime).toLocaleDateString() 
             : (details.year ? String(details.year) : ''),
           rating: details.rating || 0,
-          backdropImage: (details.imageQuality && (details.imageQuality.p720 || details.imageQuality.p360)) || '',
+          backdropImage: (details.imageQuality && (details.imageQuality.url || details.imageQuality.p360)) || '',
           portraitImage: details.imageQuality?.p360 || '',
           actors: details.actors || [],
           director: details.director || undefined,

@@ -385,7 +385,9 @@ export async function refreshToken(): Promise<AuthResponse> {
  * Returns AuthResponse when logged in, otherwise null
  */
 export async function isLogin(): Promise<AuthResponse | null> {
-  const url = `${BASE_URL}/api-movie/v1/auth/isLogin`;
+  const url = `${BASE_URL}/api-movie/v1/auth/getUserInfo `;
+  // const url = `${BASE_URL}/api-movie/v2/auth/isLogin`;
+
   try {
     // ensure we have header set (restore from storage if needed)
     if (!axios.defaults.headers.common['Authorization']) {

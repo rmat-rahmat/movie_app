@@ -413,12 +413,13 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
               </video>
 
               {/* Large centered play overlay when not playing */}
-              {/* {!isPlaying && (
+              {!isPlaying && (
                 <button
                   type="button"
                   aria-label={t('video.play')}
                   onClick={() => {
-                    playVideo();
+                    // playVideo();
+                    loadFromMaster(masterPlaylist || '');
                   }}
                   className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/25 transition-colors cursor-pointer"
                 >
@@ -428,7 +429,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     </svg>
                   </div>
                 </button>
-              )} */}
+              )}
               {loading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/25 transition-colors">
                   <LoadingPage message={t('video.loadingVideoPlayer')} className='relative bg-white/10 w-full h-full' />
@@ -472,10 +473,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                   )}
                 </div>
                 {/* Quality Selection */}
-                <div className="mt-4 mx-auto w-full">
+                {isPlaying && <div className="mt-4 mx-auto w-full">
                   <h3 className="text-lg font-semibold mb-2">{t('video.selectQuality')}</h3>
                   <div className="flex gap-2 flex-wrap">
-                    {availableQualities.map((quality, idx) => (
+                    { availableQualities.map((quality, idx) => (
                       <button
                         key={idx}
                         onClick={() => dynamicQualityChange(idx)}
@@ -491,7 +492,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                       </button>
                     ))}
                   </div>
-                </div>
+                </div>}
               </div>
             )}
           </div>

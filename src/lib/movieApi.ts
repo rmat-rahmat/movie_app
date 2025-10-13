@@ -378,10 +378,10 @@ export const mapFeaturedToVideoSrc = (payload: DashboardApiResponse | null): Vid
 };
 
 // Get videos by category ID with pagination
-export async function getCategoryVideos(categoryId: string, page: number = 1, size: number = 20): Promise<VideosApiResponse | null> {
+export async function getCategoryVideos(categoryId: string, page: number = 1, size: number = 20,type:string="p720"): Promise<VideosApiResponse | null> {
   try {
     const response = await axios.get(`${BASE_URL}/api-movie/v1/category/videos/${categoryId}`, {
-      params: { page, size },
+      params: { page, size ,type},
       headers: {
         'Content-Type': 'application/json',
       },
@@ -648,7 +648,7 @@ export async function getLastWatchPosition(mediaId: string, episodeId: string): 
 }
 
 // Fetch paginated watch history list for the current user
-export async function getWatchHistoryList(page: number = 0, size: number = 12): Promise<DashboardItem[] | null> {
+export async function getWatchHistoryList(page: number = 0, size: number = 12,type: string='p720'): Promise<DashboardItem[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/watch-history/list`;
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
@@ -656,7 +656,7 @@ export async function getWatchHistoryList(page: number = 0, size: number = 12): 
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     const res = await axios.get(url, {
-      params: { page, size },
+      params: { page, size ,type},
       headers,
     });
     const data = res.data;

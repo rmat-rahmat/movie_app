@@ -86,7 +86,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
   const title = source.title || "";
   const releaseDate = source.createTime ? new Date(source.createTime).toLocaleDateString() : (source.year ? String(source.year) : "");
   const description = source.description || "";
-  const backdropImage = (source.imageQuality && (source.imageQuality.p720 || source.imageQuality.p360)) || "";
+  const backdropImage = (source.imageQuality && (source.imageQuality.url || source.imageQuality.p360)) || "";
   const portraitImage = source.imageQuality?.p360 || "";
   const rating = source.rating || 0;
 

@@ -87,6 +87,7 @@ export default function AuthWrapperOptimized({ children }: AuthWrapperOptimizedP
           const imageUrl = await getImageById(user.avatar, '360')
           avatar = imageUrl.url || '';
         }
+        console.log('Fetched avatar URL:', user); // Debug log
         setAvatarUrl(avatar);
       } else {
         setAvatarUrl('');

@@ -6,7 +6,6 @@ import AuthWrapper from "@/components/auth/AuthWrapper";
 import AuthWrapperOptimized from "@/components/auth/AuthWrapperOptimized";
 import I18nProvider from "@/components/i18n/I18nProvider";
 import { useEffect } from "react";
-import { initializeAuthInterceptor } from "@/lib/authInterceptor";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

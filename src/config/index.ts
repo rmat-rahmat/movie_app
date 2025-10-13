@@ -5,6 +5,7 @@
 const DEFAULT_DEV = 'http://45.137.215.129:47080';
 
 const DEFAULT_TEST= 'https://tv.0taik.co';
+const DEFAULT_NEW= 'http://45.137.215.129:59091';
 
 const DEFAULT_PROD="https://otalk.tv"
 

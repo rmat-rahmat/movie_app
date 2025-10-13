@@ -284,6 +284,71 @@ export const useAuthStore = create<AuthState>()(
           });
         }
       },
+      checkAuth2: async () => {
+        console.log("checkAuth called");
+        try {
+          set({ isLoading: true });
+          // Use API helper that restores headers if needed
+          const response = await apiIsLogin();
+          console.log("checkAuth response:", response);
+          if (response?.user?.avatar && typeof response.user.avatar === 'string' && !response.user.avatar.startsWith('http')) {
+            const avatarUrl = await getImageById(response.user.avatar, '360');
+            response.user.avatar = avatarUrl?.url ?? '';
+          }
+          if (response) {
+            // CRITICAL: Set auth header when checkAuth succeeds
+            setAuthHeader(response.token);
+            
+            set({
+              user: response.user,
+              token: response.token,
+              refreshToken: response.refreshToken,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+            console.log('[authStore] state after checkAuth (logged in)');
+          } else {
+            console.log('[authStore] checkAuth failed, attempting token refresh');
+            await get().refreshAuthToken();
+            const retryResponse = await apiIsLogin(); // Retry the authentication check after refreshing the token
+            if (retryResponse) {
+              // CRITICAL: Set auth header when retry checkAuth succeeds
+              setAuthHeader(retryResponse.token);
+              
+              set({
+                user: retryResponse.user,
+                token: retryResponse.token,
+                refreshToken: retryResponse.refreshToken,
+                isAuthenticated: true,
+                isLoading: false,
+                error: null,
+              });
+              console.log('[authStore] state after retry checkAuth (logged in)');
+            } else {
+              set({
+                user: null,
+                // token: null,
+                // refreshToken: null,
+                isAuthenticated: false,
+                isLoading: false,
+                error: null,
+              });
+              console.log('[authStore] state after retry checkAuth (not logged in)');
+            }
+          }
+        } catch (error) {
+          console.log('[authStore] checkAuth failed completely', error);
+          set({
+            user: null,
+            // token: null,
+            // refreshToken: null,
+            isAuthenticated: false,
+            isLoading: false,
+            // error: error instanceof Error ? error.message : 'Authentication failed',
+          });
+        }
+      },
 
       refreshAuthToken: async () => {
         try {

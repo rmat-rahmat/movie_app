@@ -193,7 +193,7 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
                                             {t('modal.watchNow')}
                                         </button>
                                         
-                                        <button
+                                        {/* <button
                                             onClick={() => handleDashboardItemClick(video)}
                                             className="hidden md:inline-flex text-xs md:text-sm bg-gray-600/80 hover:bg-gray-500/80 text-white font-semibold py-2 md:py-3 px-8 rounded-full  items-center cursor-pointer transition-all duration-200 backdrop-blur-sm border border-gray-400/30"
                                         >
@@ -208,7 +208,7 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                             {t('movie.moreInfo')}
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </div>
                             </div>

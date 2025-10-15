@@ -378,10 +378,10 @@ export const mapFeaturedToVideoSrc = (payload: DashboardApiResponse | null): Vid
 };
 
 // Get videos by category ID with pagination
-export async function getCategoryVideos(categoryId: string, page: number = 1, size: number = 20,type:string="p720"): Promise<VideosApiResponse | null> {
+export async function getCategoryVideos(categoryId: string, page: number = 1, size: number = 20,type:string="p720",sortType:string="0"): Promise<VideosApiResponse | null> {
   try {
     const response = await axios.get(`${BASE_URL}/api-movie/v1/category/videos/${categoryId}`, {
-      params: { page, size ,type},
+      params: { page, size ,type,sortType},
       headers: {
         'Content-Type': 'application/json',
       },
@@ -767,5 +767,82 @@ export async function getRegionList(name: string = '', page: number = 0, size: n
   } catch (err) {
     console.error('Failed to fetch region list', err);
     return null;
+  }
+}
+
+// Types for reset password API
+export interface ResetPasswordRequest {
+  email: string;
+  emailCaptcha: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+  message?: string;
+  errorCode?: string;
+  timestamp?: number;
+  clientError?: boolean;
+  serverError?: boolean;
+}
+
+export async function resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+  try {
+    const result =await axios.post(`${BASE_URL}/api-movie/v1/auth/resetPassword`, data, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!result.data || !result.data.success) {
+      const errorCode = result.data?.errorCode;
+      const message =
+        errorCode === 'ERR_EMAIL_CAPTCHA_ERROR_OR_USER_NOT_EXISTS'
+          ? t('common.ERR_EMAIL_CAPTCHA_ERROR_OR_USER_NOT_EXISTS')
+          : t(errorCode || 'An error occurred');
+
+      return {
+        success: false,
+        message,
+        errorCode,
+        timestamp: result.data?.timestamp,
+        clientError: result.data?.clientError,
+        serverError: result.data?.serverError
+      };
+    }
+    return {
+      success: true
+    };
+  } catch (err: unknown) {
+    type ErrorResponse = {
+      success?: boolean;
+      message?: string;
+      errorCode?: string;
+      timestamp?: number;
+      clientError?: boolean;
+      serverError?: boolean;
+    };
+
+    // default fallback error response
+    let errorResponse: ErrorResponse = {
+      success: false,
+      message: 'An unexpected error occurred',
+      errorCode: 'UNKNOWN_ERROR',
+      clientError: true
+    };
+
+    // If this is an Axios error with a response payload, merge it into the fallback
+    if (axios.isAxiosError(err) && err.response && typeof err.response.data === 'object' && err.response.data !== null) {
+      errorResponse = { ...errorResponse, ...(err.response.data as ErrorResponse) };
+    }
+
+    return {
+      success: false,
+      message: errorResponse.message,
+      errorCode: errorResponse.errorCode,
+      timestamp: errorResponse.timestamp,
+      clientError: errorResponse.clientError,
+      serverError: errorResponse.serverError
+    };
   }
 }

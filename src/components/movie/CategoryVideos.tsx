@@ -7,6 +7,8 @@ import LoadingPage from '@/components/ui/LoadingPage';
 import DashboardItem from './DashboardItem';
 import MovieModal from './MovieModal';
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
+import { FiClock, FiStar } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 
 interface CategoryVideosProps {
   categoryId: string;
@@ -26,6 +28,8 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [hasIntersected, setHasIntersected] = useState(false);
+  const [sort, setSort] = useState("0"); // 0: Upload Date, 1: Rating
+  const {t}=useTranslation();
 
   const pageSize = 20;
 
@@ -123,7 +127,7 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
 
   const displayName = actualCategoryName || categoryName || `Category ${categoryId}`;
 
-  const fetchVideos = useCallback(async (page: number, append: boolean = false) => {
+  const fetchVideos = useCallback(async (page: number, append: boolean = false, quicksort: string) => {
     try {
       if (append) {
         setLoadingMore(true);
@@ -133,7 +137,7 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
       }
 
       // Convert 1-based page to 0-based for API call
-      const response = await getCategoryVideos(categoryId, page, pageSize);
+      const response = await getCategoryVideos(categoryId, page, pageSize,undefined, quicksort||sort);
       // console.log(response);
       if (!response) {
         throw new Error('Failed to fetch videos');
@@ -244,18 +248,18 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
   }, [categoryId, pageSize]);
 
   useEffect(() => {
-    fetchVideos(1); // Start with page 1 (converted to 0-based in fetchVideos)
+    fetchVideos(1,false,sort); // Start with page 1 (converted to 0-based in fetchVideos)
   }, [fetchVideos]);
 
   const handleLoadMore = () => {
     if (pageInfo && safePageInfo.hasNext && !loadingMore) {
-      fetchVideos(currentPage + 1, true);
+      fetchVideos(currentPage + 1, true,sort);
     }
   };
 
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= safePageInfo.totalPages) {
-      fetchVideos(page);
+      fetchVideos(page,false,sort);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -281,7 +285,7 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
         <div className="mt-6 text-center">
           <div className="text-red-500 mb-4">Error: {error}</div>
           <button 
-            onClick={() => fetchVideos(1)} // Reset to first page (1-based)
+            onClick={() => fetchVideos(1,false,sort)} // Reset to first page (1-based)
             className="bg-[#fbb033] text-black px-4 py-2 rounded-lg hover:bg-[#f69c05] transition-colors"
           >
             Try Again
@@ -294,7 +298,32 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold">{displayName}</h1>
-      
+      <div className="rounded-lg p-1 flex gap-6">
+
+                    <div onClick={() => {setSort("0"),fetchVideos(1,false,"0")}}
+                      className={`cursor-pointer relative group rounded-lg overflow-hidden flex flex-col items-start justify-end p-2 bg-gradient-to-br from-gray-800 to-black hover:scale-105 transform transition duration-300 ${sort === "0"   ? "ring-4 ring-[#fbb033]" : ""}`}
+                    >
+                      <div className="absolute inset-0 opacity-10 bg-[url('/images/hero-movie.jpg')] bg-cover bg-center"></div>
+                      <div className="z-10">
+                        <div className="flex items-center gap-3 ">
+                          <FiClock className="text-[#fbb033] text-xl" />
+                          <h2 className="text-xl font-bold">{t('movie.latest', 'Latest')}</h2>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div onClick={() => {setSort("1"),fetchVideos(1,false,"1" )}}
+                      className={`cursor-pointer relative group rounded-lg overflow-hidden flex flex-col items-start justify-end p-2 bg-gradient-to-br from-gray-800 to-black hover:scale-105 transform transition duration-300 ${sort === "1" ? "ring-4 ring-[#fbb033]" : ""}`}
+                    >
+                      <div className="absolute inset-0 opacity-10 bg-[url('/images/hero-series.jpg')] bg-cover bg-center"></div>
+                      <div className="z-10">
+                        <div className="flex items-center gap-3 ">
+                          <FiStar className="text-[#fbb033] text-xl" />
+                          <h2 className="text-xl font-bold">{t('movie.rating', 'Rating')}</h2>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
       {pageInfo && (
         <div className="mt-2 text-sm text-gray-400">
           Showing {safeVideos.length} of {safePageInfo.total} videos

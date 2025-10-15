@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiUpload, FiX, FiCheck, FiPlus } from 'react-icons/fi';
+import { FiUpload, FiX, FiCheck, FiPlus, FiFile, FiLink } from 'react-icons/fi';
 import {
   createMovieUpload,
   uploadFile,
@@ -19,6 +19,7 @@ import { getCachedCategories, type CategoryItem } from '@/lib/movieApi';
 import { getDirectorList, getActorList, getRegionList } from '@/lib/movieApi';
 import SearchableDropdown from '@/components/ui/SearchableDropdown';
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
+import Hls from 'hls.js';
 
 const debugLog = (message: string, data?: unknown) => {
   console.log(`[MovieUpload] ${message}`, data || '');
@@ -28,6 +29,7 @@ export default function MovieUpload() {
   const { t } = useTranslation('common');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [moviePreviewUrl, setMoviePreviewUrl] = useState<string | null>(null);
+  const [HLSPreviewUrl, setHLSPreviewUrl] = useState<string | null>(null);
   const [movieCoverPreviewUrl, setMovieCoverPreviewUrl] = useState<string | null>(null);
   const [unsupportedFormatMsg, setUnsupportedFormatMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,6 +41,9 @@ export default function MovieUpload() {
   const [directorSuggestions, setDirectorSuggestions] = useState<string[]>([]);
   const [actorSuggestions, setActorSuggestions] = useState<string[]>([]);
   const [regionSuggestions, setRegionSuggestions] = useState<string[]>([]);
+  const [fileMethod, setFileMethod] = useState<"UPLOAD" | "LINK">("UPLOAD");
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const hlsRef = useRef<Hls | null>(null);
 
   const [movieForm, setMovieForm] = useState({
     title: '',
@@ -55,7 +60,8 @@ export default function MovieUpload() {
     actors: '',
     rating: 0, // Allow rating to be null or a number
     tags: [] as string[],
-    duration: null as number | null // Allow duration to be null or a number
+    duration: null as number | null, // Allow duration to be null or a number
+    m3u8Url: '' as string
   });
 
   useEffect(() => {
@@ -208,7 +214,7 @@ export default function MovieUpload() {
 
   const handleMovieUpload = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!movieForm.file || !movieForm.coverFile) {
+    if (!(movieForm.file || movieForm.m3u8Url) || !movieForm.coverFile) {
       console.log('Missing fields:', { file: movieForm.file, coverFile: movieForm.coverFile });
       const missingFields = [];
       if (!movieForm.file) {
@@ -270,6 +276,40 @@ export default function MovieUpload() {
         }
       }
 
+
+      if (fileMethod === "LINK" && movieForm.m3u8Url) {
+
+        const movieRequest: MovieUploadRequest = {
+          title: movieForm.title,
+          description: movieForm.description || undefined,
+          coverUrl: movieForm.coverUrl || undefined,
+          customCoverUrl: movieForm.customCoverUrl || coverUrl || undefined,
+          duration: movieForm.duration || 30000,
+          categoryId: movieForm.categoryId,
+          year: movieForm.year,
+          region: movieForm.region || undefined,
+          language: movieForm.language || undefined,
+          director: movieForm.director || undefined,
+          actors: movieForm.actors || undefined,
+          rating: movieForm.rating || 0,
+          tags: movieForm.tags.length > 0 ? movieForm.tags : undefined,
+          m3u8Url: movieForm.m3u8Url
+        };
+
+        debugLog('Creating movie upload credential', movieRequest);
+        const uploadCredential = await createMovieUpload(movieRequest);
+        if (!uploadCredential) {
+          throw new Error('Failed to obtain upload credentials');
+        }
+        setUploadProgress({ progress: 100, status: 'success', error: '' });
+        setShowSuccessModal(true);
+        return;
+      }
+
+      // Proceed with movie file upload
+      if (!movieForm.file) {
+        throw new Error('No movie file selected for upload');
+      }
       const chunkSize = 10 * 1024 * 1024; // 10MB chunks
       const totalChunks = Math.ceil(movieForm.file.size / chunkSize);
 
@@ -293,7 +333,10 @@ export default function MovieUpload() {
       };
 
       debugLog('Creating movie upload credential', movieRequest);
-      const uploadCredential: UploadCredential = await createMovieUpload(movieRequest);
+      const uploadCredential = await createMovieUpload(movieRequest);
+      if (!uploadCredential) {
+        throw new Error('Failed to obtain upload credentials');
+      }
 
       setUploadProgress(prev => ({ ...prev, progress: 10 }));
 
@@ -320,7 +363,7 @@ export default function MovieUpload() {
 
   const handleUploadMore = () => {
     // Reset form for new upload
-    setMovieForm({ title: '', description: '', file: null, coverUrl: '', coverFile: null, customCoverUrl: '', categoryId: 'movie', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], duration: 30000 });
+    setMovieForm({ title: '', description: '', m3u8Url: '', file: null, coverUrl: '', coverFile: null, customCoverUrl: '', categoryId: 'movie', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], duration: 30000 });
     if (moviePreviewUrl) {
       try { URL.revokeObjectURL(moviePreviewUrl); } catch { }
     }
@@ -332,6 +375,52 @@ export default function MovieUpload() {
     setUploadProgress({ progress: 0, status: 'idle', error: '' });
     setUploadedMovieId(null);
   };
+
+
+  const handleHLSPreview = (url: string) => {
+    console.log('Setting up HLS preview for URL:', url);
+    const videoElement = videoRef.current;
+
+    if (!videoElement) return;
+    // Clean up existing HLS instance
+    if (hlsRef.current) {
+      try { hlsRef.current.destroy(); } catch (_e) { }
+      hlsRef.current = null;
+    }
+
+    if (Hls.isSupported()) {
+      const hls = new Hls({
+        xhrSetup: (xhr) => {
+          // xhr.setRequestHeader('api-key', process.env.UPLOAD_API_KEY || '');
+        }
+      });
+
+      hlsRef.current = hls;
+      hls.loadSource(url);
+      hls.attachMedia(videoElement);
+      console.log('HLS instance created and source loaded', url);
+      hls.on(Hls.Events.MANIFEST_PARSED, async () => {
+        console.log('HLS manifest parsed, starting playback');
+        videoElement.play().catch(console.error);
+
+        if (videoElement.duration && !isNaN(videoElement.duration) && isFinite(videoElement.duration) && videoElement.duration > 0) {
+          setMovieForm(prev => ({ ...prev, duration: Math.round(videoElement.duration * 1000) }));
+        } else {
+          const waitForMeta = () => new Promise<void>((resolve) => {
+            if (!videoElement) return resolve();
+            if (!isNaN(videoElement.duration) && isFinite(videoElement.duration)) return resolve();
+            const onLoaded = () => { videoElement.removeEventListener('loadedmetadata', onLoaded); resolve(); };
+            videoElement.addEventListener('loadedmetadata', onLoaded);
+          });
+          await waitForMeta();
+          if (videoElement && !isNaN(videoElement.duration) && isFinite(videoElement.duration) && videoElement.duration > 0) {
+            setMovieForm(prev => ({ ...prev, duration: Math.round(videoElement.duration * 1000) }));
+          }
+        }
+      });
+
+    }
+  }
 
   return (
     <>
@@ -346,28 +435,88 @@ export default function MovieUpload() {
       <form onSubmit={handleMovieUpload} className=" rounded-xl p-8 shadow-2xl">
         <div className="mb-6">
           <label className="block text-lg font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File *')}</label>
-          <div className="flex items-center justify-center w-full mb-4">
-            {!moviePreviewUrl ? (
+          <div className="flex justify-center mb-8">
+            <div className="rounded-lg p-1 flex gap-6">
 
+              <div onClick={() => setFileMethod("UPLOAD")}
+                className={`cursor-pointer relative group rounded-lg overflow-hidden flex flex-col items-start justify-end p-8 bg-gradient-to-br from-gray-800 to-black hover:scale-105 transform transition duration-300 ${fileMethod === "UPLOAD" ? "ring-4 ring-[#fbb033]" : ""}`}
+              >
+                <div className="absolute inset-0 opacity-10 bg-[url('/images/hero-movie.jpg')] bg-cover bg-center"></div>
+                <div className="z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <FiFile className="text-[#fbb033] text-3xl" />
+                    <h2 className="text-2xl font-bold">{t('upload.upload', 'Upload')}</h2>
+                  </div>
+                </div>
+              </div>
+
+              <div onClick={() => setFileMethod("LINK")}
+                className={`cursor-pointer relative group rounded-lg overflow-hidden flex flex-col items-start justify-end p-8 bg-gradient-to-br from-gray-800 to-black hover:scale-105 transform transition duration-300 ${fileMethod === "LINK" ? "ring-4 ring-[#fbb033]" : ""}`}
+              >
+                <div className="absolute inset-0 opacity-10 bg-[url('/images/hero-series.jpg')] bg-cover bg-center"></div>
+                <div className="z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <FiLink className="text-[#fbb033] text-3xl" />
+                    <h2 className="text-2xl font-bold">{t('upload.link', 'URL Link')}</h2>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center justify-center w-full mb-4">
+            {!moviePreviewUrl ?
+              fileMethod === "UPLOAD" ?
                 <label id="upload-video-box" htmlFor="movie-file-top" className="flex flex-col items-center justify-center w-full bg-[#fbb033]/[0.2] rounded-3xl cursor-pointer hover:bg-[#fbb033]/[0.1] transition-colors">
-                        <div className="flex flex-col items-center justify-center pt-5 pb-3">
-                          <FiUpload className="w-12 h-12 mb-3 " />
-                          <p className="mb-2 text-xl ">{movieForm.file ? movieForm.file.name : t('upload.clickOrDrag', 'Click to upload or drag and drop')}</p>
-                          <p className="text-xs ">{t('upload.fileTypes', 'MP4, MOV, MKV, WEBM (MAX. 10GB)')}</p>
-                          <p className="text-xl mt-3 mb-6 ">{t('upload.videoPrivacy', 'Your Video Will Remain Private Until It Is Published')}</p>
-                          <span className="px-7 py-2 bg-[#fbb033] rounded-3xl mt-2">{t('uploadForm.chooseFile', 'Choose File')}</span>
-                        </div>
-                        <input
-                          id="movie-file-top"
-                          type="file"
-                          accept="video/mp4,video/quicktime,video/x-matroska,video/webm,.mp4,.mov,.mkv,.webm"
-                          onChange={handleFileSelect}
-                          className="visually-hidden opacity-0"
-                          ref={fileInputRef}
-                          required
-                        />
-                      </label>
-            )
+                  <div className="flex flex-col items-center justify-center pt-5 pb-3">
+                    <FiUpload className="w-12 h-12 mb-3 " />
+                    <p className="mb-2 text-xl ">{movieForm.file ? movieForm.file.name : t('upload.clickOrDrag', 'Click to upload or drag and drop')}</p>
+                    <p className="text-xs ">{t('upload.fileTypes', 'MP4, MOV, MKV, WEBM (MAX. 10GB)')}</p>
+                    <p className="text-xl mt-3 mb-6 ">{t('upload.videoPrivacy', 'Your Video Will Remain Private Until It Is Published')}</p>
+                    <span className="px-7 py-2 bg-[#fbb033] rounded-3xl mt-2">{t('uploadForm.chooseFile', 'Choose File')}</span>
+                  </div>
+                  <input
+                    id="movie-file-top"
+                    type="file"
+                    accept="video/mp4,video/quicktime,video/x-matroska,video/webm,.mp4,.mov,.mkv,.webm"
+                    onChange={handleFileSelect}
+                    className="visually-hidden opacity-0"
+                    ref={fileInputRef}
+                    required
+                  />
+                </label> :
+                <div className="mb-6 w-full">
+                  <label className="block text-lg font-medium mb-2">{t('upload.url', 'URL Link')}</label>
+                  <input
+                    type="url"
+                    required
+                    value={movieForm.m3u8Url}
+                    onChange={(e) => {
+                      setMovieForm(prev => ({ ...prev, m3u8Url: e.target.value }))
+                      const url = e.target.value;
+                      setMovieForm(prev => ({ ...prev, m3u8Url: url }));
+                      // simple validation: must be a non-empty http/https URL
+                      if (!url || url.trim() === '') {
+                        setUploadProgress(prev => ({ ...prev, status: 'idle', error: '' }));
+                        return;
+                      }
+                      try {
+                        const parsed = new URL(url);
+                        if (!['http:', 'https:'].includes(parsed.protocol)) {
+                          throw new Error('invalid-protocol');
+                        }
+                        // valid URL
+                        // setUploadProgress(prev => ({ ...prev, status: 'idle', error: '' }));
+                        setHLSPreviewUrl(url);
+                        handleHLSPreview(url);
+                      } catch {
+                        setUploadProgress({ progress: 0, status: 'error', error: t('uploadForm.invalidUrl', 'Please enter a valid http(s) URL') });
+                      }
+                    }}
+                    className="w-full px-4 py-3 border border-[#fbb033] h-24 rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+                    placeholder={t('uploadForm.urlPlaceholder', 'Enter movie URL')}
+                  />
+                </div>
+
               : (
                 <div className="w-full flex items-center justify-between gap-4">
                   <div className="flex-1">
@@ -400,10 +549,27 @@ export default function MovieUpload() {
                   </div>
                 </div>
               )}
+
           </div>
+          {
+            HLSPreviewUrl && fileMethod === "LINK" && (
+              <div className="w-full flex items-center justify-between gap-4">
+                <div className="relative">
+                  <video
+                    ref={videoRef}
+                    // src={HLSPreviewUrl}
+                    controls
+                    className="w-full rounded bg-black"
+                    onError={(error) => {
+                      console.error('Video player error:', error);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
         </div>
 
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label className="block text-lg font-medium mb-2">{t('movie.duration', 'Duration *')}</label>
             <DurationInput
@@ -439,7 +605,7 @@ export default function MovieUpload() {
               placeholder={t('uploadForm.titlePlaceholder', 'Enter movie title')}
             />
           </div>
-         
+
         </div>
 
         <div className="mb-6">

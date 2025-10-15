@@ -143,6 +143,17 @@ const LoginPage: React.FC = () => {
                         {t('navigation.register')}
                     </span>
                 </div>
+                <div className="mt-2 text-center">
+                    <span
+                        className="text-[#fbb033] text-sm hover:underline cursor-pointer"
+                        onClick={() => {
+                            clearError();
+                            router.push('/auth/forgot-password');
+                        }}
+                    >
+                        {t('auth.forgotPassword')}
+                    </span>
+                </div>
             </div>
         </>
     );

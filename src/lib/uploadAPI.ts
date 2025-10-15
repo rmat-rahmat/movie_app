@@ -10,8 +10,6 @@ const debugLog = (message: string, data?: unknown) => {
 // Types for Movie Upload
 export interface MovieUploadRequest {
   title: string;
-  fileName: string;
-  fileSize?: number;
   description?: string;
   coverUrl?: string;
   customCoverUrl?: string;
@@ -24,7 +22,12 @@ export interface MovieUploadRequest {
   actors?: string;
   rating?: number;
   tags?: string[];
-  totalParts: number;
+  // File upload method fields
+  fileName?: string;
+  fileSize?: number;
+  totalParts?: number;
+  // M3U8 method fields
+  m3u8Url?: string;
 }
 
 export interface UploadCredential {
@@ -61,10 +64,12 @@ export interface EpisodeCreateRequest {
 export interface EpisodeUploadRequest {
   seriesId: string;
   episodeNumber: number;
-  fileName: string;
-  fileSize: number;
-  totalParts: number;
-
+  // File upload method fields
+  fileName?: string;
+  fileSize?: number;
+  totalParts?: number;
+  // M3U8 method fields
+  m3u8Url?: string;
 }
 
 // Upload Part Types
@@ -205,23 +210,27 @@ async function apiCall<T>(
 }
 
 // Movie Upload Functions
-export async function createMovieUpload(request: MovieUploadRequest): Promise<UploadCredential> {
+export async function createMovieUpload(request: MovieUploadRequest): Promise<UploadCredential | void> {
   debugLog('Creating movie upload', request);
   
   try {
+    // Determine which endpoint to use based on the request type
+    const endpoint = '/api-movie/v1/vod/upload'; // File upload method
+    
     const response = await apiCall<StandardResponse<UploadCredential>>(
-      '/api-movie/v1/vod/upload',
+      endpoint,
       'POST',
       request
     );
     
-    if (!response.success || !response.data) {
+    if (!response.success) {
       debugLog('Movie upload creation failed', response);
       throw new Error(response.message || 'Failed to create movie upload');
     }
     
     debugLog('Movie upload created successfully', response.data);
-    return response.data;
+    // Only return upload credentials if it's a file upload method
+    return request.m3u8Url ? undefined : response.data;
   } catch (error) {
     debugLog('Error creating movie upload', error);
     throw error;
@@ -395,12 +404,15 @@ export async function createEpisode(request: EpisodeCreateRequest): Promise<{
   }
 }
 
-export async function initializeEpisodeUpload(request: EpisodeUploadRequest): Promise<UploadCredential> {
+export async function initializeEpisodeUpload(request: EpisodeUploadRequest): Promise<UploadCredential | void> {
   debugLog('Initializing episode upload', request);
   
   try {
+    // Determine which endpoint to use based on the request type
+    const endpoint = '/api-movie/v1/vod/episodes/upload'; // File upload method
+
     const response = await apiCall<StandardResponse<UploadCredential>>(
-      '/api-movie/v1/vod/episodes/upload',
+      endpoint,
       'POST',
       request
     );

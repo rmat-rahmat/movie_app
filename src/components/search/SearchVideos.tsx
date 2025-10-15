@@ -29,7 +29,7 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
   const [hasIntersected, setHasIntersected] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const pageSize = 10;
+  const pageSize = 21;
 
   // Check if we're on desktop/tablet or mobile
   useEffect(() => {

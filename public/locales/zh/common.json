@@ -80,6 +80,7 @@
   "common": {
     "loading": "加载中...",
     "error": "错误",
+    "ERR_EMAIL_CAPTCHA_ERROR_OR_USER_NOT_EXISTS": "验证码无效或用户不存在",
     "success": "成功",
     "cancel": "取消",
     "save": "保存",

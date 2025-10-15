@@ -103,10 +103,12 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
     const sendRecord = async () => {
       if (!videoEl) return;
+      const episode = currentVideo?.episodes?.find(ep => ep.uploadId === id );
+      console.log('Recording watch history for episode:', episode);
       try {
         const dto = {
           mediaId: currentVideo?.id ? String(currentVideo.id) : String(id),
-          episodeId: id,
+          episodeId: episode?.id || id,
           watchTime: Math.floor(sessionWatchTimeRef.current),
           duration: Math.floor(calcDuration || videoEl.duration || 0),
           progress: Math.floor(videoEl.currentTime || 0),

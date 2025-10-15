@@ -10,6 +10,7 @@ import VideoPlayer from '@/components/ui/VideoPlayer';
 import DurationInput from '@/components/ui/DurationInput';
 import { getCachedCategories, type CategoryItem } from '@/lib/movieApi';
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
+import EpisodeFile from './EpisodeFile';
 
 interface Episode {
   number: number;
@@ -18,6 +19,9 @@ interface Episode {
   file: File | null;
   customCoverUrl?: string;
   duration?: number | null;
+  m3u8Url?: string | null;
+
+
 }
 
 const debugLog = (message: string, data?: unknown) => {
@@ -73,7 +77,7 @@ export default function SeriesUpload() {
     seasonNumber: 1,
     totalEpisodes: 1,
     episodes: [
-      { number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '', duration: null }
+      { number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '', duration: null, m3u8Url: null }
     ]
   });
 
@@ -93,7 +97,7 @@ export default function SeriesUpload() {
 
   const addEpisode = () => {
     const newEpisodeNumber = seriesForm.episodes.length + 1;
-    setSeriesForm(prev => ({ ...prev, episodes: [...prev.episodes, { number: newEpisodeNumber, title: `Episode ${newEpisodeNumber}`, description: '', file: null, customCoverUrl: '' }], totalEpisodes: newEpisodeNumber }));
+    setSeriesForm(prev => ({ ...prev, episodes: [...prev.episodes, { number: newEpisodeNumber, title: `Episode ${newEpisodeNumber}`, description: '', file: null, customCoverUrl: '', duration: null, m3u8Url: null }], totalEpisodes: newEpisodeNumber }));
   };
 
   const removeEpisode = (index: number) => {
@@ -214,6 +218,7 @@ export default function SeriesUpload() {
       (ep) => ep.duration === null || ep.duration === undefined || ep.duration <= 0
     );
 
+    console.log('Episodes with invalid duration:', episodesWithInvalidDuration);
     if (episodesWithInvalidDuration.length > 0) {
       setUploadProgress({
         progress: 0,
@@ -222,17 +227,19 @@ export default function SeriesUpload() {
       });
       return;
     }
-
-    if (!seriesForm.coverFile || seriesForm.episodes.every(ep => !ep.file)) {
+    console.log('Proceeding with upload...');
+    // Require a cover file and at least one episode media (file or m3u8Url)
+    const hasEpisodeMedia = seriesForm.episodes.some(ep => ep.file || ep.m3u8Url);
+    if (!seriesForm.coverFile || !hasEpisodeMedia) {
       const missingFields = [];
       if (!seriesForm.coverFile) missingFields.push(t('uploadForm.coverImageLabel', 'Cover Image'));
-      if (seriesForm.episodes.every(ep => !ep.file)) missingFields.push(t('uploadForm.episodeFiles', 'Episode Files'));
+      if (!hasEpisodeMedia) missingFields.push(t('uploadForm.episodeFiles', 'Episode Files'));
       const errorMessage = t('uploadForm.missingFields', 'Please provide the following:') + ' ' + missingFields.join(', ');
       setUploadProgress({ progress: 0, status: 'error', error: errorMessage });
       return;
     }
-
-    const episodesWithFiles = seriesForm.episodes.filter(ep => ep.file !== null);
+    console.log('Episodes with files:', seriesForm.episodes.filter(ep => ep.file));
+    const episodesWithFiles = seriesForm.episodes.filter(ep => ep.file !== null || ep.m3u8Url !== null);
     if (episodesWithFiles.length === 0) {
       setUploadProgress({ progress: 0, status: 'error', error: t('uploadForm.provideAtLeastOneEpisodeFile', 'Please select video files for at least one episode') });
       return;
@@ -313,31 +320,53 @@ export default function SeriesUpload() {
           episodeNumber: episode.number,
           duration: episode.duration || 30000
         };
-
+        debugLog(`Creating episode ${episode.number}`, episodeRequest);
         await createEpisode(episodeRequest);
         currentProgress += progressPerEpisode * 0.2;
         setUploadProgress(prev => ({ ...prev, progress: currentProgress }));
 
 
-        const chunkSize = 10 * 1024 * 1024; // 10MB chunks
-        const totalChunks = Math.ceil(episode.file!.size / chunkSize);
+        let uploadRequest: EpisodeUploadRequest;
+        if (episode.m3u8Url) {
+          uploadRequest = {
+            seriesId,
+            episodeNumber: episode.number,
+            m3u8Url: episode.m3u8Url || undefined,
+          };
+          const uploadCredential = await initializeEpisodeUpload(uploadRequest);
+          if (!uploadCredential || typeof uploadCredential === 'undefined') {
+            throw new Error('Failed to initialize episode upload credentials');
+          }
+          currentProgress += progressPerEpisode * 0.1;
+          setUploadProgress(prev => ({ ...prev, progress: currentProgress }));
 
-        const uploadRequest: EpisodeUploadRequest = {
-          seriesId,
-          episodeNumber: episode.number,
-          fileName: episode.file!.name,
-          fileSize: episode.file!.size,
-          totalParts: totalChunks
-        };
+        }
+        else {
 
-        const uploadCredential = await initializeEpisodeUpload(uploadRequest);
-        currentProgress += progressPerEpisode * 0.1;
-        setUploadProgress(prev => ({ ...prev, progress: currentProgress }));
+          const chunkSize = 10 * 1024 * 1024; // 10MB chunks
+          const totalChunks = Math.ceil(episode.file!.size / chunkSize);
+          uploadRequest = {
+            seriesId,
+            episodeNumber: episode.number,
+            fileName: episode.file!.name,
+            fileSize: episode.file!.size,
+            totalParts: totalChunks || undefined,
+          };
 
-        await uploadFile(episode.file!, uploadCredential, (fileProgress) => {
-          const fileProgressContribution = progressPerEpisode * 0.7 * (fileProgress / 100);
-          setUploadProgress(prev => ({ ...prev, progress: currentProgress + fileProgressContribution }));
-        });
+          debugLog(`Initializing upload for episode ${episode.number}`, uploadRequest);
+          const uploadCredential = await initializeEpisodeUpload(uploadRequest);
+          if (!uploadCredential || typeof uploadCredential === 'undefined') {
+            throw new Error('Failed to initialize episode upload credentials');
+          }
+          currentProgress += progressPerEpisode * 0.1;
+          setUploadProgress(prev => ({ ...prev, progress: currentProgress }));
+
+          await uploadFile(episode.file!, uploadCredential, (fileProgress) => {
+            const fileProgressContribution = progressPerEpisode * 0.7 * (fileProgress / 100);
+            setUploadProgress(prev => ({ ...prev, progress: currentProgress + fileProgressContribution }));
+          });
+        }
+
 
         currentProgress += progressPerEpisode * 0.7;
         setUploadProgress(prev => ({ ...prev, progress: currentProgress }));
@@ -362,7 +391,7 @@ export default function SeriesUpload() {
 
   const handleUploadMore = () => {
     // Reset form for new upload
-    setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '' }] });
+    setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '', duration: null, m3u8Url: null }] });
     if (episodePreviewUrl) {
       try { URL.revokeObjectURL(episodePreviewUrl); } catch { }
     }
@@ -382,6 +411,15 @@ export default function SeriesUpload() {
       // console.log('Detected video duration (ms):', durationMs);
       setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, duration: durationMs } : ep) }));
     }
+  };
+
+  const handleDurationDetected = (durationMs: number, index: number) => {
+    setSeriesForm(prev => ({
+      ...prev,
+      episodes: prev.episodes.map((ep, idx) =>
+        idx === index ? { ...ep, duration: durationMs } : ep
+      )
+    }));
   };
 
   return (
@@ -542,64 +580,23 @@ export default function SeriesUpload() {
             <div key={index} className="mb-4 p-4  rounded-3xl">
               <hr className="border-none bg-[#fbb033]/[0.8] my-4 w-[90%] mx-auto rounded-full h-[5px]" />
               <div className="flex text-lg font-bold items-center justify-between mb-3">
-                <h5 className="font-medium">{t('upload.episodeLabel', `Episode`)+" "+episode.number}</h5>
+                <h5 className="font-medium">{t('upload.episodeLabel', `Episode`) + " " + episode.number}</h5>
                 {seriesForm.episodes.length > 1 && (
                   <button type="button" onClick={() => removeEpisode(index)} className="text-red-400 hover:text-red-300 cursor-pointer"><FiTrash2 /></button>
                 )}
               </div>
 
-                <div>
-                  <label className="block text-lg font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File')}</label>
-                  {!episode.file ? (
-                    <>
-                      <label id={`upload-episode-box-${index}`} htmlFor={`episode-file-${index}`} className="flex flex-col items-center justify-center w-full bg-[#fbb033]/[0.2] rounded-3xl cursor-pointer hover:bg-[#fbb033]/[0.1] transition-colors">
-                        <div className="flex flex-col items-center justify-center pt-5 pb-3">
-                          <FiUpload className="w-12 h-12 mb-3 " />
-                          <p className="mb-2 text-xl ">{episode.file ? (episode.file as File).name : t('upload.clickOrDrag', 'Click to upload or drag and drop')}</p>
-                          <p className="text-xs ">{t('upload.fileTypes', 'MP4, MOV, MKV, WEBM (MAX. 10GB)')}</p>
-                          <p className="text-xl mt-3 mb-6 ">{t('upload.videoPrivacy', 'Your Video Will Remain Private Until It Is Published')}</p>
-                          <span className="px-7 py-2 bg-[#fbb033] rounded-3xl mt-2">{t('uploadForm.chooseFile', 'Choose File')}</span>
-                        </div>
-                        <input
-                          id={`episode-file-${index}`}
-                          type="file"
-                          accept="video/mp4,video/quicktime,video/x-matroska,video/webm,.mp4,.mov,.mkv,.webm"
-                          onChange={(e) => handleFileSelect(e, index)}
-                          className="visually-hidden opacity-0"
-                          ref={index === 0 ? fileInputRef : undefined}
-                          required
-                        />
-                      </label>
-                    </>
-                  ) : (
-
-                    <div className="flex-1 flex items-center justify-between gap-4 relative">
-                      {unsupportedFormatsMsg[index] ? (
-                        <div className="mt-3 mr-3 p-3 bg-yellow-800 text-yellow-100 rounded">
-                          <strong>{unsupportedFormatsMsg[index]}</strong>
-                          <div className="text-sm mt-1">{t('uploadForm.unsupportedPreviewNote', 'This file will be uploaded normally but this file type cannot be previewed in the browser.')}</div>
-                        </div>
-                      ) :
-                        <VideoPlayer
-                          src={episodePreviewUrlList[index] as string}
-                          onDuration={(durationMs) => {
-                            // console.log('Detected video duration (ms):', durationMs);
-                            setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, duration: durationMs } : ep) }));
-                          }}
-                          className="max-w-[50%] mx-auto rounded bg-black"
-                          onError={(error) => {
-                            console.error('Video player error:', error);
-                          }}
-                        />}
-                      <button type="button" onClick={() => clearEpisodeFile(index)} className="cursor-pointer p-2 bg-red-600/50 rounded-full text-white hover:bg-red-500 absolute top-2 right-2 z-10 cursor-pointer">
-                        <FiX className="w-4 h-4" />
-                      </button>
-
-                    </div>
-                  )}
-                  {/* Unsupported format message box */}
-
-                </div>
+              <EpisodeFile
+                episode={episode}
+                index={index}
+                episodePreviewUrl={episodePreviewUrlList[index]}
+                unsupportedFormatMsg={unsupportedFormatsMsg[index]}
+                fileInputRef={index === 0 ? fileInputRef : undefined}
+                onFileSelect={handleFileSelect}
+                onClearFile={clearEpisodeFile}
+                onDurationDetected={handleDurationDetected}
+                setSeriesForm={setSeriesForm}
+              />
               <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-4">
                 <div>
                   <div className='mb-4'>

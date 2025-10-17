@@ -47,7 +47,6 @@
       "phone": "Phone",
       "nickname": "Nickname",
       "emailVerification": "Email Verification",
-      "enterVerificationCode": "Enter verification code",
       "sendCode": "Send Code",
       "loginButton": "Login",
       "registerButton": "Register",

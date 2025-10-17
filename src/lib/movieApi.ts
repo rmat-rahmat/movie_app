@@ -7,6 +7,36 @@ import type { DashboardApiResponse, DashboardItem, CategoryItem, VideosApiRespon
 import { parseJsonFile } from "next/dist/build/load-jsconfig";
 import i18next, { t } from 'i18next';
 
+// Interface for content items from API responses
+interface ContentApiItem {
+  id: string;
+  title?: string;
+  description?: string;
+  categoryId?: string;
+  year?: number;
+  region?: string;
+  language?: string;
+  director?: string;
+  actors?: string[] | string;
+  rating?: number;
+  tags?: string[];
+  createTime?: string;
+  updateTime?: string;
+  imageQuality?: {
+    url?: string;
+    customCoverUrl?: string;
+    p144?: string;
+    p360?: string;
+    p720?: string;
+  };
+  coverUrl?: string;
+  isSeries?: boolean;
+  seriesId?: string;
+  seasonNumber?: number;
+  totalEpisodes?: number;
+  isCompleted?: boolean;
+}
+
 // Build hierarchical category tree from flat list (parents contain `children` array)
 function buildCategoryTree(flat: CategoryItem[] = []): CategoryItem[] {
   const map = new Map<string, CategoryItem & { children?: CategoryItem[] }>();
@@ -729,7 +759,7 @@ export async function getUserUploadedVideos(page: number = 0, size: number = 12,
     const data = res.data;
 
     if (data && data.success && data.data && Array.isArray(data.data.contents)) {
-      const list: DashboardItem[] = data.data.contents.map((item: any) => {
+      const list: DashboardItem[] = data.data.contents.map((item: ContentApiItem) => {
         const actorsArr: string[] = Array.isArray(item.actors)
           ? item.actors
           : typeof item.actors === 'string'
@@ -824,7 +854,7 @@ export async function getFavoritesList(page: number = 0, size: number = 20, type
 
     if (responseData && responseData.success && responseData.data) {
       const contents = responseData.data.contents || [];
-      const list = contents.map((item: any) => {
+      const list = contents.map((item: ContentApiItem) => {
         return {
           id: item.id,
           title: item.title || 'Untitled',

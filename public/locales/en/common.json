@@ -110,7 +110,8 @@
       "male": "Male",
       "female": "Female",
       "other": "Other",
-      "noMoreContent": "No more content to load"
+      "noMoreContent": "No more content to load",
+      "loadMore": "Load More"
     },
     "movie": {
       "moreInfo": "More Info",
@@ -177,7 +178,18 @@
       "settings": "Settings",
       "lastSeen": "Last Seen",
       "uploadedVideos": "Uploaded Videos",
-      "playlists": "Playlists"
+      "playlists": "Playlists",
+      "WatchHistory": "Watch History",
+      "Favorites": "My Favorites",
+      "Playlist": "Playlist",
+      "YourVideos": "Your Videos",
+      "backToProfile": "Back to Profile",
+      "clearHistory": "Clear History",
+      "confirmClearHistory": "Clear watch history? This cannot be undone.",
+      "noHistory": "No watch history",
+      "noFavorites": "No favorite videos yet",
+      "noVideos": "No uploaded videos yet",
+      "watchHistory": "Watch History"
     },
     "profileEmpty": {
       "welcome": "Welcome to OTalk TV",

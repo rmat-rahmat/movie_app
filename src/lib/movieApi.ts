@@ -716,6 +716,147 @@ export async function clearWatchHistory(): Promise<boolean> {
   }
 }
 
+// Fetch user uploaded videos list (paginated)
+export async function getUserUploadedVideos(page: number = 0, size: number = 12, type: string = 'p720'): Promise<DashboardItem[] | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/my-videos/uploads`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const params: Record<string, string | number> = { page, size, type };
+    const res = await axios.get(url, { params, headers });
+    const data = res.data;
+
+    if (data && data.success && data.data && Array.isArray(data.data.contents)) {
+      const list: DashboardItem[] = data.data.contents.map((item: any) => {
+        const actorsArr: string[] = Array.isArray(item.actors)
+          ? item.actors
+          : typeof item.actors === 'string'
+            ? item.actors.split(',').map((s: string) => s.trim()).filter(Boolean)
+            : [];
+
+        return {
+          id: item.id || '',
+          title: item.title || '',
+          description: item.description || '',
+          categoryId: item.categoryId || '',
+          year: item.year,
+          region: item.region,
+          language: item.language,
+          director: item.director,
+          actors: actorsArr,
+          rating: item.rating,
+          tags: Array.isArray(item.tags) ? item.tags : [],
+          createTime: item.createTime,
+          updateTime: item.updateTime,
+          imageQuality: item.imageQuality || {},
+        } as DashboardItem;
+      });
+      return list;
+    }
+    return [];
+  } catch (err) {
+    console.error('Failed to fetch user uploaded videos', err);
+    return null;
+  }
+}
+
+// Check if a video is favorited by the current user
+export async function checkFavorite(videoId: string): Promise<boolean> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/favorites/check`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const params: Record<string, string> = { videoId };
+    const res = await axios.get(url, { params, headers });
+    const data = res.data;
+
+    // data.data is boolean: true if favorited, false otherwise
+    return !!(data && data.success && data.data);
+  } catch (err) {
+    console.error('Failed to check favorite status', err);
+    return false;
+  }
+}
+
+// Toggle favorite status for a video
+export async function toggleFavorite(videoId: string): Promise<{ success: boolean; isFavorited: boolean; message?: string }> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/favorites/toggle`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const params = new URLSearchParams();
+    params.append('videoId', videoId);
+
+    const res = await axios.post(url, params, { headers });
+    const data = res.data;
+
+    if (data && data.success) {
+      // data.data is boolean: true means now favorited, false means unfavorited
+      return { success: true, isFavorited: !!data.data, message: data.message };
+    }
+    return { success: false, isFavorited: false, message: data.message || 'Failed to toggle favorite' };
+  } catch (err) {
+    console.error('Failed to toggle favorite', err);
+    const message = axios.isAxiosError(err) && err.response?.data?.message 
+      ? err.response.data.message 
+      : 'An error occurred while toggling favorite';
+    return { success: false, isFavorited: false, message };
+  }
+}
+
+// Get user's favorite videos list
+export async function getFavoritesList(page: number = 0, size: number = 20, type: string = 'p720'): Promise<DashboardItem[] | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/favorites/list`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const params: Record<string, string | number> = { page, size, type };
+    const res = await axios.get(url, { params, headers });
+    const responseData = res.data;
+
+    if (responseData && responseData.success && responseData.data) {
+      const contents = responseData.data.contents || [];
+      const list = contents.map((item: any) => {
+        return {
+          id: item.id,
+          title: item.title || 'Untitled',
+          description: item.description || '',
+          coverImage: item.imageQuality?.url || item.coverUrl || '/fallback_poster/sample_poster.png',
+          rating: item.rating,
+          releaseDate: item.year ? String(item.year) : undefined,
+          category: item.categoryId,
+          isSeries: item.isSeries || false,
+          seriesId: item.seriesId,
+          seasonNumber: item.seasonNumber,
+          totalEpisodes: item.totalEpisodes,
+          isCompleted: item.isCompleted,
+          director: item.director,
+          actors: Array.isArray(item.actors) ? item.actors : [],
+          language: item.language,
+          region: item.region,
+          tags: Array.isArray(item.tags) ? item.tags : [],
+          createTime: item.createTime,
+          updateTime: item.updateTime,
+          imageQuality: item.imageQuality || {},
+        } as DashboardItem;
+      });
+      return list;
+    }
+    return [];
+  } catch (err) {
+    console.error('Failed to fetch favorites list', err);
+    return null;
+  }
+}
+
 // Fetch simplified director list (returns array of names)
 export async function getDirectorList(name: string = '', gender?: number, page: number = 0, size: number = 50): Promise<string[] | null> {
   try {

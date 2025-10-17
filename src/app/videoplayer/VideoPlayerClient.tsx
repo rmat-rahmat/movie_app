@@ -1,12 +1,13 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
-import { getPlayMain, getPlaybackUrl, recordWatchHistory, getLastWatchPosition } from '@/lib/movieApi';
+import { getPlayMain, getPlaybackUrl, recordWatchHistory, getLastWatchPosition, toggleFavorite, checkFavorite } from '@/lib/movieApi';
 import Hls from 'hls.js';
 import { BASE_URL } from '@/config';
 import { useVideoStore } from '@/store/videoStore';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'next/navigation';
 import { FiPlay } from 'react-icons/fi';
+import { FiHeart } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { formatDuration } from '@/utils/durationUtils';
 import LoadingPage from '@/components/ui/LoadingPage';
@@ -37,6 +38,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const watchIntervalRef = useRef<number | null>(null);
   const sessionWatchTimeRef = useRef<number>(0); // seconds accumulated this session
   const hasSeekedRef = useRef<boolean>(false);
+  
+  // Favorite state
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
 
 
   const router = useRouter();
@@ -95,6 +100,22 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     fetchAll();
     return () => { mounted = false; };
   }, [id]);
+
+  // Check favorite status when video loads
+  useEffect(() => {
+    if (!currentVideo?.id) return;
+    
+    const checkFavoriteStatus = async () => {
+      try {
+        const isFav = await checkFavorite(String(currentVideo.id));
+        setIsFavorited(isFav);
+      } catch (err) {
+        console.error('Failed to check favorite status:', err);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [currentVideo?.id]);
 
   // Periodically record watch history when playing
   useEffect(() => {
@@ -338,6 +359,26 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     // }
   }
 
+  const handleToggleFavorite = async () => {
+    if (!currentVideo?.id) return;
+    
+    setIsFavoriteLoading(true);
+    try {
+      const result = await toggleFavorite(String(currentVideo.id));
+      if (result.success) {
+        setIsFavorited(result.isFavorited);
+      } else {
+        console.error('Failed to toggle favorite:', result.message);
+        alert(result.message || t('video.favoriteError', 'Failed to update favorite status'));
+      }
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+      alert(t('video.favoriteError', 'Failed to update favorite status'));
+    } finally {
+      setIsFavoriteLoading(false);
+    }
+  };
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -443,15 +484,41 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
               <div className="grid mt-6 h-full w-full md:grid-cols-[70%_30%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
                 {/* Video Info Overlay */}
                 <div className="w-full">
-                  <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                    {currentVideo.title}
-                    {currentVideo.isSeries && currentVideo.currentEpisode && (
-                      <span className="text-xl md:text-2xl text-gray-300 ml-2">
-                        - Episode {currentVideo.currentEpisode.episodeNumber}
-                        {currentVideo.currentEpisode.episodeTitle && `: ${currentVideo.currentEpisode.episodeTitle}`}
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <h1 className="text-3xl md:text-4xl font-bold flex-1">
+                      {currentVideo.title}
+                      {currentVideo.isSeries && currentVideo.currentEpisode && (
+                        <span className="text-xl md:text-2xl text-gray-300 ml-2">
+                          - Episode {currentVideo.currentEpisode.episodeNumber}
+                          {currentVideo.currentEpisode.episodeTitle && `: ${currentVideo.currentEpisode.episodeTitle}`}
+                        </span>
+                      )}
+                    </h1>
+                    
+                    {/* Favorite Button */}
+                    <button
+                      onClick={handleToggleFavorite}
+                      disabled={isFavoriteLoading}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        isFavorited 
+                          ? 'bg-[#fbb033] text-black hover:bg-yellow-500' 
+                          : 'bg-gray-800 text-white hover:bg-gray-700'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      title={isFavorited ? t('video.removeFromFavorites', 'Remove from favorites') : t('video.addToFavorites', 'Add to favorites')}
+                    >
+                      <FiHeart 
+                        className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`}
+                      />
+                      <span className="hidden md:inline text-sm font-medium">
+                        {isFavoriteLoading 
+                          ? t('common.loading', 'Loading...') 
+                          : isFavorited 
+                            ? t('video.favorited', 'Favorited') 
+                            : t('video.addFavorite', 'Add to Favorites')
+                        }
                       </span>
-                    )}
-                  </h1>
+                    </button>
+                  </div>
 
                   <div className="flex flex-wrap items-center gap-4 mb-3">
                     {currentVideo.releaseDate && (

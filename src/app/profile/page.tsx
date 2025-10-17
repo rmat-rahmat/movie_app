@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/ui/LoadingPage";
 import { VideoSrc } from "@/types/VideoSrc";
-import { getWatchHistoryList } from "@/lib/movieApi";
+import { getWatchHistoryList, getUserUploadedVideos, getFavoritesList } from "@/lib/movieApi";
 import { FiChevronRight, FiDelete, FiLogOut, FiSettings, FiTrash, FiTrash2 } from "react-icons/fi";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
@@ -18,6 +18,7 @@ export default function Profile() {
     const [lastSeenVid, setLastSeenVid] = useState<DashboardItem[]>([]);
     const [playlists, setPlaylists] = useState<DashboardItem[]>([]);
     const [yourVideos, setYourVideos] = useState<DashboardItem[]>([]);
+    const [favorites, setFavorites] = useState<DashboardItem[]>([]);
     const { t } = useTranslation('common');
 
     const user = useAuthStore((s) => s.user);
@@ -35,6 +36,13 @@ export default function Profile() {
         const fetchData = async () => {
             const listA = await getWatchHistoryList(1, 12);
             setLastSeenVid(listA || []);
+            
+            const uploads = await getUserUploadedVideos(1, 12, 'p720');
+            setYourVideos(uploads || []);
+            
+            const favs = await getFavoritesList(1, 12, 'p720');
+            setFavorites(favs || []);
+            
             setIsLoading(false);
         };
         fetchData();
@@ -100,6 +108,19 @@ export default function Profile() {
                     />
                     <DashboardSection
                         onViewMore={undefined}
+                        title={t('profile.Favorites', 'My Favorites')}
+                        videos={favorites || []}
+                        sectionOptionButton={{
+                            title: t('viewAll', 'View All'),
+                            icon: <FiChevronRight className="h-4 w-4" />,
+                            iconRight: true,
+                            onClick: () => {
+                                location.href = '/profile/favorites';
+                            }
+                        }}
+                    />
+                    <DashboardSection
+                        onViewMore={undefined}
                         title={t('profile.Playlist', 'Playlist')}
                         videos={playlists || []}
                         sectionOptionButton={{
@@ -121,8 +142,7 @@ export default function Profile() {
                             icon: <FiChevronRight className="h-4 w-4" />,
                             iconRight: true,
                             onClick: () => {
-                                // Clear watch history logic here
-                                // setLastSeenVid([]);
+                                location.href = '/profile/your-videos';
                             }
                         }}
                     />

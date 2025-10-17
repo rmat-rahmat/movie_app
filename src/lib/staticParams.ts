@@ -10,8 +10,8 @@ function collectIdsFromCategories(categories: unknown): string[] {
     if (!Array.isArray(items)) return;
     for (const it of items) {
       if (!it || typeof it !== 'object') continue;
-      const item = it as { id?: unknown; children?: unknown[] };
-      if (item.id) ids.push(String(item.id));
+      const item = it as { id?: unknown; categoryAlias?: unknown; children?: unknown[] };
+      if (item.categoryAlias) ids.push(String(item.categoryAlias));
       if (Array.isArray(item.children) && item.children.length) walk(item.children);
     }
   };

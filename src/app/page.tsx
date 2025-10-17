@@ -177,7 +177,7 @@ export default function Home() {
                     if(cat.id==="All"){
                       return;
                     }
-                    location.href = `/category/${cat.id}`
+                    location.href = `/category/${cat.categoryAlias}`
                     // setSelectedCategory(getLocalizedCategoryName(cat) === selectedCategory ? null : getLocalizedCategoryName(cat)||"All")
                   }}
                   className={` md:text-xl mx-1 px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-full hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === getLocalizedCategoryName(cat)
@@ -241,7 +241,7 @@ export default function Home() {
                   </button>
                 </p>
                 {sections.length>0 && <button 
-                  onClick={() => location.href = `/category/${categoryList.find(cat => getLocalizedCategoryName(cat) === selectedCategory)?.id}`}
+                  onClick={() => location.href = `/category/${categoryList.find(cat => getLocalizedCategoryName(cat) === selectedCategory)?.categoryAlias}`}
                   className="mt-2 px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors cursor-pointer"
                 >
                   Show All Content
@@ -263,7 +263,7 @@ export default function Home() {
               <div className="py-8 px-4 text-center">
                 <p className="text-gray-400 text-lg">No content found for &quot;{selectedCategory}&quot;</p>
                 <button 
-                  onClick={() => location.href = `/category/${categoryList.find(cat => getLocalizedCategoryName(cat) === selectedCategory)?.id}`}
+                  onClick={() => location.href = `/category/${categoryList.find(cat => getLocalizedCategoryName(cat) === selectedCategory)?.categoryAlias}`}
                   className="mt-2 px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors cursor-pointer"
                 >
                   Show All Content

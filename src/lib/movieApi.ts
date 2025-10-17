@@ -660,8 +660,10 @@ export async function getWatchHistoryList(page: number = 0, size: number = 12,ty
       headers,
     });
     const data = res.data;
-    if (data && data.success && data.data && Array.isArray(data.data.contents)) {
-      const contents = data.data.contents as unknown[];
+      console.log("Watch history contents:", data);
+    if (data && data.success && data.data && Array.isArray(data.data.records)) {
+
+      const contents = data.data.records as unknown[];
       // Map API content shape to DashboardItem minimal fields
       const list: DashboardItem[] = contents.map((it) => {
         const record = it as Record<string, unknown>;

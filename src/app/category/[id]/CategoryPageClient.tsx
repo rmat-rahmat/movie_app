@@ -11,6 +11,7 @@ export default function CategoryPageClient({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [categoryName, setCategoryName] = useState(`Category ${id}`);
+  const [realID, setRealID] = useState<string | null>(null);
 
   // Helper function to find category name
   const findCategoryName = (categoryId: string): string | null => {
@@ -33,8 +34,34 @@ export default function CategoryPageClient({ id }: { id: string }) {
     return searchCategory(categories);
   };
 
+
+    const findCategoryIDByAlias = (alias: string): string | null => {
+      const categories = getCachedCategories();
+      if (!categories) return null;
+  
+      const searchCategory = (items: (CategoryItem & { children?: CategoryItem[] })[]): string | null => {
+        for (const item of items) {
+          if (item.categoryAlias === alias) {
+            return item.id || null;
+          }
+          if (item.children && item.children.length > 0) {
+            const found = searchCategory(item.children);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+  
+      
+      return searchCategory(categories);
+    };
+
   useEffect(() => {
     async function initializePage() {
+
+      const rID = findCategoryIDByAlias(id) || null;
+      setRealID(rID);
+      
       try {
         setLoading(true);
 
@@ -44,7 +71,7 @@ export default function CategoryPageClient({ id }: { id: string }) {
         }
 
         // Try to get category name from cached categories
-        let foundCategoryName = findCategoryName(id);
+        let foundCategoryName = findCategoryName(findCategoryIDByAlias(id) || '');
         
         if (!foundCategoryName) {
           // Fallback: try to get from dashboard API
@@ -52,7 +79,7 @@ export default function CategoryPageClient({ id }: { id: string }) {
             const dashboard = await getDashboard(false);
             const categories = dashboard?.data?.categories;
             if (categories) {
-              const category = categories.find((cat: CategoryItem) => cat.id === id);
+              const category = categories.find((cat: CategoryItem) => cat.categoryAlias === id);
               if (category) {
                 foundCategoryName = getLocalizedCategoryName(category);
               }
@@ -107,7 +134,7 @@ export default function CategoryPageClient({ id }: { id: string }) {
 
   return (
     <CategoryVideos 
-      categoryId={id} 
+      categoryId={realID || id} 
       categoryName={categoryName}
     />
   );

@@ -39,17 +39,41 @@ export default function SearchableDropdown({ id, value, onChange, suggestions = 
 
   const tokensFrom = (v: string) => v.split(',').map(s => s.trim()).filter(Boolean);
 
-  const selectedSet = new Set(multi ? tokensFrom(value) : []);
+  // Get the current token being typed (after the last comma)
+  const getCurrentToken = (text: string): string => {
+    if (!multi) return text;
+    const lastCommaIndex = text.lastIndexOf(',');
+    if (lastCommaIndex === -1) return text.trim();
+    return text.substring(lastCommaIndex + 1).trim();
+  };
+
+  // Get all tokens except the current one being typed
+  const getPreviousTokens = (text: string): string[] => {
+    if (!multi) return [];
+    const lastCommaIndex = text.lastIndexOf(',');
+    if (lastCommaIndex === -1) return [];
+    const previousText = text.substring(0, lastCommaIndex);
+    return tokensFrom(previousText);
+  };
+
+  const currentToken = getCurrentToken(filter);
+  const selectedSet = new Set(multi ? [...tokensFrom(value), ...getPreviousTokens(filter)] : []);
 
   const filtered = suggestions
-    .filter(s => s && s.toLowerCase().includes(filter.toLowerCase()))
+    .filter(s => {
+      if (!s) return false;
+      // In multi mode, if currentToken is empty (right after comma), show all suggestions
+      if (multi && currentToken === '') return true;
+      // Otherwise filter by current token
+      return s.toLowerCase().includes(currentToken.toLowerCase());
+    })
     .filter(s => !selectedSet.has(s));
 
   const selectSuggestion = (s: string) => {
     if (multi) {
-      const existing = tokensFrom(value);
-      if (!existing.includes(s)) existing.push(s);
-      const joined = existing.join(', ');
+      const previousTokens = getPreviousTokens(filter);
+      const allTokens = [...previousTokens, s];
+      const joined = allTokens.join(', ') + ', ';
       onChange(joined);
       setFilter(joined);
     } else {
@@ -57,20 +81,26 @@ export default function SearchableDropdown({ id, value, onChange, suggestions = 
       setFilter(s);
     }
     setOpen(false);
+    setHighlight(-1);
     inputRef.current?.focus();
   };
 
   const onInputChange = (v: string) => {
+    setFilter(v);
+    onChange(v);
+    
     if (multi) {
-      // allow typing partially; we update filter but don't call onChange until blur or selection
-      setFilter(v);
-      // also update actual value to reflect manual typing if user typed a comma-separated list
-      onChange(v);
+      // Show suggestions after comma or when typing
+      const endsWithComma = v.trim().endsWith(',');
+      const currentToken = getCurrentToken(v);
+      
+      // Open dropdown if user typed a comma (to start new value) or if typing a token
+      if (endsWithComma || currentToken.length > 0) {
+        setOpen(true);
+      }
     } else {
-      setFilter(v);
-      onChange(v);
+      setOpen(true);
     }
-    setOpen(true);
     setHighlight(-1);
   };
 

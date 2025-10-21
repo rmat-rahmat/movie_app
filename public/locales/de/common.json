@@ -278,5 +278,6 @@
       "series": "Serie",
       "watchNow": "Jetzt ansehen",
       "watch": "Ansehen"
-    }
+    },
+    "ERR_USER_ALREADY_EXISTS": "Benutzer mit dieser E-Mail existiert bereits"
    }

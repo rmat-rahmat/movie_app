@@ -16,7 +16,7 @@ import TagSelector from '@/components/ui/TagSelector';
 import VideoPlayer from '@/components/ui/VideoPlayer';
 import DurationInput from '@/components/ui/DurationInput';
 import { getCachedCategories, type CategoryItem } from '@/lib/movieApi';
-import { getDirectorList, getActorList, getRegionList } from '@/lib/movieApi';
+import { getDirectorList, getActorList, getRegionList, getLanguageList } from '@/lib/movieApi';
 import SearchableDropdown from '@/components/ui/SearchableDropdown';
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 import Hls from 'hls.js';
@@ -41,6 +41,7 @@ export default function MovieUpload() {
   const [directorSuggestions, setDirectorSuggestions] = useState<string[]>([]);
   const [actorSuggestions, setActorSuggestions] = useState<string[]>([]);
   const [regionSuggestions, setRegionSuggestions] = useState<string[]>([]);
+  const [languageSuggestions, setLanguageSuggestions] = useState<string[]>([]);
   const [fileMethod, setFileMethod] = useState<"UPLOAD" | "LINK">("UPLOAD");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -73,14 +74,16 @@ export default function MovieUpload() {
     // preload director/actor/region suggestions
     (async () => {
       try {
-        const [dirs, acts, regs] = await Promise.all([
+        const [dirs, acts, regs, langs] = await Promise.all([
           getDirectorList('', undefined, 1, 50),
           getActorList('', undefined, 1, 50),
-          getRegionList('', 1, 200)
+          getRegionList('', 1, 200),
+          getLanguageList('', '', 1, 200)
         ]);
         if (Array.isArray(dirs)) setDirectorSuggestions(dirs.slice(0, 100));
         if (Array.isArray(acts)) setActorSuggestions(acts.slice(0, 200));
         if (Array.isArray(regs)) setRegionSuggestions(regs.slice(0, 200));
+        if (Array.isArray(langs)) setLanguageSuggestions(langs.slice(0, 200));
       } catch (e) {
         console.warn('Failed to preload suggestions', e);
       }
@@ -690,7 +693,8 @@ export default function MovieUpload() {
               onChange={(v) => setMovieForm(prev => ({ ...prev, director: v }))}
               suggestions={directorSuggestions}
               placeholder="Director name"
-              required
+              required  
+              multi
             />
           </div>
 
@@ -740,13 +744,13 @@ export default function MovieUpload() {
           </div>
           <div>
             <label className="block text-lg font-medium mb-2">{t('upload.language', 'Language')}</label>
-            <input
-              type="text"
-              required
+            <SearchableDropdown
+              id="language"
               value={movieForm.language}
-              onChange={(e) => setMovieForm(prev => ({ ...prev, language: e.target.value }))}
-              className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              onChange={(v) => setMovieForm(prev => ({ ...prev, language: v }))}
+              suggestions={languageSuggestions}
               placeholder="e.g., English, Mandarin, etc."
+              required
             />
           </div>
         </div>

@@ -1,19 +1,20 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
-import { getPlayMain, getPlaybackUrl, recordWatchHistory, getLastWatchPosition, toggleFavorite, checkFavorite } from '@/lib/movieApi';
+import { getPlayMain, getPlaybackUrl, recordWatchHistory, getLastWatchPosition, toggleFavorite, checkFavorite, toggleVideoLike, checkVideoLike } from '@/lib/movieApi';
 import Hls from 'hls.js';
 import { BASE_URL } from '@/config';
 import { useVideoStore } from '@/store/videoStore';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'next/navigation';
 import { FiPlay } from 'react-icons/fi';
-import { FiHeart } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle, FiThumbsUp } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { formatDuration } from '@/utils/durationUtils';
 import LoadingPage from '@/components/ui/LoadingPage';
 import { type BufferAppendedData } from 'hls.js';
 import StarRating from '@/components/ui/StarRating';
 import RecommendationGrid from '@/components/movie/RecommendationGrid';
+import CommentSection from '@/components/comment/CommentSection';
 
 
 interface VideoPlayerClientProps {
@@ -24,6 +25,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   // For static export, read id from URL params client-side
   const searchParams = useSearchParams();
   const urlId = searchParams.get('id');
+  const m3u8Url = searchParams.get('m3u8');
   const id = propId || urlId || '';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +44,14 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   // Favorite state
   const [isFavorited, setIsFavorited] = useState(false);
   const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
+  
+  // Like state
+  const [isLiked, setIsLiked] = useState(false);
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
+  
+  // Comments state
+  const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
 
 
   const router = useRouter();
@@ -51,7 +61,15 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const { t } = useTranslation();
 
   useEffect(() => {
+    // If m3u8Url is provided, use it directly
+    if (m3u8Url) {
+      console.log('Loading video from direct m3u8 URL:', m3u8Url);
+      loadFromDirectM3u8(decodeURIComponent(m3u8Url));
+      return;
+    }
+    
     if (!id) return;
+    console.log('Loading video from uploadId:', id);
     let mounted = true;
     const fetchAll = async () => {
       setLoading(true);
@@ -99,9 +117,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
     fetchAll();
     return () => { mounted = false; };
-  }, [id]);
+  }, [id, m3u8Url]);
 
-  // Check favorite status when video loads
+  // Check favorite and like status when video loads
   useEffect(() => {
     if (!currentVideo?.id) return;
     
@@ -114,7 +132,17 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       }
     };
 
+    const checkLikeStatus = async () => {
+      try {
+        const liked = await checkVideoLike(String(currentVideo.id));
+        setIsLiked(liked);
+      } catch (err) {
+        console.error('Failed to check like status:', err);
+      }
+    };
+
     checkFavoriteStatus();
+    checkLikeStatus();
   }, [currentVideo?.id]);
 
   // Periodically record watch history when playing
@@ -306,7 +334,121 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     }
 
     setLoading(false);
-  }
+  };
+
+  const loadFromDirectM3u8 = (m3u8DirectUrl: string) => {
+    if (!loading) setLoading(true);
+
+    const videoElement = videoRef.current;
+    if (!videoElement || !m3u8DirectUrl) return;
+
+    // Clean up existing HLS instance
+    if (hlsRef.current) {
+      try { hlsRef.current.destroy(); } catch (_e) { }
+      hlsRef.current = null;
+    }
+
+    console.log('Loading direct m3u8 URL:', m3u8DirectUrl);
+
+    if (Hls.isSupported()) {
+      const hls = new Hls({
+        xhrSetup: (xhr) => {
+          // Add any necessary headers here if needed
+        }
+      });
+
+      hlsRef.current = hls;
+      hls.loadSource(m3u8DirectUrl);
+      hls.attachMedia(videoElement);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        setAvailableQualities(hlsRef.current?.levels.map(({ height }) => `${height}p`) || []);
+        setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
+        
+        // Start playback
+        setIsPlaying(true);
+        videoElement.play().catch(console.error);
+        
+        // Load duration information
+        loadPlayTime();
+        
+        // Resume from last watch position if available
+        (async () => {
+          try {
+            if (!hasSeekedRef.current && currentVideo?.id) {
+              const lastPos = await getLastWatchPosition(String(currentVideo.id), id);
+              if (typeof lastPos === 'number' && !isNaN(lastPos) && lastPos > 0) {
+                const seekTarget = lastPos + (tOffset || 0);
+                const waitForMeta = () => new Promise<void>((resolve) => {
+                  if (videoElement.readyState >= 1) return resolve();
+                  const onLoadedMetadata = () => {
+                    videoElement.removeEventListener('loadedmetadata', onLoadedMetadata);
+                    resolve();
+                  };
+                  videoElement.addEventListener('loadedmetadata', onLoadedMetadata);
+                });
+                await waitForMeta();
+                const maxSeek = (videoElement.duration && isFinite(videoElement.duration)) ? Math.max(0, videoElement.duration - 1) : seekTarget;
+                const finalSeek = Math.min(seekTarget, maxSeek);
+                if (!isNaN(finalSeek) && finalSeek > 0) {
+                  videoElement.currentTime = finalSeek;
+                  console.log(`Resumed playback at ${finalSeek}s`);
+                }
+                hasSeekedRef.current = true;
+              }
+            }
+          } catch (e) {
+            console.warn('Resume fetch failed', e);
+          }
+        })();
+      });
+
+      hls.on(Hls.Events.LEVEL_SWITCHED, () => {
+        setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
+      });
+
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        console.error('HLS error:', data);
+        if (data.fatal) {
+          setError(`Playback error: ${data.details}`);
+        }
+      });
+
+      let local_tOffset = 0;
+      const getAppendedOffset = (eventName: string, bufferData: BufferAppendedData) => {
+        const { frag } = bufferData;
+        if (frag.type === 'main' && frag.sn !== 'initSegment' && frag.elementaryStreams.video) {
+          const { elementaryStreams } = frag;
+          local_tOffset = elementaryStreams ? elementaryStreams.video ? elementaryStreams.video.startPTS - frag.start : 0 : 0;
+          hls.off(Hls.Events.BUFFER_APPENDED, getAppendedOffset);
+          console.log('video timestamp offset:', local_tOffset);
+          
+          setTOffset(local_tOffset);
+          
+          if (videoElement.duration && !isNaN(videoElement.duration) && isFinite(videoElement.duration)) {
+            const calculatedDuration = Math.max(0, videoElement.duration - local_tOffset);
+            setCalcDuration(calculatedDuration);
+            console.log('Duration recalculated with offset:', calculatedDuration);
+          }
+        }
+      };
+      hls.on(Hls.Events.BUFFER_APPENDED, getAppendedOffset);
+
+    } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+      // Native HLS support (Safari)
+      videoElement.src = m3u8DirectUrl;
+      videoElement.addEventListener('loadedmetadata', () => {
+        setIsPlaying(true);
+        videoElement.play().catch(console.error);
+        loadPlayTime();
+      });
+    } else {
+      setError('HLS is not supported in this browser');
+    }
+
+    setLoading(false);
+  };
+
   const loadPlayTime = () => {
     if (videoRef.current) {
       const videoElement = videoRef.current;
@@ -379,6 +521,26 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     }
   };
 
+  const handleToggleLike = async () => {
+    if (!currentVideo?.id) return;
+    
+    setIsLikeLoading(true);
+    try {
+      const result = await toggleVideoLike(String(currentVideo.id));
+      if (result.success) {
+        setIsLiked(result.isLiked);
+      } else {
+        console.error('Failed to toggle like:', result.message);
+        alert(result.message || t('video.likeError', 'Failed to update like status'));
+      }
+    } catch (err) {
+      console.error('Error toggling like:', err);
+      alert(t('video.likeError', 'Failed to update like status'));
+    } finally {
+      setIsLikeLoading(false);
+    }
+  };
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -395,8 +557,8 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     }
   }, []);
 
-  // Show fallback when no video ID is provided
-  if (!id) {
+  // Show fallback when no video ID or m3u8Url is provided
+  if (!id && !m3u8Url) {
     return (
       <div className="p-6 text-white">
         <h1 className="text-2xl font-bold mb-4">Video Player</h1>
@@ -540,6 +702,56 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                         : currentVideo.description}
                     </p>
                   )}
+
+                  {/* Interaction Buttons */}
+                  <div className="flex items-center gap-4 mt-4">
+                    {/* Like Button */}
+                    <button
+                      onClick={handleToggleLike}
+                      disabled={isLikeLoading}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        isLiked
+                          ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      } disabled:opacity-50`}
+                    >
+                      <FiThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+                      <span className="text-sm font-medium">
+                        {isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')}
+                      </span>
+                    </button>
+
+                    {/* Comments Button */}
+                    <button
+                      onClick={() => setShowComments(!showComments)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        showComments
+                          ? 'bg-[#fbb033]/20 text-[#fbb033] hover:bg-[#fbb033]/30'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      }`}
+                    >
+                      <FiMessageCircle className="w-5 h-5" />
+                      <span className="text-sm font-medium">
+                        {t('comments.title', 'Comments')} {commentCount > 0 && `(${commentCount})`}
+                      </span>
+                    </button>
+
+                    {/* Favorite Button */}
+                    <button
+                      onClick={handleToggleFavorite}
+                      disabled={isFavoriteLoading}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        isFavorited
+                          ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      } disabled:opacity-50`}
+                    >
+                      <FiHeart className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
+                      <span className="text-sm font-medium">
+                        {isFavorited ? t('video.favorited', 'Favorited') : t('video.favorite', 'Favorite')}
+                      </span>
+                    </button>
+                  </div>
                 </div>
                 {/* Quality Selection */}
                 {isPlaying && <div className="mt-4 mx-auto w-full">
@@ -666,6 +878,18 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Comments Section */}
+        {currentVideo?.id && showComments && (
+          <div className="mt-8 w-full lg:w-[60vw] mx-auto">
+            <CommentSection
+              mediaId={String(currentVideo.id)}
+              mediaType={currentVideo.isSeries ? 'episode' : 'video'}
+              className="bg-gray-900/50 rounded-lg p-6"
+              onCommentCountChange={setCommentCount}
+            />
           </div>
         )}
 

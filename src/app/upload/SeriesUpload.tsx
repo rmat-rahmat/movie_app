@@ -8,8 +8,9 @@ import UploadSuccessModal from '@/components/ui/UploadSuccessModal';
 import TagSelector from '@/components/ui/TagSelector';
 import VideoPlayer from '@/components/ui/VideoPlayer';
 import DurationInput from '@/components/ui/DurationInput';
-import { getCachedCategories, type CategoryItem } from '@/lib/movieApi';
+import { getCachedCategories, type CategoryItem, getLanguageList, getDirectorList, getActorList, getRegionList } from '@/lib/movieApi';
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
+import SearchableDropdown from '@/components/ui/SearchableDropdown';
 import EpisodeFile from './EpisodeFile';
 
 interface Episode {
@@ -42,6 +43,10 @@ export default function SeriesUpload() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [uploadedSeriesId, setUploadedSeriesId] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [languageSuggestions, setLanguageSuggestions] = useState<string[]>([]);
+  const [directorSuggestions, setDirectorSuggestions] = useState<string[]>([]);
+  const [actorSuggestions, setActorSuggestions] = useState<string[]>([]);
+  const [regionSuggestions, setRegionSuggestions] = useState<string[]>([]);
 
   interface SeriesForm {
     title: string;
@@ -86,6 +91,23 @@ export default function SeriesUpload() {
     if (cachedCategories) {
       setCategories(cachedCategories);
     }
+    // preload director/actor/region/language suggestions
+    (async () => {
+      try {
+        const [dirs, acts, regs, langs] = await Promise.all([
+          getDirectorList('', undefined, 1, 50),
+          getActorList('', undefined, 1, 50),
+          getRegionList('', 1, 200),
+          getLanguageList('', '', 1, 200)
+        ]);
+        if (Array.isArray(dirs)) setDirectorSuggestions(dirs.slice(0, 100));
+        if (Array.isArray(acts)) setActorSuggestions(acts.slice(0, 200));
+        if (Array.isArray(regs)) setRegionSuggestions(regs.slice(0, 200));
+        if (Array.isArray(langs)) setLanguageSuggestions(langs.slice(0, 200));
+      } catch (e) {
+        console.warn('Failed to preload suggestions', e);
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -511,12 +533,27 @@ export default function SeriesUpload() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           <div>
             <label className="block text-lg font-medium mb-2">{t('upload.director', 'Director')}</label>
-            <input required type="text" value={seriesForm.director} onChange={(e) => setSeriesForm(prev => ({ ...prev, director: e.target.value }))} className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Director name" />
+            <SearchableDropdown
+              id="director"
+              value={seriesForm.director}
+              onChange={(v) => setSeriesForm(prev => ({ ...prev, director: v }))}
+              suggestions={directorSuggestions}
+              placeholder="Director name"
+              required
+            />
           </div>
 
           <div>
             <label className="block text-lg font-medium mb-2">{t('upload.actors', 'Actors')}</label>
-            <input required type="text" value={seriesForm.actors} onChange={(e) => setSeriesForm(prev => ({ ...prev, actors: e.target.value }))} className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white" placeholder="Actor1, Actor2, Actor3" />
+            <SearchableDropdown
+              id="actors"
+              value={seriesForm.actors}
+              onChange={(v) => setSeriesForm(prev => ({ ...prev, actors: v }))}
+              suggestions={actorSuggestions}
+              placeholder="Actor1, Actor2, Actor3"
+              multi
+              required
+            />
           </div>
 
           <div>
@@ -538,24 +575,24 @@ export default function SeriesUpload() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label className="block text-lg font-medium mb-2">{t('upload.region', 'Region')}</label>
-            <input
-              type="text"
-              required
+            <SearchableDropdown
+              id="region"
               value={seriesForm.region}
-              onChange={(e) => setSeriesForm(prev => ({ ...prev, region: e.target.value }))}
-              className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              onChange={(v) => setSeriesForm(prev => ({ ...prev, region: v }))}
+              suggestions={regionSuggestions}
               placeholder="e.g., USA, China, etc."
+              required
             />
           </div>
           <div>
             <label className="block text-lg font-medium mb-2">{t('upload.language', 'Language')}</label>
-            <input
-              type="text"
-              required
+            <SearchableDropdown
+              id="language"
               value={seriesForm.language}
-              onChange={(e) => setSeriesForm(prev => ({ ...prev, language: e.target.value }))}
-              className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              onChange={(v) => setSeriesForm(prev => ({ ...prev, language: v }))}
+              suggestions={languageSuggestions}
               placeholder="e.g., English, Mandarin, etc."
+              required
             />
           </div>
         </div>

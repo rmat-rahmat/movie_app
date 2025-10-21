@@ -330,5 +330,6 @@
     "series": "剧集",
     "watchNow": "立即观看",
     "watch": "观看"
-  }
-}
+  },
+  "ERR_USER_ALREADY_EXISTS": "已存在使用该电子邮件的用户"
+} 

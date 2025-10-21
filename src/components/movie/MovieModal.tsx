@@ -26,6 +26,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
     let mounted = true;
 
     // create an initial VideoDetails object from the lighter DashboardItem prop
+    console.log(video.imageQuality)
     const videoToDetailsInit = (v: DashboardItem): VideoDetails => ({
       ...v,
       // ensure imageQuality exists with safe string fields
@@ -48,6 +49,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
     }
 
     const fetchDetail = async () => {
+      console.log(video)
       if (!video?.id) return;
       setLoading(true);
       setError(null);
@@ -87,7 +89,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
   const releaseDate = source.createTime ? new Date(source.createTime).toLocaleDateString() : (source.year ? String(source.year) : "");
   const description = source.description || "";
   const backdropImage = (source.imageQuality && (source.imageQuality.url || source.imageQuality.p360)) || "";
-  const portraitImage = source.imageQuality?.p360 || "";
+  const portraitImage = source.imageQuality?.url || "";
   const rating = source.rating || 0;
 
   const navigateToPlayer = (id: string) => {
@@ -112,6 +114,21 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
     // Navigate to external player with encrypted URL
     router.push(`/videoplayerExternal?url=${encodeURIComponent(encryptedUrl)}`);
   };
+
+  const navigateToM3u8Player = (m3u8Url: string, episodeData?: Episode) => {
+    if (!m3u8Url) return;
+    
+    if (detail && episodeData) {
+      const { setVideoFromDetails } = useVideoStore.getState();
+      if (useVideoStore.getState().currentVideo?.id !== detail.id) {
+        setVideoFromDetails(detail, episodeData.uploadId || episodeData.id || '');
+      }
+    }
+    
+    // Navigate to m3u8 player with the URL
+    router.push(`/videoplayer?m3u8=${encodeURIComponent(m3u8Url)}`);
+  };
+
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center">
       <div
@@ -276,6 +293,18 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
                             </svg>
                             <span>{t('modal.watch')}</span>
                           </button>
+                        ) : ep.m3u8Url ? (
+                          <button
+                            type="button"
+                            onClick={() => navigateToM3u8Player(ep.m3u8Url || '', ep)}
+                            className="flex items-center gap-2 border border-gray-700 text-gray-400 hover:text-white px-3 py-1 rounded-lg cursor-pointer hover:border-[#fbb033] transition-colors"
+                            title="Watch episode (HLS)"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#fbb033]" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <path d="M6 4l10 6-10 6V4z" />
+                            </svg>
+                            <span>{t('modal.watch')}</span>
+                          </button>
                         ) : ep.playUrl ? (
                           <button
                             type="button"
@@ -302,11 +331,19 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
                {isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].uploadId ?
                 <button type="button" onClick={() => navigateToPlayer((isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].uploadId) || (isVideoDetails(source) && source.uploadId) || '')} className="bg-[#fbb033] text-white font-bold hover:bg-red-500 px-3 py-3 rounded w-full cursor-pointer">
                   {t('modal.watchNow')}
-                </button> : isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].playUrl ? (
+                </button> : isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].m3u8Url ? (
+                <button type="button" onClick={() => navigateToM3u8Player((source.episodes?.[0]?.m3u8Url) || '', source.episodes?.[0])} className="bg-[#fbb033] text-white font-bold hover:bg-red-500 px-3 py-3 rounded w-full cursor-pointer">
+                  {t('modal.watchNow')}
+                </button>
+                ) : isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].playUrl ? (
                 <button type="button" onClick={() => navigateToExternalPlayer((isVideoDetails(source) && source.episodes && source.episodes[0] && source.episodes[0].playUrl) || '')} className="bg-[#fbb033] text-white font-bold hover:bg-red-500 px-3 py-3 rounded w-full cursor-pointer">
                   {t('modal.watchNow')} (External)
                 </button>
-                ) : null}
+                ) : 
+                <div className="text-sm text-gray-400">
+                  {t('modal.noPlayableContent')}
+                </div>
+              }
               </div>
             )}
           </div>

@@ -299,5 +299,6 @@
     "series": "Siri",
     "watchNow": "Tonton Sekarang",
     "watch": "Tonton"
-  }
+  },
+  "ERR_USER_ALREADY_EXISTS": "Pengguna dengan e-mel ini sudah wujud"
 }

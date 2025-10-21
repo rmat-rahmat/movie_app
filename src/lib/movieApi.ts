@@ -697,7 +697,7 @@ export async function getWatchHistoryList(page: number = 0, size: number = 12,ty
       // Map API content shape to DashboardItem minimal fields
       const list: DashboardItem[] = contents.map((it) => {
         const record = it as Record<string, unknown>;
-        const id = String(record.id ?? '');
+        const id = String(record.id ?? record.mediaId ?? '');
         const title = String(record.title ?? record.original_title ?? '');
         const description = typeof record.description === 'string' ? String(record.description) : (typeof record.overview === 'string' ? String(record.overview) : undefined);
         const coverUrl = typeof record.coverUrl === 'string' ? String(record.coverUrl) : (typeof record.poster_path === 'string' ? String(record.poster_path) : undefined);
@@ -851,7 +851,7 @@ export async function getFavoritesList(page: number = 0, size: number = 20, type
     const params: Record<string, string | number> = { page, size, type };
     const res = await axios.get(url, { params, headers });
     const responseData = res.data;
-
+    console.log("Favorites list response data:", responseData);
     if (responseData && responseData.success && responseData.data) {
       const contents = responseData.data.contents || [];
       const list = contents.map((item: ContentApiItem) => {
@@ -883,6 +883,106 @@ export async function getFavoritesList(page: number = 0, size: number = 20, type
     return [];
   } catch (err) {
     console.error('Failed to fetch favorites list', err);
+    return null;
+  }
+}
+
+// ============================================
+// Video Like API Functions
+// ============================================
+
+// Toggle like status for a video
+export async function toggleVideoLike(videoId: string): Promise<{ success: boolean; isLiked: boolean; message?: string }> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/like/toggleLike`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const params = new URLSearchParams();
+    params.append('videoId', videoId);
+
+    const res = await axios.post(url, params, { headers });
+    const data = res.data;
+
+    if (data && data.success) {
+      // data.data is boolean: true means now liked, false means unliked
+      return { success: true, isLiked: !!data.data, message: data.message };
+    }
+    return { success: false, isLiked: false, message: data.message || 'Failed to toggle like' };
+  } catch (err) {
+    console.error('Failed to toggle like', err);
+    const message = axios.isAxiosError(err) && err.response?.data?.message 
+      ? err.response.data.message 
+      : 'An error occurred while toggling like';
+    return { success: false, isLiked: false, message };
+  }
+}
+
+// Check if a video is liked by the current user
+export async function checkVideoLike(videoId: string): Promise<boolean> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/like/check`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const params = new URLSearchParams();
+    params.append('videoId', videoId);
+
+    const res = await axios.get(url, { params, headers });
+    const data = res.data;
+
+    return data && data.success && data.data === true;
+  } catch (err) {
+    console.error('Failed to check like status', err);
+    return false;
+  }
+}
+
+// Get user's liked videos list
+export async function getVideoLikeList(page: number = 0, size: number = 20, type: string = 'p720'): Promise<DashboardItem[] | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/like/list`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const params: Record<string, string | number> = { page, size, type };
+    const res = await axios.post(url, params, { headers });
+    const responseData = res.data;
+
+    if (responseData && responseData.success && responseData.data) {
+      const contents = responseData.data.contents || [];
+      const list = contents.map((item: ContentApiItem) => {
+        return {
+          id: item.id,
+          title: item.title || 'Untitled',
+          description: item.description || '',
+          coverImage: item.imageQuality?.url || item.coverUrl || '/fallback_poster/sample_poster.png',
+          rating: item.rating,
+          releaseDate: item.year ? String(item.year) : undefined,
+          category: item.categoryId,
+          isSeries: item.isSeries || false,
+          seriesId: item.seriesId,
+          seasonNumber: item.seasonNumber,
+          totalEpisodes: item.totalEpisodes,
+          isCompleted: item.isCompleted,
+          director: item.director,
+          actors: Array.isArray(item.actors) ? item.actors : [],
+          language: item.language,
+          region: item.region,
+          tags: Array.isArray(item.tags) ? item.tags : [],
+          createTime: item.createTime,
+          updateTime: item.updateTime,
+          imageQuality: item.imageQuality || {},
+        } as DashboardItem;
+      });
+      return list;
+    }
+    return [];
+  } catch (err) {
+    console.error('Failed to fetch liked videos list', err);
     return null;
   }
 }
@@ -939,6 +1039,25 @@ export async function getRegionList(name: string = '', page: number = 0, size: n
     return [];
   } catch (err) {
     console.error('Failed to fetch region list', err);
+    return null;
+  }
+}
+
+// Fetch language list (returns array of names)
+export async function getLanguageList(name: string = '', code: string = '', page: number = 1, size: number = 200): Promise<string[] | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/language/page`;
+    const params: Record<string, string | number | undefined> = { page, size };
+    if (name) params.name = name;
+    if (code) params.code = code;
+    const res = await axios.get(url, { params, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    const data = res.data;
+    if (data && data.success && Array.isArray(data.data)) {
+      return data.data.map((item: { id: string; code: string; name: string }) => item.name);
+    }
+    return [];
+  } catch (err) {
+    console.error('Failed to fetch language list', err);
     return null;
   }
 }

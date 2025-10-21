@@ -159,6 +159,7 @@ export interface Episode {
   createTime?: string | null;
   createBy?: string | null;
   updateTime?: string | null;
+  m3u8Url?: string | null;
 }
 
 // Rich content detail type that extends the lighter DashboardItem

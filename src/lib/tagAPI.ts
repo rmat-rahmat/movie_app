@@ -49,7 +49,8 @@ export async function fetchTags(query: TagQueryDto = {}): Promise<{ tags: TagVo[
   try {
     const response = await axios.post<StandardResponseListTagVo>(url, payload, {
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+       'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
       }
     });
 

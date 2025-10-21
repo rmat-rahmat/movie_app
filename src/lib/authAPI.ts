@@ -33,7 +33,7 @@ type LoginUserVo = {
 
 type StandardResponse<T> = {
   status?: number;
-  code?: string;
+  errorCode?: string;
   success?: boolean;
   message?: string;
   data?: T;
@@ -257,7 +257,7 @@ export async function register(
 
     const body = res.data as StandardResponse<LoginUserVo>;
     if (!body || !body.success) {
-      throw new Error(tr('auth.error.register_failed', body?.message || 'Register failed'));
+      throw new Error(tr(body?.errorCode || 'auth.error.register_failed', body?.message || 'Register failed'));
     }
 
     const userVo = body.data as LoginUserVo;
@@ -270,7 +270,9 @@ export async function register(
     return { token: token || '', refreshToken: refreshToken || '', user };
   } catch (err: unknown) {
     const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
-    throw new Error(`Register failed: ${message}`);
+    const errorCode = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.errorCode || '' : '';
+    // throw new Error(`Register failed: ${message}`);
+    throw new Error(tr(errorCode || 'auth.error.register_failed',errorCode || 'Register failed'));
   }
 }
 

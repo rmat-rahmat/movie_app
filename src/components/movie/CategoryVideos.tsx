@@ -31,7 +31,7 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
   const [sort, setSort] = useState("0"); // 0: Upload Date, 1: Rating
   const {t}=useTranslation();
 
-  const pageSize = 20;
+  const pageSize = 30;
 
   // Ensure pageInfo has default values to prevent null reference errors
   const safePageInfo = pageInfo || {
@@ -335,7 +335,7 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
           <p className="text-gray-400">No videos found in this category.</p>
         ) : (
           <>
-            <div className="grid grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-1 md:gap-4 gap-y-2">
+            <div className="grid grid-cols-5 lg:grid-cols-7 xl:grid-cols-10 gap-1 md:gap-4 gap-y-2">
               {safeVideos.map((video, index) => (
                 <DashboardItem
                   key={video.id || index}

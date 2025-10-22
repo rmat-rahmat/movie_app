@@ -538,7 +538,7 @@ export default function SeriesUpload() {
               value={seriesForm.director}
               onChange={(v) => setSeriesForm(prev => ({ ...prev, director: v }))}
               suggestions={directorSuggestions}
-              placeholder="Director name"
+              placeholder={t('upload.directorPlaceholder', 'Director name')}
               required
             />
           </div>
@@ -550,7 +550,7 @@ export default function SeriesUpload() {
               value={seriesForm.actors}
               onChange={(v) => setSeriesForm(prev => ({ ...prev, actors: v }))}
               suggestions={actorSuggestions}
-              placeholder="Actor1, Actor2, Actor3"
+              placeholder={t('upload.actorsPlaceholder', 'Actor names, separated by commas')}
               multi
               required
             />
@@ -580,7 +580,7 @@ export default function SeriesUpload() {
               value={seriesForm.region}
               onChange={(v) => setSeriesForm(prev => ({ ...prev, region: v }))}
               suggestions={regionSuggestions}
-              placeholder="e.g., USA, China, etc."
+              placeholder={t('upload.regionPlaceholder', 'e.g., USA, China, etc.')}
               required
             />
           </div>
@@ -591,7 +591,7 @@ export default function SeriesUpload() {
               value={seriesForm.language}
               onChange={(v) => setSeriesForm(prev => ({ ...prev, language: v }))}
               suggestions={languageSuggestions}
-              placeholder="e.g., English, Mandarin, etc."
+              placeholder={t('upload.languagePlaceholder', 'e.g., English, Mandarin, etc.')}
               required
             />
           </div>
@@ -644,7 +644,7 @@ export default function SeriesUpload() {
                       value={episode.title}
                       onChange={(e) => setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.map((ep, idx) => idx === index ? { ...ep, title: e.target.value } : ep) }))}
                       className="w-full px-3 py-2  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
-                      placeholder={`Episode ${episode.number} title`}
+                      placeholder={`${t('navigation.upload')} ${episode.number} : ${t('upload.episodeTitle', 'Title')}`}
                     />
                   </div>
                   <div>

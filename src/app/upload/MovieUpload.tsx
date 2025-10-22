@@ -672,7 +672,7 @@ export default function MovieUpload() {
           <label className="block text-lg font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover Image')}</label>
           <div className="flex items-center gap-4">
             <input type="file" accept="image/*" id="movie-cover-file" onChange={handleCoverFileSelect} className="visually-hidden opacity-0 absolute" required />
-            <label htmlFor="movie-cover-file" className="px-4 py-3  border border-[#fbb033] rounded-3xl cursor-pointer text-white">Choose Image</label>
+            <label htmlFor="movie-cover-file" className="px-4 py-3  border border-[#fbb033] rounded-3xl cursor-pointer text-white">{t('uploadForm.chooseImage', 'Choose Image')}</label>
             {movieCoverPreviewUrl ? (
               <div className="flex items-center gap-3">
                 <img src={movieCoverPreviewUrl} alt="cover preview" className="w-28 h-16 object-cover rounded" />
@@ -692,7 +692,7 @@ export default function MovieUpload() {
               value={movieForm.director}
               onChange={(v) => setMovieForm(prev => ({ ...prev, director: v }))}
               suggestions={directorSuggestions}
-              placeholder="Director name"
+              placeholder={t('upload.directorPlaceholder', 'Director Name')}
               required  
               multi
             />
@@ -705,7 +705,7 @@ export default function MovieUpload() {
               value={movieForm.actors}
               onChange={(v) => setMovieForm(prev => ({ ...prev, actors: v }))}
               suggestions={actorSuggestions}
-              placeholder="Actor1, Actor2, Actor3"
+              placeholder={t('upload.actorsPlaceholder', 'Actor Names')}
               multi
               required
             />
@@ -738,7 +738,7 @@ export default function MovieUpload() {
               value={movieForm.region}
               onChange={(v) => setMovieForm(prev => ({ ...prev, region: v }))}
               suggestions={regionSuggestions}
-              placeholder="e.g., USA, China, etc."
+              placeholder={t('upload.regionPlaceholder', 'e.g., USA, China, etc.')}
               required
             />
           </div>
@@ -749,7 +749,7 @@ export default function MovieUpload() {
               value={movieForm.language}
               onChange={(v) => setMovieForm(prev => ({ ...prev, language: v }))}
               suggestions={languageSuggestions}
-              placeholder="e.g., English, Mandarin, etc."
+              placeholder={t('upload.languagePlaceholder', 'e.g., English, Mandarin, etc.')}
               required
             />
           </div>

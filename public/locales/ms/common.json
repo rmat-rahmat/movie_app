@@ -186,9 +186,17 @@
     "seriesUploadSuccess": "siri telah dimuat naik dengan jayanya!",
     "viewDetails": "Lihat Perincian",
     "uploadMore": "Muat Naik Lagi",
-    "backToHome": "Kembali ke Laman Utama"
+    "backToHome": "Kembali ke Laman Utama",
+    "videoPrivacy": "Video Anda Akan Kekal Peribadi Sehingga Ia Diterbitkan",
+    "directorPlaceholder": "Nama pengarah",
+    "actorsPlaceholder": "Nama pelakon, contohnya: Ali Bin Abu, Siti Binti Ahmad",
+    "regionPlaceholder": "Wilayah, contohnya: Malaysia, Indonesia",
+    "languagePlaceholder": "Bahasa, contohnya: Melayu, Inggeris",
+    "chooseImage": "Pilih Imej"
   },
   "uploadForm": {
+    "title": "Tajuk",
+    "categoryLabel": "Kategori",
     "titlePlaceholder": "Masukkan tajuk filem",
     "seriesTitlePlaceholder": "Masukkan tajuk siri",
     "yearPlaceholder": "Tahun",

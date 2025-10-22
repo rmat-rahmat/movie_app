@@ -184,9 +184,17 @@
       "seriesUploadSuccess": "сериал успешно загружен!",
       "viewDetails": "Просмотреть детали",
       "uploadMore": "Загрузить ещё",
-      "backToHome": "Вернуться на главную"
+      "backToHome": "Вернуться на главную",
+      "videoPrivacy": "Ваше видео останется приватным, пока не будет опубликовано",
+      "directorPlaceholder": "Имя режиссера",
+      "actorsPlaceholder": "Имена актеров, например: Иван Иванов, Мария Петрова",
+      "regionPlaceholder": "Регион, например: Россия, Украина",
+      "languagePlaceholder": "Язык, например: Русский, Английский",
+      "chooseImage": "Выбрать изображение"
     },
     "uploadForm": {
+      "title": "Заголовок",
+      "categoryLabel": "Категория",
   "titlePlaceholder": "Введите заголовок фильма",
   "seriesTitlePlaceholder": "Введите название сериала",
       "yearPlaceholder": "Год",

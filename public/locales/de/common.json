@@ -185,9 +185,17 @@
       "seriesUploadSuccess": "Serie wurde erfolgreich hochgeladen!",
       "viewDetails": "Details anzeigen",
       "uploadMore": "Mehr hochladen",
-      "backToHome": "Zurück zur Startseite"
+      "backToHome": "Zurück zur Startseite",
+      "videoPrivacy": "Dein Video bleibt privat, bis es veröffentlicht wird",
+      "directorPlaceholder": "Name des Regisseurs",
+      "actorsPlaceholder": "Namen der Schauspieler, z.B.: Max Mustermann, Erika Musterfrau",
+      "regionPlaceholder": "Region, z.B.: Deutschland, USA",
+      "languagePlaceholder": "Sprache, z.B.: Deutsch, Englisch",
+      "chooseImage": "Bild auswählen"
     },
     "uploadForm": {
+      "title": "Titel",
+      "categoryLabel": "Kategorie",
   "titlePlaceholder": "Filmtitel eingeben",
   "seriesTitlePlaceholder": "Serientitel eingeben",
       "yearPlaceholder": "Jahr",

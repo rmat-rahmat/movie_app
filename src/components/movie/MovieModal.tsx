@@ -8,6 +8,7 @@ import { useVideoStore } from '@/store/videoStore';
 import { formatDuration } from '@/utils/durationUtils';
 import { useTranslation } from 'react-i18next';
 import { encryptUrl } from '@/utils/urlEncryption';
+import { RenderTags, RenderRegion, RenderLanguage, RenderCast, RenderDirector } from '@/components/ui/RenderBadges';
 
 interface MovieModalProps {
   video: DashboardItem;
@@ -225,45 +226,37 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
                 ))}
               </div>
             )}
-            {source.actors && Array.isArray(source.actors) && source.actors.length > 0 && (
+            {source.actors && (
               <div className="mt-4">
                 <h3 className="text-lg font-semibold text-white mb-2">{t('modal.cast')}</h3>
                 <div className="flex flex-wrap gap-2">
-                  {source.actors.slice(0, 5).map((actor: string, index: number) => (
-                    <span key={index} className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm">
-                      {actor}
-                    </span>
-                  ))}
+                  <RenderCast actors={source.actors} />
                 </div>
               </div>
             )}
             {source.director && (
               <div className="mt-2">
                 <span className="text-gray-400">{t('modal.director')}: </span>
-                <span className="text-white">{source.director}</span>
+                <RenderDirector director={source.director} />
               </div>
             )}
             {source.region && (
               <div className="mt-1">
                 <span className="text-gray-400">{t('modal.region')}: </span>
-                <span className="text-white">{source.region}</span>
+                <span className="text-white"><RenderRegion region={source.region} /></span>
               </div>
             )}
             {source.language && (
               <div className="mt-1">
                 <span className="text-gray-400">{t('modal.language')}: </span>
-                <span className="text-white">{source.language}</span>
+                <span className="text-white"><RenderLanguage language={source.language} /></span>
               </div>
             )}
             {source.tags && Array.isArray(source.tags) && source.tags.length > 0 && (
               <div className="mt-3">
                 <h4 className="text-sm font-semibold text-gray-400 mb-1">{t('modal.tags')}</h4>
                 <div className="flex flex-wrap gap-1">
-                  {source.tags.map((tag: string, index: number) => (
-                    <span key={index} className="bg-[#fbb033] text-black px-2 py-1 rounded text-xs">
-                      {tag}
-                    </span>
-                  ))}
+                  <RenderTags tags={source.tags} />
                 </div>
               </div>
             )}

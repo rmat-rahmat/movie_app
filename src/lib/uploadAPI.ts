@@ -230,7 +230,7 @@ export async function createMovieUpload(request: MovieUploadRequest): Promise<Up
     
     debugLog('Movie upload created successfully', response.data);
     // Only return upload credentials if it's a file upload method
-    return request.m3u8Url ? undefined : response.data;
+    return response.data;
   } catch (error) {
     debugLog('Error creating movie upload', error);
     throw error;

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import StarRating from '@/components/ui/StarRating';
 import type { DashboardItem as DashboardItemType } from '@/types/Dashboard';
 import { FiPlay, FiInfo, FiMoreVertical } from 'react-icons/fi';
+import { RenderTags, RenderRegion, RenderLanguage } from '@/components/ui/RenderBadges';
 
 interface DashboardItemProps {
   video: DashboardItemType;
@@ -70,7 +71,7 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
             handleImageLoad(e);
           }}
         />
-        { <button onClick={(e)=>{ e.stopPropagation(); onOptionsClick && onOptionsClick(video.id); }} className="absolute top-2 right-2 z-100 flex items-center justify-center w-8 h-8 bg-black/70 hover:bg-[#fbb033] text-white hover:text-black rounded-full transition-all duration-200 cursor-pointer">
+        {onOptionsClick && <button onClick={(e)=>{ e.stopPropagation(); onOptionsClick && onOptionsClick(video.id); }} className="absolute top-2 right-2 z-100 flex items-center justify-center w-8 h-8 bg-black/70 hover:bg-[#fbb033] text-white hover:text-black rounded-full transition-all duration-200 cursor-pointer">
             <FiMoreVertical className="w-4 h-4" />
           </button>}
         {/* Gradient Overlay */}
@@ -131,24 +132,9 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
         <div className={`flex flex-wrap gap-1 mb-3 transition-all duration-300 ${
             isHovered ? 'opacity-100 max-h-20' : 'opacity-0 max-h-0 overflow-hidden'
           } hidden md:flex`}>
-          {video.tags && video.tags.slice(0, 3).map((tag, idx) => (
-            <span 
-              key={idx} 
-              className="bg-[#fbb033] text-black px-2 py-1 rounded-full text-[10px] md:text-xs font-medium"
-            >
-              {tag}
-            </span>
-          ))}
-          {video.region && (
-            <span className="bg-gray-700/80 text-gray-200 px-2 py-1 rounded-full text-[10px] md:text-xs">
-              {video.region}
-            </span>
-          )}
-          {video.language && (
-            <span className="bg-gray-700/80 text-gray-200 px-2 py-1 rounded-full text-[10px] md:text-xs">
-              {video.language}
-            </span>
-          )}
+          <RenderTags tags={video.tags} />
+          <RenderRegion region={video.region} />
+          <RenderLanguage language={video.language} />
         </div>
 
         {/* Views Counter */}

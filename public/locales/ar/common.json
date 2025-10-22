@@ -183,9 +183,17 @@
       "seriesUploadSuccess": "تم رفع المسلسل بنجاح!",
       "viewDetails": "عرض التفاصيل",
       "uploadMore": "رفع المزيد",
-      "backToHome": "العودة إلى الرئيسية"
+      "backToHome": "العودة إلى الرئيسية",
+      "videoPrivacy": "سيظل الفيديو خاصًا حتى يتم نشره",
+      "directorPlaceholder": "اسم المخرج",
+      "actorsPlaceholder": "أسماء الممثلين مثل: جون دو، جين سميث",
+      "regionPlaceholder": "المنطقة مثل: الولايات المتحدة، المملكة المتحدة",
+      "languagePlaceholder": "اللغة مثل: الإنجليزية، الإسبانية",
+      "chooseImage": "اختر صورة"
     },
     "uploadForm": {
+      "title": "العنوان",
+      "categoryLabel": "الفئة",
   "titlePlaceholder": "أدخل عنوان الفيلم",
   "seriesTitlePlaceholder": "أدخل عنوان المسلسل",
       "yearPlaceholder": "السنة",

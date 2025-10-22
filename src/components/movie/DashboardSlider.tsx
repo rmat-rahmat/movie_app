@@ -108,9 +108,9 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
 
                 // Get current language from i18n for date formatting
                 const currentLocale = i18n?.language || (typeof navigator !== 'undefined' && navigator.language) || 'en';
-                const releaseLabel = video.createTime
-                    ? new Date(String(video.createTime)).toLocaleString(currentLocale, { dateStyle: "full", timeStyle: "short" })
-                    : (video.year ? String(video.year) : "");
+                // const releaseLabel = video.createTime
+                //     ? new Date(String(video.createTime)).toLocaleString(currentLocale, { dateStyle: "full", timeStyle: "short" })
+                //     : (video.year ? String(video.year) : "");
 
                 return (
                     <div
@@ -161,14 +161,14 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
                                     </h1>
                                     
                                     {/* Release Info Badge */}
-                                    {releaseLabel && (
+                                    {/* {releaseLabel && (
                                         <div className="hidden md:inline-flex items-center bg-gradient-to-r from-[#fbb033] to-[#f69c05] text-black font-bold px-3 md:px-4 py-2 rounded-full text-xs md:text-base mb-6 shadow-lg">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
                                             {releaseLabel}
                                         </div>
-                                    )}
+                                    )} */}
                                     
                                     {/* Description */}
                                     <p className="text-sm md:text-xl text-gray-200 mb-2 md:mb-8 leading-relaxed drop-shadow-lg max-w-xl line-clamp-3">

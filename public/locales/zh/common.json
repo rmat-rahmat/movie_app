@@ -217,9 +217,17 @@
     "seriesUploadSuccess": "剧集已成功上传！",
     "viewDetails": "查看详情",
     "uploadMore": "继续上传",
-    "backToHome": "返回首页"
+    "backToHome": "返回首页",
+    "videoPrivacy": "您的视频将在发布前保持私密",
+    "directorPlaceholder": "导演姓名",
+    "actorsPlaceholder": "演员姓名，例如：张三，李四",
+    "regionPlaceholder": "地区，例如：中国，美国",
+    "languagePlaceholder": "语言，例如：中文，英语",
+    "chooseImage": "选择图片"
   },
   "uploadForm": {
+    "title": "标题",
+    "categoryLabel": "类别",
     "titlePlaceholder": "输入影片标题",
     "seriesTitlePlaceholder": "输入剧集标题",
     "yearPlaceholder": "年份",

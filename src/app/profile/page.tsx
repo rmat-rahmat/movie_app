@@ -33,6 +33,7 @@ export default function Profile() {
         if (!user) {
             // checkAuth().catch(() => {});
         }
+        console.log("user:",user)
 
         const fetchData = async () => {
             const listA = await getWatchHistoryList(1, 12, '480');
@@ -52,6 +53,14 @@ export default function Profile() {
         fetchData();
     }, [user]);
 
+    const maskUserID = (id: string | number | undefined) => {
+            if (id === undefined || id === null) return '';
+            const s = String(id);
+            if (s.length <= 4) return s;
+            return `${s.slice(0, 2)}***${s.slice(-2)}`;
+        }
+    
+
     return (
         <>
             {isloading || authLoading || !user ? <LoadingPage /> : <div className=" mx-auto overflow-hidden">
@@ -60,9 +69,9 @@ export default function Profile() {
                         <div className="flex items-center gap-4 p-4 min-w-[200%] z-1">
                             <Image src={user?.avatar || '/fallback_poster/sample_poster.png'} alt={user?.nickname || "avatar"} width={30} height={30} className="w-30 h-30 lg:min-w-50 lg:min-h-50 rounded-full mr-2 object-cover" />
                             <div className="flex flex-col">
-                                <h1 className="text-2xl font-bold">{user?.name || user?.nickname || 'User'}</h1>
+                                <h1 className="text-2xl font-bold">{user?.name || user?.nickname || maskUserID(user?.id)|| 'User'}</h1>
                                 <p className="text-gray-400 mb-2 w-[60vw] md:w-[40vw] pr-15">
-                                    {t('profile.welcome', { name: user?.name || user?.nickname || 'User' })}
+                                    {t('profile.welcome', { name: user?.name || user?.nickname || maskUserID(user?.id)|| 'User' })}
                                 </p>
                                 <div className="flex items-center gap-2 flex-col md:flex-row pr-15 md:pr-0">
                                     {/* <button className="bg-[#fbb033] text-white px-4 py-2 rounded font-semibold w-full md:w-fit hover:bg-red-700 transition">

@@ -184,9 +184,17 @@
       "seriesUploadSuccess": "la série a été téléversée avec succès !",
       "viewDetails": "Voir les détails",
       "uploadMore": "Téléverser plus",
-      "backToHome": "Retour à l'accueil"
+      "backToHome": "Retour à l'accueil",
+      "videoPrivacy": "Votre vidéo restera privée jusqu'à sa publication",
+      "directorPlaceholder": "Nom du réalisateur",
+      "actorsPlaceholder": "Noms des acteurs, ex : Jean Dupont, Marie Durant",
+      "regionPlaceholder": "Région, ex : France, Canada",
+      "languagePlaceholder": "Langue, ex : Français, Anglais",
+      "chooseImage": "Choisir une image"
     },
     "uploadForm": {
+      "title": "Titre",
+      "categoryLabel": "Catégorie",
   "titlePlaceholder": "Entrez le titre du film",
   "seriesTitlePlaceholder": "Entrez le titre de la série",
       "yearPlaceholder": "Année",

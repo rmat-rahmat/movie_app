@@ -90,7 +90,14 @@ export const useVideoStore = create<VideoStore>()(
           director: details.director || undefined,
           region: details.region || undefined,
           language: details.language || undefined,
-          tags: details.tags || [],
+          tags: (() => {
+            const t = details.tags;
+            if (!t) return [];
+            if (Array.isArray(t)) return t;
+            if (typeof t === 'string') return t.split(',').map(s => s.trim()).filter(Boolean);
+            if (typeof t === 'object') return Object.values(t).map(s => String(s).trim()).filter(Boolean);
+            return [];
+          })(),
           isSeries: details.isSeries,
           seasonNumber: details.seasonNumber || undefined,
           totalEpisodes: details.totalEpisodes || undefined,

@@ -10,9 +10,11 @@ const debugLog = (message: string, data?: unknown) => {
 // Types for Movie Upload
 export interface MovieUploadRequest {
   title: string;
+  uploadType?: 'FILE_UPLOAD' | 'M3U8_URL';
   description?: string;
   coverUrl?: string;
   customCoverUrl?: string;
+  landscapeThumbnailUrl?: string;
   duration?: number;
   categoryId?: string;
   year?: number;
@@ -20,8 +22,10 @@ export interface MovieUploadRequest {
   language?: string;
   director?: string;
   actors?: string;
+  releaseRegions?: string;
   rating?: number;
   tags?: string[];
+  sourceProvider?: string;
   // File upload method fields
   fileName?: string;
   fileSize?: number;
@@ -46,6 +50,9 @@ export interface SeriesCreateRequest {
   language?: string;
   director?: string;
   actors?: string;
+  landscapeThumbnailUrl?: string;
+  releaseRegions?: string;
+  sourceProvider?: string;
   rating?: number;
   tags?: string[];
   seasonNumber: number;
@@ -110,6 +117,16 @@ export interface ImageVo {
   createTime?: string;
   updateBy?: string;
   updateTime?: string;
+}
+
+export interface DirectImageUploadResponse {
+  uploadId: string;
+  key: string;
+  imageUrl: string;
+  fileSize: number;
+  uploadTime?: string;
+  timestamp?: number;
+  traceId?: string;
 }
 
 interface StandardResponse<T> {
@@ -243,9 +260,12 @@ export async function createSeries(request: SeriesCreateRequest): Promise<{
   title: string;
   description?: string;
   customCoverUrl?: string;
+  coverUrl?: string;
+  landscapeThumbnailUrl?: string;
   categoryId?: string;
   year?: number;
   region?: string;
+  releaseRegions?: string;
   language?: string;
   director?: string;
   actors?: string;
@@ -255,6 +275,8 @@ export async function createSeries(request: SeriesCreateRequest): Promise<{
   totalEpisodes: number;
   isCompleted: boolean;
   createTime: string;
+  updateTime?: string;
+  sourceProvider?: string;
 }> {
   debugLog('Creating TV series', request);
   
@@ -264,9 +286,12 @@ export async function createSeries(request: SeriesCreateRequest): Promise<{
       title: string;
       description?: string;
       customCoverUrl?: string;
+      coverUrl?: string;
+      landscapeThumbnailUrl?: string;
       categoryId?: string;
       year?: number;
       region?: string;
+      releaseRegions?: string;
       language?: string;
       director?: string;
       actors?: string;
@@ -275,7 +300,9 @@ export async function createSeries(request: SeriesCreateRequest): Promise<{
       seasonNumber: number;
       totalEpisodes: number;
       isCompleted: boolean;
+      sourceProvider?: string;
       createTime: string;
+      updateTime?: string;
     }>>(
       '/api-movie/v1/vod/series/create',
       'POST',
@@ -349,6 +376,84 @@ export async function getImageById(id: string, type: string): Promise<ImageVo> {
     return response.data;
   } catch (error) {
     debugLog('Error getting image by id', error);
+    throw error;
+  }
+}
+
+/**
+ * Direct image upload - uploads image file and returns image URL and uploadId
+ * @param file - The image file to upload
+ * @param businessPath - Business path (folder where file will be stored in S3)
+ * @param accessLevel - Access level (e.g., "Public")
+ * @param imageSizes - Image size (e.g., "800x600")
+ * @returns Promise with uploadId, key, imageUrl, fileSize, etc.
+ */
+export async function directImageUpload(
+  file: File,
+  businessPath: string = 'avatars',
+  accessLevel: string = 'Public',
+  imageSizes: string = '800x600'
+): Promise<DirectImageUploadResponse> {
+  debugLog('Starting direct image upload', { 
+    fileName: file.name, 
+    fileSize: file.size, 
+    businessPath, 
+    accessLevel, 
+    imageSizes 
+  });
+
+  try {
+    const authToken = useAuthStore.getState().token;
+    
+    if (!authToken) {
+      throw new Error('Authentication required for image upload');
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('businessPath', businessPath);
+    formData.append('accessLevel', accessLevel);
+    formData.append('imageSizes', imageSizes);
+    const url = `${BASE_URL}/api-net/Upload/direct-image-server`;
+    
+    const axiosConfig: AxiosRequestConfig = {
+      url,
+      method: 'post',
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        // Note: Content-Type is automatically set by axios for FormData
+      },
+      data: formData,
+    };
+
+    // Wrap with token refresh to handle 401 errors
+    const res: AxiosResponse<StandardResponse<DirectImageUploadResponse>> = await withTokenRefresh((newToken) => {
+      if (newToken) {
+        console.log('[UploadAPI] Using refreshed token for direct image upload retry:', newToken);
+        axiosConfig.headers = {
+          ...axiosConfig.headers,
+          'Authorization': `Bearer ${newToken}`
+        };
+      }
+      return axios.request<StandardResponse<DirectImageUploadResponse>>(axiosConfig);
+    });
+
+    debugLog(`Direct upload response status: ${res.status}`, res.data);
+
+    const responseData: StandardResponse<DirectImageUploadResponse> = res.data;
+
+    if (!responseData.success || !responseData.data) {
+      debugLog('Direct image upload failed', responseData);
+      throw new Error(responseData.message || 'Failed to upload image');
+    }
+
+    debugLog('Direct image upload successful', responseData.data);
+    return responseData.data;
+  } catch (error) {
+    debugLog('Error during direct image upload', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data?.message || 'Failed to upload image');
+    }
     throw error;
   }
 }

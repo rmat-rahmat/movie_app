@@ -359,7 +359,8 @@
     "duration": "Duration",
     "watch": "Watch",
     "noEpisodesAvailable": "No episodes available",
-    "watchNow": "Watch Now!!"
+    "watchNow": "Watch Now!!",
+    "noPlayableContent": "No playable content available"
   },
   "videoInfo": {
     "error": "Error",

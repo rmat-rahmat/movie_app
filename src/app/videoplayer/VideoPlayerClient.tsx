@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
-import { getPlayMain, getPlaybackUrl, recordWatchHistory, getLastWatchPosition, toggleFavorite, checkFavorite, toggleVideoLike, checkVideoLike } from '@/lib/movieApi';
+import { getPlayMain, getPlaybackUrl, recordWatchHistory, getLastWatchPosition, toggleFavorite, checkFavorite, toggleVideoLike, checkVideoLike, getContentDetail } from '@/lib/movieApi';
 import Hls from 'hls.js';
 import { BASE_URL } from '@/config';
 import { useVideoStore } from '@/store/videoStore';
@@ -26,6 +26,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const searchParams = useSearchParams();
   const urlId = searchParams.get('id');
   const m3u8Url = searchParams.get('m3u8');
+  const directId = searchParams.get('directid'); // New: video ID that needs to be resolved
   const id = propId || urlId || '';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +41,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const watchIntervalRef = useRef<number | null>(null);
   const sessionWatchTimeRef = useRef<number>(0); // seconds accumulated this session
   const hasSeekedRef = useRef<boolean>(false);
+  const [actualUploadId, setActualUploadId] = useState<string>(''); // Store resolved uploadId from directId
   
   // Favorite state
   const [isFavorited, setIsFavorited] = useState(false);
@@ -57,8 +59,63 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const router = useRouter();
 
   // Get video metadata from store
-  const { currentVideo, setCurrentEpisode } = useVideoStore();
+  const { currentVideo, setCurrentEpisode, setVideoFromDetails } = useVideoStore();
   const { t } = useTranslation();
+
+  // Effect to handle directId - fetch content details and resolve to uploadId
+  useEffect(() => {
+    if (!directId) return;
+    
+    let mounted = true;
+    const fetchContentAndResolve = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        console.log('Fetching content details for directId:', directId);
+        const contentDetails = await getContentDetail(directId);
+        
+        if (!mounted) return;
+        
+        if (!contentDetails) {
+          throw new Error('Failed to fetch content details');
+        }
+
+        console.log('Content details fetched:', contentDetails);
+        
+        // Determine the uploadId to use
+        let uploadIdToUse = '';
+
+        if( contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].uploadId ) {
+          // For series, use the first episode's uploadId
+          uploadIdToUse = contentDetails.episodes[0].uploadId || '';
+          console.log('Series detected, using first episode uploadId:', uploadIdToUse);
+        }
+         else {
+          throw new Error('No episode found in content details');
+        }
+        // } else if (contentDetails.uploadId) {
+        //   // For movies, use the direct uploadId
+        //   uploadIdToUse = contentDetails.uploadId;
+        //   console.log('Movie detected, using uploadId:', uploadIdToUse);
+        // } else {
+        //   throw new Error('No uploadId found in content details');
+        // }
+        
+        // Set the video details in store with the resolved uploadId
+        setVideoFromDetails(contentDetails, uploadIdToUse);
+        setActualUploadId(uploadIdToUse);
+      } catch (err) {
+        if (!mounted) return;
+        const message = err instanceof Error ? err.message : String(err);
+        console.error('Failed to resolve directId:', message);
+        setError(message);
+        setLoading(false);
+      }
+    };
+
+    fetchContentAndResolve();
+    return () => { mounted = false; };
+  }, [directId, setVideoFromDetails, setCurrentEpisode]);
 
   useEffect(() => {
     // If m3u8Url is provided, use it directly
@@ -68,19 +125,22 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       return;
     }
     
-    if (!id) return;
-    console.log('Loading video from uploadId:', id);
+    // Determine which ID to use: actualUploadId (from directId) or regular id
+    const uploadIdToLoad = actualUploadId || id;
+    
+    if (!uploadIdToLoad) return;
+    console.log('Loading video from uploadId:', uploadIdToLoad);
     let mounted = true;
     const fetchAll = async () => {
       setLoading(true);
       setError(null);
       try {
         // Note: getPlayMain result not used currently, focusing on quality variants
-        if (currentVideo && currentVideo.isSeries && currentVideo.currentEpisode && currentVideo.currentEpisode.uploadId !== id) {
-          setCurrentEpisode(id);
+        if (currentVideo && currentVideo.isSeries && currentVideo.currentEpisode && currentVideo.currentEpisode.uploadId !== uploadIdToLoad) {
+          setCurrentEpisode(uploadIdToLoad);
           setCalcDuration((currentVideo.currentEpisode.duration ?? 0) | 0);
         }
-        await getPlayMain(id);
+        await getPlayMain(uploadIdToLoad);
         if (!mounted) return;
         const qualities: ('144p' | '360p' | '720p' | '1080p')[] = ['1080p', '720p', '360p', '144p'];
         const bandwidthMap: Record<string, number> = {
@@ -97,10 +157,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         };
         let masterPlaylist: string = '#EXTM3U\n#EXT-X-VERSION:3\n\n';
         for (const quality of qualities) {
-          const v = await getPlaybackUrl(id, quality);
+          const v = await getPlaybackUrl(uploadIdToLoad, quality);
           if (!mounted) return;
           if (v !== null) {
-            masterPlaylist += `#EXT-X-STREAM-INF:BANDWIDTH=${bandwidthMap[quality]},RESOLUTION=${resolutionMap[quality]}\n${BASE_URL}/api-net/play/${id}/${quality}.m3u8\n\n`;
+            masterPlaylist += `#EXT-X-STREAM-INF:BANDWIDTH=${bandwidthMap[quality]},RESOLUTION=${resolutionMap[quality]}\n${BASE_URL}/api-net/play/${uploadIdToLoad}/${quality}.m3u8\n\n`;
           }
         }
         loadFromMaster(masterPlaylist);
@@ -117,7 +177,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
     fetchAll();
     return () => { mounted = false; };
-  }, [id, m3u8Url]);
+  }, [actualUploadId, id, m3u8Url, currentVideo, setCurrentEpisode]);
 
   // Check favorite and like status when video loads
   useEffect(() => {
@@ -149,15 +209,18 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   useEffect(() => {
     const videoEl = videoRef.current;
     if (!videoEl) return;
+    
+    // Use actualUploadId if available (from directId), otherwise use id
+    const currentUploadId = actualUploadId || id;
 
     const sendRecord = async () => {
       if (!videoEl) return;
-      const episode = currentVideo?.episodes?.find(ep => ep.uploadId === id );
+      const episode = currentVideo?.episodes?.find(ep => ep.uploadId === currentUploadId);
       console.log('Recording watch history for episode:', episode);
       try {
         const dto = {
-          mediaId: currentVideo?.id ? String(currentVideo.id) : String(id),
-          episodeId: episode?.id || id,
+          mediaId: currentVideo?.id ? String(currentVideo.id) : String(currentUploadId),
+          episodeId: episode?.id || currentUploadId,
           watchTime: Math.floor(sessionWatchTimeRef.current),
           duration: Math.floor(calcDuration || videoEl.duration || 0),
           progress: Math.floor(videoEl.currentTime || 0),
@@ -206,7 +269,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       window.removeEventListener('beforeunload', onBeforeUnload);
       if (watchIntervalRef.current) window.clearInterval(watchIntervalRef.current);
     };
-  }, [id, currentVideo, calcDuration]);
+  }, [actualUploadId, id, currentVideo, calcDuration]);
 
 
   const loadFromMaster = (masterplaylist: string) => {
@@ -557,8 +620,8 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     }
   }, []);
 
-  // Show fallback when no video ID or m3u8Url is provided
-  if (!id && !m3u8Url) {
+  // Show fallback when no video ID, m3u8Url, or directId is provided
+  if (!id && !m3u8Url && !directId) {
     return (
       <div className="p-6 text-white">
         <h1 className="text-2xl font-bold mb-4">Video Player</h1>

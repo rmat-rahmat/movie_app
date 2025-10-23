@@ -121,7 +121,7 @@ export default function Profile() {
                     />
                     <DashboardSection
                         onViewMore={undefined}
-                        title={t('profile.Favorites', 'My Favorites')}
+                        title={t('profile.Playlist', 'My Playlist')}
                         videos={favorites || []}
                         sectionOptionButton={{
                             title: t('viewAll', 'View All'),
@@ -145,7 +145,7 @@ export default function Profile() {
                             }
                         }}
                     />
-                    <DashboardSection
+                    {/* <DashboardSection
                         onViewMore={undefined}
                         title={t('profile.Playlist', 'Playlist')}
                         videos={playlists || []}
@@ -158,7 +158,7 @@ export default function Profile() {
                                 // setLastSeenVid([]);
                             }
                         }}
-                    />
+                    /> */}
                     <DashboardSection
                         onViewMore={undefined}
                         title={t('profile.YourVideos', 'Your Videos')}

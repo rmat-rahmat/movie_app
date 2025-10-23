@@ -31,9 +31,11 @@ export default function MovieUpload() {
   const [moviePreviewUrl, setMoviePreviewUrl] = useState<string | null>(null);
   const [HLSPreviewUrl, setHLSPreviewUrl] = useState<string | null>(null);
   const [movieCoverPreviewUrl, setMovieCoverPreviewUrl] = useState<string | null>(null);
+  const [movieLandscapePreviewUrl, setMovieLandscapePreviewUrl] = useState<string | null>(null);
   const [unsupportedFormatMsg, setUnsupportedFormatMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isUploadingLandscape, setIsUploadingLandscape] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ progress: 0, status: 'idle' as 'idle' | 'uploading' | 'success' | 'error', error: '' });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [uploadedMovieId, setUploadedMovieId] = useState<string | null>(null);
@@ -53,6 +55,10 @@ export default function MovieUpload() {
     coverUrl: '',
     coverFile: null as File | null,
     customCoverUrl: '',
+    landscapeFile: null as File | null,
+    landscapeThumbnailUrl: '',
+    releaseRegions: '',
+    sourceProvider: '',
     categoryId: '',
     year: new Date().getFullYear(),
     region: '',
@@ -98,8 +104,11 @@ export default function MovieUpload() {
       if (movieCoverPreviewUrl) {
         try { URL.revokeObjectURL(movieCoverPreviewUrl); } catch { }
       }
+      if (movieLandscapePreviewUrl) {
+        try { URL.revokeObjectURL(movieLandscapePreviewUrl); } catch { }
+      }
     };
-  }, [moviePreviewUrl, movieCoverPreviewUrl]);
+  }, [moviePreviewUrl, movieCoverPreviewUrl, movieLandscapePreviewUrl]);
 
   const handleCoverFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -127,6 +136,33 @@ export default function MovieUpload() {
     if (coverInput) {
       coverInput.value = '';
     }
+  };
+
+  const handleLandscapeFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files?.length) return;
+    const file = files[0];
+    debugLog('Landscape file selected', { name: file.name, size: file.size });
+
+    // store file in form state
+    setMovieForm(prev => ({ ...prev, landscapeFile: file }));
+    try {
+      const url = URL.createObjectURL(file);
+      if (movieLandscapePreviewUrl) URL.revokeObjectURL(movieLandscapePreviewUrl);
+      setMovieLandscapePreviewUrl(url);
+    } catch { }
+  };
+
+  const clearLandscapeFile = () => {
+    debugLog('Clearing landscape file and preview');
+    if (movieLandscapePreviewUrl) {
+      try { URL.revokeObjectURL(movieLandscapePreviewUrl); } catch { }
+    }
+    setMovieLandscapePreviewUrl(null);
+    setMovieForm(prev => ({ ...prev, landscapeFile: null }));
+
+    const input = document.getElementById('movie-landscape-file') as HTMLInputElement;
+    if (input) input.value = '';
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -254,6 +290,8 @@ export default function MovieUpload() {
     try {
       // If user selected a cover file, upload it first and set coverUrl
       let coverUrl: string | undefined;
+      let landscapeId: string | undefined;
+      
       if (movieForm.coverFile) {
         try {
           setIsUploadingCover(true);
@@ -279,23 +317,54 @@ export default function MovieUpload() {
         }
       }
 
+      // If user selected a landscape thumbnail file, upload it the same way
+      if (movieForm.landscapeFile) {
+        try {
+          setIsUploadingLandscape(true);
+          const lInit = await initializeImageUpload({
+            fileName: movieForm.landscapeFile.name,
+            contentType: movieForm.landscapeFile.type || 'image/jpeg',
+            fileSize: movieForm.landscapeFile.size,
+            totalParts: 1,
+            imageType: 'landscape',
+          });
+
+          await uploadFile(movieForm.landscapeFile, { uploadId: lInit.uploadId, key: lInit.key }, (p) => {
+            // optional: integrate progress
+          });
+
+          if (lInit?.id) {
+            setMovieForm(prev => ({ ...prev, landscapeThumbnailUrl: lInit.id || '' }));
+            landscapeId = lInit.id;
+          }
+        } catch (lErr) {
+          console.error('Landscape upload failed', lErr);
+        } finally {
+          setIsUploadingLandscape(false);
+        }
+      }
+
 
       if (fileMethod === "LINK" && movieForm.m3u8Url) {
 
         const movieRequest: MovieUploadRequest = {
           title: movieForm.title,
+          uploadType: 'M3U8_URL',
           description: movieForm.description || undefined,
           coverUrl: movieForm.coverUrl || undefined,
           customCoverUrl: movieForm.customCoverUrl || coverUrl || undefined,
+          landscapeThumbnailUrl: movieForm.landscapeThumbnailUrl || landscapeId || undefined,
           duration: movieForm.duration || 30000,
           categoryId: movieForm.categoryId,
           year: movieForm.year,
           region: movieForm.region || undefined,
           language: movieForm.language || undefined,
           director: movieForm.director || undefined,
-          actors: movieForm.actors || undefined,
+          actors: movieForm.actors ? (movieForm.actors.startsWith('/') ? movieForm.actors : `/${movieForm.actors.split(',').map(a => a.trim()).join('/')}`) : undefined,
+          releaseRegions: movieForm.releaseRegions || undefined,
           rating: movieForm.rating || 0,
           tags: movieForm.tags.length > 0 ? movieForm.tags : undefined,
+          sourceProvider: movieForm.sourceProvider || undefined,
           m3u8Url: movieForm.m3u8Url
         };
 
@@ -318,20 +387,24 @@ export default function MovieUpload() {
 
       const movieRequest: MovieUploadRequest = {
         title: movieForm.title,
+        uploadType: 'FILE_UPLOAD',
         fileName: movieForm.file.name,
         fileSize: movieForm.file.size,
         description: movieForm.description || undefined,
         coverUrl: movieForm.coverUrl || undefined,
         customCoverUrl: movieForm.customCoverUrl || coverUrl || undefined,
+        landscapeThumbnailUrl: movieForm.landscapeThumbnailUrl || landscapeId || undefined,
         duration: movieForm.duration || 30000,
         categoryId: movieForm.categoryId,
         year: movieForm.year,
         region: movieForm.region || undefined,
         language: movieForm.language || undefined,
         director: movieForm.director || undefined,
-        actors: movieForm.actors || undefined,
+        actors: movieForm.actors ? (movieForm.actors.startsWith('/') ? movieForm.actors : `/${movieForm.actors.split(',').map(a => a.trim()).join('/')}`) : undefined,
+        releaseRegions: movieForm.releaseRegions || undefined,
         rating: movieForm.rating || 0,
         tags: movieForm.tags.length > 0 ? movieForm.tags : undefined,
+        sourceProvider: movieForm.sourceProvider || undefined,
         totalParts: totalChunks
       };
 
@@ -366,15 +439,40 @@ export default function MovieUpload() {
 
   const handleUploadMore = () => {
     // Reset form for new upload
-    setMovieForm({ title: '', description: '', m3u8Url: '', file: null, coverUrl: '', coverFile: null, customCoverUrl: '', categoryId: 'movie', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], duration: 30000 });
+    setMovieForm({ 
+      title: '', 
+      description: '', 
+      m3u8Url: '', 
+      file: null, 
+      coverUrl: '', 
+      coverFile: null, 
+      customCoverUrl: '', 
+      landscapeFile: null,
+      landscapeThumbnailUrl: '',
+      releaseRegions: '',
+      sourceProvider: '',
+      categoryId: 'movie', 
+      year: new Date().getFullYear(), 
+      region: '', 
+      language: '', 
+      director: '', 
+      actors: '', 
+      rating: 0, 
+      tags: [], 
+      duration: 30000 
+    });
     if (moviePreviewUrl) {
       try { URL.revokeObjectURL(moviePreviewUrl); } catch { }
     }
     if (movieCoverPreviewUrl) {
       try { URL.revokeObjectURL(movieCoverPreviewUrl); } catch { }
     }
+    if (movieLandscapePreviewUrl) {
+      try { URL.revokeObjectURL(movieLandscapePreviewUrl); } catch { }
+    }
     setMoviePreviewUrl(null);
     setMovieCoverPreviewUrl(null);
+    setMovieLandscapePreviewUrl(null);
     setUploadProgress({ progress: 0, status: 'idle', error: '' });
     setUploadedMovieId(null);
   };
@@ -668,19 +766,77 @@ export default function MovieUpload() {
             })}
           </select>
         </div>
-        <div className="grid grid-cols-1 gap-6 mb-6">
-          <label className="block text-lg font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover Image')}</label>
-          <div className="flex items-center gap-4">
-            <input type="file" accept="image/*" id="movie-cover-file" onChange={handleCoverFileSelect} className="visually-hidden opacity-0 absolute" required />
-            <label htmlFor="movie-cover-file" className="px-4 py-3  border border-[#fbb033] rounded-3xl cursor-pointer text-white">{t('uploadForm.chooseImage', 'Choose Image')}</label>
-            {movieCoverPreviewUrl ? (
-              <div className="flex items-center gap-3">
-                <img src={movieCoverPreviewUrl} alt="cover preview" className="w-28 h-16 object-cover rounded" />
-                <button type="button" onClick={clearCoverFile} className="px-3 py-2 bg-red-600 rounded text-white">{t('uploadForm.clearCover', 'Remove')}</button>
+        <div className="mb-6">
+          <label className="block text-lg font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover (Portrait) & Landscape')}</label>
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* Portrait Cover */}
+            <div className="flex-1">
+              <p className="text-sm text-gray-400 mb-2">{t('upload.portraitCover', 'Portrait Cover')}</p>
+              <div className="flex items-center gap-4">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  id="movie-cover-file" 
+                  onChange={handleCoverFileSelect} 
+                  className="visually-hidden opacity-0 absolute" 
+                  required 
+                />
+                <label 
+                  htmlFor="movie-cover-file" 
+                  className="px-4 py-2 border border-[#fbb033] rounded-3xl cursor-pointer text-white text-sm whitespace-nowrap"
+                >
+                  {t('uploadForm.choosePortrait', 'Choose Portrait')}
+                </label>
+                {movieCoverPreviewUrl ? (
+                  <div className="flex items-center gap-3">
+                    <img src={movieCoverPreviewUrl} alt="cover preview" className="w-24 h-36 object-cover rounded" />
+                    <button 
+                      type="button" 
+                      onClick={clearCoverFile} 
+                      className="px-2 py-1 bg-red-600 rounded text-white text-sm"
+                    >
+                      {t('uploadForm.remove', 'Remove')}
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-sm text-gray-400">{t('upload.noImageSelected', 'No image selected')}</span>
+                )}
               </div>
-            ) : (
-              <span className="text-sm text-gray-400">{t('upload.noCoverSelected', 'No cover selected. You may also paste an external URL into the coverUrl field later if needed.')}</span>
-            )}
+            </div>
+
+            {/* Landscape Thumbnail */}
+            <div className="flex-1">
+              <p className="text-sm text-gray-400 mb-2">{t('upload.landscapeThumbnail', 'Landscape Thumbnail')}</p>
+              <div className="flex items-center gap-4">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  id="movie-landscape-file" 
+                  onChange={handleLandscapeFileSelect} 
+                  className="visually-hidden opacity-0 absolute" 
+                />
+                <label 
+                  htmlFor="movie-landscape-file" 
+                  className="px-4 py-2 border border-[#fbb033] rounded-3xl cursor-pointer text-white text-sm whitespace-nowrap"
+                >
+                  {t('uploadForm.chooseLandscape', 'Choose Landscape')}
+                </label>
+                {movieLandscapePreviewUrl ? (
+                  <div className="flex items-center gap-3">
+                    <img src={movieLandscapePreviewUrl} alt="landscape preview" className="w-48 h-28 object-cover rounded" />
+                    <button 
+                      type="button" 
+                      onClick={clearLandscapeFile} 
+                      className="px-2 py-1 bg-red-600 rounded text-white text-sm"
+                    >
+                      {t('uploadForm.remove', 'Remove')}
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-sm text-gray-400">{t('upload.optional', 'Optional')}</span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -755,7 +911,31 @@ export default function MovieUpload() {
           </div>
         </div>
 
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label className="block text-lg font-medium mb-2">{t('upload.releaseRegions', 'Release Regions')}</label>
+           
+            <SearchableDropdown
+              id="releaseRegions"
+              value={movieForm.releaseRegions}
+              onChange={(v) => setMovieForm(prev => ({ ...prev, releaseRegions: v }))}
+              suggestions={regionSuggestions}
+              placeholder={t('upload.releaseRegionsPlaceholder', 'e.g., United States, United Kingdom')}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-lg font-medium mb-2">{t('upload.sourceProvider', 'Source Provider')}</label>
+            <input
+              type="text"
+              required
+              value={movieForm.sourceProvider}
+              onChange={(e) => setMovieForm(prev => ({ ...prev, sourceProvider: e.target.value }))}
+              className="w-full px-4 py-3 border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              placeholder={t('upload.sourceProviderPlaceholder', 'e.g., Warner Bros, Marvel Studios')}
+            />
+          </div>
+        </div>
 
         {renderProgressBar()}
 

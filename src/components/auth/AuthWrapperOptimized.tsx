@@ -82,7 +82,7 @@ export default function AuthWrapperOptimized({ children }: AuthWrapperOptimizedP
     const fetchAvatar = async () => {
       if (user) {
         let avatar = user.avatar || '';
-        if (user.avatar && !user.avatar.startsWith('http')) {
+        if (user.avatar && !user.avatar.startsWith('http') && !user.avatar.startsWith('data')) {
           // fetch full URL from upload API
           const imageUrl = await getImageById(user.avatar, '360')
           avatar = imageUrl.url || '';

@@ -70,7 +70,7 @@ export default function BaseLayout({
           href: "/profileempty",
           icon: <FiUser className="h-6 w-6" />,
           highlight: pathname === '/profileempty' || pathname === '/profileempty/' ,
-          label: t('profile.me')
+          label: t('navigation.profile')
         }
       ];
     }
@@ -92,7 +92,7 @@ export default function BaseLayout({
       href: "/profile",
       icon: null, // Will be handled specially in BottomTabBar
       highlight: pathname === '/profile' || (pathname?.startsWith?.('/profile/') ?? false),
-      label: t('profile.me') || displayName.split(' ')[0]
+      label: t('navigation.profile') //  || displayName.split(' ')[0]
     });
 
     return protectedItems;

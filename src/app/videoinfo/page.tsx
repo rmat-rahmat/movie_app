@@ -201,7 +201,7 @@ const VideoInfoPage: React.FC = () => {
             </div>
 
             {/* Tags */}
-            {videoDetails.tags && videoDetails.tags.length > 0 && (
+            {Array.isArray(videoDetails.tags) && videoDetails.tags.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold mb-3">{t('videoInfo.tags', 'Tags')}</h3>
                 <div className="flex flex-wrap gap-2">

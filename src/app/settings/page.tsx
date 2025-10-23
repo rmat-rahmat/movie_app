@@ -4,9 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import { useAuthStore } from '@/store/authStore';
-import Image from 'next/image';
-import { getImageById, initializeImageUpload, uploadFile } from '@/lib/uploadAPI';
-import { } from '@/lib/uploadAPI';
+import NextImage from 'next/image';
+import { getImageById, directImageUpload } from '@/lib/uploadAPI';
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation('common');
@@ -57,7 +56,7 @@ export default function SettingsPage() {
     const populateForm = async () => {
       if (user) {
         let avatarUrl = user.avatar || '';
-        if (user.avatar && !user.avatar.startsWith('http')) {
+        if (user.avatar && !user.avatar.startsWith('http') && !user.avatar.startsWith('data')) {
           // fetch full URL from upload API
           const imageUrl = await getImageById(user.avatar, '360');
           // guard against undefined and provide empty string fallback
@@ -123,18 +122,49 @@ export default function SettingsPage() {
       // if avatarFileRef has a File (not a data URL string), upload it first
       if (avatarFileRef.current) {
         try {
-          const init = await initializeImageUpload({
-            fileName: avatarFileRef.current.name,
-            contentType: avatarFileRef.current.type || 'image/jpeg',
-            fileSize: avatarFileRef.current.size,
-            totalParts: 1,
-            imageType: 'avatar',
-          });
+            // determine exact image dimensions before upload
+            let sizeStr = '800x600';
+            try {
+            const file = avatarFileRef.current!;
+            let width = 800;
+            let height = 600;
 
-          await uploadFile(avatarFileRef.current, { uploadId: init.uploadId, key: init.key }, (p) => {
-            // optional: integrate into uploadProgress
-          });
-          if (init?.id) payload.avatar = init.id;
+            // Prefer createImageBitmap when available
+            if (typeof createImageBitmap === 'function') {
+              const bitmap = await createImageBitmap(file);
+              width = bitmap.width;
+              height = bitmap.height;
+              bitmap.close?.();
+            } else {
+              // Fallback to Image element
+              const objectUrl = URL.createObjectURL(file);
+              const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+              const i = new Image();
+              i.onload = () => resolve(i);
+              i.onerror = reject;
+              i.src = objectUrl;
+              });
+              width = img.naturalWidth || img.width;
+              height = img.naturalHeight || img.height;
+              URL.revokeObjectURL(objectUrl);
+            }
+
+            sizeStr = `${width}x${height}`;
+            } catch (err) {
+            console.warn('Could not determine image size, using fallback 800x600', err);
+            }
+
+            const uploadResult = await directImageUpload(
+            avatarFileRef.current,
+            'avatars',
+            'Public',
+            sizeStr
+            );
+          
+          // Set the avatar to the returned image URL
+          if (uploadResult?.imageUrl) {
+            payload.avatar = uploadResult.imageUrl;
+          }
         } catch (imgErr) {
           console.error('Avatar upload failed', imgErr);
         }
@@ -256,7 +286,7 @@ export default function SettingsPage() {
             </div>
             <div className="relative flex order-first md:order-last justify-center items-center flex-col">
               {form.avatar ? (
-                <Image onClick={() => fileInputRef.current?.click()} src={form.avatar} alt={form.nickname || "avatar"} width={30} height={30} className="w-30 h-30 lg:w-50 lg:h-50 rounded-full mr-2 object-cover cursor-pointer" />
+                <NextImage onClick={() => fileInputRef.current?.click()} src={form.avatar} alt={form.nickname || "avatar"} width={30} height={30} className="w-30 h-30 lg:w-50 lg:h-50 rounded-full mr-2 object-cover cursor-pointer" />
               ) : (
                 <div onClick={() => fileInputRef.current?.click()} className="h-30 w-30 mr-2 rounded-full bg-[#fbb033] text-black flex items-center justify-center font-semibold text-7xl cursor-pointer">
                   {form.nickname ? form.nickname.split(' ')

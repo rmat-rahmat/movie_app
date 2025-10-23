@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FiHome, FiLogIn, FiUpload } from "react-icons/fi";
+import { FiHome, FiLogIn, FiUpload, FiUser } from "react-icons/fi";
 import Image from "next/image";
 import { useTranslation } from 'react-i18next';
 import { usePathname } from 'next/navigation';
@@ -55,9 +55,10 @@ export default function BottomTabBar({
                   className={`rounded-full w-7 h-7 mb-1 object-cover ${item.highlight ? 'ring-2 ring-[#fbb033]' : ''} `}
                 />
               ) : (
-                <div className="h-6 w-6 mb-1 rounded-full bg-[#fbb033] flex items-center justify-center font-semibold text-sm">
-                  {initials}
-                </div>
+                <FiUser className={`h-6 w-6 mb-1 ${item.highlight ? 'text-[#fbb033]' : ''}`} />
+                // <div className="h-6 w-6 mb-1 rounded-full bg-[#fbb033] flex items-center justify-center font-semibold text-sm">
+                //   {initials}
+                // </div>
               )}
               <span className="text-xs">{item.label}</span>
             </>

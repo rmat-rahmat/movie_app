@@ -1,4 +1,5 @@
 // Types for live dashboard API
+
 export interface DashboardItem {
   id: string;
   title: string;
@@ -18,7 +19,7 @@ export interface DashboardItem {
   director?: string | null;
   actors?: string[];
   rating?: number | null;
-  tags?: string[];
+  tags?: string | string[] | Record<string, string>;
   isSeries?: boolean;
   seriesId?: string | null;
   seasonNumber?: number | null;
@@ -35,6 +36,16 @@ export interface ImageItem {
   p360: string;
   p720: string;
   url?: string;
+}
+
+export interface BannerVO {
+  title: string;
+  imageUrl: string;
+  type: number; // 1-PC端，2-移动端
+  linkType: number; // 1-内链（视频详情），2-外链
+  videoId?: string; // 内链：视频ID
+  externalUrl?: string; // 外链：外部链接地址
+  sortOrder: number; // 排序权重
 }
 
 export interface categoryLangLabel {

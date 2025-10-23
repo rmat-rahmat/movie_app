@@ -135,7 +135,7 @@ export const useAuthStore = create<AuthState>()(
         try {
         set({ isLoading: true, error: null });
         const response = await apiLogin(email, password, form);
-         if (response?.user?.avatar && typeof response.user.avatar === 'string' && !response.user.avatar.startsWith('http')) {
+         if (response?.user?.avatar && typeof response.user.avatar === 'string' && !response.user.avatar.startsWith('http')&& !response.user.avatar.startsWith('data')) {
             const avatarUrl = await getImageById(response.user.avatar, '360');
             response.user.avatar = avatarUrl?.url ?? '';
           }
@@ -226,7 +226,7 @@ export const useAuthStore = create<AuthState>()(
           // Use API helper that restores headers if needed
           const response = await apiIsLogin();
           console.log("checkAuth response:", response);
-          if (response?.user?.avatar && typeof response.user.avatar === 'string' && !response.user.avatar.startsWith('http')) {
+          if (response?.user?.avatar && typeof response.user.avatar === 'string' && !response.user.avatar.startsWith('http')&& !response.user.avatar.startsWith('data')) {
             const avatarUrl = await getImageById(response.user.avatar, '360');
             response.user.avatar = avatarUrl?.url ?? '';
           }
@@ -291,7 +291,7 @@ export const useAuthStore = create<AuthState>()(
           // Use API helper that restores headers if needed
           const response = await apiIsLogin();
           console.log("checkAuth response:", response);
-          if (response?.user?.avatar && typeof response.user.avatar === 'string' && !response.user.avatar.startsWith('http')) {
+          if (response?.user?.avatar && typeof response.user.avatar === 'string' && !response.user.avatar.startsWith('http') && !response.user.avatar.startsWith('data')) {
             const avatarUrl = await getImageById(response.user.avatar, '360');
             response.user.avatar = avatarUrl?.url ?? '';
           }

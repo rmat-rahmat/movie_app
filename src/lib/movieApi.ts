@@ -3,7 +3,7 @@ import { parseStringPromise } from 'xml2js';
 import axios from 'axios';
 import { BASE_URL } from '../config';
 import type { VideoSrc } from "@/types/VideoSrc";
-import type { DashboardApiResponse, DashboardItem, CategoryItem, VideosApiResponse, SearchApiResponse, RecommendationApiResponse } from '@/types/Dashboard';
+import type { DashboardApiResponse, DashboardItem, CategoryItem, VideosApiResponse, SearchApiResponse, RecommendationApiResponse, BannerVO } from '@/types/Dashboard';
 import { parseJsonFile } from "next/dist/build/load-jsconfig";
 import i18next, { t } from 'i18next';
 
@@ -1138,3 +1138,27 @@ export async function resetPassword(data: ResetPasswordRequest): Promise<ResetPa
     };
   }
 }
+
+/**
+ * Get banner list by type and quality
+ * @param type - Banner type: 1=PC, 2=Mobile
+ * @param quality - Image quality: 144/360/720, default 720
+ * @returns Promise with banner list
+ */
+export const getBannerList = async (type: number = 1, quality: string = '720'): Promise<BannerVO[]> => {
+  try {
+    const response = await axios.get(`${BASE_URL}/api-movie/v1/banner/list`, {
+      params: { type, quality }
+    });
+
+    if (response.data?.success && Array.isArray(response.data?.data)) {
+      return response.data.data as BannerVO[];
+    }
+
+    console.warn('Banner list returned empty or invalid data');
+    return [];
+  } catch (error) {
+    console.error('Error fetching banner list:', error);
+    return [];
+  }
+};

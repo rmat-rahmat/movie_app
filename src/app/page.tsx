@@ -1,19 +1,20 @@
 'use client';
 
-import { getDashboard } from "@/lib/movieApi";
+import { getDashboard, getBannerList } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/ui/LoadingPage";
-import type { DashboardItem, ContentSection } from '@/types/Dashboard';
+import type { DashboardItem, ContentSection, BannerVO } from '@/types/Dashboard';
 import SubscriptionSection from "@/components/subscription/SubscriptionSection";
 import { allCategories } from "@/lib/categoryList";
 import { useAuthStore } from "@/store/authStore";
 import DashboardSection from "@/components/movie/DashboardSection";
-import DashboardSlider from "@/components/movie/DashboardSlider";
+import BannerSlider from "@/components/movie/BannerSlider";
 import { getCategoryList,getCategoryTree,type CategoryItem} from "@/lib/movieApi";
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 
 
 export default function Home() {
+  const [banners, setBanners] = useState<BannerVO[]>([]);
   const [headerMovies, setHeaderMovies] = useState<DashboardItem[]>([]);
   const [isloading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>(allCategories);
@@ -27,14 +28,32 @@ export default function Home() {
   useEffect(() => {
     fetchCategories();
     fetchMovies();
+    fetchBanners();
   }, []);
+
+  // Fetch banners from API
+  const fetchBanners = async () => {
+    try {
+      // Detect if mobile or desktop (1=PC, 2=Mobile)
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      const bannerType = isMobile ? 2 : 1;
+      
+      const fetchedBanners = await getBannerList(bannerType, '720');
+      if (fetchedBanners && Array.isArray(fetchedBanners)) {
+        console.log("Fetched Banners:", fetchedBanners);
+        setBanners(fetchedBanners);
+      }
+    } catch (error) {
+      console.error("Error fetching banners:", error);
+    }
+  };
 
   // Fetch categories from API
   const fetchCategories = async () => {
     try {
       const fetchedCategories = await getCategoryTree();
       if (fetchedCategories && Array.isArray(fetchedCategories)) {
-        setCategoryList([{id:"All",categoryLangLabel:{"en":"All"}},...fetchedCategories]);
+        setCategoryList([{id:"All",categoryLangLabel:{"en":"All","zh":"所有","ms":"Semua","de":"Alle","fr":"Tous","ru":"Все"}},...fetchedCategories]);
         // Map category IDs to names
         const idToNameMap: Record<string, string> = {};
         fetchedCategories.forEach(cat => {
@@ -70,10 +89,22 @@ export default function Home() {
       const featured = Array.isArray(dashboard.data.featuredContent) ? dashboard.data.featuredContent : [];
       const originalSections = Array.isArray(dashboard.data.contentSections) ? dashboard.data.contentSections : [];
 
-      setHeaderMovies(featured);
-      console.log(originalSections);
-      setSections(originalSections);
-      setAllSections(originalSections); // Store original sections for filtering
+      // Convert featured content (header movies) into a section
+      const featuredSection: ContentSection = {
+        id: 'featured-content',
+        title: 'Featured Content',
+        contents: featured,
+        hasMore: false
+      };
+
+      // Add featured section at the beginning if it has content
+      const allSectionsWithFeatured = featured.length > 0 
+        ? [featuredSection, ...originalSections]
+        : originalSections;
+
+      console.log(allSectionsWithFeatured);
+      setSections(allSectionsWithFeatured);
+      setAllSections(allSectionsWithFeatured); // Store original sections for filtering
 
       // derive categories from dashboard response, fallback to existing list
       const dashboardCategories = Array.isArray(dashboard.data.categories) ? dashboard.data.categories : [];
@@ -117,8 +148,16 @@ export default function Home() {
           // Check if item matches the selected category
           const matchesCategoryId = item.categoryId === selectedCategory;
           const matchesCategoryName = item.categoryId && categoryMap[item.categoryId] === selectedCategory;
-          const matchesTags = item.tags?.includes(selectedCategory);
-          const matchesTagsCaseInsensitive = item.tags?.some(tag => tag.toLowerCase() === selectedCategory.toLowerCase());
+          
+          // Safely handle tags which can be string, string[], or object
+          const tagsArray = Array.isArray(item.tags) 
+            ? item.tags 
+            : typeof item.tags === 'string' 
+              ? [item.tags] 
+              : [];
+          const matchesTags = tagsArray.includes(selectedCategory);
+          const matchesTagsCaseInsensitive = tagsArray.some((tag: string) => tag.toLowerCase() === selectedCategory.toLowerCase());
+          
           const matchesTitle = item.title?.toLowerCase().includes(selectedCategory.toLowerCase());
           const matchesDescription = item.description?.toLowerCase().includes(selectedCategory.toLowerCase());
           
@@ -174,13 +213,14 @@ export default function Home() {
                 <button
                   key={cat.id}
                   onClick={() => {
+                    console.log(selectedCategory, (cat));
                     if(cat.id==="All"){
                       return;
                     }
                     location.href = `/category/${cat.categoryAlias}`
                     // setSelectedCategory(getLocalizedCategoryName(cat) === selectedCategory ? null : getLocalizedCategoryName(cat)||"All")
                   }}
-                  className={` md:text-xl mx-1 px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-full hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory === getLocalizedCategoryName(cat)
+                  className={` md:text-xl mx-1 px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-full hover:scale-105 transition-transform duration-300 cursor-pointer ${selectedCategory ===cat.id
                     ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"
                     : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] hover:text-white transition-colors duration-300"
                     }`}
@@ -203,9 +243,9 @@ export default function Home() {
       {isloading ? <LoadingPage /> :
         <>
           <MovieCategoryFilter display="mobile" categories={categories} />
-          <DashboardSlider videos={headerMovies} />
-          {/* Fallback UI when dashboard returned empty featured content and no sections */}
-          {!isloading && headerMovies.length === 0 && sections.length === 0 && (
+          <BannerSlider banners={banners} />
+          {/* Fallback UI when dashboard returned empty banners and no sections */}
+          {!isloading && banners.length === 0 && sections.length === 0 && (
             <div className="py-12 px-4 text-center w-full">
               <p className="text-gray-300 text-lg mb-4">No content available right now. We may be updating the catalogue.</p>
               <div className="flex justify-center gap-3">

@@ -36,9 +36,11 @@ export default function SeriesUpload() {
   const [episodePreviewUrlList, setEpisodePreviewUrlList] = useState<string[]>([]);
   const [seriesPreviewIndex, setSeriesPreviewIndex] = useState<number>(0);
   const [seriesCoverPreviewUrl, setSeriesCoverPreviewUrl] = useState<string | null>(null);
+  const [seriesLandscapePreviewUrl, setSeriesLandscapePreviewUrl] = useState<string | null>(null);
   const [unsupportedFormatsMsg, setUnsupportedFormatsMsg] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isUploadingLandscape, setIsUploadingLandscape] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ progress: 0, status: 'idle' as 'idle' | 'uploading' | 'success' | 'error', error: '' });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [uploadedSeriesId, setUploadedSeriesId] = useState<string | null>(null);
@@ -53,12 +55,16 @@ export default function SeriesUpload() {
     description: string;
     customCoverUrl: string;
     coverFile: File | null;
+    landscapeFile?: File | null;
     categoryId: string;
     year: number;
     region: string;
     language: string;
     director: string;
     actors: string;
+    landscapeThumbnailUrl?: string;
+    releaseRegions?: string;
+    sourceProvider?: string;
     rating: number | null;
     tags: string[];
     seasonNumber: number;
@@ -77,6 +83,10 @@ export default function SeriesUpload() {
     language: '',
     director: '',
     actors: '',
+    landscapeThumbnailUrl: '',
+  landscapeFile: null,
+    releaseRegions: '',
+    sourceProvider: '',
     rating: 0,
     tags: [],
     seasonNumber: 1,
@@ -100,10 +110,10 @@ export default function SeriesUpload() {
           getRegionList('', 1, 200),
           getLanguageList('', '', 1, 200)
         ]);
-        if (Array.isArray(dirs)) setDirectorSuggestions(dirs.slice(0, 100));
-        if (Array.isArray(acts)) setActorSuggestions(acts.slice(0, 200));
-        if (Array.isArray(regs)) setRegionSuggestions(regs.slice(0, 200));
-        if (Array.isArray(langs)) setLanguageSuggestions(langs.slice(0, 200));
+        if (Array.isArray(dirs)) setDirectorSuggestions(dirs.slice(1, 100));
+        if (Array.isArray(acts)) setActorSuggestions(acts.slice(1, 200));
+        if (Array.isArray(regs)) setRegionSuggestions(regs.slice(1, 200));
+        if (Array.isArray(langs)) setLanguageSuggestions(langs.slice(1, 200));
       } catch (e) {
         console.warn('Failed to preload suggestions', e);
       }
@@ -197,6 +207,29 @@ export default function SeriesUpload() {
     } catch { }
   };
 
+  const handleLandscapeFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files?.length) return;
+    const file = files[0];
+
+    // store file in form state
+    setSeriesForm(prev => ({ ...prev, landscapeFile: file }));
+    try {
+      const url = URL.createObjectURL(file);
+      if (seriesLandscapePreviewUrl) URL.revokeObjectURL(seriesLandscapePreviewUrl);
+      setSeriesLandscapePreviewUrl(url);
+    } catch { }
+  };
+
+  const clearLandscapeFile = () => {
+    if (seriesLandscapePreviewUrl) try { URL.revokeObjectURL(seriesLandscapePreviewUrl); } catch { }
+    setSeriesLandscapePreviewUrl(null);
+    setSeriesForm(prev => ({ ...prev, landscapeFile: null }));
+
+    const input = document.getElementById('series-landscape-file') as HTMLInputElement;
+    if (input) input.value = '';
+  };
+
   const clearCoverFile = () => {
     if (seriesCoverPreviewUrl) try { URL.revokeObjectURL(seriesCoverPreviewUrl); } catch { }
     setSeriesCoverPreviewUrl(null);
@@ -273,6 +306,7 @@ export default function SeriesUpload() {
     try {
       // If user selected a local cover file, upload it first and set customCoverUrl
       let coverUrl = '';
+  let landscapeId = '';
       if (seriesForm.coverFile) {
         try {
           setIsUploadingCover(true);
@@ -303,6 +337,29 @@ export default function SeriesUpload() {
         }
 
       }
+      // If user selected a landscape thumbnail file, upload it the same way and set landscapeThumbnailUrl
+      if (seriesForm.landscapeFile) {
+        try {
+          setIsUploadingLandscape(true);
+          const lInit = await initializeImageUpload({
+            fileName: seriesForm.landscapeFile.name,
+            contentType: seriesForm.landscapeFile.type || 'image/jpeg',
+            fileSize: seriesForm.landscapeFile.size,
+            totalParts: 1,
+            imageType: 'landscape',
+          });
+
+          await uploadFile(seriesForm.landscapeFile, { uploadId: lInit.uploadId, key: lInit.key }, (p) => {});
+          if (lInit?.id) {
+            setSeriesForm(prev => ({ ...prev, landscapeThumbnailUrl: lInit.id || '' }));
+            landscapeId = lInit.id;
+          }
+        } catch (landErr) {
+          console.error('Landscape upload failed', landErr);
+        } finally {
+          setIsUploadingLandscape(false);
+        }
+      }
       // console.log('Cover URL after upload:', coverUrl);
       // console.log('Final series form before submission', seriesForm);
 
@@ -312,12 +369,15 @@ export default function SeriesUpload() {
         // The API accepts a customCoverUrl string. If the user selected a local file (coverFile)
         // we currently don't have an upload endpoint here, so only send customCoverUrl when present.
         customCoverUrl: seriesForm.customCoverUrl || coverUrl,
+        landscapeThumbnailUrl: landscapeId || undefined,
         categoryId: seriesForm.categoryId,
         year: seriesForm.year,
         region: seriesForm.region || undefined,
         language: seriesForm.language || undefined,
         director: seriesForm.director || undefined,
         actors: seriesForm.actors || undefined,
+        releaseRegions: seriesForm.releaseRegions || undefined,
+        sourceProvider: seriesForm.sourceProvider || undefined,
         rating: seriesForm.rating || 0,
         tags: seriesForm.tags.length > 0 ? seriesForm.tags : undefined,
         seasonNumber: seriesForm.seasonNumber,
@@ -515,18 +575,46 @@ export default function SeriesUpload() {
           </select>
         </div>
         <div className="grid grid-cols-1 gap-6 mb-6">
-          <label className="block text-lg font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover Image')}</label>
-          <div className="flex items-center gap-4">
-            <input type="file" accept="image/*" id="series-cover-file" onChange={handleCoverFileSelect} className="visually-hidden opacity-0 absolute" required />
-            <label htmlFor="series-cover-file" className="px-4 py-3  border border-[#fbb033] rounded-3xl cursor-pointer text-white">{t('uploadForm.selectCoverFile', 'Choose Image')}</label>
-            {seriesCoverPreviewUrl ? (
-              <div className="flex items-center gap-3">
-                <img src={seriesCoverPreviewUrl} alt="cover preview" className="w-28 h-16 object-cover rounded" />
-                <button type="button" onClick={clearCoverFile} className="px-3 py-2 bg-red-600 rounded text-white">{t('uploadForm.clearCover', 'Remove')}</button>
+          <label className="block text-lg font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover')}</label>
+          <div className="flex flex-1 justify-around gap-6">
+            {/* Portrait / Cover */}
+            <div className="flex items-center justify-center gap-3">
+              <label className="block text-lg font-medium mb-2">{t('uploadForm.portrait', 'Portrait')}</label>
+
+              <input type="file" accept="image/*" id="series-cover-file" onChange={handleCoverFileSelect} className="visually-hidden opacity-0 absolute" required />
+             {!seriesCoverPreviewUrl && <label htmlFor="series-cover-file" className="flex flex-col items-center px-4 py-3  border border-[#fbb033] rounded-3xl cursor-pointer text-white">
+                <span className="text-sm">{t('uploadForm.selectCoverFile', 'Choose Portrait')}</span>
+              </label>}
+              <div className="flex flex-col items-center gap-2">
+                {seriesCoverPreviewUrl ? (
+                  <>
+                    <img src={seriesCoverPreviewUrl} alt="cover preview" className="w-24 h-36 object-cover rounded" />
+                    <button type="button" onClick={clearCoverFile} className="px-3 py-2 bg-red-600 rounded text-white text-sm">{t('uploadForm.clearCover', 'Remove')}</button>
+                  </>
+                ) : (
+                  <span className="text-sm text-gray-400">{t('upload.noCoverSelected', 'No portrait selected')}</span>
+                )}
               </div>
-            ) : (
-              <span className="text-sm text-gray-400">{t('upload.noCoverSelected', 'No cover selected. You may also paste an external URL into the customCoverUrl field later if needed.')}</span>
-            )}
+            </div>
+
+            {/* Landscape */}
+            <div className="flex items-center justify-center gap-3">
+              <label className="block text-lg font-medium mb-2">{t('uploadForm.landscape', 'Landscape')}</label>
+              <input type="file" accept="image/*" id="series-landscape-file" onChange={handleLandscapeFileSelect} className="visually-hidden opacity-0 absolute" />
+             {!seriesLandscapePreviewUrl && <label htmlFor="series-landscape-file" className="flex flex-col items-center px-4 py-3  border border-[#fbb033] rounded-3xl cursor-pointer text-white">
+                <span className="text-sm">{t('uploadForm.selectCoverFile', 'Choose Landscape')}</span>
+              </label>}
+              <div className="flex flex-col items-center gap-2">
+                {seriesLandscapePreviewUrl ? (
+                  <>
+                    <img src={seriesLandscapePreviewUrl} alt="landscape preview" className="w-48 h-28 object-cover rounded" />
+                    <button type="button" onClick={clearLandscapeFile} className="px-3 py-2 bg-red-600 rounded text-white text-sm">{t('uploadForm.clearCover', 'Remove')}</button>
+                  </>
+                ) : (
+                  <span className="text-sm text-gray-400">{t('upload.landscapeThumbnailHint', 'Optional horizontal thumbnail')}</span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -592,6 +680,35 @@ export default function SeriesUpload() {
               onChange={(v) => setSeriesForm(prev => ({ ...prev, language: v }))}
               suggestions={languageSuggestions}
               placeholder={t('upload.languagePlaceholder', 'e.g., English, Mandarin, etc.')}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          
+
+          <div>
+            <label className="block text-lg font-medium mb-2">{t('upload.sourceProvider', 'Source Provider')}</label>
+            <input
+              type="text"
+              required
+              value={seriesForm.sourceProvider || ''}
+              onChange={(e) => setSeriesForm(prev => ({ ...prev, sourceProvider: e.target.value }))}
+              className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+              placeholder={t('upload.sourceProvider', 'e.g., HBO')}
+            />
+          </div>
+
+          <div>
+            <label className="block text-lg font-medium mb-2">{t('upload.releaseRegions', 'Release Regions')}</label>
+           
+             <SearchableDropdown
+              id="releaseRegions"
+              value={seriesForm.releaseRegions|| ''}
+              onChange={(v) => setSeriesForm(prev => ({ ...prev, releaseRegions: v }))}
+              suggestions={regionSuggestions}
+              placeholder={t('upload.releaseRegionsPlaceholder', 'e.g., United States, United Kingdom')}
               required
             />
           </div>

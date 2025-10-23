@@ -1,18 +1,20 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
-import { getPlayMain, getPlaybackUrl } from '@/lib/movieApi';
+import { getPlayMain, getPlaybackUrl, recordWatchHistory, getLastWatchPosition, toggleFavorite, checkFavorite, toggleVideoLike, checkVideoLike } from '@/lib/movieApi';
 import Hls from 'hls.js';
 import { BASE_URL } from '@/config';
 import { useVideoStore } from '@/store/videoStore';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'next/navigation';
 import { FiPlay } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle, FiThumbsUp } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { formatDuration } from '@/utils/durationUtils';
 import LoadingPage from '@/components/ui/LoadingPage';
 import { type BufferAppendedData } from 'hls.js';
 import StarRating from '@/components/ui/StarRating';
 import RecommendationGrid from '@/components/movie/RecommendationGrid';
+import CommentSection from '@/components/comment/CommentSection';
 
 
 interface VideoPlayerClientProps {
@@ -23,6 +25,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   // For static export, read id from URL params client-side
   const searchParams = useSearchParams();
   const urlId = searchParams.get('id');
+  const m3u8Url = searchParams.get('m3u8');
   const id = propId || urlId || '';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +37,21 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const [currentlyPlayingQuality, setCurrentlyPlayingQuality] = useState<number>(-1);
   const [calcDuration, setCalcDuration] = useState<number>(0);
   const [tOffset, setTOffset] = useState<number>(0);
+  const watchIntervalRef = useRef<number | null>(null);
+  const sessionWatchTimeRef = useRef<number>(0); // seconds accumulated this session
+  const hasSeekedRef = useRef<boolean>(false);
+  
+  // Favorite state
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
+  
+  // Like state
+  const [isLiked, setIsLiked] = useState(false);
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
+  
+  // Comments state
+  const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
 
 
   const router = useRouter();
@@ -43,7 +61,15 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const { t } = useTranslation();
 
   useEffect(() => {
+    // If m3u8Url is provided, use it directly
+    if (m3u8Url) {
+      console.log('Loading video from direct m3u8 URL:', m3u8Url);
+      loadFromDirectM3u8(decodeURIComponent(m3u8Url));
+      return;
+    }
+    
     if (!id) return;
+    console.log('Loading video from uploadId:', id);
     let mounted = true;
     const fetchAll = async () => {
       setLoading(true);
@@ -91,7 +117,96 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
     fetchAll();
     return () => { mounted = false; };
-  }, [id]);
+  }, [id, m3u8Url]);
+
+  // Check favorite and like status when video loads
+  useEffect(() => {
+    if (!currentVideo?.id) return;
+    
+    const checkFavoriteStatus = async () => {
+      try {
+        const isFav = await checkFavorite(String(currentVideo.id));
+        setIsFavorited(isFav);
+      } catch (err) {
+        console.error('Failed to check favorite status:', err);
+      }
+    };
+
+    const checkLikeStatus = async () => {
+      try {
+        const liked = await checkVideoLike(String(currentVideo.id));
+        setIsLiked(liked);
+      } catch (err) {
+        console.error('Failed to check like status:', err);
+      }
+    };
+
+    checkFavoriteStatus();
+    checkLikeStatus();
+  }, [currentVideo?.id]);
+
+  // Periodically record watch history when playing
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
+    const sendRecord = async () => {
+      if (!videoEl) return;
+      const episode = currentVideo?.episodes?.find(ep => ep.uploadId === id );
+      console.log('Recording watch history for episode:', episode);
+      try {
+        const dto = {
+          mediaId: currentVideo?.id ? String(currentVideo.id) : String(id),
+          episodeId: episode?.id || id,
+          watchTime: Math.floor(sessionWatchTimeRef.current),
+          duration: Math.floor(calcDuration || videoEl.duration || 0),
+          progress: Math.floor(videoEl.currentTime || 0),
+          source: 'web'
+        };
+        // reset session counter after sending
+        await recordWatchHistory(dto);
+        sessionWatchTimeRef.current = 0;
+      } catch (_e) {
+        // ignore
+      }
+    };
+
+    const onPlay = () => {
+      // start counting watch time per second
+      if (watchIntervalRef.current) window.clearInterval(watchIntervalRef.current);
+      watchIntervalRef.current = window.setInterval(() => {
+        sessionWatchTimeRef.current += 1;
+      }, 1000);
+    };
+
+    const onPauseOrEnd = () => {
+      if (watchIntervalRef.current) {
+        window.clearInterval(watchIntervalRef.current);
+        watchIntervalRef.current = null;
+      }
+      // flush record
+      sendRecord().catch(() => {});
+    };
+
+    const onBeforeUnload = () => {
+      if (watchIntervalRef.current) window.clearInterval(watchIntervalRef.current);
+      // synchronous navigator.sendBeacon fallback could be used, but we'll try fetch
+      sendRecord().catch(() => {});
+    };
+
+    videoEl.addEventListener('play', onPlay);
+    videoEl.addEventListener('pause', onPauseOrEnd);
+    videoEl.addEventListener('ended', onPauseOrEnd);
+    window.addEventListener('beforeunload', onBeforeUnload);
+
+    return () => {
+      videoEl.removeEventListener('play', onPlay);
+      videoEl.removeEventListener('pause', onPauseOrEnd);
+      videoEl.removeEventListener('ended', onPauseOrEnd);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      if (watchIntervalRef.current) window.clearInterval(watchIntervalRef.current);
+    };
+  }, [id, currentVideo, calcDuration]);
 
 
   const loadFromMaster = (masterplaylist: string) => {
@@ -114,7 +229,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     if (Hls.isSupported()) {
       const hls = new Hls({
         xhrSetup: (xhr) => {
-          xhr.setRequestHeader('api-key', process.env.UPLOAD_API_KEY || '');
+          // xhr.setRequestHeader('api-key', process.env.UPLOAD_API_KEY || '');
         }
       });
 
@@ -132,6 +247,42 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         
         // Load duration information
         loadPlayTime();
+        // attempt resume: fetch last watch position and seek (once)
+        (async () => {
+          try {
+            if (!hasSeekedRef.current) {
+              const lastPos = await getLastWatchPosition(currentVideo?.id ? String(currentVideo.id) : String(id), id);
+              if (typeof lastPos === 'number' && !isNaN(lastPos) && lastPos > 0) {
+                // account for tOffset when seeking: stored progress is logical playhead (without offset),
+                // so add tOffset to map to media timeline
+                const seekTarget = lastPos + (tOffset || 0);
+                // wait for metadata/duration to be available
+                const waitForMeta = () => new Promise<void>((resolve) => {
+                  if (!videoElement) return resolve();
+                  if (!isNaN(videoElement.duration) && isFinite(videoElement.duration)) return resolve();
+                  const onLoaded = () => { videoElement.removeEventListener('loadedmetadata', onLoaded); resolve(); };
+                  videoElement.addEventListener('loadedmetadata', onLoaded);
+                });
+                await waitForMeta();
+                // clamp seekTarget
+                const maxSeek = (videoElement.duration && isFinite(videoElement.duration)) ? Math.max(0, videoElement.duration - 1) : seekTarget;
+                const finalSeek = Math.min(seekTarget, maxSeek);
+                if (!isNaN(finalSeek) && finalSeek > 0) {
+                  try {
+                    videoElement.currentTime = finalSeek;
+                    console.log('Resumed playback at', finalSeek, 'seconds (lastPos', lastPos, 'tOffset', tOffset, ')');
+                  } catch (e) {
+                    console.warn('Failed to set currentTime for resume', e);
+                  }
+                }
+                hasSeekedRef.current = true;
+              }
+            }
+          } catch (e) {
+            // ignore resume errors
+            console.warn('Resume fetch failed', e);
+          }
+        })();
       });
       hls.on(Hls.Events.LEVEL_SWITCHED, () => {
         setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
@@ -183,7 +334,121 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     }
 
     setLoading(false);
-  }
+  };
+
+  const loadFromDirectM3u8 = (m3u8DirectUrl: string) => {
+    if (!loading) setLoading(true);
+
+    const videoElement = videoRef.current;
+    if (!videoElement || !m3u8DirectUrl) return;
+
+    // Clean up existing HLS instance
+    if (hlsRef.current) {
+      try { hlsRef.current.destroy(); } catch (_e) { }
+      hlsRef.current = null;
+    }
+
+    console.log('Loading direct m3u8 URL:', m3u8DirectUrl);
+
+    if (Hls.isSupported()) {
+      const hls = new Hls({
+        xhrSetup: (xhr) => {
+          // Add any necessary headers here if needed
+        }
+      });
+
+      hlsRef.current = hls;
+      hls.loadSource(m3u8DirectUrl);
+      hls.attachMedia(videoElement);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        setAvailableQualities(hlsRef.current?.levels.map(({ height }) => `${height}p`) || []);
+        setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
+        
+        // Start playback
+        setIsPlaying(true);
+        videoElement.play().catch(console.error);
+        
+        // Load duration information
+        loadPlayTime();
+        
+        // Resume from last watch position if available
+        (async () => {
+          try {
+            if (!hasSeekedRef.current && currentVideo?.id) {
+              const lastPos = await getLastWatchPosition(String(currentVideo.id), id);
+              if (typeof lastPos === 'number' && !isNaN(lastPos) && lastPos > 0) {
+                const seekTarget = lastPos + (tOffset || 0);
+                const waitForMeta = () => new Promise<void>((resolve) => {
+                  if (videoElement.readyState >= 1) return resolve();
+                  const onLoadedMetadata = () => {
+                    videoElement.removeEventListener('loadedmetadata', onLoadedMetadata);
+                    resolve();
+                  };
+                  videoElement.addEventListener('loadedmetadata', onLoadedMetadata);
+                });
+                await waitForMeta();
+                const maxSeek = (videoElement.duration && isFinite(videoElement.duration)) ? Math.max(0, videoElement.duration - 1) : seekTarget;
+                const finalSeek = Math.min(seekTarget, maxSeek);
+                if (!isNaN(finalSeek) && finalSeek > 0) {
+                  videoElement.currentTime = finalSeek;
+                  console.log(`Resumed playback at ${finalSeek}s`);
+                }
+                hasSeekedRef.current = true;
+              }
+            }
+          } catch (e) {
+            console.warn('Resume fetch failed', e);
+          }
+        })();
+      });
+
+      hls.on(Hls.Events.LEVEL_SWITCHED, () => {
+        setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
+      });
+
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        console.error('HLS error:', data);
+        if (data.fatal) {
+          setError(`Playback error: ${data.details}`);
+        }
+      });
+
+      let local_tOffset = 0;
+      const getAppendedOffset = (eventName: string, bufferData: BufferAppendedData) => {
+        const { frag } = bufferData;
+        if (frag.type === 'main' && frag.sn !== 'initSegment' && frag.elementaryStreams.video) {
+          const { elementaryStreams } = frag;
+          local_tOffset = elementaryStreams ? elementaryStreams.video ? elementaryStreams.video.startPTS - frag.start : 0 : 0;
+          hls.off(Hls.Events.BUFFER_APPENDED, getAppendedOffset);
+          console.log('video timestamp offset:', local_tOffset);
+          
+          setTOffset(local_tOffset);
+          
+          if (videoElement.duration && !isNaN(videoElement.duration) && isFinite(videoElement.duration)) {
+            const calculatedDuration = Math.max(0, videoElement.duration - local_tOffset);
+            setCalcDuration(calculatedDuration);
+            console.log('Duration recalculated with offset:', calculatedDuration);
+          }
+        }
+      };
+      hls.on(Hls.Events.BUFFER_APPENDED, getAppendedOffset);
+
+    } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+      // Native HLS support (Safari)
+      videoElement.src = m3u8DirectUrl;
+      videoElement.addEventListener('loadedmetadata', () => {
+        setIsPlaying(true);
+        videoElement.play().catch(console.error);
+        loadPlayTime();
+      });
+    } else {
+      setError('HLS is not supported in this browser');
+    }
+
+    setLoading(false);
+  };
+
   const loadPlayTime = () => {
     if (videoRef.current) {
       const videoElement = videoRef.current;
@@ -236,6 +501,46 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     // }
   }
 
+  const handleToggleFavorite = async () => {
+    if (!currentVideo?.id) return;
+    
+    setIsFavoriteLoading(true);
+    try {
+      const result = await toggleFavorite(String(currentVideo.id));
+      if (result.success) {
+        setIsFavorited(result.isFavorited);
+      } else {
+        console.error('Failed to toggle favorite:', result.message);
+        alert(result.message || t('video.favoriteError', 'Failed to update favorite status'));
+      }
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+      alert(t('video.favoriteError', 'Failed to update favorite status'));
+    } finally {
+      setIsFavoriteLoading(false);
+    }
+  };
+
+  const handleToggleLike = async () => {
+    if (!currentVideo?.id) return;
+    
+    setIsLikeLoading(true);
+    try {
+      const result = await toggleVideoLike(String(currentVideo.id));
+      if (result.success) {
+        setIsLiked(result.isLiked);
+      } else {
+        console.error('Failed to toggle like:', result.message);
+        alert(result.message || t('video.likeError', 'Failed to update like status'));
+      }
+    } catch (err) {
+      console.error('Error toggling like:', err);
+      alert(t('video.likeError', 'Failed to update like status'));
+    } finally {
+      setIsLikeLoading(false);
+    }
+  };
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -252,8 +557,8 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     }
   }, []);
 
-  // Show fallback when no video ID is provided
-  if (!id) {
+  // Show fallback when no video ID or m3u8Url is provided
+  if (!id && !m3u8Url) {
     return (
       <div className="p-6 text-white">
         <h1 className="text-2xl font-bold mb-4">Video Player</h1>
@@ -313,12 +618,13 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
               </video>
 
               {/* Large centered play overlay when not playing */}
-              {/* {!isPlaying && (
+              {!isPlaying && (
                 <button
                   type="button"
                   aria-label={t('video.play')}
                   onClick={() => {
-                    playVideo();
+                    // playVideo();
+                    loadFromMaster(masterPlaylist || '');
                   }}
                   className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/25 transition-colors cursor-pointer"
                 >
@@ -328,7 +634,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     </svg>
                   </div>
                 </button>
-              )} */}
+              )}
               {loading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/25 transition-colors">
                   <LoadingPage message={t('video.loadingVideoPlayer')} className='relative bg-white/10 w-full h-full' />
@@ -340,15 +646,41 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
               <div className="grid mt-6 h-full w-full md:grid-cols-[70%_30%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
                 {/* Video Info Overlay */}
                 <div className="w-full">
-                  <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                    {currentVideo.title}
-                    {currentVideo.isSeries && currentVideo.currentEpisode && (
-                      <span className="text-xl md:text-2xl text-gray-300 ml-2">
-                        - Episode {currentVideo.currentEpisode.episodeNumber}
-                        {currentVideo.currentEpisode.episodeTitle && `: ${currentVideo.currentEpisode.episodeTitle}`}
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <h1 className="text-3xl md:text-4xl font-bold flex-1">
+                      {currentVideo.title}
+                      {currentVideo.isSeries && currentVideo.currentEpisode && (
+                        <span className="text-xl md:text-2xl text-gray-300 ml-2">
+                          - Episode {currentVideo.currentEpisode.episodeNumber}
+                          {currentVideo.currentEpisode.episodeTitle && `: ${currentVideo.currentEpisode.episodeTitle}`}
+                        </span>
+                      )}
+                    </h1>
+                    
+                    {/* Favorite Button */}
+                    <button
+                      onClick={handleToggleFavorite}
+                      disabled={isFavoriteLoading}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        isFavorited 
+                          ? 'bg-[#fbb033] text-black hover:bg-yellow-500' 
+                          : 'bg-gray-800 text-white hover:bg-gray-700'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      title={isFavorited ? t('video.removeFromFavorites', 'Remove from favorites') : t('video.addToFavorites', 'Add to favorites')}
+                    >
+                      <FiHeart 
+                        className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`}
+                      />
+                      <span className="hidden md:inline text-sm font-medium">
+                        {isFavoriteLoading 
+                          ? t('common.loading', 'Loading...') 
+                          : isFavorited 
+                            ? t('video.favorited', 'Favorited') 
+                            : t('video.addFavorite', 'Add to Favorites')
+                        }
                       </span>
-                    )}
-                  </h1>
+                    </button>
+                  </div>
 
                   <div className="flex flex-wrap items-center gap-4 mb-3">
                     {currentVideo.releaseDate && (
@@ -370,12 +702,62 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                         : currentVideo.description}
                     </p>
                   )}
+
+                  {/* Interaction Buttons */}
+                  <div className="flex items-center gap-4 mt-4">
+                    {/* Like Button */}
+                    <button
+                      onClick={handleToggleLike}
+                      disabled={isLikeLoading}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        isLiked
+                          ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      } disabled:opacity-50`}
+                    >
+                      <FiThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+                      <span className="text-sm font-medium">
+                        {isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')}
+                      </span>
+                    </button>
+
+                    {/* Comments Button */}
+                    <button
+                      onClick={() => setShowComments(!showComments)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        showComments
+                          ? 'bg-[#fbb033]/20 text-[#fbb033] hover:bg-[#fbb033]/30'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      }`}
+                    >
+                      <FiMessageCircle className="w-5 h-5" />
+                      <span className="text-sm font-medium">
+                        {t('comments.title', 'Comments')} {commentCount > 0 && `(${commentCount})`}
+                      </span>
+                    </button>
+
+                    {/* Favorite Button */}
+                    <button
+                      onClick={handleToggleFavorite}
+                      disabled={isFavoriteLoading}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        isFavorited
+                          ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      } disabled:opacity-50`}
+                    >
+                      <FiHeart className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
+                      <span className="text-sm font-medium">
+                        {isFavorited ? t('video.favorited', 'Favorited') : t('video.favorite', 'Favorite')}
+                      </span>
+                    </button>
+                  </div>
                 </div>
                 {/* Quality Selection */}
-                <div className="mt-4 mx-auto w-full">
+                {isPlaying && <div className="mt-4 mx-auto w-full">
                   <h3 className="text-lg font-semibold mb-2">{t('video.selectQuality')}</h3>
                   <div className="flex gap-2 flex-wrap">
-                    {availableQualities.map((quality, idx) => (
+                    { availableQualities.map((quality, idx) => (
                       <button
                         key={idx}
                         onClick={() => dynamicQualityChange(idx)}
@@ -391,7 +773,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                       </button>
                     ))}
                   </div>
-                </div>
+                </div>}
               </div>
             )}
           </div>
@@ -496,6 +878,18 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Comments Section */}
+        {currentVideo?.id && showComments && (
+          <div className="mt-8 w-full lg:w-[60vw] mx-auto">
+            <CommentSection
+              mediaId={String(currentVideo.id)}
+              mediaType={currentVideo.isSeries ? 'episode' : 'video'}
+              className="bg-gray-900/50 rounded-lg p-6"
+              onCommentCountChange={setCommentCount}
+            />
           </div>
         )}
 

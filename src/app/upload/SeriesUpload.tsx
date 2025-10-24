@@ -45,6 +45,8 @@ export default function SeriesUpload() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [uploadedSeriesId, setUploadedSeriesId] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [categorySuggestions, setCategorySuggestions] = useState<string[]>([]);
+  const [categoryNameToIdMap, setCategoryNameToIdMap] = useState<Map<string, string>>(new Map());
   const [languageSuggestions, setLanguageSuggestions] = useState<string[]>([]);
   const [directorSuggestions, setDirectorSuggestions] = useState<string[]>([]);
   const [actorSuggestions, setActorSuggestions] = useState<string[]>([]);
@@ -100,6 +102,29 @@ export default function SeriesUpload() {
     const cachedCategories = getCachedCategories();
     if (cachedCategories) {
       setCategories(cachedCategories);
+      
+      // Build category suggestions and name-to-id mapping
+      const suggestions: string[] = [];
+      const nameToIdMap = new Map<string, string>();
+      
+      cachedCategories.forEach(category => {
+        // If category has children, add only children (parent not selectable)
+        if (category.children && category.children.length > 0) {
+          category.children.forEach(child => {
+            const childName = getLocalizedCategoryName(child);
+            suggestions.push(childName);
+            nameToIdMap.set(childName, child.id);
+          });
+        } else {
+          // No children - add the category itself
+          const categoryName = getLocalizedCategoryName(category);
+          suggestions.push(categoryName);
+          nameToIdMap.set(categoryName, category.id);
+        }
+      });
+      
+      setCategorySuggestions(suggestions);
+      setCategoryNameToIdMap(nameToIdMap);
     }
     // preload director/actor/region/language suggestions
     (async () => {
@@ -192,6 +217,30 @@ export default function SeriesUpload() {
   const handleTagsChange = (tags: string[]) => {
     debugLog('Series tags changed', { tags });
     setSeriesForm(prev => ({ ...prev, tags }));
+  };
+
+  // Helper function to get category name from ID
+  const getCategoryNameFromId = (categoryId: string): string => {
+    if (!categoryId) return '';
+    // Search in categories (including children)
+    for (const category of categories) {
+      if (category.id === categoryId) {
+        return getLocalizedCategoryName(category);
+      }
+      if (category.children && category.children.length > 0) {
+        const child = category.children.find(c => c.id === categoryId);
+        if (child) {
+          return getLocalizedCategoryName(child);
+        }
+      }
+    }
+    return categoryId; // fallback to ID if not found
+  };
+
+  // Helper function to handle category selection by name
+  const handleCategoryChange = (categoryName: string) => {
+    const categoryId = categoryNameToIdMap.get(categoryName) || categoryName;
+    setSeriesForm(prev => ({ ...prev, categoryId }));
   };
 
   const handleCoverFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -542,37 +591,14 @@ export default function SeriesUpload() {
           <label htmlFor="category" className="block text-lg font-medium mb-2">
             {t('uploadForm.categoryLabel', 'Category')}
           </label>
-          <select
-            required
+          <SearchableDropdown
             id="category"
-            name="category"
-            value={seriesForm.categoryId}
-            onChange={(e) => setSeriesForm((prev) => ({ ...prev, categoryId: e.target.value }))}
-            className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
-          >
-            <option value="" disabled></option>
-            {categories.map((category) => {
-              // If category has children, render as an optgroup (parent not selectable)
-              if (category.children && category.children.length > 0) {
-                return (
-                  <optgroup key={category.id} label={getLocalizedCategoryName(category)}>
-                    {category.children.map((child) => (
-                      <option key={child.id} value={child.id}>
-                        {getLocalizedCategoryName(child)}
-                      </option>
-                    ))}
-                  </optgroup>
-                );
-              }
-
-              // No children - render as a normal selectable option
-              return (
-                <option key={category.id} value={category.id}>
-                  {getLocalizedCategoryName(category)}
-                </option>
-              );
-            })}
-          </select>
+            value={getCategoryNameFromId(seriesForm.categoryId)}
+            onChange={handleCategoryChange}
+            suggestions={categorySuggestions}
+            placeholder={t('uploadForm.categoryPlaceholder', 'Select category')}
+            required
+          />
         </div>
         <div className="grid grid-cols-1 gap-6 mb-6">
           <label className="block text-lg font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover')}</label>

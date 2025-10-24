@@ -181,6 +181,7 @@ export interface VideoDetails extends DashboardItem {
   imageQuality?: ImageItem | null;
   isSeries?: boolean;
   episodes?: Episode[];
+  likeCount?: number | null;
   totalEpisodes?: number | null;
   seasonNumber?: number | null;
   uploadId?: string | null;

@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/authStore';
 import Image from "next/image";
 import DashboardSection from "@/components/movie/DashboardSection";
 import { DashboardItem } from "@/types/Dashboard";
+import ProfileWrapper from "./ProfileWrapper";
 
 
 export default function Profile() {
@@ -33,12 +34,12 @@ export default function Profile() {
         if (!user) {
             // checkAuth().catch(() => {});
         }
-        console.log("user:",user)
+        console.log("user:", user)
 
         const fetchData = async () => {
             const listA = await getWatchHistoryList(1, 12, '480');
             setLastSeenVid(listA || []);
-            
+
             const uploads = await getUserUploadedVideos(1, 12, '480');
             setYourVideos(uploads || []);
 
@@ -47,92 +48,53 @@ export default function Profile() {
 
             const likes = await getVideoLikeList(1, 12, '480');
             setLikedVideos(likes || []);
-            
+
             setIsLoading(false);
         };
         fetchData();
     }, [user]);
 
     const maskUserID = (id: string | number | undefined) => {
-            if (id === undefined || id === null) return '';
-            const s = String(id);
-            if (s.length <= 4) return s;
-            return `${s.slice(0, 2)}***${s.slice(-2)}`;
-        }
-    
+        if (id === undefined || id === null) return '';
+        const s = String(id);
+        if (s.length <= 4) return s;
+        return `${s.slice(0, 2)}***${s.slice(-2)}`;
+    }
+
 
     return (
-        <>
-            {isloading || authLoading || !user ? <LoadingPage /> : <div className=" mx-auto overflow-hidden">
-                <div className="grid h-[40vh] md:h-[30vh] w-full md:grid-cols-[30%_70%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
-                    <div className="bg-black order-last md:order-first flex items-end md:pl-20 overflow-visible">
-                        <div className="flex items-center gap-4 p-4 min-w-[200%] z-1">
-                            <Image src={user?.avatar || '/fallback_poster/sample_poster.png'} alt={user?.nickname || "avatar"} width={30} height={30} className="w-30 h-30 lg:min-w-50 lg:min-h-50 rounded-full mr-2 object-cover" />
-                            <div className="flex flex-col">
-                                <h1 className="text-2xl font-bold">{user?.name || user?.nickname || maskUserID(user?.id)|| 'User'}</h1>
-                                <p className="text-gray-400 mb-2 w-[60vw] md:w-[40vw] pr-15">
-                                    {t('profile.welcome', { name: user?.name || user?.nickname || maskUserID(user?.id)|| 'User' })}
-                                </p>
-                                <div className="flex items-center gap-2 flex-col md:flex-row pr-15 md:pr-0">
-                                    {/* <button className="bg-[#fbb033] text-white px-4 py-2 rounded font-semibold w-full md:w-fit hover:bg-red-700 transition">
-                                        {`${t('profile.subscribeLabel') || 'Subscribe'} ${subscribersCount ? `(${formatSubscribers(Number(subscribersCount))})` : ''}`}
-                                    </button> */}
-                                    <Link href="/settings" className="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 w-full md:w-fit rounded font-medium hover:bg-gray-700 transition">
-                                        <FiSettings className="h-4 w-4" />
-                                        <span className="text-sm">{t('profile.settings') || 'Settings'}</span>
-                                    </Link>
-                                    <button className="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 w-full md:w-fit rounded font-medium hover:bg-gray-700 transition" onClick={() => useAuthStore.getState().logout()}>
-                                        <FiLogOut className="h-4 w-4" />
-                                        <span className="text-sm">{t('navigation.logout') || 'Logout'}</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="relative w-[full] bg-[#fbb033] order-first md:order-last flex items-center justify-center">
-                        {/* <video
-                            src="https://www.w3schools.com/html/mov_bbb.mp4"
-                            muted
-                            playsInline
-                            autoPlay
-                            loop
-                            controls={false}
-                            className="object-cover w-full h-full inset-0"
-                            style={{ width: "100%", height: "100%" }}
-                        /> */}
-                        <div className="absolute inset-0 h-full bg-gradient-to-t from-black via-black/30 to-black/30 md:bg-[radial-gradient(circle_at_60%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
-                        <div className="absolute inset-0 h-full md:bg-[radial-gradient(circle_at_70%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
-                    </div>
-                </div>
-                <div className="container min-h-[40vh] mx-auto px-4 py-8 mt-0">
-                    <DashboardSection
-                        onViewMore={undefined}
-                        title={t('profile.WatchHistory', 'Watch History')}
-                        videos={lastSeenVid || []}
-                        sectionOptionButton={{
-                            title: t('viewAll', 'View All'),
-                            icon: <FiChevronRight className="h-4 w-4" />,
-                            iconRight: true,
-                            onClick: () => { location.href = '/profile/history';
-                                // Clear watch history logic here
-                                // setLastSeenVid([]);
-                            }
-                        }}
-                    />
-                    <DashboardSection
-                        onViewMore={undefined}
-                        title={t('profile.Playlist', 'My Playlist')}
-                        videos={favorites || []}
-                        sectionOptionButton={{
-                            title: t('viewAll', 'View All'),
-                            icon: <FiChevronRight className="h-4 w-4" />,
-                            iconRight: true,
-                            onClick: () => {
-                                location.href = '/profile/favorites';
-                            }
-                        }}
-                    />
-                    <DashboardSection
+        <ProfileWrapper title={t('profile.profile', 'Profile')}>
+            {isloading || authLoading || !user ? <LoadingPage /> : <>
+
+                <DashboardSection
+                    onViewMore={undefined}
+                    title={t('profile.WatchHistory', 'Watch History')}
+                    videos={lastSeenVid || []}
+                    sectionOptionButton={{
+                        title: t('viewAll', 'View All'),
+                        icon: <FiChevronRight className="h-4 w-4" />,
+                        iconRight: true,
+                        onClick: () => {
+                            location.href = '/profile/history';
+                            // Clear watch history logic here
+                            // setLastSeenVid([]);
+                        }
+                    }}
+                />
+                <DashboardSection
+                    onViewMore={undefined}
+                    title={t('profile.Playlist', 'My Playlist')}
+                    videos={favorites || []}
+                    sectionOptionButton={{
+                        title: t('viewAll', 'View All'),
+                        icon: <FiChevronRight className="h-4 w-4" />,
+                        iconRight: true,
+                        onClick: () => {
+                            location.href = '/profile/favorites';
+                        }
+                    }}
+                />
+                {/* <DashboardSection
                         onViewMore={undefined}
                         title={t('profile.LikedVideos', 'Liked Videos')}
                         videos={likedVideos || []}
@@ -144,8 +106,8 @@ export default function Profile() {
                                 location.href = '/profile/likes';
                             }
                         }}
-                    />
-                    {/* <DashboardSection
+                    /> */}
+                {/* <DashboardSection
                         onViewMore={undefined}
                         title={t('profile.Playlist', 'Playlist')}
                         videos={playlists || []}
@@ -159,22 +121,22 @@ export default function Profile() {
                             }
                         }}
                     /> */}
-                    <DashboardSection
-                        onViewMore={undefined}
-                        title={t('profile.YourVideos', 'Your Videos')}
-                        videos={yourVideos || []}
-                        sectionOptionButton={{
-                            title: t('viewAll', 'View All'),
-                            icon: <FiChevronRight className="h-4 w-4" />,
-                            iconRight: true,
-                            onClick: () => {
-                                location.href = '/profile/your-videos';
-                            }
-                        }}
-                    />
-                    {/* View history */}
+                <DashboardSection
+                    onViewMore={undefined}
+                    title={t('profile.YourVideos', 'Your Videos')}
+                    videos={yourVideos || []}
+                    sectionOptionButton={{
+                        title: t('viewAll', 'View All'),
+                        icon: <FiChevronRight className="h-4 w-4" />,
+                        iconRight: true,
+                        onClick: () => {
+                            location.href = '/profile/your-videos';
+                        }
+                    }}
+                />
+                {/* View history */}
 
-                    {/* 
+                {/* 
                 <DashboardSection
                   key={sec.id || sec.title}
                   onViewMore={sec.hasMore ? () => location.href = `/viewmore/${sec.id}` : undefined}
@@ -182,12 +144,10 @@ export default function Profile() {
                   videos={sec.contents || []}
                 />
 
- */}
-
-                </div>
-            </div>
-            }
-        </>
+                    */}
+            
+            </>}
+        </ProfileWrapper>
     );
 }
 

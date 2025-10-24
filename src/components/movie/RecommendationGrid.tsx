@@ -237,11 +237,11 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
       )}
 
       {/* End of content indicator */}
-      {!hasMore && recommendations.length > 0 && (
+      {/* {!hasMore && recommendations.length > 0 && (
         <div className="text-center py-4">
           <p className="text-sm text-gray-400">{t('common.noMoreContent', 'No more content to load')}</p>
         </div>
-      )}
+      )} */}
 
       {/* Movie Modal */}
       {selectedMovieIndex !== null && recommendations[selectedMovieIndex] && (

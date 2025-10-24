@@ -15,6 +15,7 @@ import { type BufferAppendedData } from 'hls.js';
 import StarRating from '@/components/ui/StarRating';
 import RecommendationGrid from '@/components/movie/RecommendationGrid';
 import CommentSection from '@/components/comment/CommentSection';
+import { encryptUrl } from '@/utils/urlEncryption';
 
 
 interface VideoPlayerClientProps {
@@ -42,15 +43,15 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const sessionWatchTimeRef = useRef<number>(0); // seconds accumulated this session
   const hasSeekedRef = useRef<boolean>(false);
   const [actualUploadId, setActualUploadId] = useState<string>(''); // Store resolved uploadId from directId
-  
+
   // Favorite state
   const [isFavorited, setIsFavorited] = useState(false);
   const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
-  
+
   // Like state
   const [isLiked, setIsLiked] = useState(false);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
-  
+
   // Comments state
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
@@ -65,7 +66,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   // Effect to handle directId - fetch content details and resolve to uploadId
   useEffect(() => {
     if (!directId) return;
-    
+
     let mounted = true;
     const fetchContentAndResolve = async () => {
       setLoading(true);
@@ -73,24 +74,36 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       try {
         console.log('Fetching content details for directId:', directId);
         const contentDetails = await getContentDetail(directId);
-        
+
         if (!mounted) return;
-        
+
         if (!contentDetails) {
           throw new Error('Failed to fetch content details');
         }
 
         console.log('Content details fetched:', contentDetails);
-        
+
         // Determine the uploadId to use
         let uploadIdToUse = '';
 
-        if( contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].uploadId ) {
+        if (contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].uploadId) {
           // For series, use the first episode's uploadId
           uploadIdToUse = contentDetails.episodes[0].uploadId || '';
           console.log('Series detected, using first episode uploadId:', uploadIdToUse);
         }
-         else {
+        else if (contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].m3u8Url) {
+          const m3u8Url = contentDetails.episodes[0].m3u8Url || '';
+          console.log('M3U8 URL detected, using:', m3u8Url);
+          router.replace(`/videoplayer?m3u8=${encodeURIComponent(m3u8Url)}`);
+        }
+        else if (contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].playUrl) {
+          const playUrl = contentDetails.episodes[0].playUrl || '';
+          console.log('Play URL detected, using:', playUrl);
+          const encryptedUrl = encryptUrl(playUrl);
+          router.push(`/videoplayerExternal?url=${encodeURIComponent(encryptedUrl)}`);
+        }
+
+        else {
           throw new Error('No episode found in content details');
         }
         // } else if (contentDetails.uploadId) {
@@ -100,9 +113,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         // } else {
         //   throw new Error('No uploadId found in content details');
         // }
-        
+
         // Set the video details in store with the resolved uploadId
         setVideoFromDetails(contentDetails, uploadIdToUse);
+        console.log('Video details set in store with uploadId:', uploadIdToUse);
         setActualUploadId(uploadIdToUse);
       } catch (err) {
         if (!mounted) return;
@@ -124,10 +138,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       loadFromDirectM3u8(decodeURIComponent(m3u8Url));
       return;
     }
-    
+
     // Determine which ID to use: actualUploadId (from directId) or regular id
     const uploadIdToLoad = actualUploadId || id;
-    
+
     if (!uploadIdToLoad) return;
     console.log('Loading video from uploadId:', uploadIdToLoad);
     let mounted = true;
@@ -182,7 +196,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   // Check favorite and like status when video loads
   useEffect(() => {
     if (!currentVideo?.id) return;
-    
+
     const checkFavoriteStatus = async () => {
       try {
         const isFav = await checkFavorite(String(currentVideo.id));
@@ -209,7 +223,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   useEffect(() => {
     const videoEl = videoRef.current;
     if (!videoEl) return;
-    
+
     // Use actualUploadId if available (from directId), otherwise use id
     const currentUploadId = actualUploadId || id;
 
@@ -248,13 +262,13 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         watchIntervalRef.current = null;
       }
       // flush record
-      sendRecord().catch(() => {});
+      sendRecord().catch(() => { });
     };
 
     const onBeforeUnload = () => {
       if (watchIntervalRef.current) window.clearInterval(watchIntervalRef.current);
       // synchronous navigator.sendBeacon fallback could be used, but we'll try fetch
-      sendRecord().catch(() => {});
+      sendRecord().catch(() => { });
     };
 
     videoEl.addEventListener('play', onPlay);
@@ -303,11 +317,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setAvailableQualities(hlsRef.current?.levels.map(({ height }) => `${height}p`) || []);
         setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
-        
+
         // Start playback
         setIsPlaying(true);
         videoElement.play().catch(console.error);
-        
+
         // Load duration information
         loadPlayTime();
         // attempt resume: fetch last watch position and seek (once)
@@ -366,10 +380,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
           local_tOffset = elementaryStreams ? elementaryStreams.video ? elementaryStreams.video.startPTS - start : 0 : 0;
           hls.off(Hls.Events.BUFFER_APPENDED, getAppendedOffset);
           console.log('video timestamp offset:', local_tOffset, { start, startDTS, startPTS, maxStartPTS, elementaryStreams });
-          
+
           // Update global tOffset and recalculate duration
           setTOffset(local_tOffset);
-          
+
           // Recalculate duration now that we have the offset
           if (videoElement.duration && !isNaN(videoElement.duration) && isFinite(videoElement.duration)) {
             const calculatedDuration = Math.max(0, videoElement.duration - local_tOffset);
@@ -427,14 +441,14 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setAvailableQualities(hlsRef.current?.levels.map(({ height }) => `${height}p`) || []);
         setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
-        
+
         // Start playback
         setIsPlaying(true);
         videoElement.play().catch(console.error);
-        
+
         // Load duration information
         loadPlayTime();
-        
+
         // Resume from last watch position if available
         (async () => {
           try {
@@ -485,9 +499,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
           local_tOffset = elementaryStreams ? elementaryStreams.video ? elementaryStreams.video.startPTS - frag.start : 0 : 0;
           hls.off(Hls.Events.BUFFER_APPENDED, getAppendedOffset);
           console.log('video timestamp offset:', local_tOffset);
-          
+
           setTOffset(local_tOffset);
-          
+
           if (videoElement.duration && !isNaN(videoElement.duration) && isFinite(videoElement.duration)) {
             const calculatedDuration = Math.max(0, videoElement.duration - local_tOffset);
             setCalcDuration(calculatedDuration);
@@ -515,7 +529,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const loadPlayTime = () => {
     if (videoRef.current) {
       const videoElement = videoRef.current;
-      
+
       // Wait for loadedmetadata event to ensure duration is available
       const handleLoadedMetadata = () => {
         console.log('Video metadata loaded. Duration:', videoElement.duration, 'tOffset:', tOffset);
@@ -566,7 +580,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
   const handleToggleFavorite = async () => {
     if (!currentVideo?.id) return;
-    
+
     setIsFavoriteLoading(true);
     try {
       const result = await toggleFavorite(String(currentVideo.id));
@@ -586,9 +600,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
   const handleToggleLike = async () => {
     if (!currentVideo?.id) return;
-    
+
     setIsLikeLoading(true);
     try {
+      alert(currentVideo.id)
       const result = await toggleVideoLike(String(currentVideo.id));
       if (result.success) {
         setIsLiked(result.isLiked);
@@ -641,7 +656,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
         {/* {loading && <p>{t('video.loadingPlaylists')}</p>} */}
         {error && <p className="text-red-400">{error}</p>}
-        
+
         {/* Debug info - remove this in production */}
         {process.env.NODE_ENV === 'development' && (
           <div className="bg-gray-800 p-4 rounded mb-4 text-sm">
@@ -719,26 +734,25 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                         </span>
                       )}
                     </h1>
-                    
+
                     {/* Favorite Button */}
                     <button
                       onClick={handleToggleFavorite}
                       disabled={isFavoriteLoading}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                        isFavorited 
-                          ? 'bg-[#fbb033] text-black hover:bg-yellow-500' 
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isFavorited
+                          ? 'bg-[#fbb033] text-black hover:bg-yellow-500'
                           : 'bg-gray-800 text-white hover:bg-gray-700'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
                       title={isFavorited ? t('video.removeFromFavorites', 'Remove from favorites') : t('video.addToFavorites', 'Add to favorites')}
                     >
-                      <FiHeart 
+                      <FiHeart
                         className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`}
                       />
                       <span className="hidden md:inline text-sm font-medium">
-                        {isFavoriteLoading 
-                          ? t('common.loading', 'Loading...') 
-                          : isFavorited 
-                            ? t('video.favorited', 'Favorited') 
+                        {isFavoriteLoading
+                          ? t('common.loading', 'Loading...')
+                          : isFavorited
+                            ? t('video.favorited', 'Favorited')
                             : t('video.addFavorite', 'Add to Favorites')
                         }
                       </span>
@@ -749,7 +763,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     {currentVideo.releaseDate && (
                       <span className="text-gray-300">{currentVideo.releaseDate}</span>
                     )}
-                    {typeof currentVideo.rating === 'number' &&  <StarRating rating={currentVideo.rating} size="sm" />}
+                    {typeof currentVideo.rating === 'number' && <StarRating rating={currentVideo.rating} size="sm" />}
                     {currentVideo.isSeries && (
                       <span className="bg-blue-600 px-2 py-1 rounded text-xs">Series</span>
                     )}
@@ -772,26 +786,24 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     <button
                       onClick={handleToggleLike}
                       disabled={isLikeLoading}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                        isLiked
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isLiked
                           ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
                           : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      } disabled:opacity-50`}
+                        } disabled:opacity-50`}
                     >
                       <FiThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                       <span className="text-sm font-medium">
-                        {isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')}
+                       {`${isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')} ${currentVideo.likeCount? `(${currentVideo.likeCount })`: ''}`}
                       </span>
                     </button>
 
                     {/* Comments Button */}
                     <button
                       onClick={() => setShowComments(!showComments)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                        showComments
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${showComments
                           ? 'bg-[#fbb033]/20 text-[#fbb033] hover:bg-[#fbb033]/30'
                           : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      }`}
+                        }`}
                     >
                       <FiMessageCircle className="w-5 h-5" />
                       <span className="text-sm font-medium">
@@ -803,11 +815,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     <button
                       onClick={handleToggleFavorite}
                       disabled={isFavoriteLoading}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                        isFavorited
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isFavorited
                           ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
                           : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      } disabled:opacity-50`}
+                        } disabled:opacity-50`}
                     >
                       <FiHeart className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
                       <span className="text-sm font-medium">
@@ -820,7 +831,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                 {isPlaying && <div className="mt-4 mx-auto w-full">
                   <h3 className="text-lg font-semibold mb-2">{t('video.selectQuality')}</h3>
                   <div className="flex gap-2 flex-wrap">
-                    { availableQualities.map((quality, idx) => (
+                    {availableQualities.map((quality, idx) => (
                       <button
                         key={idx}
                         onClick={() => dynamicQualityChange(idx)}
@@ -925,7 +936,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                           {t('video.duration')}: {episode.duration ? `${Math.floor(episode.duration / 60)} min` : 'N/A'}
                         </div>
                       </div>
-                      {id === episode.uploadId ? (
+                      {id === episode.uploadId || episode.uploadId === actualUploadId ? (
                         <span className="text-[#fbb033] text-sm font-medium">{isPlaying ? `(${t('video.currentlyPlaying')})` : ''}</span>
                       ) :
                         <button
@@ -945,9 +956,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         )}
 
         {/* Comments Section */}
-        {currentVideo?.id && showComments && (
+        {currentVideo?.id  && (
           <div className="mt-8 w-full lg:w-[60vw] mx-auto">
             <CommentSection
+              showComments={showComments}
               mediaId={String(currentVideo.id)}
               mediaType={currentVideo.isSeries ? 'episode' : 'video'}
               className="bg-gray-900/50 rounded-lg p-6"

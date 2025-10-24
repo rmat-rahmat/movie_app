@@ -19,6 +19,7 @@ interface VideoMetadata {
   seasonNumber?: number;
   totalEpisodes?: number;
   episodes?: Episode[];
+  likeCount?: number | null;
   uploadId?: string;
   fileName?: string;
   fileSize?: number | null;

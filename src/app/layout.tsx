@@ -75,7 +75,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
       { rel: "icon", href: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "manifest", href: "/manifest.json" },
-      { rel: "canonical", href: "https://otalk.tv" }
+      { rel: "canonical", href: "https://otalk.tv" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" }
     ];
 
     links.forEach(({ rel, href, type, sizes }) => {

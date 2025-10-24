@@ -9,7 +9,13 @@ import LoadingPage from '@/components/ui/LoadingPage';
 export default function ViewMorePageClient({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const sectionName = id?.replaceAll('_', ' ');
+  const sectionName = id
+    ? id
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((word) => (word ? word.charAt(0).toUpperCase() + word.slice(1) : ''))
+        .join(' ')
+    : '';
 
   useEffect(() => {
     // Update document title dynamically
@@ -32,7 +38,7 @@ export default function ViewMorePageClient({ id }: { id: string }) {
 
         // Fetch initial data to check if section exists
         const initialData = await getGridVideos(`/api-movie/v1/home/sections/${id}/contents`, 1, 1);
-
+        console.log('Initial data for section validation:', initialData);
         if (!initialData || !initialData.success) {
           setError('Section not found');
           return;

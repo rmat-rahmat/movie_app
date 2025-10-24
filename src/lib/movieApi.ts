@@ -425,7 +425,7 @@ export async function getCategoryVideos(categoryId: string, page: number = 1, si
 }
 
 // Get videos by category ID with pagination
-export async function getGridVideos(src: string, page: number = 1, size: number = 20): Promise<VideosApiResponse | null> {
+export async function getGridVideos(src: string, page: number = 1, size: number = 21): Promise<VideosApiResponse | null> {
   try {
     // normalize src to avoid accidental double slashes when src starts with '/'
     const normalizedSrc = src.startsWith('/') ? src.slice(1) : src;
@@ -583,6 +583,7 @@ export async function getContentDetail(contentId: string): Promise<import('@/typ
       headers: { 'Accept': '*/*' }
     });
     const json = res.data;
+    console.log('Fetched content detail for', contentId, json);
     if (json && json.data) {
       return json.data as import('@/types/Dashboard').VideoDetails;
     }
@@ -900,7 +901,7 @@ export async function toggleVideoLike(videoId: string): Promise<{ success: boole
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     const params = new URLSearchParams();
-    params.append('videoId', videoId);
+    params.append('contentId', videoId);
 
     const res = await axios.post(url, params, { headers });
     const data = res.data;

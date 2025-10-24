@@ -8,13 +8,14 @@ import CommentForm from './CommentForm';
 import { FiMessageSquare } from 'react-icons/fi';
 
 interface CommentSectionProps {
+  showComments?: boolean;
   mediaId: string;
   mediaType: 'video' | 'episode';
   className?: string;
   onCommentCountChange?: (count: number) => void;
 }
 
-export default function CommentSection({ mediaId, mediaType, className = '', onCommentCountChange }: CommentSectionProps) {
+export default function CommentSection({ mediaId, mediaType, className = '', onCommentCountChange ,showComments}: CommentSectionProps) {
   const { t } = useTranslation('common');
   const [comments, setComments] = useState<CommentVO[]>([]);
   const [loading, setLoading] = useState(false);
@@ -109,7 +110,9 @@ export default function CommentSection({ mediaId, mediaType, className = '', onC
       loadComments(page + 1, true);
     }
   };
-
+  if(showComments===false){
+    return null;
+  }
   return (
     <div className={`${className}`}>
       {/* Header */}
@@ -138,12 +141,12 @@ export default function CommentSection({ mediaId, mediaType, className = '', onC
 
       {/* Comments List */}
       <div className="space-y-4">
-        {comments.length === 0 && !loading && (
+        {/* {comments.length === 0 && !loading && (
           <div className="text-center py-12 text-gray-400">
             <FiMessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p>{t('comments.noComments', 'No comments yet. Be the first to comment!')}</p>
           </div>
-        )}
+        )} */}
 
         {comments.map((comment) => (
           <CommentItem

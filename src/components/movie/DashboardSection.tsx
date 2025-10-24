@@ -4,6 +4,8 @@ import MovieModal from "./MovieModal";
 import type { DashboardItem as DashboardItemType } from '@/types/Dashboard';
 import DashboardItem from './DashboardItem';
 import { t } from 'i18next';
+import { useRouter } from 'next/navigation';
+
 
 
 interface DashboardSectionProps {
@@ -26,13 +28,14 @@ interface DashboardSectionProps {
 
 const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, showRating, showPlayback, showViewer, frameSize, icon, onViewMore, onOptionsClick, sectionOptionButton }) => {
     const [selectedMovieIndex, setSelectedMovieIndex] = useState<number | null>(null);
+    const router = useRouter();
 
     if (!videos || videos.length === 0) {
         return <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-between mb-4 px-0">
                 <div className="flex items-center gap-2">
                     {icon}
-                    <h2 className="text-2xl font-bold">{title}</h2>
+                    <h2 className="text-2xl font-semibold ">{title}</h2>
                 </div>
                 <div className="flex items-center gap-2"></div>
             </div>
@@ -44,7 +47,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
             <div className="flex items-center justify-between mb-4 px-0">
                 <div className="flex items-center gap-2">
                     {icon}
-                    <h2 className="text-2xl font-bold">{title}</h2>
+                    <h2 className="text-2xl font-semibold">{title}</h2>
                 </div>
                 {onViewMore && (
                     <button
@@ -80,7 +83,10 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
                         key={video.id}
                         video={video}
                         index={index}
-                        onClick={() => setSelectedMovieIndex(index)}
+                        onClick={() => {
+                             router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}`);
+                            // setSelectedMovieIndex(index)
+                        }}
                         showRating={showRating}
                         showViewer={showViewer}
                         onOptionsClick={onOptionsClick}

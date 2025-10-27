@@ -1,7 +1,7 @@
 'use client';
 
 import { getHomeSections, getSectionsContent, getBannerList } from "@/lib/movieApi";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import LoadingPage from "@/components/ui/LoadingPage";
 import type { DashboardItem, BannerVO, VideoVO, HomeSectionVO, SectionContentRequest } from '@/types/Dashboard';
 import SubscriptionSection from "@/components/subscription/SubscriptionSection";
@@ -29,7 +29,6 @@ export default function Home() {
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
   
   const { user } = useAuthStore();
-  const observerRefs = useRef<Map<string, IntersectionObserver>>(new Map());
 
   useEffect(() => {
     initializePage();
@@ -174,39 +173,6 @@ export default function Home() {
     }
   }, [sections, selectedCategory]);
 
-  // Setup intersection observer for infinite scroll
-  useEffect(() => {
-    // Clean up old observers
-    observerRefs.current.forEach(observer => observer.disconnect());
-    observerRefs.current.clear();
-
-    sections.forEach(section => {
-      if (!section.hasMore) return;
-
-      const sentinel = document.getElementById(`section-sentinel-${section.id}`);
-      if (!sentinel) return;
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting && section.hasMore && !section.isLoadingMore) {
-              loadMoreSectionContent(section.id);
-            }
-          });
-        },
-        { threshold: 0.1, rootMargin: '100px' }
-      );
-
-      observer.observe(sentinel);
-      observerRefs.current.set(section.id, observer);
-    });
-
-    return () => {
-      observerRefs.current.forEach(observer => observer.disconnect());
-      observerRefs.current.clear();
-    };
-  }, [sections, loadMoreSectionContent]);
-
   // Convert VideoVO to DashboardItem
   const convertToDashboardItem = (video: VideoVO): DashboardItem => ({
     id: video.id,
@@ -318,7 +284,14 @@ export default function Home() {
                   <DashboardSection
                     title={section.title || ""}
                     videos={section.allVideos.map(convertToDashboardItem)}
-                    onViewMore={undefined}
+                    onViewMore={section.hasMore ? () => location.href = `/viewmore/${section.id}` : undefined}
+                    onScrollEnd={() => {
+                      console.log(`Scrolled to end of section ${section.id}`);
+                      // Load more content when user scrolls horizontally near the end
+                      // if (section.hasMore && !section.isLoadingMore) {
+                        loadMoreSectionContent(section.id);
+                      // }
+                    }}
                   />
                   
                   {/* Loading indicator for this section */}
@@ -328,14 +301,7 @@ export default function Home() {
                     </div>
                   )}
                   
-                  {/* Intersection observer sentinel */}
-                  {section.hasMore && !section.isLoadingMore && (
-                    <div 
-                      id={`section-sentinel-${section.id}`}
-                      className="h-4 w-full"
-                      style={{ minHeight: '1px' }}
-                    />
-                  )}
+                  {/* Intersection observer sentinel - removed as we now use horizontal scroll */}
                 </div>
               ))
             ) : selectedCategory && selectedCategory !== "All" ? (

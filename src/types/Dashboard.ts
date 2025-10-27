@@ -49,6 +49,33 @@ export interface BannerVO {
   sortOrder: number; // 排序权重
 }
 
+// Share types
+export interface ShareDto {
+  targetId: string; // Content ID (video ID or episode ID)
+  contentType?: 'video' | 'episode'; // Content type, defaults to video if not provided
+  type: number; // Share type: 1-Media ID, 2-Comment ID, 3-Episode ID
+  platform: string; // Share platform: 1-WeChat, 2-Weibo, 3-TikTok, 4-Other
+}
+
+export interface Share {
+  id: string;
+  userId: string;
+  targetId: string;
+  type: number;
+  contentType: string;
+  platform: string;
+  createdAt: string;
+}
+
+export interface ShareResponse {
+  status: number;
+  code: string;
+  success: boolean;
+  message: string;
+  data: Share;
+  timestamp: number;
+}
+
 export interface categoryLangLabel {
   [key: string]: string;
 }
@@ -299,6 +326,8 @@ export interface VideoDetails extends DashboardItem {
   likeCount?: number | null;
   totalEpisodes?: number | null;
   seasonNumber?: number | null;
+  isLiked?: boolean;
+  isFavorited?: boolean;
   uploadId?: string | null;
 }
 

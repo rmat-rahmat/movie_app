@@ -393,5 +393,12 @@
     "hideReplies": "Hide replies",
     "loadingReplies": "Loading replies..."
   },
+  "share": {
+    "title": "Share",
+    "shared": "Shared!",
+    "selectPlatform": "Share to:",
+    "linkCopied": "Link copied to clipboard!",
+    "error": "Failed to share"
+  },
   "ERR_USER_ALREADY_EXISTS": "User with this email already exists"
 }

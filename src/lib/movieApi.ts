@@ -18,6 +18,7 @@ import type {
   HomeSectionVO,
   SectionContentRequest,
   SectionContentVO
+  , Share, ShareDto, ShareResponse
 } from '@/types/Dashboard';
 import { parseJsonFile } from "next/dist/build/load-jsconfig";
 import i18next, { t } from 'i18next';
@@ -1043,6 +1044,113 @@ export async function getVideoLikeList(page: number = 0, size: number = 20, type
   } catch (err) {
     console.error('Failed to fetch liked videos list', err);
     return null;
+  }
+}
+
+// Fetch shares list (videos/episodes shared by the user)
+export async function getSharesList(
+  page: number = 1, 
+  size: number = 20, 
+  contentId?: string,
+  contentType?: 'video' | 'episode',
+  imageType: string = 'p720',
+  platform?: string
+): Promise<DashboardItem[] | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/shares/list`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const params: Record<string, string | number> = { page, size, imageType };
+    if (contentId) params.contentId = contentId;
+    if (contentType) params.contentType = contentType;
+    if (platform) params.platform = platform;
+
+    const res = await axios.get(url, { params, headers });
+    const data = res.data;
+
+    if (data && data.success && data.data && Array.isArray(data.data.contents)) {
+      const list: DashboardItem[] = data.data.contents.map((item: ContentVO) => {
+        // Handle actors field
+        let actorsArr: string[] = [];
+        if (Array.isArray(item.actors)) {
+          actorsArr = item.actors;
+        }
+
+        return {
+          id: item.id || '',
+          title: item.title || '',
+          description: item.description || '',
+          categoryId: item.categoryId || '',
+          year: item.year,
+          region: item.region,
+          language: item.language,
+          director: item.director,
+          actors: actorsArr,
+          rating: item.rating,
+          tags: Array.isArray(item.tags) ? item.tags : [],
+          createTime: item.createTime,
+          updateTime: item.updateTime,
+          imageQuality: item.imageQuality || null,
+          coverUrl: item.coverUrl,
+          isSeries: item.isSeries,
+          seriesId: item.seriesId,
+          seasonNumber: item.seasonNumber,
+          episodeNumber: item.episodeNumber,
+          totalEpisodes: item.totalEpisodes,
+          isCompleted: item.isCompleted,
+          status: item.status,
+          fileName: item.fileName,
+          fileSize: item.fileSize,
+          createBy: item.createBy,
+        } as DashboardItem;
+      });
+      return list;
+    }
+    return [];
+  } catch (err) {
+    console.error('Failed to fetch shares list', err);
+    return null;
+  }
+}
+
+// Create a share record
+export async function createShare(shareDto: ShareDto): Promise<{ success: boolean; message?: string; data?: Share | null }> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/shares/create`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    
+    if (!token) {
+      return { success: false, message: 'Authentication required' };
+    }
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+
+    const payload = {
+      targetId: shareDto.targetId,
+      contentType: shareDto.contentType || 'video',
+      type: shareDto.type,
+      platform: shareDto.platform
+    };
+
+    const res = await axios.post(url, payload, { headers });
+    const data = res.data;
+
+    if (data && data.success) {
+      return { success: true, data: data.data as Share };
+    }
+    
+    return { success: false, message: data.message || 'Failed to create share record' };
+  } catch (err) {
+    console.error('Failed to create share record', err);
+    return { 
+      success: false, 
+      message: err instanceof Error ? err.message : 'Failed to create share record' 
+    };
   }
 }
 

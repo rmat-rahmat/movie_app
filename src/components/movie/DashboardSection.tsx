@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import MovieModal from "./MovieModal";
 import type { DashboardItem as DashboardItemType } from '@/types/Dashboard';
 import DashboardItem from './DashboardItem';
@@ -17,6 +17,7 @@ interface DashboardSectionProps {
     showViewer?: boolean;
     frameSize?: number;
     onViewMore?: () => void;
+    onScrollEnd?: () => void; // Callback when user scrolls near the end horizontally
     onOptionsClick?: (videoId: string) => void;
     sectionOptionButton?: {
         title: string;
@@ -26,9 +27,36 @@ interface DashboardSectionProps {
     };
 }
 
-const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, showRating, showPlayback, showViewer, frameSize, icon, onViewMore, onOptionsClick, sectionOptionButton }) => {
+const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, showRating, showPlayback, showViewer, frameSize, icon, onViewMore, onScrollEnd, onOptionsClick, sectionOptionButton }) => {
     const [selectedMovieIndex, setSelectedMovieIndex] = useState<number | null>(null);
     const router = useRouter();
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const hasTriggeredScrollEnd = useRef(false);
+
+    // Handle horizontal scroll to detect when user reaches near the end
+    useEffect(() => {
+        const scrollContainer = scrollContainerRef.current;
+        if (!scrollContainer || !onScrollEnd) return;
+
+        const handleScroll = () => {
+            const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
+            // Trigger when within 200px of the end
+            const isNearEnd = scrollLeft + clientWidth >= scrollWidth - 200;
+
+            if (isNearEnd && !hasTriggeredScrollEnd.current) {
+                hasTriggeredScrollEnd.current = true;
+                onScrollEnd();
+            }
+        };
+
+        scrollContainer.addEventListener('scroll', handleScroll);
+        return () => scrollContainer.removeEventListener('scroll', handleScroll);
+    }, [onScrollEnd]);
+
+    // Reset scroll end trigger when videos change (new content loaded)
+    useEffect(() => {
+        hasTriggeredScrollEnd.current = false;
+    }, [videos.length]);
 
     if (!videos || videos.length === 0) {
         return <div className="container mx-auto px-4 py-8">
@@ -77,7 +105,10 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
                     </button>
                 }
             </div>
-            <div className={`hide-scrollbar grid grid-flow-col auto-cols-[45%] sm:auto-cols-[45%] ${frameSize ? `xl:auto-cols-[${frameSize}%]` : "xl:auto-cols-[20%]"}  gap-4 py-4 px-1 overflow-x-scroll`}>
+            <div 
+                ref={scrollContainerRef}
+                className={`hide-scrollbar grid grid-flow-col auto-cols-[45%] sm:auto-cols-[45%] ${frameSize ? `xl:auto-cols-[${frameSize}%]` : "xl:auto-cols-[20%]"}  gap-4 py-4 px-1 overflow-x-scroll`}
+            >
                 {videos.map((video: DashboardItemType, index: number) => (
                     <DashboardItem
                         key={video.id}

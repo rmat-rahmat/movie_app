@@ -16,6 +16,7 @@ import StarRating from '@/components/ui/StarRating';
 import RecommendationGrid from '@/components/movie/RecommendationGrid';
 import CommentSection from '@/components/comment/CommentSection';
 import { encryptUrl } from '@/utils/urlEncryption';
+import ShareButton from '@/components/ui/ShareButton';
 
 
 interface VideoPlayerClientProps {
@@ -50,6 +51,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
   // Like state
   const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
 
   // Comments state
@@ -150,6 +152,14 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       setError(null);
       try {
         // Note: getPlayMain result not used currently, focusing on quality variants
+
+        if(currentVideo && currentVideo.isLiked) {
+          setIsLiked(currentVideo.isLiked || false);
+        }
+        if(currentVideo && typeof currentVideo.likeCount === 'number') {
+          setLikeCount(currentVideo.likeCount || 0);
+        }
+
         if (currentVideo && currentVideo.isSeries && currentVideo.currentEpisode && currentVideo.currentEpisode.uploadId !== uploadIdToLoad) {
           setCurrentEpisode(uploadIdToLoad);
           setCalcDuration((currentVideo.currentEpisode.duration ?? 0) | 0);
@@ -603,10 +613,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
     setIsLikeLoading(true);
     try {
-      alert(currentVideo.id)
       const result = await toggleVideoLike(String(currentVideo.id));
+    
       if (result.success) {
-        setIsLiked(result.isLiked);
+        // setLikeCount(previous => isLiked ? previous + 1 : Math.max(0, previous - 1))
+          setIsLiked(previous => !previous);
       } else {
         console.error('Failed to toggle like:', result.message);
         alert(result.message || t('video.likeError', 'Failed to update like status'));
@@ -736,7 +747,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     </h1>
 
                     {/* Favorite Button */}
-                    <button
+                    {/* <button
                       onClick={handleToggleFavorite}
                       disabled={isFavoriteLoading}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isFavorited
@@ -756,7 +767,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                             : t('video.addFavorite', 'Add to Favorites')
                         }
                       </span>
-                    </button>
+                    </button> */}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-4 mb-3">
@@ -793,7 +804,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     >
                       <FiThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                       <span className="text-sm font-medium">
-                       {`${isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')} ${currentVideo.likeCount? `(${currentVideo.likeCount })`: ''}`}
+                       {`${isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')}`}
                       </span>
                     </button>
 
@@ -825,6 +836,16 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                         {isFavorited ? t('video.favorited', 'Favorited') : t('video.favorite', 'Favorite')}
                       </span>
                     </button>
+
+                    {/* Share Button */}
+                    {currentVideo?.id && (
+                      <ShareButton
+                        targetId={String(currentVideo.id)}
+                        contentType={currentVideo.isSeries && currentVideo.currentEpisode ? 'episode' : 'video'}
+                        title={currentVideo.title}
+                        variant="full"
+                      />
+                    )}
                   </div>
                 </div>
                 {/* Quality Selection */}

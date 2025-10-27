@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/ui/LoadingPage";
 import { VideoSrc } from "@/types/VideoSrc";
-import { getWatchHistoryList, getUserUploadedVideos, getFavoritesList, getVideoLikeList } from "@/lib/movieApi";
+import { getWatchHistoryList, getUserUploadedVideos, getFavoritesList, getVideoLikeList, getSharesList } from "@/lib/movieApi";
 import { FiChevronRight, FiDelete, FiLogOut, FiSettings, FiTrash, FiTrash2 } from "react-icons/fi";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
@@ -21,6 +21,7 @@ export default function Profile() {
     const [yourVideos, setYourVideos] = useState<DashboardItem[]>([]);
     const [favorites, setFavorites] = useState<DashboardItem[]>([]);
     const [likedVideos, setLikedVideos] = useState<DashboardItem[]>([]);
+    const [shares, setShares] = useState<DashboardItem[]>([]);
     const { t } = useTranslation('common');
 
     const user = useAuthStore((s) => s.user);
@@ -48,6 +49,9 @@ export default function Profile() {
 
             const likes = await getVideoLikeList(1, 12, '480');
             setLikedVideos(likes || []);
+
+            const sharesList = await getSharesList(1, 12, undefined, undefined, '480');
+            setShares(sharesList || []);
 
             setIsLoading(false);
         };
@@ -121,6 +125,19 @@ export default function Profile() {
                             }
                         }}
                     /> */}
+                <DashboardSection
+                    onViewMore={undefined}
+                    title={t('profile.Shares', 'Shared Videos')}
+                    videos={shares || []}
+                    sectionOptionButton={{
+                        title: t('viewAll', 'View All'),
+                        icon: <FiChevronRight className="h-4 w-4" />,
+                        iconRight: true,
+                        onClick: () => {
+                            location.href = '/profile/shares';
+                        }
+                    }}
+                />
                 <DashboardSection
                     onViewMore={undefined}
                     title={t('profile.YourVideos', 'Your Videos')}

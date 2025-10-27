@@ -20,6 +20,8 @@ interface VideoMetadata {
   totalEpisodes?: number;
   episodes?: Episode[];
   likeCount?: number | null;
+  isLiked?: boolean;
+  isFavorited?: boolean;
   uploadId?: string;
   fileName?: string;
   fileSize?: number | null;
@@ -102,6 +104,9 @@ export const useVideoStore = create<VideoStore>()(
           isSeries: details.isSeries,
           seasonNumber: details.seasonNumber || undefined,
           totalEpisodes: details.totalEpisodes || undefined,
+          likeCount: details.likeCount || 0,
+          isLiked: details.isLiked || false,
+          isFavorited: details.isFavorited || false,
           episodes: details.episodes,
           uploadId: details.uploadId || undefined,
           fileName: details.fileName,

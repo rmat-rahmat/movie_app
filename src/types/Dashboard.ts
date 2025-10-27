@@ -23,6 +23,7 @@ export interface DashboardItem {
   isSeries?: boolean;
   seriesId?: string | null;
   seasonNumber?: number | null;
+  episodeNumber?: number | null;
   totalEpisodes?: number | null;
   isCompleted?: boolean;
   popularity?: number | string | null;
@@ -171,6 +172,120 @@ export interface Episode {
   createBy?: string | null;
   updateTime?: string | null;
   m3u8Url?: string | null;
+}
+
+// Quality permission for episodes
+export interface QualityPermission {
+  qualityName?: string;
+  qualityValue?: number;
+  status?: 'ALLOW' | 'REQUIRE_LOGIN' | 'REQUIRE_SUBSCRIPTION' | 'DENY';
+}
+
+// Extended Episode VO with quality permissions
+export interface EpisodeVO extends Episode {
+  qualityPermissions?: QualityPermission[];
+}
+
+// Content VO for user uploaded videos
+export interface ContentVO {
+  id: string;
+  title: string;
+  description?: string;
+  fileName?: string;
+  coverUrl?: string;
+  imageQuality?: ImageItem;
+  fileSize?: number;
+  status?: 'draft' | 'published' | 'archived';
+  createBy?: string;
+  createTime?: string;
+  updateTime?: string;
+  categoryId?: string;
+  region?: string;
+  language?: string;
+  director?: string;
+  actors?: string[];
+  tags?: string[];
+  releaseRegions?: string;
+  year?: number;
+  rating?: number;
+  sourceProvider?: string;
+  isSeries?: boolean;
+  seriesId?: string;
+  seasonNumber?: number;
+  episodeNumber?: number;
+  uploadId?: string;
+  totalEpisodes?: number;
+  isCompleted?: boolean;
+  source?: string; // uploader nickname or masked email
+}
+
+// Page result for episodes
+export interface PageResultEpisodeVO {
+  page: number;
+  size: number;
+  total: number;
+  totalPages: number;
+  items: EpisodeVO[];
+}
+
+// Content list response for user uploads
+export interface ContentListResponse {
+  page: number;
+  size: number;
+  total: number;
+  getTotalPages: number;
+  contents: ContentVO[];
+  errorMessage?: string;
+  hasError?: boolean;
+}
+
+// Structured sections for home page (section -> categories -> videos)
+export interface StructuredCategory {
+  categoryId: string;
+  categoryName?: string;
+  videos: VideoVO[];
+}
+
+export interface StructuredSection {
+  sectionId: string;
+  sectionName?: string;
+  order?: number;
+  categories: StructuredCategory[];
+}
+
+// New home sections API types
+export interface HomeSectionVO {
+  id: string;
+  title: string;
+  type?: string | null;
+  contents: VideoVO[];
+  limit?: number | null;
+  hasMore: boolean;
+}
+
+// Section content request
+export interface SectionContentRequest {
+  categoryId: string;
+  sectionId: string;
+  type?: string;
+  page?: number;
+  size?: number;
+}
+
+// Section content response
+export interface SectionContentVO {
+  categoryId: string;
+  sectionId: string;
+  sectionName: string;
+  videos: VideoVO[];
+  page: number;
+  size: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  hasError: boolean;
+  errorMessage?: string | null;
 }
 
 // Rich content detail type that extends the lighter DashboardItem

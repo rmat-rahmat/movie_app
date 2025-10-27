@@ -3,7 +3,22 @@ import { parseStringPromise } from 'xml2js';
 import axios from 'axios';
 import { BASE_URL } from '../config';
 import type { VideoSrc } from "@/types/VideoSrc";
-import type { DashboardApiResponse, DashboardItem, CategoryItem, VideosApiResponse, SearchApiResponse, RecommendationApiResponse, BannerVO } from '@/types/Dashboard';
+import type { 
+  DashboardApiResponse, 
+  DashboardItem, 
+  CategoryItem, 
+  VideosApiResponse, 
+  SearchApiResponse, 
+  RecommendationApiResponse, 
+  BannerVO, 
+  ContentVO, 
+  ContentListResponse, 
+  EpisodeVO, 
+  PageResultEpisodeVO,
+  HomeSectionVO,
+  SectionContentRequest,
+  SectionContentVO
+} from '@/types/Dashboard';
 import { parseJsonFile } from "next/dist/build/load-jsconfig";
 import i18next, { t } from 'i18next';
 
@@ -747,8 +762,8 @@ export async function clearWatchHistory(): Promise<boolean> {
   }
 }
 
-// Fetch user uploaded videos list (paginated)
-export async function getUserUploadedVideos(page: number = 0, size: number = 12, type: string = 'p720'): Promise<DashboardItem[] | null> {
+// Fetch user uploaded videos list (paginated) - returns ContentVO items
+export async function getUserUploadedVideos(page: number = 1, size: number = 12, type: string = 'p720'): Promise<DashboardItem[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/my-videos/uploads`;
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
@@ -760,12 +775,12 @@ export async function getUserUploadedVideos(page: number = 0, size: number = 12,
     const data = res.data;
 
     if (data && data.success && data.data && Array.isArray(data.data.contents)) {
-      const list: DashboardItem[] = data.data.contents.map((item: ContentApiItem) => {
-        const actorsArr: string[] = Array.isArray(item.actors)
-          ? item.actors
-          : typeof item.actors === 'string'
-            ? item.actors.split(',').map((s: string) => s.trim()).filter(Boolean)
-            : [];
+      const list: DashboardItem[] = data.data.contents.map((item: ContentVO) => {
+        // Handle actors field which can be string[] or need parsing
+        let actorsArr: string[] = [];
+        if (Array.isArray(item.actors)) {
+          actorsArr = item.actors;
+        }
 
         return {
           id: item.id || '',
@@ -781,7 +796,14 @@ export async function getUserUploadedVideos(page: number = 0, size: number = 12,
           tags: Array.isArray(item.tags) ? item.tags : [],
           createTime: item.createTime,
           updateTime: item.updateTime,
-          imageQuality: item.imageQuality || {},
+          imageQuality: item.imageQuality || null,
+          coverUrl: item.coverUrl,
+          isSeries: item.isSeries,
+          seriesId: item.seriesId,
+          seasonNumber: item.seasonNumber,
+          totalEpisodes: item.totalEpisodes,
+          isCompleted: item.isCompleted,
+          status: item.status,
         } as DashboardItem;
       });
       return list;
@@ -789,6 +811,42 @@ export async function getUserUploadedVideos(page: number = 0, size: number = 12,
     return [];
   } catch (err) {
     console.error('Failed to fetch user uploaded videos', err);
+    return null;
+  }
+}
+
+// Fetch episodes for a specific series
+export async function getSeriesEpisodes(
+  seriesId: string,
+  page: number = 1,
+  size: number = 20,
+  type: string = 'p720'
+): Promise<{ episodes: EpisodeVO[]; pageInfo: PageResultEpisodeVO } | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/my-videos/${encodeURIComponent(seriesId)}/episodes`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const params: Record<string, string | number> = { page, size, type };
+    const res = await axios.get(url, { params, headers });
+    const data = res.data;
+
+    if (data && data.success && data.data) {
+      return {
+        episodes: data.data.items || [],
+        pageInfo: {
+          page: data.data.page || page,
+          size: data.data.size || size,
+          total: data.data.total || 0,
+          totalPages: data.data.totalPages || 0,
+          items: data.data.items || [],
+        },
+      };
+    }
+    return null;
+  } catch (err) {
+    console.error('Failed to fetch series episodes', err);
     return null;
   }
 }
@@ -1160,6 +1218,78 @@ export const getBannerList = async (type: number = 1, quality: string = '720'): 
     return [];
   } catch (error) {
     console.error('Error fetching banner list:', error);
+    return [];
+  }
+};
+
+/**
+ * Get home sections with structure and content (recommended for initial load)
+ * @param categoryId - Optional category ID filter
+ * @param type - Image quality type (360, 720, etc.)
+ * @param limit - Number of videos per section (default: 5)
+ * @returns Promise with home sections array
+ */
+export const getHomeSections = async (
+  categoryId?: string,
+  type: string = 'p720',
+  limit: number = 5
+): Promise<HomeSectionVO[]> => {
+  try {
+    const params: Record<string, string | number> = { type, limit };
+    if (categoryId) {
+      params.categoryId = categoryId;
+    }
+
+    const response = await axios.get(`${BASE_URL}/api-movie/v1/home/sections/home`, {
+      params,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
+    if (response.data?.success && Array.isArray(response.data?.data)) {
+      return response.data.data as HomeSectionVO[];
+    }
+
+    console.warn('Home sections returned empty or invalid data');
+    return [];
+  } catch (error) {
+    console.error('Error fetching home sections:', error);
+    return [];
+  }
+};
+
+/**
+ * Get sections content (for pagination/infinite scroll)
+ * @param sections - Array of section content requests
+ * @param page - Default page number
+ * @param size - Default page size
+ * @returns Promise with section content array
+ */
+export const getSectionsContent = async (
+  sections: SectionContentRequest[],
+  page: number = 1,
+  size: number = 10
+): Promise<SectionContentVO[]> => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/api-movie/v1/home/sections/content`,
+      {
+        sections,
+        page,
+        size
+      },
+      {
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+
+    if (response.data?.success && Array.isArray(response.data?.data)) {
+      return response.data.data as SectionContentVO[];
+    }
+
+    console.warn('Sections content returned empty or invalid data');
+    return [];
+  } catch (error) {
+    console.error('Error fetching sections content:', error);
     return [];
   }
 };

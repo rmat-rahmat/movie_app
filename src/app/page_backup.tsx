@@ -3,7 +3,7 @@
 import { getDashboard, getBannerList } from "@/lib/movieApi";
 import { useEffect, useState } from "react";
 import LoadingPage from "@/components/ui/LoadingPage";
-import type { DashboardItem, ContentSection, BannerVO, VideoVO } from '@/types/Dashboard';
+import type { DashboardItem, ContentSection, BannerVO } from '@/types/Dashboard';
 import SubscriptionSection from "@/components/subscription/SubscriptionSection";
 import { allCategories } from "@/lib/categoryList";
 import { useAuthStore } from "@/store/authStore";
@@ -11,7 +11,6 @@ import DashboardSection from "@/components/movie/DashboardSection";
 import BannerSlider from "@/components/movie/BannerSlider";
 import { getCategoryList,getCategoryTree,type CategoryItem} from "@/lib/movieApi";
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
-import { BASE_URL } from '@/config';
 
 
 export default function Home() {
@@ -24,28 +23,12 @@ export default function Home() {
   const [allSections, setAllSections] = useState<ContentSection[]>([]); // Store original sections
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({}); // Map category IDs to names
   const [selectedCategory, setSelectedCategory] = useState<string | null>("All");
-  // Structured sections follow: section -> categories -> videos
-  type StructuredCategory = {
-    categoryId: string;
-    categoryName?: string;
-    videos: VideoVO[];
-  };
-
-  type StructuredSection = {
-    sectionId: string;
-    sectionName?: string;
-    order?: number;
-    categories: StructuredCategory[];
-  };
-
-  const [structuredSections, setStructuredSections] = useState<StructuredSection[] | null>(null);
   const { user } = useAuthStore();
 
   useEffect(() => {
     fetchCategories();
-    // fetchMovies();
+    fetchMovies();
     fetchBanners();
-    fetchSectionsStructure();
   }, []);
 
   // Fetch banners from API
@@ -62,75 +45,6 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Error fetching banners:", error);
-    }
-  };
-
-  // Fetch sections structure from new API and transform to section -> categories -> videos
-  const fetchSectionsStructure = async (categoryId?: string) => {
-    try {
-      const url = `${BASE_URL}/api-movie/v1/home/sections/structure${categoryId ? `?categoryId=${encodeURIComponent(categoryId)}` : ''}`;
-      const res = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
-      if (!res.ok) {
-        console.warn('Failed to fetch sections structure', res.statusText);
-        return;
-      }
-      const payload = await res.json();
-      const raw = payload?.data;
-      if (!Array.isArray(raw)) return;
-
-      // Transform into section-centric structure: section -> categories -> videos
-      const sectionMap = new Map<string, StructuredSection>();
-
-      type ApiSectionInfo = {
-        sectionId?: string;
-        sectionName?: string;
-        order?: number | string;
-        videos?: VideoVO[];
-      };
-
-      type ApiCategoryEntry = {
-        categoryId: string;
-        categoryName?: string;
-        sections?: ApiSectionInfo[];
-      };
-
-      (raw as ApiCategoryEntry[]).forEach((catEntry) => {
-        const catId = catEntry.categoryId;
-        const catName = catEntry.categoryName;
-        const sections = Array.isArray(catEntry.sections) ? catEntry.sections : [];
-        sections.forEach((sec) => {
-          const key = sec.sectionId || sec.sectionName || `${sec.sectionName}_${sec.order}`;
-          if (!sectionMap.has(key)) {
-            sectionMap.set(key, {
-              sectionId: sec.sectionId || key,
-              sectionName: sec.sectionName || '',
-              order: typeof sec.order === 'number' ? sec.order : Number(sec.order) || 0,
-              categories: [],
-            });
-          }
-          const sectionObj = sectionMap.get(key)!;
-          sectionObj.categories.push({
-            categoryId: catId,
-            categoryName: catName,
-            videos: Array.isArray(sec.videos) ? sec.videos : [],
-          });
-        });
-      });
-
-      // Convert map to sorted array by order
-      const structured = Array.from(sectionMap.values()).sort((a, b) => (a.order || 0) - (b.order || 0));
-      setStructuredSections(structured);
-      console.log("Structured Sections:", structured);
-      // Cache to localStorage for quick access
-      try {
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem('seefu_sections_structure_v1', JSON.stringify(structured));
-        }
-      } catch (_e) {
-        // ignore storage errors
-      }
-    } catch (error) {
-      console.error('Error fetching sections structure:', error);
     }
   };
 
@@ -155,73 +69,73 @@ export default function Home() {
     }
   };
 
-  // const fetchMovies = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     // Try loading live dashboard from backend first
-  //     const dashboard = await getDashboard(true);
+  const fetchMovies = async () => {
+    setIsLoading(true);
+    try {
+      // Try loading live dashboard from backend first
+      const dashboard = await getDashboard(true);
 
-  //     // If dashboard or its data is missing, fall back to safe defaults
-  //     if (!dashboard || !dashboard.data) {
-  //       console.warn('Dashboard returned empty or missing data; using fallback values');
-  //       setHeaderMovies([]);
-  //       setSections([]);
-  //       setAllSections([]);
-  //       setCategories(allCategories);
-  //       return;
-  //     }
+      // If dashboard or its data is missing, fall back to safe defaults
+      if (!dashboard || !dashboard.data) {
+        console.warn('Dashboard returned empty or missing data; using fallback values');
+        setHeaderMovies([]);
+        setSections([]);
+        setAllSections([]);
+        setCategories(allCategories);
+        return;
+      }
 
-  //     // Normalize featured content and sections to arrays
-  //     const featured = Array.isArray(dashboard.data.featuredContent) ? dashboard.data.featuredContent : [];
-  //     const originalSections = Array.isArray(dashboard.data.contentSections) ? dashboard.data.contentSections : [];
+      // Normalize featured content and sections to arrays
+      const featured = Array.isArray(dashboard.data.featuredContent) ? dashboard.data.featuredContent : [];
+      const originalSections = Array.isArray(dashboard.data.contentSections) ? dashboard.data.contentSections : [];
 
-  //     // Convert featured content (header movies) into a section
-  //     const featuredSection: ContentSection = {
-  //       id: 'featured-content',
-  //       title: 'Featured Content',
-  //       contents: featured,
-  //       hasMore: false
-  //     };
+      // Convert featured content (header movies) into a section
+      const featuredSection: ContentSection = {
+        id: 'featured-content',
+        title: 'Featured Content',
+        contents: featured,
+        hasMore: false
+      };
 
-  //     // Add featured section at the beginning if it has content
-  //     const allSectionsWithFeatured = featured.length > 0 
-  //       ? [featuredSection, ...originalSections]
-  //       : originalSections;
+      // Add featured section at the beginning if it has content
+      const allSectionsWithFeatured = featured.length > 0 
+        ? [featuredSection, ...originalSections]
+        : originalSections;
 
-  //     console.log(allSectionsWithFeatured);
-  //     setSections(allSectionsWithFeatured);
-  //     setAllSections(allSectionsWithFeatured); // Store original sections for filtering
+      console.log(allSectionsWithFeatured);
+      setSections(allSectionsWithFeatured);
+      setAllSections(allSectionsWithFeatured); // Store original sections for filtering
 
-  //     // derive categories from dashboard response, fallback to existing list
-  //     const dashboardCategories = Array.isArray(dashboard.data.categories) ? dashboard.data.categories : [];
+      // derive categories from dashboard response, fallback to existing list
+      const dashboardCategories = Array.isArray(dashboard.data.categories) ? dashboard.data.categories : [];
 
-  //     const safeGetCategoryName = (c: unknown): string => {
-  //       if (!c) return '';
-  //       try {
-  //         // If c already matches CategoryItem shape, pass it through
-  //         if (typeof c === 'object' && c !== null && 'categoryLangLabel' in (c as Record<string, unknown>)) {
-  //           return getLocalizedCategoryName(c as unknown as import('@/types/Dashboard').CategoryItem);
-  //         }
-  //       } catch (_e) {
-  //         // ignore
-  //       }
+      const safeGetCategoryName = (c: unknown): string => {
+        if (!c) return '';
+        try {
+          // If c already matches CategoryItem shape, pass it through
+          if (typeof c === 'object' && c !== null && 'categoryLangLabel' in (c as Record<string, unknown>)) {
+            return getLocalizedCategoryName(c as unknown as import('@/types/Dashboard').CategoryItem);
+          }
+        } catch (_e) {
+          // ignore
+        }
 
-  //       const obj = typeof c === 'object' && c !== null ? (c as Record<string, unknown>) : {};
-  //       return String(obj.categoryName ?? obj.categoryAlias ?? obj.id ?? '');
-  //     };
+        const obj = typeof c === 'object' && c !== null ? (c as Record<string, unknown>) : {};
+        return String(obj.categoryName ?? obj.categoryAlias ?? obj.id ?? '');
+      };
 
-  //     const mappedCategories = dashboardCategories.map((c) => safeGetCategoryName(c)).filter(Boolean) as string[];
-  //     const finalCategories = mappedCategories.length > 0 ? Array.from(new Set(mappedCategories)) : allCategories;
-  //     // Ensure "All" is at the beginning
-  //     const categoriesWithAll = finalCategories.includes("All") ? finalCategories : ["All", ...finalCategories];
-  //     setCategories(categoriesWithAll);
-  //   } catch (error) {
-  //     console.error("Error fetching movies:", error);
-  //   } finally {
-  //     // Always clear loading flag so UI doesn't spin indefinitely
-  //     setIsLoading(false);
-  //   }
-  // };
+      const mappedCategories = dashboardCategories.map((c) => safeGetCategoryName(c)).filter(Boolean) as string[];
+      const finalCategories = mappedCategories.length > 0 ? Array.from(new Set(mappedCategories)) : allCategories;
+      // Ensure "All" is at the beginning
+      const categoriesWithAll = finalCategories.includes("All") ? finalCategories : ["All", ...finalCategories];
+      setCategories(categoriesWithAll);
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    } finally {
+      // Always clear loading flag so UI doesn't spin indefinitely
+      setIsLoading(false);
+    }
+  };
 
   
   // Filter sections based on selected category
@@ -336,7 +250,7 @@ export default function Home() {
               <p className="text-gray-300 text-lg mb-4">No content available right now. We may be updating the catalogue.</p>
               <div className="flex justify-center gap-3">
                 <button
-                  // onClick={() => fetchMovies()}
+                  onClick={() => fetchMovies()}
                   className="px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors"
                 >
                   Retry
@@ -375,30 +289,8 @@ export default function Home() {
               </div>
             )}
             
-            {/* If we have dashboard sections render them dynamically. Prefer structuredSections (section->categories->videos). */}
-            {structuredSections && structuredSections.length > 0 ? (
-              structuredSections.map((sec: StructuredSection) => {
-                // flatten category videos into a mixed list and tag each video with its category info
-                const mixedVideos: DashboardItem[] = (sec.categories || []).flatMap((cat: StructuredCategory) => {
-                  const vids: VideoVO[] = Array.isArray(cat.videos) ? cat.videos : [];
-                  return vids.map((v: VideoVO) => ({
-                    // preserve existing fields but ensure category info is present
-                    ...(v as unknown as DashboardItem),
-                    categoryId: v.categoryId || cat.categoryId,
-                    categoryName: cat.categoryName || undefined,
-                  }));
-                });
-
-                return (
-                  <DashboardSection
-                    key={sec.sectionId || sec.sectionName}
-                    onViewMore={sec.sectionId ? () => (location.href = `/viewmore/${sec.sectionId}`) : undefined}
-                    title={sec.sectionName || ""}
-                    videos={mixedVideos}
-                  />
-                );
-              })
-            ) : sections.length > 0 ? (
+            {/* If we have dashboard sections render them dynamically */}
+            {sections.length > 0 ? (
               sections.map((sec) => (
                 <DashboardSection
                   key={sec.id || sec.title}

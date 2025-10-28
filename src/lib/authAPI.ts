@@ -187,7 +187,7 @@ export async function login(email: string, password: string, form = false): Prom
 
     const body = res.data as StandardResponse<LoginUserVo>;
     if (!body || !body.success) {
-      throw new Error(tr('auth.error.login_failed', body?.message || 'Login failed'));
+      throw ( body?.message || 'Login failed');
     }
 
     const userVo = body.data as LoginUserVo;
@@ -206,7 +206,7 @@ export async function login(email: string, password: string, form = false): Prom
     return { token: token || '', refreshToken: refreshToken || '', user };
   } catch (err: unknown) {
     const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
-    throw new Error(`${tr('auth.error.login_failed', 'Login failed')}: ${message}`);
+    throw new Error(` ${message}`);
   }
 }
 
@@ -257,7 +257,7 @@ export async function register(
 
     const body = res.data as StandardResponse<LoginUserVo>;
     if (!body || !body.success) {
-      throw new Error(tr(body?.errorCode || 'auth.error.register_failed', body?.message || 'Register failed'));
+      throw new Error(body?.message || 'Register failed');
     }
 
     const userVo = body.data as LoginUserVo;
@@ -269,10 +269,18 @@ export async function register(
     saveRefreshTokenToStorage(refreshToken || null);
     return { token: token || '', refreshToken: refreshToken || '', user };
   } catch (err: unknown) {
-    const message = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.message || err.message : String(err);
-    const errorCode = axios.isAxiosError(err) ? (err.response?.data as StandardResponse<unknown>)?.errorCode || '' : '';
-    // throw new Error(`Register failed: ${message}`);
-    throw new Error(tr(errorCode || 'auth.error.register_failed',errorCode || 'Register failed'));
+    let errorMsg = '';
+    if (typeof err === 'object' && err !== null && 'message' in err) {
+      const errObj = err as { message?: string };
+      errorMsg = typeof errObj.message === 'string' ? errObj.message : '';
+    }
+    const message = axios.isAxiosError(err)
+      ? (err.response?.data as StandardResponse<unknown>)?.message || err.message
+      : String(err);
+    const errorCode = axios.isAxiosError(err)
+      ? (err.response?.data as StandardResponse<unknown>)?.errorCode || ''
+      : '';
+    throw new Error(errorMsg || tr('auth.error.register_failed', `Register failed: [${errorCode}] ${message}`));
   }
 }
 

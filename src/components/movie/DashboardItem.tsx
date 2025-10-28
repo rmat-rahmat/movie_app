@@ -80,13 +80,13 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
         }`} />
         
         {/* Play Button Overlay - appears on hover */}
-        <div className={`absolute flex items-center w-full h-[40%] justify-center transition-all duration-300 ${
+        {/* <div className={`absolute flex items-center w-full h-[40%] justify-center transition-all duration-300 ${
           isHovered ? 'opacity-100 backdrop-blur-sm' : 'opacity-0'
         }`}>
           <button className="flex items-center justify-center w-16 h-16 bg-white/90 hover:bg-white text-black rounded-full shadow-xl transform transition-transform duration-200 hover:scale-110 cursor-pointer">
             <FiPlay className="w-6 h-6 ml-1" />
           </button>
-        </div>
+        </div> */}
 
         {/* Quick Action Buttons - Top Right */}
         {/* <div className={`absolute top-3 right-3 flex gap-2 transition-all duration-300 ${

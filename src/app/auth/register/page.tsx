@@ -252,7 +252,7 @@ const RegisterPage: React.FC = () => {
                         />
                     </div>
                     
-                    {(error || localError) && <div className="text-[#fbb033] mb-4">{error || localError}</div>}
+                    
                     <button
                         type="submit"
                         disabled={isLoading || passwordStrength.score < 2 || !passwordsMatch || !isEmailValid || !nickname.trim()}
@@ -260,6 +260,7 @@ const RegisterPage: React.FC = () => {
                     >
                         {isLoading ? t('common.loading') : t('auth.registerButton')}
                     </button>
+                    {(error || localError) && <div className="text-[#fbb033] mb-4">{error || localError}</div>}
                 </form>
                 <div className="mt-6 text-center">
                     <div className="mt-6 text-center text-gray-300">

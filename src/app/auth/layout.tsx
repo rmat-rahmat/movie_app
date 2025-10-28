@@ -4,13 +4,14 @@ import { getMovies } from '@/lib/movieApi';
 import { VideoSrc } from '@/types/VideoSrc';
 import RainAnimation from "@/components/ui/RainAnimation";
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
+import Image from 'next/image';
 
 export default function AuthLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-    
+
     const [isLoading, setIsLoading] = useState(false);
     const [movies, setMovies] = useState<VideoSrc[]>([]);
     const fetchMovies = async () => {
@@ -93,9 +94,9 @@ export default function AuthLayout({
         );
     }
     return (
-        <div className="flex flex-col md:flex-row h-screen items-center justify-center">
-            <RainAnimation movies={movies} />
-            <div className="absolute z-0 top-10 md:right-10 w-full  md:w-[30vw] h-[10vh] z-0 pointer-events-none overflow-hidden z-2">
+        <div className="flex flex-col  h-screen items-center justify-center">
+            {/* <RainAnimation movies={movies} /> */}
+            {/* <div className="absolute z-0 top-10 md:right-10 w-full  md:w-[30vw] h-[10vh] z-0 pointer-events-none overflow-hidden z-2">
                 <h1
                     className="text-4xl font-bold text-white relative text-center md:text-right animate-glow"
                     style={{
@@ -117,11 +118,37 @@ export default function AuthLayout({
                         animation: glow 2s ease-in-out infinite;
                     }
                 `}</style>
+            </div> */}
+            <div className=" flex flex-row justify-between items-center w-full px-4 md:px-10 py-4"
+            onClick={() => { window.location.href = '/' }}
+            >
+                <span className="flex items-center gap-0 text-[#fbb033] cursor-pointer">
+                    <Image
+                        src="/logo_dark.svg"
+                        alt="Logo"
+                        width={48} // sm
+                        height={16}
+                        className="object-contain cursor-pointer
+                            w-12 h-12
+                            md:w-24 md:h-24"
+                    />
+                    <span
+                        className="
+                            text-lg
+                            md:text-5xl
+                            font-bold
+                        "
+                    >
+                        Talk
+                    </span>
+                </span>
+                <LanguageSwitcher  />
             </div>
-            <div className="absolute top-4 left-4 z-50">
-                            <LanguageSwitcher large />
-                        </div>
-            {children}
+            <div className='flex flex-row flex-grow justify-center items-center w-full px-4 md:px-10'>
+
+                {children}
+
+            </div>
         </div>
     );
 }

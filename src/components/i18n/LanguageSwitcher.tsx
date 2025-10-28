@@ -55,7 +55,7 @@ export default function LanguageSwitcher({ large }: { large?: boolean }) {
   } bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto`;
 
   return (
-    <div ref={containerRef} className="relative inline-block text-left">
+    <div ref={containerRef} className="relative inline-block text-left border-2 border-[#fbb033] rounded-full">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`${btnBase} ${btnSize} text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700`}

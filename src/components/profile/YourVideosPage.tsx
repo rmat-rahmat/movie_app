@@ -33,7 +33,7 @@ export default function YourVideosPage() {
     if (!user) return;
     setLoading(true);
     const load = async () => {
-      const list = await getUserUploadedVideos(1, 24, 'p720');
+      const list = await getUserUploadedVideos(1, 24, '720');
       setItems((list || []) as SeriesWithEpisodes[]);
       setPage(1);
       setHasMore((list && list.length === 24) || false);
@@ -44,7 +44,7 @@ export default function YourVideosPage() {
 
   const handleLoadMore = async () => {
     const next = page + 1;
-    const list = await getUserUploadedVideos(next, 24, 'p720');
+    const list = await getUserUploadedVideos(next, 24, '720');
     if (list && list.length > 0) {
       setItems((s) => [...s, ...(list as SeriesWithEpisodes[])]);
       setPage(next);
@@ -74,7 +74,7 @@ export default function YourVideosPage() {
       updated[itemIndex] = { ...item, loadingEpisodes: true };
       setItems(updated);
 
-      const result = await getSeriesEpisodes(seriesId, 1, 50, 'p720');
+      const result = await getSeriesEpisodes(seriesId, 1, 50, '720');
       
       const updatedAfterLoad = [...items];
       updatedAfterLoad[itemIndex] = {

@@ -150,8 +150,9 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
   };
 
   const handleDashboardItemClick = (video: VideoVO) => {
-    setSelectedVideo(video);
-    setIsModalOpen(true);
+    // setSelectedVideo(video);
+    // setIsModalOpen(true);
+    router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}`);
   };
 
   const closeModal = () => {

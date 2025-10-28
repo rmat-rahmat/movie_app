@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { VideoDetails, Episode } from '@/types/Dashboard';
+import type { VideoDetails, Episode,QualityPermission } from '@/types/Dashboard';
 
 interface VideoMetadata {
   id: string | number;
@@ -31,6 +31,7 @@ interface VideoMetadata {
     episodeTitle?: string;
     duration?: number;
     uploadId?: string;
+    qualityPermissions?: QualityPermission[]; 
   };
 }
 
@@ -68,6 +69,7 @@ export const useVideoStore = create<VideoStore>()(
               currentEpisode: {
                 episodeNumber: episode.episodeNumber,
                 episodeTitle: episode.title,
+                qualityPermissions: episode.qualityPermissions,
                 duration: episode.duration,
                 uploadId: episode.uploadId || episode.id,
               },
@@ -79,6 +81,7 @@ export const useVideoStore = create<VideoStore>()(
       clearCurrentVideo: () => set({ currentVideo: null }),
       
       setVideoFromDetails: (details, episodeUploadId) => {
+
         const videoMetadata: VideoMetadata = {
           id: details.id,
           title: details.title || '',

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getGridVideos, getCachedCategories } from '@/lib/movieApi';
+import { getGridVideos, getCachedCategories,loadMoreSectionContent } from '@/lib/movieApi';
 import type { VideosApiResponse, VideoVO, CategoryItem } from '@/types/Dashboard';
 import LoadingPage from '@/components/ui/LoadingPage';
 import DashboardItem from './DashboardItem';
@@ -12,10 +12,10 @@ import MovieModal from './MovieModal';
 interface GridVideosProps {
   id: string;
   title?: string;
-  src: string
+  ctg?: string;
 }
 
-const GridVideos: React.FC<GridVideosProps> = ({ id, title, src }) => {
+const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg }) => {
   const [videos, setVideos] = useState<VideoVO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,18 +85,24 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, src }) => {
       }
 
       // Convert 1-based page to 0-based for API call
-      const response = await getGridVideos(src, page, pageSize);
+      const response = await loadMoreSectionContent(
+        id,
+        ctg || 'movie',
+        '720',
+        page,
+        pageSize
+      );
       console.log("response getGridVideos", response)
       if (!response) {
         throw new Error('Failed to fetch videos');
       }
 
-      if (!response.success) {
-        throw new Error(response.message || 'API request failed');
-      }
+      // if (!response.success) {
+      //   throw new Error(response.message || 'API request failed');
+      // }
 
       // Normalize contents whether API returns an array directly or an object with `contents` property
-      const data: unknown = response.data;
+      const data: unknown = response.videos;
       let contents: VideoVO[] = [];
       if (Array.isArray(data)) {
         contents = data as VideoVO[];
@@ -115,13 +121,8 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, src }) => {
 
       // Safely derive pagination values from the unknown `data`
       const raw: Record<string, unknown> = data as Record<string, unknown>;
-      const total: number = typeof raw?.total === 'number' ? raw.total : (Array.isArray(data) ? contents.length : 0);
-      const totalPages: number =
-        typeof raw?.getTotalPages === 'number'
-          ? raw.getTotalPages
-          : typeof raw?.totalPages === 'number'
-          ? raw.totalPages
-          : Math.max(1, Math.ceil(total / pageSize));
+      const total: number = response.total || 0;
+      const totalPages: number = response.totalPages || 1;
 
       const hasNext = page < totalPages;
       const hasPrevious = page > 1;

@@ -75,7 +75,7 @@ export default function Profile() {
                     title={t('profile.WatchHistory', 'Watch History')}
                     videos={lastSeenVid || []}
                     sectionOptionButton={{
-                        title: t('viewAll', 'View All'),
+                        title: t('common.viewAll', 'View All'),
                         icon: <FiChevronRight className="h-4 w-4" />,
                         iconRight: true,
                         onClick: () => {
@@ -90,7 +90,7 @@ export default function Profile() {
                     title={t('profile.Playlist', 'My Playlist')}
                     videos={favorites || []}
                     sectionOptionButton={{
-                        title: t('viewAll', 'View All'),
+                        title: t('common.viewAll', 'View All'),
                         icon: <FiChevronRight className="h-4 w-4" />,
                         iconRight: true,
                         onClick: () => {
@@ -103,7 +103,7 @@ export default function Profile() {
                         title={t('profile.LikedVideos', 'Liked Videos')}
                         videos={likedVideos || []}
                         sectionOptionButton={{
-                            title: t('viewAll', 'View All'),
+                            title: t('common.viewAll', 'View All'),
                             icon: <FiChevronRight className="h-4 w-4" />,
                             iconRight: true,
                             onClick: () => {
@@ -116,7 +116,7 @@ export default function Profile() {
                         title={t('profile.Playlist', 'Playlist')}
                         videos={playlists || []}
                         sectionOptionButton={{
-                            title: t('viewAll', 'View All'),
+                            title: t('common.viewAll', 'View All'),
                             icon: <FiChevronRight className="h-4 w-4" />,
                             iconRight: true,
                             onClick: () => {
@@ -130,7 +130,7 @@ export default function Profile() {
                     title={t('profile.Shares', 'Shared Videos')}
                     videos={shares || []}
                     sectionOptionButton={{
-                        title: t('viewAll', 'View All'),
+                        title: t('common.viewAll', 'View All'),
                         icon: <FiChevronRight className="h-4 w-4" />,
                         iconRight: true,
                         onClick: () => {
@@ -143,7 +143,7 @@ export default function Profile() {
                     title={t('profile.YourVideos', 'Your Videos')}
                     videos={yourVideos || []}
                     sectionOptionButton={{
-                        title: t('viewAll', 'View All'),
+                        title: t('common.viewAll', 'View All'),
                         icon: <FiChevronRight className="h-4 w-4" />,
                         iconRight: true,
                         onClick: () => {

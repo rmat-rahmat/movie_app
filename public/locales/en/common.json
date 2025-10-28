@@ -110,7 +110,9 @@
     "female": "Female",
     "other": "Other",
     "noMoreContent": "No more content to load",
-    "loadMore": "Load More"
+    "loadMore": "Load More",
+    "viewMore": "View More",
+    "viewAll": "View All"
   },
   "movie": {
     "moreInfo": "More Info",
@@ -122,7 +124,8 @@
     "overview": "Overview",
     "watchNow": "Watch Now",
     "addToWatchlist": "Add to Watchlist",
-    "removeFromWatchlist": "Remove from Watchlist"
+    "removeFromWatchlist": "Remove from Watchlist",
+    "latest": "Latest"
   },
   "subscription": {
     "plans": "Subscription Plans",
@@ -190,7 +193,10 @@
     "noFavorites": "No favorite videos yet",
     "noLikes": "No liked videos yet",
     "noVideos": "No uploaded videos yet",
-    "watchHistory": "Watch History"
+    "watchHistory": "Watch History",
+    "sharedVideos": "Shared Videos",
+    "noShares": "No shared videos yet",
+    "share": "Share"
   },
   "profileEmpty": {
     "welcome": "Welcome to OTalk TV",
@@ -253,11 +259,13 @@
     "actorsPlaceholder": "Actor Names eg: John Doe, Jane Smith",
     "regionPlaceholder": "Region eg: USA, UK",
     "languagePlaceholder": "Language eg: English, Spanish",
-    "chooseImage": "Choose Image"
+    "chooseImage": "Choose Image",
+    "releaseRegions": "Release Region",
+    "sourceProvider": "Source Provider"
   },
   "uploadForm": {
     "title": "Title",
-    "categoryLabel": "Category",  
+    "categoryLabel": "Category",
     "titlePlaceholder": "Enter movie title",
     "seriesTitlePlaceholder": "Enter series title",
     "yearPlaceholder": "Year",
@@ -281,7 +289,10 @@
     "provideAtLeastOneEpisodeFile": "Please select video files for at least one episode",
     "seriesUploadFailed": "Series upload failed",
     "unsupportedPreviewNote": "This file will be uploaded normally but this file type cannot be previewed in the browser",
-    "unsupportedFormatMessage": "format is not supported by this browser and is unavailable for preview"
+    "unsupportedFormatMessage": "format is not supported by this browser and is unavailable for preview",
+    "chooseLandscape": "Choose Landscape",
+    "choosePortrait": "Choose Portrait",
+    "remove": "Remove"
   },
   "settings": {
     "title": "Settings",
@@ -400,5 +411,25 @@
     "linkCopied": "Link copied to clipboard!",
     "error": "Failed to share"
   },
-  "ERR_USER_ALREADY_EXISTS": "User with this email already exists"
+  "ERR_USER_ALREADY_EXISTS": "User with this email already exists",
+  "top_rated_series": "Top Rated Series",
+  "popular_series": "Popular Series",
+  "latest_series": "Latest Series",
+  "top_rated_variety": "Top Rated Variety Shows",
+  "latest_variety": "Latest Variety Shows",
+  "popular_variety": "Popular Variety Shows",
+  "top_rated_anime": "Top Rated Anime",
+  "popular_anime": "Popular Anime",
+  "recommended_anime": "Recommended Anime",
+  "top_rated_movie": "Top Rated Movies",
+  "popular_movie": "Popular Movies",
+  "latest_movie": "Latest Movies",
+  "recommended_movie": "Recommended Movies",
+  "home": {
+    "noContentAvailable": "No content available right now. We may be updating the catalogue.",
+    "retry": "Retry",
+    "showingContentFor": "Showing content for:",
+    "clearFilter": "Clear filter",
+    "noContentFound": "No content found for"
+  }
 }

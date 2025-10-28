@@ -110,7 +110,9 @@
     "female": "Perempuan",
     "other": "Lain-lain",
     "noMoreContent": "Tiada kandungan lagi untuk dimuatkan",
-    "loadMore": "Muat lagi"
+    "loadMore": "Muat lagi",
+    "viewMore": "Lihat lebih banyak",
+    "viewAll": "Lihat semua"
   },
   "movie": {
     "moreInfo": "Maklumat Lanjut",
@@ -122,7 +124,8 @@
     "overview": "Gambaran Keseluruhan",
     "watchNow": "Tonton Sekarang",
     "addToWatchlist": "Tambah ke Senarai Tontonan",
-    "removeFromWatchlist": "Buang dari Senarai Tontonan"
+    "removeFromWatchlist": "Buang dari Senarai Tontonan",
+    "latest": "Terkini"
   },
   "subscription": {
     "plans": "Pelan Langganan",
@@ -190,7 +193,10 @@
     "noFavorites": "Tiada video kegemaran lagi",
     "noLikes": "Tiada video disukai lagi",
     "noVideos": "Tiada video dimuat naik lagi",
-    "watchHistory": "Sejarah Tontonan"
+    "watchHistory": "Sejarah Tontonan",
+    "sharedVideos": "Video Dikongsi",
+    "noShares": "Tiada video dikongsi lagi",
+    "share": "Kongsi"
   },
   "profileEmpty": {
     "welcome": "Selamat datang ke OTalk TV",
@@ -253,7 +259,9 @@
     "actorsPlaceholder": "Nama Pelakon contohnya: John Doe, Jane Smith",
     "regionPlaceholder": "Wilayah contohnya: USA, UK",
     "languagePlaceholder": "Bahasa contohnya: English, Spanish",
-    "chooseImage": "Pilih Imej"
+    "chooseImage": "Pilih Imej",
+    "releaseRegions": "Wilayah Tayangan",
+    "sourceProvider": "Penyedia Sumber"
   },
   "uploadForm": {
     "title": "Tajuk",
@@ -281,7 +289,10 @@
     "provideAtLeastOneEpisodeFile": "Sila pilih fail video untuk sekurang-kurangnya satu episod",
     "seriesUploadFailed": "Muat naik siri gagal",
     "unsupportedPreviewNote": "Fail ini akan dimuat naik tetapi jenis fail ini tidak dapat dipratonton dalam pelayar",
-    "unsupportedFormatMessage": "format tidak disokong oleh pelayar ini dan tidak tersedia untuk pratonton"
+    "unsupportedFormatMessage": "format tidak disokong oleh pelayar ini dan tidak tersedia untuk pratonton",
+    "chooseLandscape": "Pilih Landskap",
+    "choosePortrait": "Pilih Potret",
+    "remove": "Buang"
   },
   "settings": {
     "title": "Tetapan",
@@ -393,5 +404,25 @@
     "hideReplies": "Sembunyikan balasan",
     "loadingReplies": "Memuatkan balasan..."
   },
-  "ERR_USER_ALREADY_EXISTS": "Pengguna dengan e-mel ini sudah wujud"
+  "ERR_USER_ALREADY_EXISTS": "Pengguna dengan e-mel ini sudah wujud",
+  "top_rated_series": "Siri Terbaik",
+  "popular_series": "Siri Popular",
+  "latest_series": "Siri Terkini",
+  "top_rated_variety": "Rancangan Varieti Terbaik",
+  "latest_variety": "Rancangan Varieti Terkini",
+  "popular_variety": "Rancangan Varieti Popular",
+  "top_rated_anime": "Anime Terbaik",
+  "popular_anime": "Anime Popular",
+  "recommended_anime": "Anime Disyorkan",
+  "top_rated_movie": "Filem Terbaik",
+  "popular_movie": "Filem Popular",
+  "latest_movie": "Filem Terkini",
+  "recommended_movie": "Filem Disyorkan",
+    "home": {
+      "noContentAvailable": "Tiada kandungan tersedia sekarang. Kami mungkin sedang mengemas kini katalog.",
+      "retry": "Cuba Lagi",
+      "showingContentFor": "Menunjukkan kandungan untuk:",
+      "clearFilter": "Kosongkan penapis",
+      "noContentFound": "Tiada kandungan dijumpai untuk"
+    }
 }

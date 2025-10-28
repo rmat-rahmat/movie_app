@@ -110,7 +110,9 @@
     "female": "Женщина",
     "other": "Другое",
     "noMoreContent": "Больше нет контента",
-    "loadMore": "Загрузить ещё"
+    "loadMore": "Загрузить ещё",
+    "viewMore": "Посмотреть больше",
+    "viewAll": "Посмотреть все"
   },
   "movie": {
     "moreInfo": "Подробнее",
@@ -122,7 +124,8 @@
     "overview": "Обзор",
     "watchNow": "Смотреть сейчас",
     "addToWatchlist": "Добавить в список",
-    "removeFromWatchlist": "Удалить из списка"
+    "removeFromWatchlist": "Удалить из списка",
+    "latest": "Последние"
   },
   "subscription": {
     "plans": "Планы подписки",
@@ -190,7 +193,10 @@
     "noFavorites": "Пока нет избранных видео",
     "noLikes": "Пока нет понравившихся видео",
     "noVideos": "Пока нет загруженных видео",
-    "watchHistory": "История просмотров"
+    "watchHistory": "История просмотров",
+    "sharedVideos": "Поделенные видео",
+    "noShares": "Пока нет поделенных видео",
+    "share": "Поделиться"
   },
   "profileEmpty": {
     "welcome": "Добро пожаловать в OTalk TV",
@@ -253,7 +259,9 @@
     "actorsPlaceholder": "Имена актёров, напр.: John Doe, Jane Smith",
     "regionPlaceholder": "Регион, напр.: USA, UK",
     "languagePlaceholder": "Язык, напр.: English, Spanish",
-    "chooseImage": "Выбрать изображение"
+    "chooseImage": "Выбрать изображение",
+    "releaseRegions": "Регионы выпуска",
+    "sourceProvider": "Поставщик источника"
   },
   "uploadForm": {
     "title": "Название",
@@ -281,7 +289,10 @@
     "provideAtLeastOneEpisodeFile": "Пожалуйста, выберите видеофайлы для хотя бы одного эпизода",
     "seriesUploadFailed": "Ошибка загрузки сериала",
     "unsupportedPreviewNote": "Этот файл будет загружен, но данный тип файла не может быть предварительно просмотрен в браузере",
-    "unsupportedFormatMessage": "Формат не поддерживается этим браузером и недоступен для предварительного просмотра"
+    "unsupportedFormatMessage": "Формат не поддерживается этим браузером и недоступен для предварительного просмотра",
+    "chooseLandscape": "Выбрать ландшафт",
+    "choosePortrait": "Выбрать портрет",
+    "remove": "Удалить"
   },
   "settings": {
     "title": "Настройки",
@@ -393,5 +404,25 @@
     "hideReplies": "Скрыть ответы",
     "loadingReplies": "Загрузка ответов..."
   },
-  "ERR_USER_ALREADY_EXISTS": "Пользователь с таким e-mail уже существует"
+  "ERR_USER_ALREADY_EXISTS": "Пользователь с таким e-mail уже существует",
+  "top_rated_series": "Лучшие сериалы",
+  "popular_series": "Популярные сериалы",
+  "latest_series": "Последние сериалы",
+  "top_rated_variety": "Лучшие развлекательные шоу",
+  "latest_variety": "Последние развлекательные шоу",
+  "popular_variety": "Популярные развлекательные шоу",
+  "top_rated_anime": "Лучшее аниме",
+  "popular_anime": "Популярное аниме",
+  "recommended_anime": "Рекомендуемое аниме",
+  "top_rated_movie": "Лучшие фильмы",
+  "popular_movie": "Популярные фильмы",
+  "latest_movie": "Последние фильмы",
+  "recommended_movie": "Рекомендуемые фильмы",
+    "home": {
+      "noContentAvailable": "Контент в данный момент недоступен. Возможно, мы обновляем каталог.",
+      "retry": "Повторить",
+      "showingContentFor": "Показ контента для:",
+      "clearFilter": "Очистить фильтр",
+      "noContentFound": "Контент не найден для"
+    }
 }

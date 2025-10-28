@@ -8,7 +8,10 @@ import { useVideoStore } from '@/store/videoStore';
 import { formatDuration } from '@/utils/durationUtils';
 import StarRating from '@/components/ui/StarRating';
 import RecommendationGrid from '@/components/movie/RecommendationGrid';
-import { FiPlay } from 'react-icons/fi';
+import { FiPlay, FiHeart, FiMessageCircle, FiThumbsUp } from 'react-icons/fi';
+import { toggleFavorite, checkFavorite, toggleVideoLike, checkVideoLike } from '@/lib/movieApi';
+import CommentSection from '@/components/comment/CommentSection';
+import ShareButton from '@/components/ui/ShareButton';
 
 interface VideoPlayerClientProps {
   url?: string;
@@ -30,6 +33,19 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
 
   // Get video metadata from store
   const { currentVideo } = useVideoStore();
+
+  // Favorite state
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
+
+  // Like state
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
+
+  // Comments state
+  const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
     if (!encryptedUrl) {
@@ -157,6 +173,87 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
     blockAds();
   }, [externalUrl]);
 
+  // Check favorite and like status when video loads
+  useEffect(() => {
+    if (!currentVideo?.id) return;
+
+    const checkFavoriteStatus = async () => {
+      try {
+        const isFav = await checkFavorite(String(currentVideo.id));
+        setIsFavorited(isFav);
+      } catch (err) {
+        console.error('Failed to check favorite status:', err);
+      }
+    };
+
+    const checkLikeStatus = async () => {
+      try {
+        const liked = await checkVideoLike(String(currentVideo.id));
+        setIsLiked(liked);
+      } catch (err) {
+        console.error('Failed to check like status:', err);
+      }
+    };
+
+    checkFavoriteStatus();
+    checkLikeStatus();
+  }, [currentVideo?.id]);
+
+  // Initialize like count from store
+  useEffect(() => {
+    if (currentVideo) {
+      if (currentVideo.isLiked !== undefined) {
+        setIsLiked(currentVideo.isLiked);
+      }
+      if (typeof currentVideo.likeCount === 'number') {
+        setLikeCount(currentVideo.likeCount);
+      }
+    }
+  }, [currentVideo]);
+
+  // Toggle favorite status
+  const handleToggleFavorite = async () => {
+    if (!currentVideo?.id) return;
+
+    setIsFavoriteLoading(true);
+    try {
+      const result = await toggleFavorite(String(currentVideo.id));
+      if (result.success) {
+        setIsFavorited(result.isFavorited);
+      } else {
+        console.error('Failed to toggle favorite:', result.message);
+        alert(result.message || t('video.favoriteError', 'Failed to update favorite status'));
+      }
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+      alert(t('video.favoriteError', 'Failed to update favorite status'));
+    } finally {
+      setIsFavoriteLoading(false);
+    }
+  };
+
+  // Toggle like status
+  const handleToggleLike = async () => {
+    if (!currentVideo?.id) return;
+
+    setIsLikeLoading(true);
+    try {
+      const result = await toggleVideoLike(String(currentVideo.id));
+    
+      if (result.success) {
+        setIsLiked(previous => !previous);
+      } else {
+        console.error('Failed to toggle like:', result.message);
+        alert(result.message || t('video.likeError', 'Failed to update like status'));
+      }
+    } catch (err) {
+      console.error('Error toggling like:', err);
+      alert(t('video.likeError', 'Failed to update like status'));
+    } finally {
+      setIsLikeLoading(false);
+    }
+  };
+
   if (loading) {
     return <LoadingPage />;
   }
@@ -277,12 +374,69 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                   </div>
 
                   {currentVideo.description && (
-                    <p className="text-gray-200 text-sm md:text-base max-w-3xl">
+                    <p className="text-gray-200 text-sm md:text-base max-w-3xl mb-4">
                       {currentVideo.description.length > 200
                         ? `${currentVideo.description.substring(0, 200)}...`
                         : currentVideo.description}
                     </p>
                   )}
+
+                  {/* Interaction Buttons */}
+                  <div className="flex items-center gap-4 mt-4">
+                    {/* Like Button */}
+                    <button
+                      onClick={handleToggleLike}
+                      disabled={isLikeLoading}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isLiked
+                          ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        } disabled:opacity-50`}
+                    >
+                      <FiThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+                      <span className="text-sm font-medium">
+                        {`${isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')}`}
+                      </span>
+                    </button>
+
+                    {/* Comments Button */}
+                    <button
+                      onClick={() => setShowComments(!showComments)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${showComments
+                          ? 'bg-[#fbb033]/20 text-[#fbb033] hover:bg-[#fbb033]/30'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        }`}
+                    >
+                      <FiMessageCircle className="w-5 h-5" />
+                      <span className="text-sm font-medium">
+                        {t('comments.title', 'Comments')} {commentCount > 0 && `(${commentCount})`}
+                      </span>
+                    </button>
+
+                    {/* Favorite Button */}
+                    <button
+                      onClick={handleToggleFavorite}
+                      disabled={isFavoriteLoading}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isFavorited
+                          ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        } disabled:opacity-50`}
+                    >
+                      <FiHeart className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
+                      <span className="text-sm font-medium">
+                        {isFavorited ? t('video.favorited', 'Favorited') : t('video.favorite', 'Favorite')}
+                      </span>
+                    </button>
+
+                    {/* Share Button */}
+                    {currentVideo?.id && (
+                      <ShareButton
+                        targetId={String(currentVideo.id)}
+                        contentType={currentVideo.isSeries && currentVideo.currentEpisode ? 'episode' : 'video'}
+                        title={currentVideo.title}
+                        variant="full"
+                      />
+                    )}
+                  </div>
                 </div>
 
                 {/* External Source Info */}
@@ -302,123 +456,16 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
           </div>
         </section>
 
-        {/* Additional Video Information */}
-        {currentVideo && (
-          <div className="w-full lg:w-[60vw] mx-auto space-y-6">
-            {/* Cast and Crew */}
-            <div className="grid md:grid-cols-[40%_30%_30%] gap-6">
-              {currentVideo.actors && currentVideo.actors.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-3">{t('video.cast')}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {currentVideo.actors.slice(0, 8).map((actor, index) => (
-                      <span key={index} className="bg-gray-800 px-3 py-1 rounded-full text-sm">
-                        {actor}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                {currentVideo.director && (
-                  <div>
-                    <span className="text-gray-400">{t('video.director')}: </span>
-                    <span className="text-white">{currentVideo.director}</span>
-                  </div>
-                )}
-                {currentVideo.language && (
-                  <div>
-                    <span className="text-gray-400">{t('video.language')}: </span>
-                    <span className="text-white">{currentVideo.language}</span>
-                  </div>
-                )}
-                {currentVideo.region && (
-                  <div>
-                    <span className="text-gray-400">{t('video.region')}: </span>
-                    <span className="text-white">{currentVideo.region}</span>
-                  </div>
-                )}
-                {currentVideo.currentEpisode?.duration && (
-                  <div>
-                    <span className="text-gray-400">{t('video.duration')}: </span>
-                    <span className="text-white">{formatDuration(currentVideo.currentEpisode.duration)}</span>
-                  </div>
-                )}
-              </div>
-
-              {currentVideo.tags && currentVideo.tags.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-3">{t('video.tags')}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {currentVideo.tags.map((tag, index) => (
-                      <span key={index} className="bg-[#fbb033] text-black px-3 py-1 rounded text-sm">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Episodes List for Series */}
-            {currentVideo.isSeries && currentVideo.episodes && currentVideo.episodes.length > 0 && (
-              <div>
-                <h3 className="text-xl font-semibold mb-3">{t('video.episodes')}</h3>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {currentVideo.episodes.map((episode) => {
-                    const isCurrentEpisode = currentVideo.currentEpisode?.uploadId === (episode.uploadId || episode.id);
-                    const hasExternalUrl = episode.playUrl;
-                    const hasInternalUrl = episode.uploadId;
-                    
-                    return (
-                      <div
-                        key={episode.id || episode.uploadId}
-                        className={`flex items-center justify-between p-3 rounded transition-colors ${
-                          isCurrentEpisode
-                            ? 'bg-[#fbb033]/20 border border-[#fbb033]/50'
-                            : 'bg-gray-800 hover:bg-gray-700'
-                        }`}
-                      >
-                        <div className="flex-1">
-                          <div className="font-medium">
-                            {t('video.episodes')} {episode.episodeNumber || ''} - {episode.title || t('common.other')}
-                          </div>
-                          <div className="text-sm text-gray-400">
-                            {t('video.duration')}: {episode.duration ? `${Math.floor(episode.duration / 60)} min` : 'N/A'}
-                            {hasExternalUrl && <span className="ml-2 text-red-400">(External)</span>}
-                          </div>
-                        </div>
-                        {isCurrentEpisode ? (
-                          <span className="text-[#fbb033] text-sm font-medium">
-                            {t('video.currentlyPlaying', 'Currently Playing')}
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              if (hasExternalUrl) {
-                                // Navigate to external player with encrypted URL
-                                const encryptedUrl = encryptUrl(episode.playUrl || '');
-                                router.push(`/videoplayerExternal?url=${encodeURIComponent(encryptedUrl)}`);
-                              } else if (hasInternalUrl) {
-                                // Navigate to internal player
-                                router.push(`/videoplayer?id=${encodeURIComponent(episode.uploadId || episode.id || '')}`);
-                              }
-                            }}
-                            disabled={!hasExternalUrl && !hasInternalUrl}
-                            className="flex items-center px-3 py-1 bg-[#fbb033] text-black rounded hover:bg-yellow-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <FiPlay className="mr-1" />
-                            {t('videoInfo.watch', 'Watch')}
-                            {hasExternalUrl && ' (Ext)'}
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+        {/* Comments Section */}
+        {currentVideo?.id && (
+          <div className="mt-8 w-full lg:w-[60vw] mx-auto">
+            <CommentSection
+              showComments={showComments}
+              mediaId={String(currentVideo.id)}
+              mediaType={currentVideo.isSeries ? 'episode' : 'video'}
+              className="bg-gray-900/50 rounded-lg p-6"
+              onCommentCountChange={setCommentCount}
+            />
           </div>
         )}
 

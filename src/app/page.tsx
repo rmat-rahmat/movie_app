@@ -1,32 +1,36 @@
 'use client';
 
-import { getHomeSections, getSectionsContent, getBannerList } from "@/lib/movieApi";
+import { getHomeSections, loadMoreSectionContent, getBannerList } from "@/lib/movieApi";
 import { useEffect, useState, useCallback } from "react";
 import LoadingPage from "@/components/ui/LoadingPage";
-import type { DashboardItem, BannerVO, VideoVO, HomeSectionVO, SectionContentRequest } from '@/types/Dashboard';
+import type { DashboardItem, BannerVO, VideoVO, HomeSectionVO } from '@/types/Dashboard';
 import SubscriptionSection from "@/components/subscription/SubscriptionSection";
 import { useAuthStore } from "@/store/authStore";
 import DashboardSection from "@/components/movie/DashboardSection";
 import BannerSlider from "@/components/movie/BannerSlider";
 import { getCategoryTree, type CategoryItem } from "@/lib/movieApi";
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
+import { useTranslation } from "react-i18next";
 
 // Extended section with pagination state
 interface ExtendedSection extends HomeSectionVO {
   currentPage: number;
   isLoadingMore: boolean;
   allVideos: VideoVO[];
+  categoryId?: string;
 }
 
 export default function Home() {
   const [banners, setBanners] = useState<BannerVO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [contentLoading, setContentLoading] = useState(false);
   const [categoryList, setCategoryList] = useState<CategoryItem[]>([
     { id: "All", categoryLangLabel: { "en": "All", "zh": "所有", "ms": "Semua", "de": "Alle", "fr": "Tous", "ru": "Все" } }
   ]);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [sections, setSections] = useState<ExtendedSection[]>([]);
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
+   const { t } = useTranslation();
   
   const { user } = useAuthStore();
 
@@ -94,7 +98,7 @@ export default function Home() {
     try {
       const homeSections = await getHomeSections(
         categoryId && categoryId !== "All" ? categoryId : undefined,
-        'p720',
+        '720',
         5
       );
 
@@ -105,6 +109,7 @@ export default function Home() {
           isLoadingMore: false,
           allVideos: [...section.contents]
         }));
+        console.log("Fetched home sections:", extendedSections);
         setSections(extendedSections);
       }
     } catch (error) {
@@ -115,12 +120,13 @@ export default function Home() {
   // Handle category change
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategory(categoryId);
-    setIsLoading(true);
-    fetchHomeSections(categoryId).finally(() => setIsLoading(false));
+    // setIsLoading(true);
+    setContentLoading(true);
+    fetchHomeSections(categoryId).finally(() => setContentLoading(false));
   };
 
   // Load more content for a specific section
-  const loadMoreSectionContent = useCallback(async (sectionId: string) => {
+  const loadMoreForSection = useCallback(async (sectionId: string) => {
     const sectionIndex = sections.findIndex(s => s.id === sectionId);
     if (sectionIndex === -1) return;
 
@@ -134,25 +140,26 @@ export default function Home() {
 
     try {
       const nextPage = section.currentPage + 1;
-      const request: SectionContentRequest = {
-        categoryId: selectedCategory !== "All" ? selectedCategory : "movie", // Use first category or selected
-        sectionId: sectionId,
-        type: 'p720',
-        page: nextPage,
-        size: 10
-      };
-
-      const contentResults = await getSectionsContent([request], nextPage, 10);
       
-      if (contentResults && contentResults.length > 0) {
-        const content = contentResults[0];
+      // Use the selected category or fallback to section's category
+      const categoryIdToUse = selectedCategory !== "All" ? selectedCategory : (section.categoryId || "movie");
+
+      const contentResult = await loadMoreSectionContent(
+        sectionId,
+        categoryIdToUse,
+        '720',
+        nextPage,
+        10
+      );
+      
+      if (contentResult && contentResult.videos && contentResult.videos.length > 0) {
         const newSections = [...sections];
         newSections[sectionIndex] = {
           ...section,
           currentPage: nextPage,
           isLoadingMore: false,
-          allVideos: [...section.allVideos, ...content.videos],
-          hasMore: content.hasNext
+          allVideos: [...section.allVideos, ...contentResult.videos],
+          hasMore: contentResult.hasNext
         };
         setSections(newSections);
       } else {
@@ -244,13 +251,13 @@ export default function Home() {
           {/* Fallback UI when no content */}
           {!isLoading && banners.length === 0 && sections.length === 0 && (
             <div className="py-12 px-4 text-center w-full">
-              <p className="text-gray-300 text-lg mb-4">No content available right now. We may be updating the catalogue.</p>
+              <p className="text-gray-300 text-lg mb-4">{t('home.noContentAvailable')}</p>
               <div className="flex justify-center gap-3">
                 <button
                   onClick={() => initializePage()}
                   className="px-4 py-2 bg-[#fbb033] text-black rounded-lg hover:bg-[#f69c05] transition-colors"
                 >
-                  Retry
+                  {t('home.retry')}
                 </button>
               </div>
             </div>
@@ -264,14 +271,14 @@ export default function Home() {
             {selectedCategory && selectedCategory !== "All" && (
               <div className="py-4 px-4 flex flex-row justify-between items-center width-full">
                 <p className="text-gray-300 text-sm">
-                  Showing content for: <span className="text-[#fbb033] font-semibold">
+                  {t('home.showingContentFor')} <span className="text-[#fbb033] font-semibold">
                     {categoryMap[selectedCategory] || selectedCategory}
                   </span>
                   <button 
                     onClick={() => handleCategoryChange("All")}
                     className="ml-2 text-xs text-gray-400 hover:text-white underline"
                   >
-                    Clear filter
+                    {t('home.clearFilter')}
                   </button>
                 </p>
               </div>
@@ -279,17 +286,21 @@ export default function Home() {
             
             {/* Render sections with infinite scroll */}
             {sections.length > 0 ? (
+              !contentLoading ?
               sections.map((section) => (
                 <div key={section.id}>
                   <DashboardSection
-                    title={section.title || ""}
+                    title={t(section.id, section.title)}
                     videos={section.allVideos.map(convertToDashboardItem)}
-                    onViewMore={section.hasMore ? () => location.href = `/viewmore/${section.id}` : undefined}
+                    onViewMore={section.hasMore ? () => {
+                      const title = encodeURIComponent(section.title || '');
+                      location.href = `/viewmore?id=${section.id}&title=${t(section.id, section.title)}&ctg=${section.categoryId ? section.categoryId : 'movie'}`;
+                    } : undefined}
                     onScrollEnd={() => {
                       console.log(`Scrolled to end of section ${section.id}`);
                       // Load more content when user scrolls horizontally near the end
                       // if (section.hasMore && !section.isLoadingMore) {
-                        loadMoreSectionContent(section.id);
+                        loadMoreForSection(section.id);
                       // }
                     }}
                   />
@@ -303,11 +314,11 @@ export default function Home() {
                   
                   {/* Intersection observer sentinel - removed as we now use horizontal scroll */}
                 </div>
-              ))
+              )) : <LoadingPage className="relative h-[50vh] z-[-1]" />
             ) : selectedCategory && selectedCategory !== "All" ? (
               <div className="py-8 px-4 text-center">
                 <p className="text-gray-400 text-lg">
-                  No content found for &quot;{categoryMap[selectedCategory] || selectedCategory}&quot;
+                  {t('home.noContentFound')} &quot;{categoryMap[selectedCategory] || selectedCategory}&quot;
                 </p>
               </div>
             ) : null}

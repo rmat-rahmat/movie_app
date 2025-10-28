@@ -82,7 +82,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
                         onClick={onViewMore}
                         className="flex items-center gap-1 text-[#fbb033] hover:text-[#fbb033] font-medium text-sm cursor-pointer"
                     >
-                        View More
+                        {t('common.viewMore', 'View More')}
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-4 w-4"

@@ -18,6 +18,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   const searchParams = useSearchParams();
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const debounceRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLFormElement | null>(null);
@@ -71,6 +72,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
       if (!containerRef.current) return;
       if (!containerRef.current.contains(e.target as Node)) {
         setShowSuggestions(false);
+        setIsFocused(false);
       }
     };
     document.addEventListener('click', handler);
@@ -109,6 +111,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
     }
   };
   const handleFocus = () => {
+    setIsFocused(true);
     if (!query) {
       (async () => {
         try {
@@ -122,7 +125,17 @@ const SearchInput: React.FC<SearchInputProps> = ({
           // ignore
         }
       })();
+    } else if (suggestions.length > 0) {
+      setShowSuggestions(true);
     }
+  };
+
+  const handleBlur = () => {
+    // Delay to allow click events on suggestions to fire
+    setTimeout(() => {
+      setIsFocused(false);
+      setShowSuggestions(false);
+    }, 150);
   };
 
   return (
@@ -134,6 +147,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
         onKeyPress={handleKeyPress}
         placeholder={placeholder}
         onFocus={handleFocus}
+        onBlur={handleBlur}
         className="w-full px-4 py-2 pr-10 bg-[#0b0b0b] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#fbb033] focus:ring-1 focus:ring-[#fbb033] text-sm"
       />
       <button
@@ -155,7 +169,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
         </svg>
       </button>
       {/* Suggestions dropdown */}
-      {showSuggestions && suggestions.length > 0 && (
+      {isFocused && showSuggestions && suggestions.length > 0 && (
         <ul className="absolute left-0 right-0 mt-1 bg-[#0b0b0b] border border-gray-700 rounded-md shadow-lg z-50 max-h-56 overflow-auto">
           {suggestions.map((s, idx) => (
             <li

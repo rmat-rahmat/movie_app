@@ -199,6 +199,7 @@ export interface Episode {
   createBy?: string | null;
   updateTime?: string | null;
   m3u8Url?: string | null;
+  qualityPermissions?: QualityPermission[];
 }
 
 // Quality permission for episodes

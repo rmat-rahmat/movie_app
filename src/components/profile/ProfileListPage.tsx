@@ -42,7 +42,7 @@ export default function ProfileListPage({
     if (!user) return;
     setLoading(true);
     const load = async () => {
-      const list = await fetchItems(1, 24, 'p720');
+      const list = await fetchItems(1, 24, '720');
       setItems(list || []);
       setPage(1);
       setHasMore((list && list.length === 24) || false);
@@ -53,7 +53,7 @@ export default function ProfileListPage({
 
   const handleLoadMore = async () => {
     const next = page + 1;
-    const list = await fetchItems(next, 24, 'p720');
+    const list = await fetchItems(next, 24, '720');
     if (list && list.length > 0) {
       setItems((s) => [...s, ...list]);
       setPage(next);

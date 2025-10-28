@@ -9,6 +9,7 @@ import MovieModal from './MovieModal';
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 import { FiClock, FiStar } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'next/navigation';
 
 interface CategoryVideosProps {
   categoryId: string;
@@ -30,6 +31,7 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
   const [hasIntersected, setHasIntersected] = useState(false);
   const [sort, setSort] = useState("0"); // 0: Upload Date, 1: Rating
   const {t}=useTranslation();
+  const router = useRouter();
 
   const pageSize = 30;
 
@@ -265,8 +267,9 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
   };
 
   const handleDashboardItemClick = (video: VideoVO) => {
-    setSelectedVideo(video);
-    setIsModalOpen(true);
+    // setSelectedVideo(video);
+    // setIsModalOpen(true);
+    router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}`);
   };
 
   const closeModal = () => {

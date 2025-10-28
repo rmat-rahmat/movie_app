@@ -424,7 +424,7 @@ export const mapFeaturedToVideoSrc = (payload: DashboardApiResponse | null): Vid
 };
 
 // Get videos by category ID with pagination
-export async function getCategoryVideos(categoryId: string, page: number = 1, size: number = 20,type:string="p720",sortType:string="0"): Promise<VideosApiResponse | null> {
+export async function getCategoryVideos(categoryId: string, page: number = 1, size: number = 20,type:string="720",sortType:string="0"): Promise<VideosApiResponse | null> {
   try {
     const response = await axios.get(`${BASE_URL}/api-movie/v1/category/videos/${categoryId}`, {
       params: { page, size ,type,sortType},
@@ -563,7 +563,7 @@ export async function getPlayVariant(uploadId: string, type: string, apiKey?: st
 }
 
 // Get playback URL for a specific quality using the otaik.cc endpoint
-export async function getPlaybackUrl(uploadId: string, quality: '144p' | '360p' | '720p' | '1080p', apiKey?: string): Promise<string | null> {
+export async function getPlaybackUrl(uploadId: string, quality: '144p' | '360p' | '480p' | '720p' | '1080p', apiKey?: string): Promise<string | null> {
   try {
     const url = `${BASE_URL}/api-net/play/${uploadId}/${quality}.m3u8`;
     // const url = `https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8`;
@@ -695,7 +695,7 @@ export async function getLastWatchPosition(mediaId: string, episodeId: string): 
 }
 
 // Fetch paginated watch history list for the current user
-export async function getWatchHistoryList(page: number = 0, size: number = 12,type: string='p720'): Promise<DashboardItem[] | null> {
+export async function getWatchHistoryList(page: number = 0, size: number = 12,type: string='720'): Promise<DashboardItem[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/watch-history/list`;
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
@@ -764,7 +764,7 @@ export async function clearWatchHistory(): Promise<boolean> {
 }
 
 // Fetch user uploaded videos list (paginated) - returns ContentVO items
-export async function getUserUploadedVideos(page: number = 1, size: number = 12, type: string = 'p720'): Promise<DashboardItem[] | null> {
+export async function getUserUploadedVideos(page: number = 1, size: number = 12, type: string = '720'): Promise<DashboardItem[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/my-videos/uploads`;
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
@@ -821,7 +821,7 @@ export async function getSeriesEpisodes(
   seriesId: string,
   page: number = 1,
   size: number = 20,
-  type: string = 'p720'
+  type: string = '720'
 ): Promise<{ episodes: EpisodeVO[]; pageInfo: PageResultEpisodeVO } | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/my-videos/${encodeURIComponent(seriesId)}/episodes`;
@@ -901,7 +901,7 @@ export async function toggleFavorite(videoId: string): Promise<{ success: boolea
 }
 
 // Get user's favorite videos list
-export async function getFavoritesList(page: number = 0, size: number = 20, type: string = 'p720'): Promise<DashboardItem[] | null> {
+export async function getFavoritesList(page: number = 0, size: number = 20, type: string = '720'): Promise<DashboardItem[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/favorites/list`;
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
@@ -1001,7 +1001,7 @@ export async function checkVideoLike(videoId: string): Promise<boolean> {
 }
 
 // Get user's liked videos list
-export async function getVideoLikeList(page: number = 0, size: number = 20, type: string = 'p720'): Promise<DashboardItem[] | null> {
+export async function getVideoLikeList(page: number = 0, size: number = 20, type: string = '720'): Promise<DashboardItem[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/like/list`;
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
@@ -1053,7 +1053,7 @@ export async function getSharesList(
   size: number = 20, 
   contentId?: string,
   contentType?: 'video' | 'episode',
-  imageType: string = 'p720',
+  imageType: string = '720',
   platform?: string
 ): Promise<DashboardItem[] | null> {
   try {
@@ -1339,7 +1339,7 @@ export const getBannerList = async (type: number = 1, quality: string = '720'): 
  */
 export const getHomeSections = async (
   categoryId?: string,
-  type: string = 'p720',
+  type: string = '720',
   limit: number = 5
 ): Promise<HomeSectionVO[]> => {
   try {
@@ -1366,38 +1366,38 @@ export const getHomeSections = async (
 };
 
 /**
- * Get sections content (for pagination/infinite scroll)
- * @param sections - Array of section content requests
- * @param page - Default page number
- * @param size - Default page size
- * @returns Promise with section content array
+ * Load more content for a specific section (for pagination/infinite scroll)
+ * @param sectionId - Section ID
+ * @param categoryId - Category ID (short ID)
+ * @param type - Image type/quality (e.g., 'p720')
+ * @param page - Page number (starts from 2 for loading more)
+ * @param size - Page size
+ * @returns Promise with section content
  */
-export const getSectionsContent = async (
-  sections: SectionContentRequest[],
-  page: number = 1,
+export const loadMoreSectionContent = async (
+  sectionId: string,
+  categoryId: string,
+  type: string = '720',
+  page: number = 2,
   size: number = 10
-): Promise<SectionContentVO[]> => {
+): Promise<SectionContentVO | null> => {
   try {
-    const response = await axios.post(
-      `${BASE_URL}/api-movie/v1/home/sections/content`,
+    const response = await axios.get(
+      `${BASE_URL}/api-movie/v1/home/sections/${encodeURIComponent(sectionId)}/more`,
       {
-        sections,
-        page,
-        size
-      },
-      {
-        headers: { 'Content-Type': 'application/json' }
+        params: { categoryId, type, page, size },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       }
     );
 
-    if (response.data?.success && Array.isArray(response.data?.data)) {
-      return response.data.data as SectionContentVO[];
+    if (response.data?.success && response.data?.data) {
+      return response.data.data as SectionContentVO;
     }
 
-    console.warn('Sections content returned empty or invalid data');
-    return [];
+    console.warn('Section content returned empty or invalid data');
+    return null;
   } catch (error) {
-    console.error('Error fetching sections content:', error);
-    return [];
+    console.error('Error fetching more section content:', error);
+    return null;
   }
 };

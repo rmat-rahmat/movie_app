@@ -67,7 +67,6 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
   // Effect to handle directId - fetch content details and resolve to uploadId
   useEffect(() => {
-    if (!directId) return;
 
     let mounted = true;
     const fetchContentAndResolve = async () => {
@@ -75,7 +74,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       setError(null);
       try {
         console.log('Fetching content details for directId:', directId);
-        const contentDetails = await getContentDetail(directId);
+        const contentDetails = await getContentDetail(directId || "");
 
         if (!mounted) return;
 
@@ -129,7 +128,13 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       }
     };
 
-    fetchContentAndResolve();
+
+    if (!directId) {
+      setActualUploadId('');
+    } else {
+
+      fetchContentAndResolve();
+    }
     return () => { mounted = false; };
   }, [directId, setVideoFromDetails, setCurrentEpisode]);
 
@@ -153,10 +158,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       try {
         // Note: getPlayMain result not used currently, focusing on quality variants
 
-        if(currentVideo && currentVideo.isLiked) {
+        if (currentVideo && currentVideo.isLiked) {
           setIsLiked(currentVideo.isLiked || false);
         }
-        if(currentVideo && typeof currentVideo.likeCount === 'number') {
+        if (currentVideo && typeof currentVideo.likeCount === 'number') {
           setLikeCount(currentVideo.likeCount || 0);
         }
 
@@ -164,26 +169,40 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
           setCurrentEpisode(uploadIdToLoad);
           setCalcDuration((currentVideo.currentEpisode.duration ?? 0) | 0);
         }
+
         await getPlayMain(uploadIdToLoad);
         if (!mounted) return;
-        const qualities: ('144p' | '360p' | '720p' | '1080p')[] = ['1080p', '720p', '360p', '144p'];
+        console.log("current video check", currentVideo);
+        const qualities: ('144p' | '360p' | '480p' | '720p' | '1080p')[] = ['1080p', '720p', '480p', '360p', '144p'];
         const bandwidthMap: Record<string, number> = {
           '144p': 150000,   // ~150 kbps
           '360p': 800000,   // ~800 kbps
+          '480p': 1500000,  // ~1.5 Mbps
           '720p': 1500000,  // ~1.5 Mbps
           '1080p': 3000000, // ~3 Mbps
         };
         const resolutionMap: Record<string, string> = {
           '144p': '256x144',
           '360p': '640x360',
+          '480p': '854x480',
           '720p': '1280x720',
           '1080p': '1920x1080',
         };
         let masterPlaylist: string = '#EXTM3U\n#EXT-X-VERSION:3\n\n';
+
+        const qualityPermissions = currentVideo?.currentEpisode?.qualityPermissions || null;
+        console.log('Quality permissions:', qualityPermissions);
         for (const quality of qualities) {
-          const v = await getPlaybackUrl(uploadIdToLoad, quality);
+          let permitted = false;
+          if (qualityPermissions) {
+            permitted = !!qualityPermissions.find(qp => qp.qualityName == quality && qp.status === 'ALLOW');
+          }
+          else {
+            const v = await getPlaybackUrl(uploadIdToLoad, quality);
+            permitted = v !== null;
+          }
           if (!mounted) return;
-          if (v !== null) {
+          if (permitted) {
             masterPlaylist += `#EXT-X-STREAM-INF:BANDWIDTH=${bandwidthMap[quality]},RESOLUTION=${resolutionMap[quality]}\n${BASE_URL}/api-net/play/${uploadIdToLoad}/${quality}.m3u8\n\n`;
           }
         }
@@ -614,10 +633,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     setIsLikeLoading(true);
     try {
       const result = await toggleVideoLike(String(currentVideo.id));
-    
+
       if (result.success) {
         // setLikeCount(previous => isLiked ? previous + 1 : Math.max(0, previous - 1))
-          setIsLiked(previous => !previous);
+        setIsLiked(previous => !previous);
       } else {
         console.error('Failed to toggle like:', result.message);
         alert(result.message || t('video.likeError', 'Failed to update like status'));
@@ -713,7 +732,14 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                   aria-label={t('video.play')}
                   onClick={() => {
                     // playVideo();
-                    loadFromMaster(masterPlaylist || '');
+                    if (m3u8Url) {
+                      console.log(currentVideo)
+                      loadFromDirectM3u8(decodeURIComponent(m3u8Url));
+                    } else {
+
+                      loadFromMaster(masterPlaylist || '');
+                    }
+
                   }}
                   className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/25 transition-colors cursor-pointer"
                 >
@@ -798,13 +824,13 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                       onClick={handleToggleLike}
                       disabled={isLikeLoading}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isLiked
-                          ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                         } disabled:opacity-50`}
                     >
                       <FiThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                       <span className="text-sm font-medium">
-                       {`${isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')}`}
+                        {`${isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')}`}
                       </span>
                     </button>
 
@@ -812,8 +838,8 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     <button
                       onClick={() => setShowComments(!showComments)}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${showComments
-                          ? 'bg-[#fbb033]/20 text-[#fbb033] hover:bg-[#fbb033]/30'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        ? 'bg-[#fbb033]/20 text-[#fbb033] hover:bg-[#fbb033]/30'
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                         }`}
                     >
                       <FiMessageCircle className="w-5 h-5" />
@@ -827,8 +853,8 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                       onClick={handleToggleFavorite}
                       disabled={isFavoriteLoading}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isFavorited
-                          ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                         } disabled:opacity-50`}
                     >
                       <FiHeart className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
@@ -961,7 +987,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                         <span className="text-[#fbb033] text-sm font-medium">{isPlaying ? `(${t('video.currentlyPlaying')})` : ''}</span>
                       ) :
                         <button
-                          onClick={() => router.push(`/videoplayer?id=${encodeURIComponent(episode.uploadId || episode.id || '')}`)}
+                          onClick={() => {
+                            setCurrentEpisode(episode.uploadId || "");
+                            router.push(`/videoplayer?id=${encodeURIComponent(episode.uploadId || episode.id || '')}`)
+                          }}
                           className="flex items-center px-3 py-1 bg-[#fbb033] text-black rounded hover:bg-yellow-500 transition-colors cursor-pointer"
                         >
                           <FiPlay className="mr-1" />
@@ -977,7 +1006,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         )}
 
         {/* Comments Section */}
-        {currentVideo?.id  && (
+        {currentVideo?.id && (
           <div className="mt-8 w-full lg:w-[60vw] mx-auto">
             <CommentSection
               showComments={showComments}

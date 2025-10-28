@@ -110,7 +110,9 @@
     "female": "女性",
     "other": "其他",
     "noMoreContent": "没有更多内容",
-    "loadMore": "加载更多"
+    "loadMore": "加载更多",
+    "viewMore": "查看更多",
+    "viewAll": "查看全部"
   },
   "movie": {
     "moreInfo": "更多信息",
@@ -122,7 +124,8 @@
     "overview": "概述",
     "watchNow": "立即观看",
     "addToWatchlist": "加入观看列表",
-    "removeFromWatchlist": "从观看列表移除"
+    "removeFromWatchlist": "从观看列表移除",
+    "latest": "最新"
   },
   "subscription": {
     "plans": "订阅方案",
@@ -183,14 +186,17 @@
     "LikedVideos": "点赞视频",
     "Playlist": "播放列表",
     "YourVideos": "您的视频",
-    "backToProfile": "返回资料",
+    "backToProfile": "返回",
     "clearHistory": "清除历史",
     "confirmClearHistory": "清除观看历史？此操作无法撤销。",
     "noHistory": "暂无观看历史",
     "noFavorites": "暂无收藏视频",
     "noLikes": "暂无点赞视频",
     "noVideos": "暂无上传视频",
-    "watchHistory": "观看历史"
+    "watchHistory": "观看历史",
+    "sharedVideos": "已分享视频",
+    "noShares": "暂无已分享视频",
+    "share": "分享"
   },
   "profileEmpty": {
     "welcome": "欢迎来到 OTalk TV",
@@ -253,7 +259,9 @@
     "actorsPlaceholder": "演员姓名，例如：张三, 李四",
     "regionPlaceholder": "地区，例如：USA, UK",
     "languagePlaceholder": "语言，例如：English, Spanish",
-    "chooseImage": "选择图片"
+    "chooseImage": "选择图片",
+    "releaseRegions": "上映地区",
+    "sourceProvider": "来源提供者"
   },
   "uploadForm": {
     "title": "标题",
@@ -281,7 +289,10 @@
     "provideAtLeastOneEpisodeFile": "请为至少一集选择视频文件",
     "seriesUploadFailed": "剧集上传失败",
     "unsupportedPreviewNote": "该文件将正常上传，但此文件类型无法在浏览器中预览",
-    "unsupportedFormatMessage": "此浏览器不支持该格式，无法预览"
+    "unsupportedFormatMessage": "此浏览器不支持该格式，无法预览",
+    "chooseLandscape": "选择横向",
+    "choosePortrait": "选择纵向",
+    "remove": "移除"
   },
   "settings": {
     "title": "设置",
@@ -393,5 +404,25 @@
     "hideReplies": "隐藏回复",
     "loadingReplies": "正在加载回复..."
   },
-  "ERR_USER_ALREADY_EXISTS": "使用该电子邮件的用户已存在"
+  "ERR_USER_ALREADY_EXISTS": "使用该电子邮件的用户已存在",
+  "top_rated_series": "评分最高的剧集",
+  "popular_series": "热门剧集",
+  "latest_series": "最新剧集",
+  "top_rated_variety": "评分最高的综艺节目",
+  "latest_variety": "最新综艺节目",
+  "popular_variety": "热门综艺节目",
+  "top_rated_anime": "评分最高的动漫",
+  "popular_anime": "热门动漫",
+  "recommended_anime": "推荐动漫",
+  "top_rated_movie": "评分最高的电影",
+  "popular_movie": "热门电影",
+  "latest_movie": "最新电影",
+  "recommended_movie": "推荐电影",
+    "home": {
+      "noContentAvailable": "目前没有可用内容。我们可能正在更新目录。",
+      "retry": "重试",
+      "showingContentFor": "显示内容：",
+      "clearFilter": "清除筛选",
+      "noContentFound": "未找到内容"
+    }
 }

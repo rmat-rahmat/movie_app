@@ -76,9 +76,10 @@ export default function ProfileWrapper({ children ,title, subHeaderRight}: { chi
                 <div className="container min-h-[40vh] mx-auto px-4 py-8 mt-0">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-4">
-                            <Link href="/profile" className="text-gray-300 hover:text-white flex items-center gap-2">
+                            {title !== t('profile.profile', 'Profile') &&
+                             <Link href="/profile" className="text-gray-300 hover:text-white flex items-center gap-2">
                                 <FiChevronLeft /> {t('profile.backToProfile', 'Back to Profile')}
-                            </Link>
+                            </Link>}
                             <h1 className="text-3xl font-bold">{title}</h1>
                         </div>
                         {subHeaderRight && <>{subHeaderRight}</>}

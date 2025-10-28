@@ -110,7 +110,9 @@
     "female": "Femme",
     "other": "Autre",
     "noMoreContent": "Plus de contenu à charger",
-    "loadMore": "Charger plus"
+    "loadMore": "Charger plus",
+    "viewMore": "Voir plus",
+    "viewAll": "Voir tout"
   },
   "movie": {
     "moreInfo": "Plus d'infos",
@@ -122,7 +124,8 @@
     "overview": "Aperçu",
     "watchNow": "Regarder maintenant",
     "addToWatchlist": "Ajouter à la liste de surveillance",
-    "removeFromWatchlist": "Retirer de la liste de surveillance"
+    "removeFromWatchlist": "Retirer de la liste de surveillance",
+    "latest": "Dernier"
   },
   "subscription": {
     "plans": "Plans d'abonnement",
@@ -253,7 +256,9 @@
     "actorsPlaceholder": "Noms des acteurs ex : John Doe, Jane Smith",
     "regionPlaceholder": "Région ex : USA, UK",
     "languagePlaceholder": "Langue ex : English, Spanish",
-    "chooseImage": "Choisir une image"
+    "chooseImage": "Choisir une image",
+    "releaseRegions": "Région de sortie",
+    "sourceProvider": "Fournisseur de source"
   },
   "uploadForm": {
     "title": "Titre",
@@ -281,7 +286,10 @@
     "provideAtLeastOneEpisodeFile": "Veuillez sélectionner des fichiers vidéo pour au moins un épisode",
     "seriesUploadFailed": "Échec du téléversement de la série",
     "unsupportedPreviewNote": "Ce fichier sera téléchargé normalement mais ce type de fichier ne peut pas être prévisualisé dans le navigateur",
-    "unsupportedFormatMessage": "Le format n'est pas pris en charge par ce navigateur et n'est pas disponible pour l'aperçu"
+    "unsupportedFormatMessage": "Le format n'est pas pris en charge par ce navigateur et n'est pas disponible pour l'aperçu",
+    "chooseLandscape": "Choisir Paysage",
+    "choosePortrait": "Choisir Portrait",
+    "remove": "Supprimer"
   },
   "settings": {
     "title": "Paramètres",
@@ -393,5 +401,25 @@
     "hideReplies": "Masquer les réponses",
     "loadingReplies": "Chargement des réponses..."
   },
-  "ERR_USER_ALREADY_EXISTS": "Un utilisateur avec cet e-mail existe déjà"
+  "ERR_USER_ALREADY_EXISTS": "Un utilisateur avec cet e-mail existe déjà",
+  "top_rated_series": "Séries les mieux notées",
+  "popular_series": "Séries populaires",
+  "latest_series": "Dernières séries",
+  "top_rated_variety": "Émissions de variétés les mieux notées",
+  "latest_variety": "Dernières émissions de variétés",
+  "popular_variety": "Émissions de variétés populaires",
+  "top_rated_anime": "Animes les mieux notés",
+  "popular_anime": "Animes populaires",
+  "recommended_anime": "Animes recommandés",
+  "top_rated_movie": "Films les mieux notés",
+  "popular_movie": "Films populaires",
+  "latest_movie": "Derniers films",
+  "recommended_movie": "Films recommandés",
+    "home": {
+      "noContentAvailable": "Aucun contenu disponible pour le moment. Nous mettons peut-être à jour le catalogue.",
+      "retry": "Réessayer",
+      "showingContentFor": "Affichage du contenu pour :",
+      "clearFilter": "Effacer le filtre",
+      "noContentFound": "Aucun contenu trouvé pour"
+    }
 }

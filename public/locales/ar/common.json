@@ -110,7 +110,9 @@
     "female": "أنثى",
     "other": "آخر",
     "noMoreContent": "لا يوجد مزيد من المحتوى",
-    "loadMore": "تحميل المزيد"
+    "loadMore": "تحميل المزيد",
+    "viewMore": "عرض المزيد",
+    "viewAll": "عرض الكل"
   },
   "movie": {
     "moreInfo": "مزيد من المعلومات",
@@ -122,7 +124,8 @@
     "overview": "نبذة",
     "watchNow": "شاهد الآن",
     "addToWatchlist": "أضف إلى قائمة المشاهدة",
-    "removeFromWatchlist": "إزالة من قائمة المشاهدة"
+    "removeFromWatchlist": "إزالة من قائمة المشاهدة",
+    "latest": "الأحدث"
   },
   "subscription": {
     "plans": "خطط الاشتراك",
@@ -190,7 +193,10 @@
     "noFavorites": "لا توجد فيديوهات مفضلة بعد",
     "noLikes": "لا توجد فيديوهات تم الإعجاب بها بعد",
     "noVideos": "لا توجد فيديوهات مرفوعة بعد",
-    "watchHistory": "سجل المشاهدة"
+    "watchHistory": "سجل المشاهدة",
+    "sharedVideos": "الفيديوهات المشتركة",
+    "noShares": "لا توجد فيديوهات مشتركة بعد",
+    "share": "مشاركة"
   },
   "profileEmpty": {
     "welcome": "مرحبًا بك في OTalk TV",
@@ -253,7 +259,9 @@
     "actorsPlaceholder": "أسماء الممثلين مثل: محمد علي, سارة",
     "regionPlaceholder": "المنطقة مثل: USA, UK",
     "languagePlaceholder": "اللغة مثل: English, Spanish",
-    "chooseImage": "اختر صورة"
+    "chooseImage": "اختر صورة",
+    "releaseRegions": "منطقة الإصدار",
+    "sourceProvider": "مزود المصدر"
   },
   "uploadForm": {
     "title": "العنوان",
@@ -281,7 +289,10 @@
     "provideAtLeastOneEpisodeFile": "يرجى اختيار ملفات فيديو لحلقة واحدة على الأقل",
     "seriesUploadFailed": "فشل رفع المسلسل",
     "unsupportedPreviewNote": "سيتم رفع هذا الملف لكن لا يمكن معاينته في المستعرض",
-    "unsupportedFormatMessage": "الصيغة غير مدعومة في هذا المتصفح وغير متاحة للمعاينة"
+    "unsupportedFormatMessage": "الصيغة غير مدعومة في هذا المتصفح وغير متاحة للمعاينة",
+    "chooseLandscape": "اختر صورة أفقية",
+    "choosePortrait": "اختر صورة عمودية",
+    "remove": "إزالة"
   },
   "settings": {
     "title": "الإعدادات",
@@ -393,5 +404,25 @@
     "hideReplies": "إخفاء الردود",
     "loadingReplies": "جارٍ تحميل الردود..."
   },
-  "ERR_USER_ALREADY_EXISTS": "مستخدم بهذا البريد الإلكتروني موجود بالفعل"
+  "ERR_USER_ALREADY_EXISTS": "يوجد مستخدم بهذا البريد الإلكتروني بالفعل",
+  "top_rated_series": "المسلسلات الأعلى تقييمًا",
+  "popular_series": "المسلسلات الشائعة",
+  "latest_series": "أحدث المسلسلات",
+  "top_rated_variety": "برامج المنوعات الأعلى تقييمًا",
+  "latest_variety": "أحدث برامج المنوعات",
+  "popular_variety": "برامج المنوعات الشائعة",
+  "top_rated_anime": "الأنمي الأعلى تقييمًا",
+  "popular_anime": "الأنمي الشائع",
+  "recommended_anime": "أنمي موصى به",
+  "top_rated_movie": "الأفلام الأعلى تقييمًا",
+  "popular_movie": "الأفلام الشائعة",
+  "latest_movie": "أحدث الأفلام",
+  "recommended_movie": "أفلام موصى بها",
+  "home": {
+    "noContentAvailable": "لا يوجد محتوى متاح في الوقت الحالي. قد نقوم بتحديث الكتالوج.",
+    "retry": "إعادة المحاولة",
+    "showingContentFor": "عرض المحتوى لـ:",
+    "clearFilter": "مسح الفلتر",
+    "noContentFound": "لم يتم العثور على محتوى لـ"
+  }
 }

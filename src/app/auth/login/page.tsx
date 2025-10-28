@@ -124,7 +124,7 @@ const LoginPage: React.FC = () => {
                             required
                         />
                     </div>
-                    {(error || localError) && <div className="text-[#fbb033] mb-4">{error || localError}</div>}
+                    
                     <button
                         type="submit"
                         disabled={isLoading}
@@ -132,6 +132,7 @@ const LoginPage: React.FC = () => {
                     >
                         {isLoading ? t('common.loading') : t('auth.loginButton')}
                     </button>
+                    {(error || localError) && <div className="text-[#fbb033] mb-4">{error || localError}</div>}
                 </form>
                 <div className="mt-6 text-center text-gray-300">
                     {t('auth.dontHaveAccount')}{' '}

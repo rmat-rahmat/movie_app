@@ -8,6 +8,7 @@ import MovieModal from "./MovieModal";
 import Image from "next/image";
 import type { VideoVO } from "@/types/Dashboard";
 import { t } from "i18next";
+import { useRouter } from "next/navigation";
 // using native <img> for simpler fallback handling
 
 interface DashboardSliderProps {
@@ -23,6 +24,7 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
     const [imageErrorMap, setImageErrorMap] = useState<Record<number, boolean>>({});
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedVideo, setSelectedVideo] = useState<DashboardItem | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -70,8 +72,10 @@ const DashboardSlider: React.FC<DashboardSliderProps> = ({ videos }) => {
 
 
     const handleDashboardItemClick = (video: DashboardItem) => {
-        setSelectedVideo(video);
-        setIsModalOpen(true);
+        // setSelectedVideo(video);
+        // setIsModalOpen(true);
+
+    router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}`);
     };
 
     const closeModal = () => {

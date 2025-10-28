@@ -1,21 +1,27 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { getGridVideos, getDashboard } from '@/lib/movieApi';
-import type { ContentSection } from '@/types/Dashboard';
+import { useSearchParams } from 'next/navigation';
+import { loadMoreSectionContent } from '@/lib/movieApi';
 import GridVideos from '@/components/movie/GridVideos';
 import LoadingPage from '@/components/ui/LoadingPage';
 
-export default function ViewMorePageClient({ id }: { id: string }) {
+export default function ViewMorePage() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
+  const ctg = searchParams.get('ctg');
+  const title = searchParams.get('title');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const sectionName = id
+  
+  // Generate section name from ID if title not provided
+  const sectionName = title || (id
     ? id
         .replaceAll('_', ' ')
         .split(' ')
         .map((word) => (word ? word.charAt(0).toUpperCase() + word.slice(1) : ''))
         .join(' ')
-    : '';
+    : 'View More');
 
   useEffect(() => {
     // Update document title dynamically
@@ -37,9 +43,18 @@ export default function ViewMorePageClient({ id }: { id: string }) {
         }
 
         // Fetch initial data to check if section exists
-        const initialData = await getGridVideos(`/api-movie/v1/home/sections/${id}/contents`, 1, 1);
+         const categoryIdToUse = ctg !== "All" ? ctg :  "movie";
+
+      const initialData = await loadMoreSectionContent(
+        id,
+        categoryIdToUse || 'movie',
+        '720',
+        1,
+        1
+      );
+      console.log('Category ID used for validation:', initialData);
         console.log('Initial data for section validation:', initialData);
-        if (!initialData || !initialData.success) {
+        if (!initialData) {
           setError('Section not found');
           return;
         }
@@ -71,8 +86,9 @@ export default function ViewMorePageClient({ id }: { id: string }) {
 
   return (
     <GridVideos 
-      id={id} 
+      id={id || ''}
       title={sectionName}
+      ctg={ctg || 'movie'}
     />
   );
 }

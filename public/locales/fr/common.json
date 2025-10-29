@@ -301,7 +301,8 @@
     "landscapeCover": "Couverture Paysage",
     "landscapeThumbnail": "Miniature Paysage",
     "noImageSelected": "Aucune image sélectionnée",
-    "actorSupportedFormats":"Formats pris en charge : /acteur1/acteur2/acteur3 ou acteur1, acteur2, acteur3). Exemple : /Zhang Luyi/Yu Hewei/Chen Jin"
+    "actorSupportedFormats":"Formats pris en charge : /acteur1/acteur2/acteur3 ou acteur1, acteur2, acteur3). Exemple : /Zhang Luyi/Yu Hewei/Chen Jin",
+    "optional": "Optionnel"
   },
   "settings": {
     "title": "Paramètres",

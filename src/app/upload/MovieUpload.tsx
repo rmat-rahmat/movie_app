@@ -804,7 +804,7 @@ export default function MovieUpload() {
                   accept="image/*" 
                   id="movie-cover-file" 
                   onChange={handleCoverFileSelect} 
-                  className="visually-hidden opacity-0 absolute" 
+                  className="visually-hidden opacity-0 absolute z-[-100]" 
                   required 
                 />
                 <label 
@@ -839,7 +839,7 @@ export default function MovieUpload() {
                   accept="image/*" 
                   id="movie-landscape-file" 
                   onChange={handleLandscapeFileSelect} 
-                  className="visually-hidden opacity-0 absolute" 
+                  className="visually-hidden opacity-0 absolute z-[-100]" 
                 />
                 <label 
                   htmlFor="movie-landscape-file" 
@@ -859,7 +859,7 @@ export default function MovieUpload() {
                     </button>
                   </div>
                 ) : (
-                  <span className="text-sm text-gray-400">{t('upload.optional', 'Optional')}</span>
+                  <span className="text-sm text-gray-400">{t('uploadForm.optional', 'Optional')}</span>
                 )}
               </div>
             </div>

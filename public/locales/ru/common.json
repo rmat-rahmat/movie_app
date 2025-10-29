@@ -301,7 +301,8 @@
     "landscapeCover": "Ландшафтная обложка",
     "landscapeThumbnail": "Ландшафтный миниатюрный",
     "noImageSelected": "Изображение не выбрано",
-    "actorSupportedFormats":"Поддерживаемые форматы: /актер1/актер2/актер3 или актер1, актер2, актер3). Пример: /Zhang Luyi/Yu Hewei/Chen Jin"
+    "actorSupportedFormats":"Поддерживаемые форматы: /актер1/актер2/актер3 или актер1, актер2, актер3). Пример: /Zhang Luyi/Yu Hewei/Chen Jin",
+    "optional": "Необязательно"
   },
   "settings": {
     "title": "Настройки",

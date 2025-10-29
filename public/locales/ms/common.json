@@ -301,7 +301,8 @@
     "landscapeCover": "Kulit Landskap",
     "landscapeThumbnail": "Thumbnail Landskap",
     "noImageSelected": "Tiada imej dipilih",
-    "actorSupportedFormats":"Format disokong: /pelakon1/pelakon2/pelakon3 atau pelakon1, pelakon2, pelakon3). Contoh: /Zhang Luyi/Yu Hewei/Chen Jin"
+    "actorSupportedFormats":"Format disokong: /pelakon1/pelakon2/pelakon3 atau pelakon1, pelakon2, pelakon3). Contoh: /Zhang Luyi/Yu Hewei/Chen Jin",
+    "optional": "Pilihan"
   },
   "settings": {
     "title": "Tetapan",

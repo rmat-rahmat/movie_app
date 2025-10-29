@@ -301,7 +301,8 @@
     "landscapeCover": "横向封面",
     "landscapeThumbnail": "横向缩略图",
     "noImageSelected": "未选择图片",
-    "actorSupportedFormats":"支持的格式：/演员1/演员2/演员3 或 演员1, 演员2, 演员3）。例如：/张鲁一/于和伟/陈劲"
+    "actorSupportedFormats":"支持的格式：/演员1/演员2/演员3 或 演员1, 演员2, 演员3）。例如：/张鲁一/于和伟/陈劲",
+    "optional": "可选"
   },
   "settings": {
     "title": "设置",

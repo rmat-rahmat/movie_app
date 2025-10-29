@@ -301,7 +301,8 @@
     "landscapeCover": "Querformat-Cover",
     "landscapeThumbnail": "Querformat-Miniaturansicht",
     "noImageSelected": "Keine Bildauswahl",
-    "actorSupportedFormats":"Unterstützte Formate: /Schauspieler1/Schauspieler2/Schauspieler3 oder Schauspieler1, Schauspieler2, Schauspieler3). Beispiel: /Zhang Luyi/Yu Hewei/Chen Jin"
+    "actorSupportedFormats":"Unterstützte Formate: /Schauspieler1/Schauspieler2/Schauspieler3 oder Schauspieler1, Schauspieler2, Schauspieler3). Beispiel: /Zhang Luyi/Yu Hewei/Chen Jin",
+    "optional": "Optional"
   },
   "settings": {
     "title": "Einstellungen",

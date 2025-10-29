@@ -202,6 +202,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
             permitted = v !== null;
           }
           if (!mounted) return;
+          console.log(`${BASE_URL}/api-net/play/${uploadIdToLoad}/${quality}.m3u8`);
           if (permitted) {
             masterPlaylist += `#EXT-X-STREAM-INF:BANDWIDTH=${bandwidthMap[quality]},RESOLUTION=${resolutionMap[quality]}\n${BASE_URL}/api-net/play/${uploadIdToLoad}/${quality}.m3u8\n\n`;
           }
@@ -254,7 +255,8 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     if (!videoEl) return;
 
     // Use actualUploadId if available (from directId), otherwise use id
-    const currentUploadId = actualUploadId || id;
+    const currentUploadId = actualUploadId || id || currentVideo?.episodes?.[0]?.id || "";
+    
 
     const sendRecord = async () => {
       if (!videoEl) return;
@@ -357,7 +359,17 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         (async () => {
           try {
             if (!hasSeekedRef.current) {
-              const lastPos = await getLastWatchPosition(currentVideo?.id ? String(currentVideo.id) : String(id), id);
+              let lastPos: number | null = null;
+
+              const loadID = id || currentVideo?.episodes?.[0]?.id || "";
+              try {
+                lastPos = await getLastWatchPosition(currentVideo?.id ? String(currentVideo.id) : String(id), loadID);
+              } catch (posError) {
+                console.warn('Failed to fetch last watch position:', posError);
+                // Continue without resuming - don't throw
+                return;
+              }
+
               if (typeof lastPos === 'number' && !isNaN(lastPos) && lastPos > 0) {
                 // account for tOffset when seeking: stored progress is logical playhead (without offset),
                 // so add tOffset to map to media timeline
@@ -385,7 +397,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
               }
             }
           } catch (e) {
-            // ignore resume errors
+            // ignore resume errors - don't let them break the page
             console.warn('Resume fetch failed', e);
           }
         })();
@@ -482,7 +494,15 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         (async () => {
           try {
             if (!hasSeekedRef.current && currentVideo?.id) {
-              const lastPos = await getLastWatchPosition(String(currentVideo.id), id);
+              let lastPos: number | null = null;
+              try {
+                lastPos = await getLastWatchPosition(String(currentVideo.id), id);
+              } catch (posError) {
+                console.warn('Failed to fetch last watch position:', posError);
+                // Continue without resuming - don't throw
+                return;
+              }
+
               if (typeof lastPos === 'number' && !isNaN(lastPos) && lastPos > 0) {
                 const seekTarget = lastPos + (tOffset || 0);
                 const waitForMeta = () => new Promise<void>((resolve) => {
@@ -1019,7 +1039,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         )}
 
         {/* Recommended Videos Section */}
-        {currentVideo?.id && (
+        {currentVideo?.id && 
           <div className="mt-8">
             <RecommendationGrid
               videoId={String(currentVideo.id)}
@@ -1038,7 +1058,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
               }
             />
           </div>
-        )}
+        }
       </div>
     </div>
   );

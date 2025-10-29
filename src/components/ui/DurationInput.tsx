@@ -91,7 +91,7 @@ export default function DurationInput({
           max="23"
           value={hours}
           onChange={handleHoursChange}
-          className="w-36 px-2 py-3 border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
+          className="w-15 md:w-36 px-2 py-3 border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
           placeholder="0"
           required={isFieldRequired}
         />
@@ -106,7 +106,7 @@ export default function DurationInput({
           max="59"
           value={minutes}
           onChange={handleMinutesChange}
-          className="w-36 px-2 py-3 border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
+          className="w-15 md:w-36 px-2 py-3 border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
           placeholder="0"
           required={isFieldRequired}
         />
@@ -122,7 +122,7 @@ export default function DurationInput({
             max="59"
             value={seconds}
             onChange={handleSecondsChange}
-            className="w-36 px-2 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
+            className="w-15 md:w-36 px-2 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white text-center"
             placeholder="0"
             required={isFieldRequired}
           />

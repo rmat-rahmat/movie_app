@@ -108,7 +108,7 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
   // Initial fetch
   useEffect(() => {
     if (videoId) {
-      setRecommendations([]);
+      // setRecommendations([]);
       setCurrentPage(1);
       setHasMore(true);
       fetchRecommendations(1, false);
@@ -147,28 +147,16 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
     return { row1, row2 };
   };
 
-  const { row1, row2 } = arrangeInTwoRows(recommendations);
+  // if (recommendations.length === 0 && !loading) {
+  //   return null;
+  // }
 
-  if (recommendations.length === 0 && !loading) {
-    return null;
-  }
+  const RenderRecommendationRow = ({ data }: { data: DashboardItemType[] }) => {
+    // alert('Rendering Recommendation Row');
+    console.log('Rendering Recommendation Row with data length:', data.length);
+    const { row1, row2 } = arrangeInTwoRows(data);
 
-  return (
-    <div className="w-full">
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
-        {icon}
-        <h2 className="text-2xl font-bold">{title}</h2>
-      </div>
-
-      {/* Grid Container */}
-      <div
-        ref={scrollContainerRef}
-        onScroll={handleScroll}
-        className="overflow-x-auto overflow-y-hidden scroll-smooth"
-        style={{ scrollbarWidth: 'thin' }}
-      >
-        <div className="flex flex-col gap-4 pb-4" style={{ minWidth: 'fit-content' }}>
+    return <div className="flex flex-col gap-4 pb-4" style={{ minWidth: 'fit-content' }}>
           {/* Row 1 */}
           <div className="flex gap-4">
             {row1.map((video, index) => (
@@ -227,6 +215,24 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
             )}
           </div>
         </div>
+  }
+
+  return (
+    <div className="w-full">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-4">
+        {icon}
+        <h2 className="text-2xl font-bold">{title}</h2>
+      </div>
+
+      {/* Grid Container */}
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="overflow-x-auto overflow-y-hidden scroll-smooth"
+        style={{ scrollbarWidth: 'thin' }}
+      >
+        <RenderRecommendationRow data={recommendations} />
       </div>
 
       {/* Initial loading state */}

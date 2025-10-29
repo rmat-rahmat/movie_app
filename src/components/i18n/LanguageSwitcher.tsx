@@ -55,10 +55,10 @@ export default function LanguageSwitcher({ large }: { large?: boolean }) {
   } bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto`;
 
   return (
-    <div ref={containerRef} className="relative inline-block text-left border-2 border-[#fbb033] rounded-full">
+    <div ref={containerRef} className="relative inline-block text-left border-2 border-[#fbb033]  rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 ">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`${btnBase} ${btnSize} text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700`}
+        className={`${btnBase} ${btnSize} text-gray-700 dark:text-gray-300 cursor-pointer`}
       >
         <span className={flagSize}>{currentLanguage.flag}</span>
         <span className={labelVisibility}>{t(`languages.${currentLanguage.code}`) || currentLanguage.code}</span>
@@ -79,7 +79,7 @@ export default function LanguageSwitcher({ large }: { large?: boolean }) {
               <button
                 key={language.code}
                 onClick={() => handleLanguageChange(language.code)}
-                className={`flex items-center space-x-3 w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                className={`flex items-center space-x-3 w-full px-4 py-2 text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
                   language.code === currentLanguageCode
                     ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
                     : 'text-gray-700 dark:text-gray-300'

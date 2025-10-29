@@ -689,7 +689,7 @@ export async function getLastWatchPosition(mediaId: string, episodeId: string): 
     }
     return null;
   } catch (err) {
-    console.error('Failed to fetch last watch position', err);
+    console.log('Failed to fetch last watch position', err);
     return null;
   }
 }

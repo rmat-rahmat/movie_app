@@ -75,7 +75,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
             <div className="flex items-center justify-between mb-4 px-0">
                 <div className="flex items-center gap-2">
                     {icon}
-                    <h2 className="text-2xl font-semibold">{title}</h2>
+                    <h2 className="text-base md:text-2xl font-semibold">{title}</h2>
                 </div>
                 {onViewMore && (
                     <button
@@ -96,18 +96,20 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
                     </button>
                 )}
                 {sectionOptionButton &&
-                    <button className="flex items-center gap-1 hover:text-[#fbb033] border hover:border-[#fbb033]  pr-2 pl-4 py-1  rounded-full hover:text-[#fbb033] font-medium text-base cursor-pointer transition-all duration-200 transform hover:scale-105 "
+                    <button className="flex items-center  hover:text-[#fbb033] border hover:border-[#fbb033]  pr-2 pl-4 py-1  rounded-full hover:text-[#fbb033] font-medium text-xs md:text-base cursor-pointer transition-all duration-200 transform hover:scale-105 "
                         onClick={sectionOptionButton.onClick}
                     >
                         {!sectionOptionButton.iconRight && sectionOptionButton.icon}
+                        <span className="mx-2">
                         {sectionOptionButton.title}
+                        </span>
                         {sectionOptionButton.iconRight && sectionOptionButton.icon}
                     </button>
                 }
             </div>
             <div 
                 ref={scrollContainerRef}
-                className={`hide-scrollbar grid grid-flow-col auto-cols-[45%] sm:auto-cols-[45%] ${frameSize ? `xl:auto-cols-[${frameSize}%]` : "xl:auto-cols-[20%]"}  gap-4 py-4 px-1 overflow-x-scroll`}
+                className={`hide-scrollbar grid grid-flow-col auto-cols-[35%]  ${frameSize ? `xl:auto-cols-[${frameSize}%]` : "xl:auto-cols-[20%]"}  gap-4 py-4 px-1 overflow-x-scroll`}
             >
                 {videos.map((video: DashboardItemType, index: number) => (
                     <DashboardItem

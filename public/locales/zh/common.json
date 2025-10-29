@@ -196,7 +196,11 @@
     "watchHistory": "观看历史",
     "sharedVideos": "已分享视频",
     "noShares": "暂无已分享视频",
-    "share": "分享"
+    "share": "分享",
+    "newUserOnly": "仅限新用户",
+    "newUserPromo": "新用户独享优惠！立即注册，首月 VIP 会员享受 100% 折扣。不要错过这个限时优惠，解锁高级内容和功能。",
+    "joinVip": "加入 VIP",
+    "subscribeNow": "立即订阅！！！"
   },
   "profileEmpty": {
     "welcome": "欢迎来到 OTalk TV",
@@ -292,7 +296,12 @@
     "unsupportedFormatMessage": "此浏览器不支持该格式，无法预览",
     "chooseLandscape": "选择横向",
     "choosePortrait": "选择纵向",
-    "remove": "移除"
+    "remove": "移除",
+    "portraitCover": "纵向封面",
+    "landscapeCover": "横向封面",
+    "landscapeThumbnail": "横向缩略图",
+    "noImageSelected": "未选择图片",
+    "actorSupportedFormats":"支持的格式：/演员1/演员2/演员3 或 演员1, 演员2, 演员3）。例如：/张鲁一/于和伟/陈劲"
   },
   "settings": {
     "title": "设置",

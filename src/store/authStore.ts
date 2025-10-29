@@ -183,7 +183,7 @@ export const useAuthStore = create<AuthState>()(
         } catch (error) {
           set({
             error: error instanceof Error ? error.message : 'Registration failed',
-            isLoading: false,
+            isLoading: false, 
             isAuthenticated: false,
             user: null,
             token: null,

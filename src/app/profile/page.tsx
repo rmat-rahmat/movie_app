@@ -12,6 +12,7 @@ import Image from "next/image";
 import DashboardSection from "@/components/movie/DashboardSection";
 import { DashboardItem } from "@/types/Dashboard";
 import ProfileWrapper from "./ProfileWrapper";
+import { LuCrown } from "react-icons/lu";
 
 
 export default function Profile() {
@@ -67,9 +68,28 @@ export default function Profile() {
 
 
     return (
-        <ProfileWrapper title={t('profile.profile', 'Profile')}>
+        <ProfileWrapper title={t('navigation.profile', 'Profile')}>
             {isloading || authLoading || !user ? <LoadingPage /> : <>
 
+                <div className="mb-6">
+
+                    <div className="flex rounded-2xl flex-row mb-6 items-center bg-[#fbb033]">
+                        <div className="relative px-4 py-2 flex-1 text-xs md:text-sm">
+                            <h1 className="text-sm md:text-2xl font-bold text-white"> 
+                                {t('profile.newUserOnly', 'New User Only' )}
+                                </h1>
+                            {t('profile.newUserPromo', 'New User Promo')}
+                        </div>
+                        <div className="grid md:h-full gap-1 md:grid-cols-[50%_50%] md:grid-rows-1 grid-cols-1  overflow-hidden pr-2">
+                        <button className="text-xs md:text-lg px-1 md:px-2 py-1 md:mx-2 font-semibold bg-white rounded-full text-[#fbb033]">
+                            <LuCrown className="inline md:h-6 md:w-6 mr-2" />
+                            {
+                        t('profile.joinVip','Join VIP')
+                        }</button>
+                        <button className="text-xs md:text-lg px-1 md:px-2 py-1 md:mx-2 font-semibold bg-purple-600 rounded-full text-white">{t('profile.subscribeNow','Subscribe Now!!!')}</button>
+                        </div>
+                    </div>
+                </div>
                 <DashboardSection
                     onViewMore={undefined}
                     title={t('profile.WatchHistory', 'Watch History')}
@@ -127,7 +147,7 @@ export default function Profile() {
                     /> */}
                 <DashboardSection
                     onViewMore={undefined}
-                    title={t('profile.Shares', 'Shared Videos')}
+                    title={t('profile.sharedVideos', 'Shared Videos')}
                     videos={shares || []}
                     sectionOptionButton={{
                         title: t('common.viewAll', 'View All'),

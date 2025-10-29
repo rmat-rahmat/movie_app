@@ -32,7 +32,7 @@ const RegisterPage: React.FC = () => {
     const handleSendCaptcha = async (e: ButtonClickEvent): Promise<void> => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         if (!email) {
             setLocalError(t('auth.error.enter_email_first'));
             return;
@@ -159,6 +159,15 @@ const RegisterPage: React.FC = () => {
         }
     }, []); // Only run once
 
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+        const passwordStrength = checkPasswordStrength(e.target.value);
+        if (passwordStrength.score < 2) {
+            setLocalError(t('auth.error.password_too_weak'));
+            
+        }
+        setPassword(e.target.value);
+    }
     return (
         <>
             <div className="md:flex z-1 flex-col items-center justify-center hidden  w-full md:w-1/2 h-full">
@@ -185,7 +194,7 @@ const RegisterPage: React.FC = () => {
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-[#fbb033] rounded-full shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                             required
                         />
                         {email.length > 4 && !isEmailValid && (
@@ -200,7 +209,7 @@ const RegisterPage: React.FC = () => {
                                 type="text"
                                 value={emailCaptcha}
                                 onChange={e => setEmailCaptcha(e.target.value)}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
+                                className="mt-1 block w-full px-3 py-2 border border-[#fbb033] rounded-full shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                                 placeholder={t('auth.enterVerificationCode')}
                                 required
                             />
@@ -208,7 +217,7 @@ const RegisterPage: React.FC = () => {
                                 type="button"
                                 onClick={handleSendCaptcha}
                                 disabled={!email || captchaSent || captchaLoading || !isEmailValid}
-                                className="mt-1 px-4 py-2 bg-[#fbb033] text-white rounded-md hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+                                className="mt-1 px-4 py-2 bg-[#fbb033] text-white rounded-full hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm whitespace-nowrap"
                             >
                                 {captchaLoading ? t('common.loading') : captchaSent ? `${countdown}s` : t('auth.sendCode')}
                             </button>
@@ -221,8 +230,8 @@ const RegisterPage: React.FC = () => {
                             type="password"
                             value={password}
                             minLength={8}
-                            onChange={e => setPassword(e.target.value)}
-                            className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm ${password && (passwordStrength.score < 2 ? 'border border-red-500 focus:ring-red-500 focus:border-red-500' : 'border border-green-500 focus:ring-green-500 focus:border-green-500')}`}
+                            onChange={handlePasswordChange}
+                            className={`mt-1 block w-full px-3 py-2 border border-[#fbb033] rounded-full shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm ${password && (passwordStrength.score < 2 ? 'border border-red-500 focus:ring-red-500 focus:border-red-500' : 'border border-green-500 focus:ring-green-500 focus:border-green-500')}`}
                             required
                         />
                         <PasswordStrengthMeter password={password} />
@@ -234,7 +243,7 @@ const RegisterPage: React.FC = () => {
                             type="password"
                             value={confirmPassword}
                             onChange={e => setConfirmPassword(e.target.value)}
-                            className={`mt-1 block w-full px-3 py-2 rounded-md shadow-sm focus:outline-none sm:text-sm ${confirmPassword ? (passwordsMatch ? 'border border-green-500 focus:ring-green-500 focus:border-green-500' : 'border border-red-500 focus:ring-red-500 focus:border-red-500') : 'border border-gray-300 focus:ring-[#fbb033] focus:border-[#fbb033]'}`}
+                            className={`mt-1 block w-full px-3 py-2 rounded-full shadow-sm focus:outline-none sm:text-sm ${confirmPassword ? (passwordsMatch ? 'border border-green-500 focus:ring-green-500 focus:border-green-500' : 'border border-red-500 focus:ring-red-500 focus:border-red-500') : 'border  border-[#fbb033]  focus:ring-[#fbb033] focus:border-[#fbb033]'}`}
                             required
                         />
                         {!passwordsMatch && confirmPassword && (
@@ -248,15 +257,15 @@ const RegisterPage: React.FC = () => {
                             type="text"
                             value={nickname}
                             onChange={e => setNickname(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-[#fbb033] rounded-full shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                         />
                     </div>
-                    
-                    
+
+
                     <button
                         type="submit"
                         disabled={isLoading || passwordStrength.score < 2 || !passwordsMatch || !isEmailValid || !nickname.trim()}
-                        className="w-full bg-[#fbb033] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="w-full bg-[#fbb033] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline"
                     >
                         {isLoading ? t('common.loading') : t('auth.registerButton')}
                     </button>
@@ -267,8 +276,10 @@ const RegisterPage: React.FC = () => {
                         {t('auth.alreadyHaveAccount')}{' '}
                         <span
                             className="text-[#fbb033] hover:underline font-semibold cursor-pointer"
-                            onClick={() => {clearError()
-                                router.replace('/auth/login')}}
+                            onClick={() => {
+                                clearError()
+                                router.replace('/auth/login')
+                            }}
                         >
                             {t('navigation.login')}
                         </span>

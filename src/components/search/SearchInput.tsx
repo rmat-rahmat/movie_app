@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getSearchSuggestions,getHotKeywords } from '@/lib/movieApi';
+import { FiChevronLeft } from 'react-icons/fi';
 
 interface SearchInputProps {
   placeholder?: string;
@@ -139,7 +140,10 @@ const SearchInput: React.FC<SearchInputProps> = ({
   };
 
   return (
-    <form ref={containerRef} onSubmit={handleSearch} className={`relative ${className}`}>
+    <div className='flex flex-row w-full'>
+      <FiChevronLeft onClick={()=>router.back()} className='md:hidden mt-1 w-7 h-7' />
+    <form ref={containerRef} onSubmit={handleSearch} className={`relative ${className} w-full`}>
+     
       <input
         type="text"
         value={query}
@@ -150,6 +154,20 @@ const SearchInput: React.FC<SearchInputProps> = ({
         onBlur={handleBlur}
         className="w-full px-4 py-2 pr-10 bg-[#0b0b0b] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#fbb033] focus:ring-1 focus:ring-[#fbb033] text-sm"
       />
+      {/* Clear button */}
+      {query && (
+        <button
+          type="button"
+          className="absolute right-8 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#fbb033] focus:outline-none"
+          onClick={() => setQuery('')}
+          tabIndex={-1}
+          aria-label="Clear search"
+        >
+          <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 8.586l4.95-4.95a1 1 0 111.414 1.414L11.414 10l4.95 4.95a1 1 0 01-1.414 1.414L10 11.414l-4.95 4.95a1 1 0 01-1.414-1.414L8.586 10l-4.95-4.95A1 1 0 115.05 3.636L10 8.586z" clipRule="evenodd" />
+          </svg>
+        </button>
+      )}
       <button
         type="submit"
         className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
@@ -189,6 +207,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
         </ul>
       )}
     </form>
+    </div>
   );
 };
 

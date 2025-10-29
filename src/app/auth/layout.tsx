@@ -120,9 +120,9 @@ export default function AuthLayout({
                 `}</style>
             </div> */}
             <div className=" flex flex-row justify-between items-center w-full px-4 md:px-10 py-4"
-            onClick={() => { window.location.href = '/' }}
             >
-                <span className="flex items-center gap-0 text-[#fbb033] cursor-pointer">
+                <span className="flex items-center gap-0 text-[#fbb033] cursor-pointer"
+                    onClick={() => { window.location.href = '/' }}>
                     <Image
                         src="/logo_dark.svg"
                         alt="Logo"
@@ -142,7 +142,7 @@ export default function AuthLayout({
                         Talk
                     </span>
                 </span>
-                <LanguageSwitcher  />
+                <LanguageSwitcher />
             </div>
             <div className='flex flex-row flex-grow justify-center items-center w-full px-4 md:px-10'>
 

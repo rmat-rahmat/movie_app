@@ -582,32 +582,32 @@ export default function MovieUpload() {
         type="movie"
         onUploadMore={handleUploadMore}
       />
-      <form onSubmit={handleMovieUpload} className=" rounded-xl p-8 shadow-2xl">
+      <form onSubmit={handleMovieUpload} className=" rounded-xl md:p-8 p-1 shadow-2xl">
         <div className="mb-6">
           <label className="block text-lg font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File *')}</label>
-          <div className="flex justify-center mb-8">
-            <div className="rounded-lg p-1 flex gap-6">
+          <div className="flex justify-center mb-8 w-full">
+            <div className="p-1 flex md:gap-6 gap-2">
 
               <div onClick={() => setFileMethod("UPLOAD")}
-                className={`cursor-pointer relative group rounded-lg overflow-hidden flex flex-col items-start justify-end p-8 bg-gradient-to-br from-gray-800 to-black hover:scale-105 transform transition duration-300 ${fileMethod === "UPLOAD" ? "ring-4 ring-[#fbb033]" : ""}`}
+                className={`cursor-pointer relative group rounded-lg overflow-hidden flex flex-col items-center justify-center md:justify-end p-2 md:p-8 bg-gradient-to-br from-gray-800 to-black hover:scale-105 transform transition duration-300 ${fileMethod === "UPLOAD" ? "ring-4 ring-[#fbb033]" : ""}`}
               >
                 <div className="absolute inset-0 opacity-10 bg-[url('/images/hero-movie.jpg')] bg-cover bg-center"></div>
                 <div className="z-10">
                   <div className="flex items-center gap-3 mb-4">
-                    <FiFile className="text-[#fbb033] text-3xl" />
-                    <h2 className="text-2xl font-bold">{t('upload.upload', 'Upload')}</h2>
+                    <FiFile className="text-[#fbb033] md:text-3xl" />
+                    <h2 className="md:text-2xl font-bold">{t('upload.upload', 'Upload')}</h2>
                   </div>
                 </div>
               </div>
 
               <div onClick={() => setFileMethod("LINK")}
-                className={`cursor-pointer relative group rounded-lg overflow-hidden flex flex-col items-start justify-end p-8 bg-gradient-to-br from-gray-800 to-black hover:scale-105 transform transition duration-300 ${fileMethod === "LINK" ? "ring-4 ring-[#fbb033]" : ""}`}
+                className={`cursor-pointer relative group rounded-lg overflow-hidden flex flex-col items-center justify-center md:justify-end p-2 md:p-8 bg-gradient-to-br from-gray-800 to-black hover:scale-105 transform transition duration-300 ${fileMethod === "LINK" ? "ring-4 ring-[#fbb033]" : ""}`}
               >
                 <div className="absolute inset-0 opacity-10 bg-[url('/images/hero-series.jpg')] bg-cover bg-center"></div>
                 <div className="z-10">
                   <div className="flex items-center gap-3 mb-4">
-                    <FiLink className="text-[#fbb033] text-3xl" />
-                    <h2 className="text-2xl font-bold">{t('upload.link', 'URL Link')}</h2>
+                    <FiLink className="text-[#fbb033] md:text-3xl" />
+                    <h2 className="md:text-2xl font-bold">{t('upload.link', 'URL Link')}</h2>
                   </div>
                 </div>
               </div>
@@ -617,11 +617,11 @@ export default function MovieUpload() {
             {!moviePreviewUrl ?
               fileMethod === "UPLOAD" ?
                 <label id="upload-video-box" htmlFor="movie-file-top" className="flex flex-col items-center justify-center w-full bg-[#fbb033]/[0.2] rounded-3xl cursor-pointer hover:bg-[#fbb033]/[0.1] transition-colors">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-3">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-3 px-2">
                     <FiUpload className="w-12 h-12 mb-3 " />
-                    <p className="mb-2 text-xl ">{movieForm.file ? movieForm.file.name : t('upload.clickOrDrag', 'Click to upload or drag and drop')}</p>
+                    <p className="mb-2 md:text-xl ">{movieForm.file ? movieForm.file.name : t('upload.clickOrDrag', 'Click to upload or drag and drop')}</p>
                     <p className="text-xs ">{t('upload.fileTypes', 'MP4, MOV, MKV, WEBM (MAX. 10GB)')}</p>
-                    <p className="text-xl mt-3 mb-6 ">{t('upload.videoPrivacy', 'Your Video Will Remain Private Until It Is Published')}</p>
+                    <p className="md:text-xl mt-3 mb-6 ">{t('upload.videoPrivacy', 'Your Video Will Remain Private Until It Is Published')}</p>
                     <span className="px-7 py-2 bg-[#fbb033] rounded-3xl mt-2">{t('uploadForm.chooseFile', 'Choose File')}</span>
                   </div>
                   <input
@@ -797,7 +797,7 @@ export default function MovieUpload() {
           <div className="flex flex-col md:flex-row gap-6">
             {/* Portrait Cover */}
             <div className="flex-1">
-              <p className="text-sm text-gray-400 mb-2">{t('upload.portraitCover', 'Portrait Cover')}</p>
+              <p className="text-sm text-gray-400 mb-2">{t('uploadForm.portraitCover', 'Portrait Cover')}</p>
               <div className="flex items-center gap-4">
                 <input 
                   type="file" 
@@ -825,14 +825,14 @@ export default function MovieUpload() {
                     </button>
                   </div>
                 ) : (
-                  <span className="text-sm text-gray-400">{t('upload.noImageSelected', 'No image selected')}</span>
+                  <span className="text-sm text-gray-400">{t('uploadForm.noImageSelected', 'No image selected')}</span>
                 )}
               </div>
             </div>
 
             {/* Landscape Thumbnail */}
             <div className="flex-1">
-              <p className="text-sm text-gray-400 mb-2">{t('upload.landscapeThumbnail', 'Landscape Thumbnail')}</p>
+              <p className="text-sm text-gray-400 mb-2">{t('uploadForm.landscapeThumbnail', 'Landscape Thumbnail')}</p>
               <div className="flex items-center gap-4">
                 <input 
                   type="file" 
@@ -891,6 +891,8 @@ export default function MovieUpload() {
               multi
               required
             />
+
+            <p className="text-sm text-gray-400 mt-2 ml-2">{t('uploadForm.actorSupportedFormats', 'Supported formats: /Actor1/Actor2/Actor3 or Actor1, Actor2, Actor3). Example: /Zhang Luyi/Yu Hewei/Chen Jin')}</p>
           </div>
 
           <div>

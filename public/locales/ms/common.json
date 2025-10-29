@@ -112,7 +112,7 @@
     "noMoreContent": "Tiada kandungan lagi untuk dimuatkan",
     "loadMore": "Muat lagi",
     "viewMore": "Lihat lebih banyak",
-    "viewAll": "Lihat semua"
+    "viewAll": "Semua"
   },
   "movie": {
     "moreInfo": "Maklumat Lanjut",
@@ -196,7 +196,11 @@
     "watchHistory": "Sejarah Tontonan",
     "sharedVideos": "Video Dikongsi",
     "noShares": "Tiada video dikongsi lagi",
-    "share": "Kongsi"
+    "share": "Kongsi",
+    "newUserOnly": "Hanya untuk Pengguna Baru",
+    "newUserPromo": "Tawaran eksklusif untuk pengguna baru! Daftar sekarang dan dapatkan diskaun 100% untuk bulan pertama keahlian VIP anda. Jangan lepaskan tawaran terhad ini untuk mengakses kandungan dan ciri premium.",
+    "joinVip": "Sertai VIP",
+    "subscribeNow": "Langgan Sekarang!!!"
   },
   "profileEmpty": {
     "welcome": "Selamat datang ke OTalk TV",
@@ -292,7 +296,12 @@
     "unsupportedFormatMessage": "format tidak disokong oleh pelayar ini dan tidak tersedia untuk pratonton",
     "chooseLandscape": "Pilih Landskap",
     "choosePortrait": "Pilih Potret",
-    "remove": "Buang"
+    "remove": "Buang",
+    "portraitCover": "Kulit Potret",
+    "landscapeCover": "Kulit Landskap",
+    "landscapeThumbnail": "Thumbnail Landskap",
+    "noImageSelected": "Tiada imej dipilih",
+    "actorSupportedFormats":"Format disokong: /pelakon1/pelakon2/pelakon3 atau pelakon1, pelakon2, pelakon3). Contoh: /Zhang Luyi/Yu Hewei/Chen Jin"
   },
   "settings": {
     "title": "Tetapan",

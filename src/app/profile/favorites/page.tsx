@@ -15,6 +15,9 @@ export default function FavoritesPage() {
   const [likedVideos, setLikedVideos] = React.useState<DashboardItem[]>([]);
 
 
+  const fallbackSrc2 = '/fallback_poster/sample_poster.png';
+  const fallbackSrc1 = '/fallback_poster/sample_poster1.png';
+
   useEffect(() => {
     // ensure auth is loaded
 
@@ -35,7 +38,7 @@ export default function FavoritesPage() {
 
         <div className="flex flex-row mb-6 items-center">
           <div className="relative">
-            <Image src={favorites[0]?.imageQuality?.url || ""} alt={favorites[0]?.title || ""} width={60} height={30} className="w-60 h-30 lg:min-w-50 lg:min-h-50 rounded mr-2 object-cover" />
+            <Image src={favorites[0]?.imageQuality?.url || fallbackSrc1} alt={favorites[0]?.title || ""} width={60} height={30} className="w-60 h-30 border-1 border-gray-300 rounded-xl cursor-pointer lg:min-w-50 lg:min-h-50 rounded mr-2 object-cover" />
 
             {favorites.length > 0 && (
               <span

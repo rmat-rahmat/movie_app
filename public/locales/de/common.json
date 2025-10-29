@@ -196,7 +196,11 @@
     "watchHistory": "Wiedergabeverlauf",
     "sharedVideos": "Geteilte Videos",
     "noShares": "Noch keine geteilten Videos",
-    "share": "Teilen"
+    "share": "Teilen",
+    "newUserOnly": "Nur für neue Benutzer",
+    "newUserPromo": "Exklusives Angebot für neue Benutzer! Melden Sie sich jetzt an und erhalten Sie 100% Rabatt auf Ihren ersten Monat der VIP-Mitgliedschaft. Verpassen Sie nicht dieses zeitlich begrenzte Angebot, um auf Premium-Inhalte und -Funktionen zuzugreifen.",
+    "joinVip": "VIP beitreten",
+    "subscribeNow": "Jetzt abonnieren!!!"
   },
   "profileEmpty": {
     "welcome": "Willkommen bei OTalk TV",
@@ -292,7 +296,12 @@
     "unsupportedFormatMessage": "Format wird von diesem Browser nicht unterstützt und ist für die Vorschau nicht verfügbar",
     "chooseLandscape": "Querformat wählen",
     "choosePortrait": "Hochformat wählen",
-    "remove": "Entfernen"
+    "remove": "Entfernen",
+    "portraitCover": "Hochformat-Cover",
+    "landscapeCover": "Querformat-Cover",
+    "landscapeThumbnail": "Querformat-Miniaturansicht",
+    "noImageSelected": "Keine Bildauswahl",
+    "actorSupportedFormats":"Unterstützte Formate: /Schauspieler1/Schauspieler2/Schauspieler3 oder Schauspieler1, Schauspieler2, Schauspieler3). Beispiel: /Zhang Luyi/Yu Hewei/Chen Jin"
   },
   "settings": {
     "title": "Einstellungen",

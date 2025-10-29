@@ -86,7 +86,7 @@ export default function SeriesUpload() {
     director: '',
     actors: '',
     landscapeThumbnailUrl: '',
-  landscapeFile: null,
+    landscapeFile: null,
     releaseRegions: '',
     sourceProvider: '',
     rating: 0,
@@ -102,11 +102,11 @@ export default function SeriesUpload() {
     const cachedCategories = getCachedCategories();
     if (cachedCategories) {
       setCategories(cachedCategories);
-      
+
       // Build category suggestions and name-to-id mapping
       const suggestions: string[] = [];
       const nameToIdMap = new Map<string, string>();
-      
+
       cachedCategories.forEach(category => {
         // If category has children, add only children (parent not selectable)
         if (category.children && category.children.length > 0) {
@@ -122,7 +122,7 @@ export default function SeriesUpload() {
           nameToIdMap.set(categoryName, category.id);
         }
       });
-      
+
       setCategorySuggestions(suggestions);
       setCategoryNameToIdMap(nameToIdMap);
     }
@@ -355,7 +355,7 @@ export default function SeriesUpload() {
     try {
       // If user selected a local cover file, upload it first and set customCoverUrl
       let coverUrl = '';
-  let landscapeId = '';
+      let landscapeId = '';
       if (seriesForm.coverFile) {
         try {
           setIsUploadingCover(true);
@@ -398,7 +398,7 @@ export default function SeriesUpload() {
             imageType: 'landscape',
           });
 
-          await uploadFile(seriesForm.landscapeFile, { uploadId: lInit.uploadId, key: lInit.key }, (p) => {});
+          await uploadFile(seriesForm.landscapeFile, { uploadId: lInit.uploadId, key: lInit.key }, (p) => { });
           if (lInit?.id) {
             setSeriesForm(prev => ({ ...prev, landscapeThumbnailUrl: lInit.id || '' }));
             landscapeId = lInit.id;
@@ -601,43 +601,76 @@ export default function SeriesUpload() {
           />
         </div>
         <div className="grid grid-cols-1 gap-6 mb-6">
-          <label className="block text-lg font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover')}</label>
-          <div className="flex flex-1 justify-around gap-6">
-            {/* Portrait / Cover */}
-            <div className="flex items-center justify-center gap-3">
-              <label className="block text-lg font-medium mb-2">{t('uploadForm.portrait', 'Portrait')}</label>
+          <label className="block text-lg font-medium mb-2">{t('uploadForm.coverImageLabel', 'Cover (Portrait) & Landscape')}</label>
+          <div className="flex flex-col md:flex-row gap-6">
 
-              <input type="file" accept="image/*" id="series-cover-file" onChange={handleCoverFileSelect} className="visually-hidden opacity-0 absolute" required />
-             {!seriesCoverPreviewUrl && <label htmlFor="series-cover-file" className="flex flex-col items-center px-4 py-3  border border-[#fbb033] rounded-3xl cursor-pointer text-white">
-                <span className="text-sm">{t('uploadForm.selectCoverFile', 'Choose Portrait')}</span>
-              </label>}
-              <div className="flex flex-col items-center gap-2">
+                     {/* Portrait Cover */}
+            <div className="flex-1">
+              <p className="text-sm text-gray-400 mb-2">{t('uploadForm.portraitCover', 'Portrait Cover')}</p>
+              <div className="flex items-center gap-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="movie-cover-file"
+                  onChange={handleCoverFileSelect}
+                  className="visually-hidden opacity-0 absolute"
+                  required
+                />
+                <label
+                  htmlFor="movie-cover-file"
+                  className="px-4 py-2 border border-[#fbb033] rounded-3xl cursor-pointer text-white text-sm whitespace-nowrap"
+                >
+                  {t('uploadForm.choosePortrait', 'Choose Portrait')}
+                </label>
                 {seriesCoverPreviewUrl ? (
-                  <>
+                  <div className="flex items-center gap-3">
                     <img src={seriesCoverPreviewUrl} alt="cover preview" className="w-24 h-36 object-cover rounded" />
-                    <button type="button" onClick={clearCoverFile} className="px-3 py-2 bg-red-600 rounded text-white text-sm">{t('uploadForm.clearCover', 'Remove')}</button>
-                  </>
+                    <button
+                      type="button"
+                      onClick={clearCoverFile}
+                      className="px-2 py-1 bg-red-600 rounded text-white text-sm"
+                    >
+                      {t('uploadForm.remove', 'Remove')}
+                    </button>
+                  </div>
                 ) : (
-                  <span className="text-sm text-gray-400">{t('upload.noCoverSelected', 'No portrait selected')}</span>
+                  <span className="text-sm text-gray-400">{t('uploadForm.noImageSelected', 'No image selected')}</span>
                 )}
               </div>
             </div>
 
-            {/* Landscape */}
-            <div className="flex items-center justify-center gap-3">
-              <label className="block text-lg font-medium mb-2">{t('uploadForm.landscape', 'Landscape')}</label>
-              <input type="file" accept="image/*" id="series-landscape-file" onChange={handleLandscapeFileSelect} className="visually-hidden opacity-0 absolute" />
-             {!seriesLandscapePreviewUrl && <label htmlFor="series-landscape-file" className="flex flex-col items-center px-4 py-3  border border-[#fbb033] rounded-3xl cursor-pointer text-white">
-                <span className="text-sm">{t('uploadForm.selectCoverFile', 'Choose Landscape')}</span>
-              </label>}
-              <div className="flex flex-col items-center gap-2">
+
+
+            {/* Landscape Thumbnail */}
+            <div className="flex-1">
+              <p className="text-sm text-gray-400 mb-2">{t('uploadForm.landscapeThumbnail', 'Landscape Thumbnail')}</p>
+              <div className="flex items-center gap-4">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  id="movie-landscape-file" 
+                  onChange={handleLandscapeFileSelect} 
+                  className="visually-hidden opacity-0 absolute" 
+                />
+                <label 
+                  htmlFor="movie-landscape-file" 
+                  className="px-4 py-2 border border-[#fbb033] rounded-3xl cursor-pointer text-white text-sm whitespace-nowrap"
+                >
+                  {t('uploadForm.chooseLandscape', 'Choose Landscape')}
+                </label>
                 {seriesLandscapePreviewUrl ? (
-                  <>
+                  <div className="flex items-center gap-3">
                     <img src={seriesLandscapePreviewUrl} alt="landscape preview" className="w-48 h-28 object-cover rounded" />
-                    <button type="button" onClick={clearLandscapeFile} className="px-3 py-2 bg-red-600 rounded text-white text-sm">{t('uploadForm.clearCover', 'Remove')}</button>
-                  </>
+                    <button 
+                      type="button" 
+                      onClick={clearLandscapeFile} 
+                      className="px-2 py-1 bg-red-600 rounded text-white text-sm"
+                    >
+                      {t('uploadForm.remove', 'Remove')}
+                    </button>
+                  </div>
                 ) : (
-                  <span className="text-sm text-gray-400">{t('upload.landscapeThumbnailHint', 'Optional horizontal thumbnail')}</span>
+                  <span className="text-sm text-gray-400">{t('upload.optional', 'Optional')}</span>
                 )}
               </div>
             </div>
@@ -668,6 +701,7 @@ export default function SeriesUpload() {
               multi
               required
             />
+            <p className="text-sm text-gray-400 mb-2">{t('uploadForm.actorSupportedFormats', 'Supported formats: /Actor1/Actor2/Actor3 or Actor1, Actor2, Actor3). Example: /Zhang Luyi/Yu Hewei/Chen Jin')}</p>
           </div>
 
           <div>
@@ -712,7 +746,7 @@ export default function SeriesUpload() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          
+
 
           <div>
             <label className="block text-lg font-medium mb-2">{t('upload.sourceProvider', 'Source Provider')}</label>
@@ -728,10 +762,10 @@ export default function SeriesUpload() {
 
           <div>
             <label className="block text-lg font-medium mb-2">{t('upload.releaseRegions', 'Release Regions')}</label>
-           
-             <SearchableDropdown
+
+            <SearchableDropdown
               id="releaseRegions"
-              value={seriesForm.releaseRegions|| ''}
+              value={seriesForm.releaseRegions || ''}
               onChange={(v) => setSeriesForm(prev => ({ ...prev, releaseRegions: v }))}
               suggestions={regionSuggestions}
               placeholder={t('upload.releaseRegionsPlaceholder', 'e.g., United States, United Kingdom')}

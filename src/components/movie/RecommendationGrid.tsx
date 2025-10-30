@@ -6,6 +6,7 @@ import MovieModal from './MovieModal';
 import LoadingPage from '@/components/ui/LoadingPage';
 import type { DashboardItem as DashboardItemType } from '@/types/Dashboard';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'next/navigation';
 
 interface RecommendationGridProps {
   videoId: string;
@@ -21,6 +22,7 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedMovieIndex, setSelectedMovieIndex] = useState<number | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Calculate columns based on screen width
   const getColumnsPerRow = () => {
@@ -136,13 +138,16 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
     const row1: DashboardItemType[] = [];
     const row2: DashboardItemType[] = [];
     
+    if(items.length>6){
     items.forEach((item, index) => {
       if (index % 2 === 0) {
         row1.push(item);
       } else {
         row2.push(item);
       }
-    });
+    });} else {
+      row1.push(...items);
+    }
 
     return { row1, row2 };
   };
@@ -158,7 +163,7 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
 
     return <div className="flex flex-col gap-4 pb-4" style={{ minWidth: 'fit-content' }}>
           {/* Row 1 */}
-          <div className="flex gap-4">
+          <div className="flex gap-4 justify-center">
             {row1.map((video, index) => (
               <div
                 key={`${video.id}-row1`}
@@ -170,7 +175,8 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
                   index={index * 2}
                   showRating={true}
                   showViewer={true}
-                  onClick={() => setSelectedMovieIndex(index * 2)}
+                  // onClick={() => setSelectedMovieIndex(index * 2)}
+                  onClick={()=> {router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}`)}}
                 />
               </div>
             ))}
@@ -187,7 +193,7 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
           </div>
 
           {/* Row 2 */}
-          <div className="flex gap-4">
+          <div className="flex gap-4 justify-center">
             {row2.map((video, index) => (
               <div
                 key={`${video.id}-row2`}
@@ -199,7 +205,8 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
                   index={index * 2 + 1}
                   showRating={true}
                   showViewer={true}
-                  onClick={() => setSelectedMovieIndex(index * 2 + 1)}
+                  // onClick={() => setSelectedMovieIndex(index * 2 + 1)}
+                     onClick={()=> {router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}`)}}
                 />
               </div>
             ))}

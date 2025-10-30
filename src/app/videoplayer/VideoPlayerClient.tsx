@@ -173,16 +173,14 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         await getPlayMain(uploadIdToLoad);
         if (!mounted) return;
         console.log("current video check", currentVideo);
-        const qualities: ('144p' | '360p' | '480p' | '720p' | '1080p')[] = ['1080p', '720p', '480p', '360p', '144p'];
+        const qualities: ( '360p' | '480p' | '720p' | '1080p')[] = ['1080p', '720p', '480p', '360p'];
         const bandwidthMap: Record<string, number> = {
-          '144p': 150000,   // ~150 kbps
           '360p': 800000,   // ~800 kbps
           '480p': 1500000,  // ~1.5 Mbps
           '720p': 1500000,  // ~1.5 Mbps
           '1080p': 3000000, // ~3 Mbps
         };
         const resolutionMap: Record<string, string> = {
-          '144p': '256x144',
           '360p': '640x360',
           '480p': '854x480',
           '720p': '1280x720',
@@ -456,6 +454,8 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
   const loadFromDirectM3u8 = (m3u8DirectUrl: string) => {
     if (!loading) setLoading(true);
+
+    console.log('Direct m3u8 url :', currentVideo)
 
     const videoElement = videoRef.current;
     if (!videoElement || !m3u8DirectUrl) return;
@@ -1031,7 +1031,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
             <CommentSection
               showComments={showComments}
               mediaId={String(currentVideo.id)}
-              mediaType={currentVideo.isSeries ? 'episode' : 'video'}
+              mediaType={'video'}
               className="bg-gray-900/50 rounded-lg p-6"
               onCommentCountChange={setCommentCount}
             />

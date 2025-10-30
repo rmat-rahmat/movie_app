@@ -73,6 +73,7 @@ export interface EpisodeUploadRequest {
   episodeNumber: number;
   // File upload method fields
   fileName?: string;
+  uploadType?: 'FILE_UPLOAD' | 'M3U8_URL';
   fileSize?: number;
   totalParts?: number;
   // M3U8 method fields

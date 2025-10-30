@@ -1009,7 +1009,7 @@ export async function getVideoLikeList(page: number = 0, size: number = 20, type
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     const params: Record<string, string | number> = { page, size, type };
-    const res = await axios.post(url, params, { headers });
+    const res = await axios.get(url, { params, headers });
     const responseData = res.data;
 
     if (responseData && responseData.success && responseData.data) {

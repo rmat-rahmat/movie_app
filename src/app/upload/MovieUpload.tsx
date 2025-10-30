@@ -948,7 +948,7 @@ export default function MovieUpload() {
               value={movieForm.releaseRegions}
               onChange={(v) => setMovieForm(prev => ({ ...prev, releaseRegions: v }))}
               suggestions={regionSuggestions}
-              placeholder={t('upload.releaseRegionsPlaceholder', 'e.g., United States, United Kingdom')}
+              placeholder={t('uploadForm.releaseRegionsPlaceholder', 'e.g., United States, United Kingdom')}
               required
             />
           </div>
@@ -960,7 +960,7 @@ export default function MovieUpload() {
               value={movieForm.sourceProvider}
               onChange={(e) => setMovieForm(prev => ({ ...prev, sourceProvider: e.target.value }))}
               className="w-full px-4 py-3 border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
-              placeholder={t('upload.sourceProviderPlaceholder', 'e.g., Warner Bros, Marvel Studios')}
+              placeholder={t('uploadForm.sourceProviderPlaceholder', 'e.g., Warner Bros, Marvel Studios')}
             />
           </div>
         </div>

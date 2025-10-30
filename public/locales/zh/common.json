@@ -302,7 +302,10 @@
     "landscapeThumbnail": "横向缩略图",
     "noImageSelected": "未选择图片",
     "actorSupportedFormats":"支持的格式：/演员1/演员2/演员3 或 演员1, 演员2, 演员3）。例如：/张鲁一/于和伟/陈劲",
-    "optional": "可选"
+    "optional": "可选",
+    "releaseRegionsPlaceholder": "例如，美国，英国",
+    "sourceProviderPlaceholder": "例如，华纳兄弟，漫威影业",
+    "categoryPlaceholder": "选择类别"
   },
   "settings": {
     "title": "设置",

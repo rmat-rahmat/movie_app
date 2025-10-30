@@ -462,6 +462,7 @@ export default function SeriesUpload() {
           uploadRequest = {
             seriesId,
             episodeNumber: episode.number,
+            uploadType: "M3U8_URL",
             m3u8Url: episode.m3u8Url || undefined,
           };
           const uploadCredential = await initializeEpisodeUpload(uploadRequest);
@@ -479,6 +480,7 @@ export default function SeriesUpload() {
           uploadRequest = {
             seriesId,
             episodeNumber: episode.number,
+            uploadType: "FILE_UPLOAD",
             fileName: episode.file!.name,
             fileSize: episode.file!.size,
             totalParts: totalChunks || undefined,

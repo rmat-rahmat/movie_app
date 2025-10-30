@@ -302,7 +302,10 @@
     "landscapeThumbnail": "Querformat-Miniaturansicht",
     "noImageSelected": "Keine Bildauswahl",
     "actorSupportedFormats":"Unterstützte Formate: /Schauspieler1/Schauspieler2/Schauspieler3 oder Schauspieler1, Schauspieler2, Schauspieler3). Beispiel: /Zhang Luyi/Yu Hewei/Chen Jin",
-    "optional": "Optional"
+    "optional": "Optional",
+    "releaseRegionsPlaceholder": "z.B., Deutschland, Österreich",
+    "sourceProviderPlaceholder": "z.B., Warner Bros, Marvel Studios",
+    "categoryPlaceholder": "Kategorie auswählen"
   },
   "settings": {
     "title": "Einstellungen",

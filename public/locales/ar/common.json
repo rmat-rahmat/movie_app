@@ -302,7 +302,10 @@
     "landscapeThumbnail": "صورة مصغرة أفقية",
     "noImageSelected": "لم يتم اختيار صورة",
     "actorSupportedFormats":"الصيغ المدعومة: /ممثل1/ممثل2/ممثل3 أو ممثل1، ممثل2، ممثل3). مثال: /Zhang Luyi/Yu Hewei/Chen Jin",
-    "optional": "اختياري"
+    "optional": "اختياري",
+    "releaseRegionsPlaceholder": "مثال: الولايات المتحدة، المملكة المتحدة",
+    "sourceProviderPlaceholder": "مثال: Warner Bros, Marvel Studios",
+    "categoryPlaceholder": "اختر الفئة"
   },
   "settings": {
     "title": "الإعدادات",

@@ -302,7 +302,10 @@
     "landscapeThumbnail": "Thumbnail Landskap",
     "noImageSelected": "Tiada imej dipilih",
     "actorSupportedFormats":"Format disokong: /pelakon1/pelakon2/pelakon3 atau pelakon1, pelakon2, pelakon3). Contoh: /Zhang Luyi/Yu Hewei/Chen Jin",
-    "optional": "Pilihan"
+    "optional": "Pilihan",
+    "releaseRegionsPlaceholder": "contohnya, United States, United Kingdom",
+    "sourceProviderPlaceholder": "contohnya, Warner Bros, Marvel Studios",
+    "categoryPlaceholder": "Pilih kategori"
   },
   "settings": {
     "title": "Tetapan",

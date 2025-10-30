@@ -302,7 +302,10 @@
     "landscapeThumbnail": "Ландшафтный миниатюрный",
     "noImageSelected": "Изображение не выбрано",
     "actorSupportedFormats":"Поддерживаемые форматы: /актер1/актер2/актер3 или актер1, актер2, актер3). Пример: /Zhang Luyi/Yu Hewei/Chen Jin",
-    "optional": "Необязательно"
+    "optional": "Необязательно",
+    "releaseRegionsPlaceholder": "Пример: United States, United Kingdom",
+    "sourceProviderPlaceholder": "Пример: Warner Bros, Marvel Studios",
+    "categoryPlaceholder": "Выберите категорию"
   },
   "settings": {
     "title": "Настройки",

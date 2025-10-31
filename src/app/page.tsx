@@ -11,6 +11,7 @@ import BannerSlider from "@/components/movie/BannerSlider";
 import { getCategoryTree, type CategoryItem } from "@/lib/movieApi";
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 import { useTranslation } from "react-i18next";
+import { useRouter } from "next/navigation";
 
 // Extended section with pagination state
 interface ExtendedSection extends HomeSectionVO {
@@ -33,6 +34,7 @@ export default function Home() {
    const { t } = useTranslation();
   
   const { user } = useAuthStore();
+  const router = useRouter();
 
   useEffect(() => {
     initializePage();
@@ -221,7 +223,9 @@ export default function Home() {
           {categoryList.map(cat => (
             <button
               key={cat.id}
-              onClick={() => handleCategoryChange(cat.id)}
+              onClick={() => {
+                router.push(`/category/${cat.id}`);
+              }}
               className={`md:text-xl mx-1 px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-full hover:scale-105 transition-transform duration-300 cursor-pointer ${
                 selectedCategory === cat.id
                   ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useTranslation } from 'react-i18next';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import Image from 'next/image';
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -38,16 +39,26 @@ const LoginPage: React.FC = () => {
 
     return (
         <>
-            <div className="md:flex z-1 items-center justify-center hidden  w-full md:w-1/2 h-full">
-                {/* Background image for larger screens */}
+            <div className="md:flex z-1 flex-col items-center justify-center hidden w-full md:w-1/2 h-full">
+                {/* Welcome text */}
                 <h1
-                    className="text-4xl font-bold text-white relative"
+                    className="text-4xl font-bold text-white relative mb-[-100]"
                     style={{
                         textShadow: "2px 2px 3px rgba(0,0,0,0.9), 0 0 0 #000, 0 0 8px #222"
                     }}
                 >
                     {t('auth.welcomeBack')}
                 </h1>
+                {/* Background image centered below text */}
+                <div className="relative w-full max-w-md">
+                    <Image
+                        src="/ip_1.png"
+                        alt="Login Background"
+                        width={400}
+                        height={400}
+                        className="object-contain mx-auto"
+                    />
+                </div>
             </div>
             <div className="bg-black/80 p-8 z-1 rounded-lg w-full md:w-1/3 max-w-md mx-auto ">
                 <h1 className="text-2xl font-bold mb-6 text-center">{t('auth.loginTitle')}</h1>

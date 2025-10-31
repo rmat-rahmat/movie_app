@@ -338,7 +338,7 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
           <p className="text-gray-400">No videos found in this category.</p>
         ) : (
           <>
-            <div className="grid grid-cols-5 lg:grid-cols-7 xl:grid-cols-10 gap-1 md:gap-4 gap-y-2">
+            <div className="grid grid-cols-2 lg:grid-cols-7 xl:grid-cols-10 gap-1 md:gap-4 gap-y-2">
               {safeVideos.map((video, index) => (
                 <DashboardItem
                   key={video.id || index}

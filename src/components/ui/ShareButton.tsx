@@ -21,53 +21,60 @@ const ShareButton: React.FC<ShareButtonProps> = ({
   variant = 'button'
 }) => {
   const { t } = useTranslation('common');
-  const [showMenu, setShowMenu] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
 
-  const platforms = [
-    { id: '1', name: 'WeChat', icon: '💬' },
-    { id: '2', name: 'Weibo', icon: '🐦' },
-    { id: '3', name: 'TikTok', icon: '🎵' },
-    { id: '4', name: 'Other', icon: '📤' },
-  ];
-
-  const handleShare = async (platform: string, platformName: string) => {
+  const handleShare = async () => {
     setIsSharing(true);
+    
     try {
-      const result = await createShare({
-        targetId,
-        contentType,
-        type: 1, // 1 for media ID
-        platform
-      });
+      const shareUrl = window.location.href;
+      const shareTitle = title || document.title;
+      const shareText = `Check out: ${shareTitle}`;
 
-      if (result.success) {
-        setShareSuccess(true);
-        
-        // Use Web Share API if available
-        if (navigator.share && title) {
-          try {
-            await navigator.share({
-              title: title,
-              url: window.location.href
-            });
-          } catch (err) {
-            // User cancelled share or share API not available
-            console.log('Share cancelled or not available', err);
+      // Check if Web Share API is available
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: shareTitle,
+            text: shareText,
+            url: shareUrl
+          });
+
+          // After successful share, record it in the backend
+          // Platform is set to '4' (Other) since we can't detect which platform user chose
+          const result = await createShare({
+            targetId,
+            contentType,
+            type: 1, // 1 for media ID
+            platform: '4' // Other/Unknown platform
+          });
+
+          if (result.success) {
+            setShareSuccess(true);
+            setTimeout(() => setShareSuccess(false), 2000);
           }
-        } else {
-          // Fallback: copy link to clipboard
-          await navigator.clipboard.writeText(window.location.href);
-          alert(t('share.linkCopied', 'Link copied to clipboard!'));
+        } catch (err) {
+          // User cancelled share
+          console.log('Share cancelled', err);
         }
-
-        setTimeout(() => {
-          setShareSuccess(false);
-          setShowMenu(false);
-        }, 2000);
       } else {
-        alert(result.message || t('share.error', 'Failed to share'));
+        // Fallback: copy link to clipboard
+        await navigator.clipboard.writeText(shareUrl);
+        
+        // Record the share as clipboard copy
+        const result = await createShare({
+          targetId,
+          contentType,
+          type: 1,
+          platform: '4' // Other platform
+        });
+
+        if (result.success) {
+          setShareSuccess(true);
+          alert(t('share.linkCopied', 'Link copied to clipboard!'));
+          setTimeout(() => setShareSuccess(false), 2000);
+        }
       }
     } catch (err) {
       console.error('Share error:', err);
@@ -81,8 +88,9 @@ const ShareButton: React.FC<ShareButtonProps> = ({
     if (variant === 'icon') {
       return (
         <button
-          onClick={() => setShowMenu(!showMenu)}
-          className={`p-2 rounded-full hover:bg-gray-700 transition-colors ${className}`}
+          onClick={handleShare}
+          disabled={isSharing}
+          className={`p-2 rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 ${className}`}
           title={t('share.title', 'Share')}
         >
           {shareSuccess ? (
@@ -97,7 +105,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
     if (variant === 'full') {
       return (
         <button
-          onClick={() => setShowMenu(!showMenu)}
+          onClick={handleShare}
           disabled={isSharing}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
             shareSuccess
@@ -123,52 +131,17 @@ const ShareButton: React.FC<ShareButtonProps> = ({
     // Default 'button' variant
     return (
       <button
-        onClick={() => setShowMenu(!showMenu)}
+        onClick={handleShare}
         disabled={isSharing}
         className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white transition-colors disabled:opacity-50 ${className}`}
       >
         {shareSuccess ? <FiCheck className="w-4 h-4" /> : <FiShare2 className="w-4 h-4" />}
-        <span className="text-sm">{t('share.title', 'Share')}</span>
+        <span className="hidden md:block text-sm">{t('share.title', 'Share')}</span>
       </button>
     );
   };
 
-  return (
-    <div className="relative">
-      {renderButton()}
-
-      {/* Share Menu */}
-      {showMenu && (
-        <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setShowMenu(false)}
-          />
-
-          {/* Menu */}
-          <div className="absolute bottom-full mb-2 left-0 z-50 bg-gray-800 rounded-lg shadow-xl border border-gray-700 p-2 min-w-[200px]">
-            <p className="text-xs text-gray-400 px-3 py-2 font-medium">
-              {t('share.selectPlatform', 'Share to:')}
-            </p>
-            <div className="space-y-1">
-              {platforms.map((platform) => (
-                <button
-                  key={platform.id}
-                  onClick={() => handleShare(platform.id, platform.name)}
-                  disabled={isSharing}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors disabled:opacity-50 text-left"
-                >
-                  <span className="text-xl">{platform.icon}</span>
-                  <span className="text-sm text-gray-200">{platform.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
+  return <div className="relative">{renderButton()}</div>;
 };
 
 export default ShareButton;

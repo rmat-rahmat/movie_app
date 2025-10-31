@@ -305,7 +305,9 @@ export interface SectionContentVO {
   categoryId: string;
   sectionId: string;
   sectionName: string;
-  videos: VideoVO[];
+  videos?: VideoVO[];
+  contents?: VideoVO[];
+  records?: VideoVO[];
   page: number;
   size: number;
   total: number;

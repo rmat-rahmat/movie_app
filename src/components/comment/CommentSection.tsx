@@ -13,9 +13,10 @@ interface CommentSectionProps {
   mediaType: 'video' | 'episode';
   className?: string;
   onCommentCountChange?: (count: number) => void;
+  isauth?:boolean;
 }
 
-export default function CommentSection({ mediaId, mediaType, className = '', onCommentCountChange ,showComments}: CommentSectionProps) {
+export default function CommentSection({ mediaId, mediaType, className = '', onCommentCountChange ,showComments, isauth}: CommentSectionProps) {
   const { t } = useTranslation('common');
   const [comments, setComments] = useState<CommentVO[]>([]);
   const [loading, setLoading] = useState(false);
@@ -124,13 +125,13 @@ export default function CommentSection({ mediaId, mediaType, className = '', onC
       </div>
 
       {/* Comment Form */}
-      <div className="mb-8">
+      {isauth &&<div className="mb-8">
         <CommentForm
           onSubmit={handleCommentSubmit}
           submitting={submitting}
           placeholder={t('comments.writeComment', 'Write a comment...')}
         />
-      </div>
+      </div>}
 
       {/* Error Message */}
       {error && (

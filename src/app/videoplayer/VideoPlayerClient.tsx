@@ -17,6 +17,7 @@ import RecommendationGrid from '@/components/movie/RecommendationGrid';
 import CommentSection from '@/components/comment/CommentSection';
 import { encryptUrl } from '@/utils/urlEncryption';
 import ShareButton from '@/components/ui/ShareButton';
+import { useAuthStore } from '@/store/authStore';
 
 
 interface VideoPlayerClientProps {
@@ -44,6 +45,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const sessionWatchTimeRef = useRef<number>(0); // seconds accumulated this session
   const hasSeekedRef = useRef<boolean>(false);
   const [actualUploadId, setActualUploadId] = useState<string>(''); // Store resolved uploadId from directId
+  const { user } = useAuthStore();
 
   // Favorite state
   const [isFavorited, setIsFavorited] = useState(false);
@@ -792,28 +794,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                       )}
                     </h1>
 
-                    {/* Favorite Button */}
-                    {/* <button
-                      onClick={handleToggleFavorite}
-                      disabled={isFavoriteLoading}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isFavorited
-                          ? 'bg-[#fbb033] text-black hover:bg-yellow-500'
-                          : 'bg-gray-800 text-white hover:bg-gray-700'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      title={isFavorited ? t('video.removeFromFavorites', 'Remove from favorites') : t('video.addToFavorites', 'Add to favorites')}
-                    >
-                      <FiHeart
-                        className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`}
-                      />
-                      <span className="hidden md:inline text-sm font-medium">
-                        {isFavoriteLoading
-                          ? t('common.loading', 'Loading...')
-                          : isFavorited
-                            ? t('video.favorited', 'Favorited')
-                            : t('video.addFavorite', 'Add to Favorites')
-                        }
-                      </span>
-                    </button> */}
+                  
                   </div>
 
                   <div className="flex flex-wrap items-center gap-4 mb-3">
@@ -840,7 +821,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                   {/* Interaction Buttons */}
                   <div className="flex items-center gap-4 mt-4">
                     {/* Like Button */}
-                    <button
+                    {user && <button
                       onClick={handleToggleLike}
                       disabled={isLikeLoading}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isLiked
@@ -849,10 +830,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                         } disabled:opacity-50`}
                     >
                       <FiThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-                      <span className="text-sm font-medium">
+                      <span className="hidden md:block text-sm font-medium">
                         {`${isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')}`}
                       </span>
-                    </button>
+                    </button>}
 
                     {/* Comments Button */}
                     <button
@@ -863,13 +844,13 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                         }`}
                     >
                       <FiMessageCircle className="w-5 h-5" />
-                      <span className="text-sm font-medium">
+                      <span className="hidden md:block text-sm font-medium">
                         {t('comments.title', 'Comments')} {commentCount > 0 && `(${commentCount})`}
                       </span>
                     </button>
 
                     {/* Favorite Button */}
-                    <button
+                    {user && <button
                       onClick={handleToggleFavorite}
                       disabled={isFavoriteLoading}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isFavorited
@@ -878,10 +859,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                         } disabled:opacity-50`}
                     >
                       <FiHeart className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
-                      <span className="text-sm font-medium">
+                      <span className="hidden md:block text-sm font-medium">
                         {isFavorited ? t('video.favorited', 'Favorited') : t('video.favorite', 'Favorite')}
                       </span>
-                    </button>
+                    </button>}
 
                     {/* Share Button */}
                     {currentVideo?.id && (
@@ -889,7 +870,6 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                         targetId={String(currentVideo.id)}
                         contentType={currentVideo.isSeries && currentVideo.currentEpisode ? 'episode' : 'video'}
                         title={currentVideo.title}
-                        variant="full"
                       />
                     )}
                   </div>
@@ -1029,6 +1009,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         {currentVideo?.id && (
           <div className="mt-8 w-full lg:w-[60vw] mx-auto">
             <CommentSection
+              isauth={user !== null}
               showComments={showComments}
               mediaId={String(currentVideo.id)}
               mediaType={'video'}
@@ -1040,7 +1021,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
         {/* Recommended Videos Section */}
         {currentVideo?.id && 
-          <div className="mt-8">
+          <div className="mt-8 w-full lg:w-[60vw] mx-auto">
             <RecommendationGrid
               videoId={String(currentVideo.id)}
               title={t('video.recommendedVideos', 'Recommended Videos')}

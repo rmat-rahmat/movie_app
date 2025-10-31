@@ -22,6 +22,7 @@ import type {
 } from '@/types/Dashboard';
 import { parseJsonFile } from "next/dist/build/load-jsconfig";
 import i18next, { t } from 'i18next';
+import { url } from "inspector";
 
 // Interface for content items from API responses
 interface ContentApiItem {
@@ -1401,3 +1402,31 @@ export const loadMoreSectionContent = async (
     return null;
   }
 };
+
+export const loadMoreFromURL = async (
+  url: string,
+  type: string = '720',
+  page: number = 2,
+  size: number = 10
+): Promise<SectionContentVO | null> => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}${url}`,
+      {
+        params: {  type, page, size },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }
+    );
+
+    if (response.data?.success && response.data?.data) {
+      return response.data.data as SectionContentVO;
+    }
+
+    console.warn('Section content returned empty or invalid data');
+    return null;
+  } catch (error) {
+    console.error('Error fetching more section content:', error);
+    return null;
+  }
+};
+

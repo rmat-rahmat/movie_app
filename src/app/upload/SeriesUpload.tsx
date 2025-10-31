@@ -615,7 +615,7 @@ export default function SeriesUpload() {
                   accept="image/*"
                   id="movie-cover-file"
                   onChange={handleCoverFileSelect}
-                  className="visually-hidden opacity-0 absolute"
+                  className="visually-hidden opacity-0 absolute z-[-1]"
                   required
                 />
                 <label
@@ -652,7 +652,7 @@ export default function SeriesUpload() {
                   accept="image/*" 
                   id="movie-landscape-file" 
                   onChange={handleLandscapeFileSelect} 
-                  className="visually-hidden opacity-0 absolute" 
+                  className="visually-hidden opacity-0 absolute absolute z-[-1]" 
                 />
                 <label 
                   htmlFor="movie-landscape-file" 

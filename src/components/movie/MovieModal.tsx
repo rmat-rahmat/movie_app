@@ -127,7 +127,7 @@ const MovieModal: React.FC<MovieModalProps> = ({ video, onClose, showPlayback })
     }
     
     // Navigate to m3u8 player with the URL
-    router.push(`/videoplayer?m3u8=${encodeURIComponent(m3u8Url)}`);
+    router.push(`/videoplayer?m3u8=${encodeURIComponent(m3u8Url)}&mediaid=${encodeURIComponent(episodeData?.id || '')}`);
   };
 
   return (

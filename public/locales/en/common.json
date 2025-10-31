@@ -366,7 +366,12 @@
     "favorite": "Favorite",
     "favorited": "Favorited",
     "likeError": "Failed to update like status",
-    "favoriteError": "Failed to update favorite status"
+    "favoriteError": "Failed to update favorite status",
+    "share": "Share",
+    "watchNow": "Watch Now",
+    "_episode": "- Episode",
+    "external": "External",
+    "series": "Series"
   },
   "modal": {
     "loadingDetails": "Loading details...",

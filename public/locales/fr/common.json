@@ -365,7 +365,12 @@
     "favorite": "Favori",
     "favorited": "Ajouté aux favoris",
     "likeError": "Échec de la mise à jour du statut de like",
-    "favoriteError": "Échec de la mise à jour du statut de favori"
+    "favoriteError": "Échec de la mise à jour du statut de favori",
+    "share": "Partager",
+    "watchNow": "Regarder maintenant",
+    "_episode": "- Episode",
+    "external": "Externe",
+    "series": "Série"
   },
   "modal": {
     "loadingDetails": "Chargement des détails...",

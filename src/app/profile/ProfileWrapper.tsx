@@ -54,7 +54,9 @@ export default function ProfileWrapper({ children, title, subHeaderRight }: { ch
                     </div>
                     {subHeaderRight && <>{subHeaderRight}</>}
                 </div>
-               <div className="order-last md:order-first flex items-end md:pl-20 overflow-visible">
+               
+                <div className="container min-h-[40vh] mx-auto px-4 py-8 mt-0">
+                    <div className="order-last md:order-first flex items-end overflow-visible">
                         <div className="flex items-center gap-1 p-4 w-full z-1 justify-start ">
                             <Image src={user?.avatar || '/fallback_poster/sample_poster.png'} alt={user?.nickname || "avatar"} width={30} height={30} className="w-15 h-15 md:w-30 md:h-30 lg:min-w-50 lg:min-h-50 rounded-full mr-2 object-cover" />
                             <div className="flex flex-grow flex-col h-full">
@@ -93,8 +95,7 @@ export default function ProfileWrapper({ children, title, subHeaderRight }: { ch
                     <div className="relative w-[full]  order-first md:order-last flex items-center justify-center">
                         <div className="absolute inset-0 h-full bg-gradient-to-t from-black via-black/30 to-black/30 md:bg-[radial-gradient(circle_at_60%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
                         <div className="absolute inset-0 h-full md:bg-[radial-gradient(circle_at_70%_50%,transparent,rgba(0,0,0,0.4),#000)]" />
-                    </div>
-                <div className="container min-h-[40vh] mx-auto px-4 py-8 mt-0">
+                </div>
                     <div className="hidden md:flex items-center justify-between mb-6">
                         <div className="flex items-center gap-4">
                              {title !== t('navigation.profile', 'Profile') &&

@@ -365,7 +365,12 @@
     "favorite": "Favorit",
     "favorited": "Favorisiert",
     "likeError": "Fehler beim Aktualisieren des Like-Status",
-    "favoriteError": "Fehler beim Aktualisieren des Favoriten-Status"
+    "favoriteError": "Fehler beim Aktualisieren des Favoriten-Status",
+    "share": "Teilen",
+    "watchNow": "Jetzt ansehen",
+    "_episode": "- Episode",
+    "external": "Extern",
+    "series": "Serie"
   },
   "modal": {
     "loadingDetails": "Details werden geladen...",

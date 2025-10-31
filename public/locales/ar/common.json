@@ -365,7 +365,12 @@
     "favorite": "مفضل",
     "favorited": "مضاف إلى المفضلات",
     "likeError": "فشل تحديث حالة الإعجاب",
-    "favoriteError": "فشل تحديث حالة المفضلة"
+    "favoriteError": "فشل تحديث حالة المفضلة",
+    "share": "مشاركة",
+    "watchNow": "شاهد الآن",
+    "_episode": "- الحلقة",
+    "external": "خارجي",
+    "series": "مسلسل"
   },
   "modal": {
     "loadingDetails": "جارٍ تحميل التفاصيل...",

@@ -365,7 +365,12 @@
     "favorite": "Kegemaran",
     "favorited": "Ditambah ke kegemaran",
     "likeError": "Gagal mengemas kini status suka",
-    "favoriteError": "Gagal mengemas kini status kegemaran"
+    "favoriteError": "Gagal mengemas kini status kegemaran",
+    "share": "Kongsi",
+    "watchNow": "Tonton Sekarang",
+    "_episode": "- Episod",
+    "external": "Luaran",
+    "series": "Siri"
   },
   "modal": {
     "loadingDetails": "Memuatkan butiran...",

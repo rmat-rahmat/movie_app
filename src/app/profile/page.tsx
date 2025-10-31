@@ -71,7 +71,7 @@ export default function Profile() {
         <ProfileWrapper title={t('navigation.profile', 'Profile')}>
             {isloading || authLoading || !user ? <LoadingPage /> : <>
 
-                <div className="mb-6">
+                {/* <div className="mb-6">
 
                     <div className="flex rounded-2xl flex-row mb-6 items-center bg-[#fbb033]">
                         <div className="relative px-4 py-2 flex-1 text-xs md:text-sm">
@@ -89,7 +89,7 @@ export default function Profile() {
                         <button className="text-xs md:text-lg px-1 md:px-2 py-1 md:mx-2 font-semibold bg-purple-600 rounded-full text-white">{t('profile.subscribeNow','Subscribe Now!!!')}</button>
                         </div>
                     </div>
-                </div>
+                </div> */}
                 <DashboardSection
                     onViewMore={undefined}
                     title={t('profile.WatchHistory', 'Watch History')}
@@ -145,7 +145,7 @@ export default function Profile() {
                             }
                         }}
                     /> */}
-                <DashboardSection
+                {/* <DashboardSection
                     onViewMore={undefined}
                     title={t('profile.sharedVideos', 'Shared Videos')}
                     videos={shares || []}
@@ -157,7 +157,7 @@ export default function Profile() {
                             location.href = '/profile/shares';
                         }
                     }}
-                />
+                /> */}
                 <DashboardSection
                     onViewMore={undefined}
                     title={t('profile.YourVideos', 'Your Videos')}

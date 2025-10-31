@@ -30,7 +30,7 @@ const isProtectedRoute = (pathname: string) => {
 
 // Routes that can be accessed by both authenticated and unauthenticated users
 // but show different layouts
-const hybridRoutes = ['/', '/about', '/movies', '/category', '/search','/videoplayer',
+const hybridRoutes = ['/', '/about', '/movies', '/category', '/search','/videoplayer','/videoplayerExternal',
   '/viewmore', '/profileempty'
 ];
 

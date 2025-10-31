@@ -18,6 +18,7 @@ import CommentSection from '@/components/comment/CommentSection';
 import { encryptUrl } from '@/utils/urlEncryption';
 import ShareButton from '@/components/ui/ShareButton';
 import { useAuthStore } from '@/store/authStore';
+import { QualityPermission } from '@/types/Dashboard';
 
 
 interface VideoPlayerClientProps {
@@ -29,6 +30,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const searchParams = useSearchParams();
   const urlId = searchParams.get('id');
   const m3u8Url = searchParams.get('m3u8');
+  const mediaID = searchParams.get('mediaid');
   const directId = searchParams.get('directid'); // New: video ID that needs to be resolved
   const id = propId || urlId || '';
   const [loading, setLoading] = useState(false);
@@ -38,6 +40,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const hlsRef = useRef<Hls | null>(null);
   const [masterPlaylist, setMasterPlaylist] = useState<string | null>(null);
   const [availableQualities, setAvailableQualities] = useState<string[]>([]);
+  const [filteredQuality, setFilteredQuality] = useState<QualityPermission[]>([]);
   const [currentlyPlayingQuality, setCurrentlyPlayingQuality] = useState<number>(-1);
   const [calcDuration, setCalcDuration] = useState<number>(0);
   const [tOffset, setTOffset] = useState<number>(0);
@@ -96,8 +99,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         }
         else if (contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].m3u8Url) {
           const m3u8Url = contentDetails.episodes[0].m3u8Url || '';
+          const mediaID = contentDetails.episodes[0].id || '';
           console.log('M3U8 URL detected, using:', m3u8Url);
-          router.replace(`/videoplayer?m3u8=${encodeURIComponent(m3u8Url)}`);
+          router.replace(`/videoplayer?m3u8=${encodeURIComponent(m3u8Url)}&mediaid=${encodeURIComponent(mediaID)}`);
         }
         else if (contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].playUrl) {
           const playUrl = contentDetails.episodes[0].playUrl || '';
@@ -175,7 +179,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         await getPlayMain(uploadIdToLoad);
         if (!mounted) return;
         console.log("current video check", currentVideo);
-        const qualities: ( '360p' | '480p' | '720p' | '1080p')[] = ['1080p', '720p', '480p', '360p'];
+        const qualities: ('360p' | '480p' | '720p' | '1080p')[] = ['1080p', '720p', '480p', '360p'];
         const bandwidthMap: Record<string, number> = {
           '360p': 800000,   // ~800 kbps
           '480p': 1500000,  // ~1.5 Mbps
@@ -195,12 +199,13 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         for (const quality of qualities) {
           let permitted = false;
           if (qualityPermissions) {
-            permitted = !!qualityPermissions.find(qp => qp.qualityName == quality && qp.status === 'ALLOW');
+            permitted = !!qualityPermissions.find(qp => qp.qualityName?.toUpperCase() == quality.toUpperCase());
           }
           else {
             const v = await getPlaybackUrl(uploadIdToLoad, quality);
             permitted = v !== null;
           }
+          console.log(`Quality ${quality} permitted:`, permitted);
           if (!mounted) return;
           console.log(`${BASE_URL}/api-net/play/${uploadIdToLoad}/${quality}.m3u8`);
           if (permitted) {
@@ -256,7 +261,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
     // Use actualUploadId if available (from directId), otherwise use id
     const currentUploadId = actualUploadId || id || currentVideo?.episodes?.[0]?.id || "";
-    
+
 
     const sendRecord = async () => {
       if (!videoEl) return;
@@ -346,7 +351,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       hls.attachMedia(videoElement);
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        setAvailableQualities(hlsRef.current?.levels.map(({ height }) => `${height}p`) || []);
+        // Avoid duplicate qualities
+        const uniqueQualities = Array.from(
+          new Set(hlsRef.current?.levels.map(({ height }) => `${height}p`))
+        );
+        setAvailableQualities(uniqueQualities);
         setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
 
         // Start playback
@@ -458,6 +467,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     if (!loading) setLoading(true);
 
     console.log('Direct m3u8 url :', currentVideo)
+    const episode = currentVideo?.episodes?.find(ep => ep.id === mediaID);
+    const serverQualityPermissions = episode?.qualityPermissions || [];
+    setFilteredQuality(serverQualityPermissions);
+    console.log('Direct m3u8 episode :', episode)
 
     const videoElement = videoRef.current;
     if (!videoElement || !m3u8DirectUrl) return;
@@ -482,8 +495,15 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       hls.attachMedia(videoElement);
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        setAvailableQualities(hlsRef.current?.levels.map(({ height }) => `${height}p`) || []);
-        setCurrentlyPlayingQuality(hlsRef.current?.currentLevel || 0);
+        const availableLevels = hlsRef.current?.levels.map(({ height }) => `${height}p`) || []
+        setAvailableQualities(availableLevels);
+        const initialQualityIndex = hlsRef.current?.levels.findIndex(({ height }) => `${height}p`.toUpperCase() === serverQualityPermissions[0].qualityName?.toUpperCase()) || 0;
+
+        if (hlsRef.current) {
+          hlsRef.current.currentLevel = initialQualityIndex;
+        }
+        console.log('Initial quality index based on server permissions:', initialQualityIndex);
+        setCurrentlyPlayingQuality(initialQualityIndex);
 
         // Start playback
         setIsPlaying(true);
@@ -498,7 +518,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
             if (!hasSeekedRef.current && currentVideo?.id) {
               let lastPos: number | null = null;
               try {
-                lastPos = await getLastWatchPosition(String(currentVideo.id), id);
+                lastPos = await getLastWatchPosition(String(currentVideo.id), id || mediaID || "");
               } catch (posError) {
                 console.warn('Failed to fetch last watch position:', posError);
                 // Continue without resuming - don't throw
@@ -687,6 +707,55 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     }
   }, []);
 
+  const RenderQualityButtons = 
+  ({
+    list,
+    filter,
+    current,
+    onQualityChange
+  }: {
+    list: string[];
+    filter: QualityPermission[];
+    current: number;
+    onQualityChange: (qualityIndex: number) => void;
+  }) => {
+      {
+        const uniqueFilter = [...filter];
+        console.log('Rendering quality buttons with filter:', uniqueFilter);
+        return list.map((quality, idx) => {
+          // Check if quality is in filteredQuality (if applicable)
+          console.log('Checking quality:', quality);
+          if (filter.length > 0) {
+            const qualityName = quality.toUpperCase();
+            const filterIdx = uniqueFilter.findIndex(
+              qp => qp.qualityName?.toUpperCase() === qualityName && qp.status === "ALLOW"
+            );
+            console.log('Filter index for', quality, ':', filterIdx);
+            if (filterIdx === -1) {
+              return null; // Skip rendering this quality button
+            } else {
+              // Remove permitted quality from uniqueFilter
+              uniqueFilter.splice(filterIdx, 1);
+            }
+          }
+        return (
+          <button
+            key={idx}
+            onClick={() => onQualityChange(idx)}
+            // disabled={!playlist || loading}
+            className={`px-4 py-2 rounded font-medium transition-colors ${idx === current
+              ? 'bg-[#fbb033] text-black'
+              : true
+                ? 'bg-gray-700 hover:bg-gray-600 text-white cursor-pointer'
+                : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+              }`}
+          >
+            {quality}{idx === current && isPlaying && `(${t('video.currentlyPlaying')})`}
+          </button>)
+      })
+    }
+  }
+
   // Show fallback when no video ID, m3u8Url, or directId is provided
   if (!id && !m3u8Url && !directId) {
     return (
@@ -794,7 +863,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                       )}
                     </h1>
 
-                  
+
                   </div>
 
                   <div className="flex flex-wrap items-center gap-4 mb-3">
@@ -878,21 +947,12 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                 {isPlaying && <div className="mt-4 mx-auto w-full">
                   <h3 className="text-lg font-semibold mb-2">{t('video.selectQuality')}</h3>
                   <div className="flex gap-2 flex-wrap">
-                    {availableQualities.map((quality, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => dynamicQualityChange(idx)}
-                        // disabled={!playlist || loading}
-                        className={`px-4 py-2 rounded font-medium transition-colors ${idx === currentlyPlayingQuality
-                          ? 'bg-[#fbb033] text-black'
-                          : true
-                            ? 'bg-gray-700 hover:bg-gray-600 text-white cursor-pointer'
-                            : 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                          }`}
-                      >
-                        {quality}{idx === currentlyPlayingQuality && isPlaying && `(${t('video.currentlyPlaying')})`}
-                      </button>
-                    ))}
+                    <RenderQualityButtons
+                      list={availableQualities}
+                      current={currentlyPlayingQuality}
+                      filter={filteredQuality}
+                      onQualityChange={dynamicQualityChange}
+                    />
                   </div>
                 </div>}
               </div>
@@ -1020,7 +1080,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         )}
 
         {/* Recommended Videos Section */}
-        {currentVideo?.id && 
+        {currentVideo?.id &&
           <div className="mt-8 w-full lg:w-[60vw] mx-auto">
             <RecommendationGrid
               videoId={String(currentVideo.id)}

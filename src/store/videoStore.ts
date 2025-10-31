@@ -124,6 +124,7 @@ export const useVideoStore = create<VideoStore>()(
           if (episode) {
             videoMetadata.currentEpisode = {
               episodeNumber: episode.episodeNumber,
+              qualityPermissions: episode.qualityPermissions,
               episodeTitle: episode.title,
               duration: episode.duration,
               uploadId: episode.uploadId || episode.id,

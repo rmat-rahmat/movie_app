@@ -365,7 +365,12 @@
     "favorite": "收藏",
     "favorited": "已加入收藏",
     "likeError": "更新点赞状态失败",
-    "favoriteError": "更新收藏状态失败"
+    "favoriteError": "更新收藏状态失败",
+    "share": "分享",
+    "watchNow": "立即观看",
+    "_episode": "- 集",
+    "external": "外部",
+    "series": "剧集"
   },
   "modal": {
     "loadingDetails": "正在加载详情...",

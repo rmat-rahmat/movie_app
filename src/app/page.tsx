@@ -215,7 +215,7 @@ export default function Home() {
       <>
         <div
           className={`
-            flex flex-row items-center flex-nowrap overflow-x-auto w-[90vw] mx-auto mt-2 mb-5 justify-center
+            flex flex-row items-center flex-nowrap overflow-x-auto w-[94vw] mx-auto mt-2 mb-5
             ${display === 'mobile' ? "overflow-x-auto mt-2 mb-5 md:hidden" : "hidden md:flex"}
           `}
           style={{ scrollbarWidth: "none" }}

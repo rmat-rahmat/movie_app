@@ -13,7 +13,7 @@ import DashboardSection from "@/components/movie/DashboardSection";
 import { DashboardItem } from "@/types/Dashboard";
 import ProfileWrapper from "./ProfileWrapper";
 import { LuCrown } from "react-icons/lu";
-
+import DownloadAndroid from "@/components/download/DownloadAndroid"
 
 export default function Profile() {
     const [isloading, setIsLoading] = useState(true);
@@ -184,6 +184,9 @@ export default function Profile() {
                     */}
             
             </>}
+            
+            <DownloadAndroid />
+            
         </ProfileWrapper>
     );
 }

@@ -7,8 +7,9 @@ const DEFAULT_DEV = 'http://45.137.215.129:47080';
 const DEFAULT_TEST= 'https://tv.0taik.co';
 const DEFAULT_NEW= 'http://45.137.215.129:59091';
 
+const DEFAULT_PRE= 'https://pre.otalk.tv';
 const DEFAULT_PROD="https://otalk.tv"
 
-export const BASE_URL: string =DEFAULT_TEST;
+export const BASE_URL: string = DEFAULT_PRE;
 	// process.env.NEXT_PUBLIC_BASE_URL ??
 	// (process.env.NODE_ENV === 'production' ? DEFAULT_PROD : DEFAULT_DEV);

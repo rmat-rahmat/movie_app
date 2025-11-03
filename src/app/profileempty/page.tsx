@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { FiUser, FiGlobe, FiChevronDown, FiPlay, FiStar } from "react-icons/fi";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
+import DownloadAndroid from "@/components/download/DownloadAndroid"
 
 export default function ProfileEmpty() {
     const { t } = useTranslation('common');
@@ -44,9 +45,6 @@ export default function ProfileEmpty() {
                         <div className="w-32 h-32 mx-auto bg-gradient-to-br from-[#fbb033] to-[#f69c05] rounded-full flex items-center justify-center shadow-2xl">
                             <FiUser className="w-16 h-16 text-black" />
                         </div>
-                        <div className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                            <FiPlay className="w-4 h-4 text-white ml-1" />
-                        </div>
                     </div>
 
                     {/* Main Heading */}
@@ -61,28 +59,34 @@ export default function ProfileEmpty() {
 
                     {/* Features Grid */}
                     <div className="grid md:grid-cols-3 gap-6 my-12">
-                        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 hover:bg-white/10 transition-all duration-300">
-                            <div className="w-12 h-12 bg-[#fbb033]/20 rounded-lg flex items-center justify-center mb-4">
+                        <div className="flex justify-between items-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 hover:bg-white/10 transition-all duration-300">
+                            <div className="w-12 h-12 bg-[#fbb033]/20 rounded-lg flex items-center justify-center">
                                 <FiPlay className="w-6 h-6 text-[#fbb033]" />
                             </div>
-                            <h3 className="font-semibold text-lg mb-2">{t('profileEmpty.feature1Title', 'Unlimited Movies')}</h3>
-                            <p className="text-sm text-gray-400">{t('profileEmpty.feature1Desc', 'Stream thousands of movies and TV shows')}</p>
+                            <div style={{ width: '75%' }}>
+                                <h3 className="font-semibold text-lg mb-2">{t('profileEmpty.feature1Title', 'Unlimited Movies')}</h3>
+                                <p className="text-sm text-gray-400">{t('profileEmpty.feature1Desc', 'Stream thousands of movies and TV shows')}</p>
+                            </div>
                         </div>
                         
-                        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 hover:bg-white/10 transition-all duration-300">
-                            <div className="w-12 h-12 bg-[#fbb033]/20 rounded-lg flex items-center justify-center mb-4">
+                        <div className="flex justify-between items-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 hover:bg-white/10 transition-all duration-300">
+                            <div className="w-12 h-12 bg-[#fbb033]/20 rounded-lg flex items-center justify-center">
                                 <FiStar className="w-6 h-6 text-[#fbb033]" />
                             </div>
-                            <h3 className="font-semibold text-lg mb-2">{t('profileEmpty.feature2Title', 'Personalized')}</h3>
-                            <p className="text-sm text-gray-400">{t('profileEmpty.feature2Desc', 'Get recommendations based on your taste')}</p>
+                            <div style={{ width: '75%' }}>
+                                <h3 className="font-semibold text-lg mb-2">{t('profileEmpty.feature2Title', 'Personalized')}</h3>
+                                <p className="text-sm text-gray-400">{t('profileEmpty.feature2Desc', 'Get recommendations based on your taste')}</p>
+                            </div>
                         </div>
                         
-                        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 hover:bg-white/10 transition-all duration-300">
-                            <div className="w-12 h-12 bg-[#fbb033]/20 rounded-lg flex items-center justify-center mb-4">
+                        <div className="flex justify-between items-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6 hover:bg-white/10 transition-all duration-300">
+                            <div className="w-12 h-12 bg-[#fbb033]/20 rounded-lg flex items-center justify-center">
                                 <FiGlobe className="w-6 h-6 text-[#fbb033]" />
                             </div>
-                            <h3 className="font-semibold text-lg mb-2">{t('profileEmpty.feature3Title', 'Multi-language')}</h3>
-                            <p className="text-sm text-gray-400">{t('profileEmpty.feature3Desc', 'Content in multiple languages')}</p>
+                            <div style={{ width: '75%' }}>
+                                <h3 className="font-semibold text-lg mb-2">{t('profileEmpty.feature3Title', 'Multi-language')}</h3>
+                                <p className="text-sm text-gray-400">{t('profileEmpty.feature3Desc', 'Content in multiple languages')}</p>
+                            </div>
                         </div>
                     </div>
 
@@ -140,6 +144,8 @@ export default function ProfileEmpty() {
                         </div>
                     </div>
                 </div> */}
+
+                <DownloadAndroid />
             </div>
         </div>
     );

@@ -1,7 +1,7 @@
 
 export default function Footer() {
   return (
-    <footer className="row-start-3 mt-[-30px] flex gap-[24px] flex-wrap items-center justify-center relative transparent bg-[#fbb033] md:bg-transparent">
+    <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center relative transparent bg-[#fbb033] md:bg-transparent">
       <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none h-full">
       <svg viewBox="0 0 1440 100" className="w-full h-full hidden md:block" preserveAspectRatio="none">
         <path
@@ -16,13 +16,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} OTalk TV. All rights reserved.
           </p>
           <p className="mt-2 text-xs text-gray-100 leading-relaxed">
-            All content on this website — including text, images, audio, video, and code — is
-            protected by copyright and other intellectual property laws. Unauthorized linking,
-            copying, reproduction, distribution, adaptation or public performance of any
-            content is strictly prohibited without prior written permission. The legal effect of
-            this notice depends on applicable jurisdiction and specific facts; nothing herein
-            waives any rights. For licensing or permission requests please contact the site
-            administrator via the contact page.
+            Copyright Notice: If any content on this website infringes upon the copyright of individuals or entities, we will take appropriate action after verification to protect the rights of the copyright holder. Please contact us if you believe your copyright has been violated, and we will remove the content promptly.
           </p>
         </div>
       </div>

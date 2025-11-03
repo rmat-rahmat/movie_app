@@ -176,6 +176,7 @@ export interface VideoVO {
   tags?: string[];
   createBy?: string;
   createTime?: string;
+  createdAt?: string; // Added to support createdAt field
   views?: number; // Add views property to align with DashboardItem
   hlsUrl?: string; // Added for HLS source
   source?: string; // Added for video source

@@ -13,6 +13,7 @@ interface CommentItemProps {
   onDelete: (commentId: string) => void;
   onUpdate: (comment: CommentVO) => void;
   isReply?: boolean;
+  isauth?:boolean;
 }
 
 export default function CommentItem({
@@ -22,6 +23,7 @@ export default function CommentItem({
   onDelete,
   onUpdate,
   isReply = false,
+  isauth
 }: CommentItemProps) {
   const { t } = useTranslation('common');
   const [showReplyForm, setShowReplyForm] = useState(false);
@@ -192,7 +194,7 @@ export default function CommentItem({
           <p className="text-gray-200 mb-3 whitespace-pre-wrap">{localComment.content}</p>
 
           {/* Actions */}
-          <div className="flex items-center gap-4 text-sm">
+          {isauth && <div className="flex items-center gap-4 text-sm">
             {/* Like Button */}
             <button
               onClick={handleLike}
@@ -228,7 +230,7 @@ export default function CommentItem({
                 <span>{t('comments.delete', 'Delete')}</span>
               </button>
             )}
-          </div>
+          </div>}
 
           {/* Reply Form */}
           {showReplyForm && (

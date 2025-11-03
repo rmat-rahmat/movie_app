@@ -62,6 +62,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   // Comments state
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
+  const [showInfoAccordion, setShowInfoAccordion] = useState(false);
 
 
   const router = useRouter();
@@ -724,6 +725,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         console.log('Rendering quality buttons with filter:', uniqueFilter);
         return list.map((quality, idx) => {
           // Check if quality is in filteredQuality (if applicable)
+          let status="DENY";
           console.log('Checking quality:', quality);
           if (filter.length > 0) {
             const qualityName = quality.toUpperCase();
@@ -734,6 +736,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
             if (filterIdx === -1) {
               return null; // Skip rendering this quality button
             } else {
+              status=uniqueFilter[filterIdx].status||"DENY";
               // Remove permitted quality from uniqueFilter
               uniqueFilter.splice(filterIdx, 1);
             }
@@ -741,7 +744,21 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         return (
           <button
             key={idx}
-            onClick={() => onQualityChange(idx)}
+            onClick={() => {
+              switch(status){
+                case "ALLOW":
+                  dynamicQualityChange(idx);
+                  break;
+                case "REQUIRE_LOGIN":
+                  confirm(t('video.qualityRequiresLogin', 'This quality requires you to be logged in. Do you want to log in now?')) && router.push('/login');
+                  break;
+                case "DENY":
+                  alert(t('video.qualityNotPermitted', 'You do not have permission to access this quality.'));
+                  break;
+                default:
+                  alert(t('video.qualityNotPermitted', 'You do not have permission to access this quality.'));
+              }
+            }}
             // disabled={!playlist || loading}
             className={`px-4 py-2 rounded font-medium transition-colors ${idx === current
               ? 'bg-[#fbb033] text-black'
@@ -907,7 +924,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     {/* Comments Button */}
                     <button
                       onClick={() => setShowComments(!showComments)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${showComments
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all ${showComments
                         ? 'bg-[#fbb033]/20 text-[#fbb033] hover:bg-[#fbb033]/30'
                         : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                         }`}
@@ -963,105 +980,111 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
         {/* Additional Video Information */}
         {currentVideo && (
-          <div className="w-full lg:w-[60vw] mx-auto space-y-6 ">
-            {/* Cast and Crew */}
-            <div className="grid md:grid-cols-[40%_30%_30%] gap-6">
-              {currentVideo.actors && currentVideo.actors.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-3">{t('video.cast')}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {currentVideo.actors.slice(0, 8).map((actor, index) => (
-                      <span key={index} className="bg-gray-800 px-3 py-1 rounded-full text-sm">
-                        {actor}
-                      </span>
-                    ))}
+          <div className="w-full lg:w-[60vw] mx-auto space-y-3 ">
+            {/* Accordion trigger */}
+            <button
+              className="w-full flex items-center justify-between px-2 py-1 rounded-lg cursor-pointer text-left font-semibold text-sm text-white hover:bg-gray-700 transition-colors"
+              onClick={() => setShowInfoAccordion((prev) => !prev)}
+              aria-expanded={showInfoAccordion}
+              aria-controls="video-info-accordion"
+            >
+              <span>{t('upload.viewDetails', 'Additional Video Information')}</span>
+              <svg
+                className={`w-6 h-6 transform transition-transform ${showInfoAccordion ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {/* Accordion content */}
+            <div
+              id="video-info-accordion"
+              className={`overflow-hidden transition-all duration-300 ${showInfoAccordion ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}
+            >
+              <div className="grid md:grid-cols-[40%_30%_30%] gap-6">
+                {currentVideo.actors && currentVideo.actors.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-3">{t('video.cast')}</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {currentVideo.actors.slice(0, 8).map((actor, index) => (
+                        <span key={index} className="bg-gray-800 px-3 py-1 rounded-full text-sm">
+                          {actor}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <div className="space-y-2">
-                {currentVideo.director && (
-                  <div>
-                    <span className="text-gray-400">{t('video.director')}: </span>
-                    <span className="text-white">{currentVideo.director}</span>
-                  </div>
-                )}
-                {currentVideo.language && (
-                  <div>
-                    <span className="text-gray-400">{t('video.language')}: </span>
-                    <span className="text-white">{currentVideo.language}</span>
-                  </div>
-                )}
-                {currentVideo.region && (
-                  <div>
-                    <span className="text-gray-400">{t('video.region')}: </span>
-                    <span className="text-white">{currentVideo.region}</span>
-                  </div>
-                )}
-                {calcDuration > 0 && (
-                  <div>
-                    <span className="text-gray-400">{t('video.duration')}: </span>
-                    <span className="text-white">{formatDuration(calcDuration)}</span>
-                  </div>
-                )}
-              </div>
-              {currentVideo.tags && currentVideo.tags.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-3">{t('video.tags')}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {currentVideo.tags.map((tag, index) => (
-                      <span key={index} className="bg-[#fbb033] text-black px-3 py-1 rounded text-sm">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                <div className="space-y-2">
+                  {currentVideo.director && (
+                    <div>
+                      <span className="text-gray-400">{t('video.director')}: </span>
+                      <span className="text-white">{currentVideo.director}</span>
+                    </div>
+                  )}
+                  {currentVideo.language && (
+                    <div>
+                      <span className="text-gray-400">{t('video.language')}: </span>
+                      <span className="text-white">{currentVideo.language}</span>
+                    </div>
+                  )}
+                  {currentVideo.region && (
+                    <div>
+                      <span className="text-gray-400">{t('video.region')}: </span>
+                      <span className="text-white">{currentVideo.region}</span>
+                    </div>
+                  )}
+                  {calcDuration > 0 && (
+                    <div>
+                      <span className="text-gray-400">{t('video.duration')}: </span>
+                      <span className="text-white">{formatDuration(calcDuration)}</span>
+                    </div>
+                  )}
                 </div>
-              )}
+                {currentVideo.tags && currentVideo.tags.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-3">{t('video.tags')}</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {currentVideo.tags.map((tag, index) => (
+                        <span key={index} className="bg-[#fbb033] text-black px-3 py-1 rounded text-sm">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </div>
 
             </div>
 
-            {/* Tags */}
-
-            {/* Episodes List for Series */}
-            {currentVideo.isSeries && currentVideo.episodes && currentVideo.episodes.length > 0 && (
-              <div>
-                <h3 className="text-xl font-semibold mb-3">{t('video.episodes')}</h3>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {currentVideo.episodes.map((episode) => (
-                    <div
-                      key={episode.id || episode.uploadId}
-                      className={`flex items-center justify-between p-3 rounded transition-colors ${currentVideo.currentEpisode?.uploadId === (episode.uploadId || episode.id)
-                        ? 'bg-[#fbb033]/20 border border-[#fbb033]/50'
-                        : 'bg-gray-800 hover:bg-gray-700'
-                        }`}
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium">
-                          {t('video.episodes')} {episode.episodeNumber || ''} - {episode.title || t('common.other')}
-                        </div>
-                        <div className="text-sm text-gray-400">
-                          {t('video.duration')}: {episode.duration ? `${Math.floor(episode.duration / 60)} min` : 'N/A'}
-                        </div>
-                      </div>
-                      {id === episode.uploadId || episode.uploadId === actualUploadId ? (
-                        <span className="text-[#fbb033] text-sm font-medium">{isPlaying ? `(${t('video.currentlyPlaying')})` : ''}</span>
-                      ) :
-                        <button
-                          onClick={() => {
-                            setCurrentEpisode(episode.uploadId || "");
-                            router.push(`/videoplayer?id=${encodeURIComponent(episode.uploadId || episode.id || '')}`)
-                          }}
-                          className="flex items-center px-3 py-1 bg-[#fbb033] text-black rounded hover:bg-yellow-500 transition-colors cursor-pointer"
-                        >
-                          <FiPlay className="mr-1" />
-                          {t('videoInfo.watch', 'Watch')}
-                        </button>
-                      }
-                    </div>
-                  ))}
+              {/* Episodes List for Series - horizontal grid, only episode number */}
+              {currentVideo.isSeries && currentVideo.episodes && currentVideo.episodes.length > 0 && (
+                <div>
+                  <h3 className="text-xl font-semibold mb-3">{`${currentVideo.episodes.length > 1 && `${currentVideo.episodes.length} `}${t('video.episodes')}`}</h3>
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {currentVideo.episodes.map((episode) => (
+                      <button
+                        key={episode.id || episode.uploadId}
+                        onClick={() => {
+                          setCurrentEpisode(episode.uploadId || "");
+                          router.push(`/videoplayer?id=${encodeURIComponent(episode.uploadId || episode.id || '')}`)
+                        }}
+                        className={`min-w-[56px] h-14 flex items-center justify-center rounded-lg font-bold text-lg transition-colors cursor-pointer
+                          ${currentVideo.currentEpisode?.uploadId === (episode.uploadId || episode.id)
+                            ? ' text-[#fbb033] border border-[#fbb033]'
+                            : 'bg-gray-800 text-white hover:bg-gray-700'
+                          }`}
+                        style={{ flex: '0 0 auto' }}
+                      >
+                        {episode.episodeNumber || '-'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         )}
 

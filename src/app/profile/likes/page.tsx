@@ -14,6 +14,8 @@ export default function LikedVideosPage() {
       title={t('profile.LikedVideos', 'Liked Videos')}
       spesificApiUrl="/api-movie/v1/like/list"
       mobileListView={true}
+      backButton={true}
+      groupBy="date"
     />
   );
 }

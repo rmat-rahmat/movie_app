@@ -14,6 +14,8 @@ export default function LikedVideosPage() {
       title={t('profile.Share', 'Shared Videos')}
       spesificApiUrl="/api-movie/v1/shares/list"
       mobileListView={true}
+      backButton={true}
+      groupBy="date"
     />
   );
 }

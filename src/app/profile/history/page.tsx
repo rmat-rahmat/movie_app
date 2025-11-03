@@ -36,6 +36,7 @@ export default function HistoryPage() {
       spesificApiUrl="/api-movie/v1/watch-history/list"
       mobileListView={true}
       backButton={true}
+      groupBy="date"
       subHeaderRight={<button
         className="flex rounded-full items-center gap-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition"
         onClick={handleClear}

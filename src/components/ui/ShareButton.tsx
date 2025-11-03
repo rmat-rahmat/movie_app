@@ -90,7 +90,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
         <button
           onClick={handleShare}
           disabled={isSharing}
-          className={`p-2 rounded-full hover:bg-gray-700 transition-colors disabled:opacity-50 ${className}`}
+          className={`p-2 rounded-full cursor-pointer hover:bg-gray-700 transition-colors disabled:opacity-50 ${className}`}
           title={t('share.title', 'Share')}
         >
           {shareSuccess ? (
@@ -107,7 +107,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
         <button
           onClick={handleShare}
           disabled={isSharing}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+          className={`flex items-center cursor-pointer gap-2 px-4 py-2 rounded-lg transition-all ${
             shareSuccess
               ? 'bg-green-500/20 text-green-400'
               : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -133,7 +133,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
       <button
         onClick={handleShare}
         disabled={isSharing}
-        className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white transition-colors disabled:opacity-50 ${className}`}
+        className={`flex items-center cursor-pointer gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white transition-colors disabled:opacity-50 ${className}`}
       >
         {shareSuccess ? <FiCheck className="w-4 h-4" /> : <FiShare2 className="w-4 h-4" />}
         <span className="hidden md:block text-sm">{t('share.title', 'Share')}</span>

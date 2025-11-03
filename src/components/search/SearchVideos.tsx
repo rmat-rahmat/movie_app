@@ -9,6 +9,8 @@ import LoadingPage from '@/components/ui/LoadingPage';
 import DashboardItem from '../movie/DashboardItem';
 import MovieModal from '../movie/MovieModal';
 import SearchInput from './SearchInput';
+import GridVideos from '../movie/GridVideos';
+import { useTranslation } from 'next-i18next';
 
 interface SearchVideosProps {
   initialQuery?: string;
@@ -28,6 +30,7 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
   const [isDesktop, setIsDesktop] = useState(false);
   const [hasIntersected, setHasIntersected] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const { t } = useTranslation();
 
   const pageSize = 21;
 
@@ -36,10 +39,10 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
     const checkScreenSize = () => {
       setIsDesktop(window.innerWidth >= 768); // md breakpoint
     };
-    
+
     // Initial check
     checkScreenSize();
-    
+
     // Listen for resize events
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
@@ -110,7 +113,7 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
       setLoading(true);
       setError(null);
     }
-      let normalizedPageInfo: VideosApiResponse['pageInfo'] | null = null;
+    let normalizedPageInfo: VideosApiResponse['pageInfo'] | null = null;
 
     try {
       const response = await searchVideos(query, categoryId, page, pageSize);
@@ -127,7 +130,7 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
         total: response.data.total || (response.data.contents.length + (append ? videos.length : 0)),
         totalPages: response.data.getTotalPages || (response.data.contents.length < pageSize ? page : page + 1),
         hasNext: response.data.page < response.data.getTotalPages,
-        hasPrevious:page > 1,
+        hasPrevious: page > 1,
       };
       setPageInfo(normalizedPageInfo);
       setCurrentPage(page);
@@ -161,9 +164,9 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-3">
       <h1 className="text-2xl font-bold mb-6">Search Videos</h1>
-      <SearchInput className='md:hidden mx-2 mb-6'/>
+      <SearchInput className='md:hidden mx-2 mb-6' />
       {/* Loading State */}
       {loading && <LoadingPage />}
 
@@ -198,7 +201,7 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
             <>
               {/* Mobile Infinite Scroll Sentinel */}
               {!isDesktop && (
-                <div 
+                <div
                   id="search-scroll-sentinel"
                   className="h-20 flex items-center justify-center"
                 >
@@ -225,7 +228,7 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
               >
                 Previous
               </button>
-              
+
               <div className="flex gap-1">
                 {Array.from({ length: Math.min(5, pageInfo.totalPages) }, (_, i) => {
                   let pageNum;
@@ -238,7 +241,7 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
                   } else {
                     pageNum = currentPage - 2 + i;
                   }
-                  
+
                   return (
                     <button
                       key={pageNum}
@@ -248,18 +251,17 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
                         performSearch(query, category, pageNum);
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
-                      className={`px-3 py-2 rounded transition-colors cursor-pointer ${
-                        pageNum === currentPage
+                      className={`px-3 py-2 rounded transition-colors cursor-pointer ${pageNum === currentPage
                           ? 'bg-[#fbb033] text-black'
                           : 'bg-gray-700 text-white hover:bg-gray-600'
-                      }`}
+                        }`}
                     >
                       {pageNum}
                     </button>
                   );
                 })}
               </div>
-              
+
               <button
                 onClick={() => {
                   const query = searchParams?.get('q')?.trim() || '';
@@ -285,28 +287,37 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
       )}
 
       {/* No Results Found */}
-      {!loading && videos.length === 0 && !error && (
-        <div className="text-center py-12">
-          <div className="text-gray-400 text-lg mb-4">No videos found</div>
-          <p className="text-gray-500 text-sm">Try different keywords or check your spelling</p>
-          {hotKeywords.length > 0 && (
-            <div className="mt-6">
-              <p className="text-sm text-gray-400 mb-2">热门搜索</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {hotKeywords.map((k) => (
-                  <button
-                    key={k}
-                    onClick={() => router.push(`/search?q=${encodeURIComponent(k)}`)}
-                    className="px-3 py-1 bg-gray-800 text-sm text-white rounded-full hover:bg-gray-700"
-                  >
-                    {k}
-                  </button>
-                ))}
-              </div>
+
+      {searchParams?.get('q') ?
+        <>
+          {!loading && videos.length === 0 && !error && (
+            <div className="text-center py-12">
+              <div className="text-gray-400 text-lg mb-4">No videos found</div>
+              <p className="text-gray-500 text-sm">Try different keywords or check your spelling</p>
+              {hotKeywords.length > 0 && (
+                <div className="mt-6">
+                  <p className="text-sm text-gray-400 mb-2">热门搜索</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {hotKeywords.map((k) => (
+                      <button
+                        key={k}
+                        onClick={() => router.push(`/search?q=${encodeURIComponent(k)}`)}
+                        className="px-3 py-1 bg-gray-800 text-sm text-white rounded-full hover:bg-gray-700"
+                      >
+                        {k}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
-        </div>
-      )}
+        </> :
+        <GridVideos
+          spesificApiUrl="/api-movie/v1/watch-history/list"
+          mobileListView={true}
+        />
+      }
 
       {/* Video Modal */}
       {isModalOpen && selectedVideo && (

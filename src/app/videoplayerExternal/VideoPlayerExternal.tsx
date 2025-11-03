@@ -353,7 +353,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                     {currentVideo.title}
                     {currentVideo.isSeries && currentVideo.currentEpisode && (
                       <span className="text-xl md:text-2xl text-gray-300 ml-2">
-                        - Episode {currentVideo.currentEpisode.episodeNumber}
+                        {t("video._episode","- Episode")} {currentVideo.currentEpisode.episodeNumber}
                         {currentVideo.currentEpisode.episodeTitle && `: ${currentVideo.currentEpisode.episodeTitle}`}
                       </span>
                     )}
@@ -365,9 +365,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                     )}
                     {typeof currentVideo.rating === 'number' && <StarRating rating={currentVideo.rating} size="sm" />}
                     {currentVideo.isSeries && (
-                      <span className="bg-blue-600 px-2 py-1 rounded text-xs">Series</span>
+                      <span className="bg-blue-600 px-2 py-1 rounded text-xs">{t('video.series', 'Series')}</span>
                     )}
-                    <span className="bg-red-600 px-2 py-1 rounded text-xs">External</span>
+                    <span className="bg-red-600 px-2 py-1 rounded text-xs">{t('video.external', 'External')}</span>
                     {currentVideo.currentEpisode?.duration && (
                       <span className="text-gray-300">{formatDuration(currentVideo.currentEpisode.duration)}</span>
                     )}

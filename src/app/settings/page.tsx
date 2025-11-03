@@ -6,6 +6,7 @@ import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import { useAuthStore } from '@/store/authStore';
 import NextImage from 'next/image';
 import { getImageById, directImageUpload } from '@/lib/uploadAPI';
+import { FiCalendar } from 'react-icons/fi';
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation('common');
@@ -219,7 +220,7 @@ export default function SettingsPage() {
     <div className="container mx-auto w-[90vw] py-8 ">
       <h1 className="text-2xl font-bold mb-4">{t('settings.title') || 'Settings'}</h1>
 
-      <section className="bg-black/70 rounded-md ">
+      <section className="bg-black/70  ">
 
         <h2 className="text-lg font-semibold mb-3">{t('profile.personalInfo') || 'Profile'}</h2>
 
@@ -228,12 +229,12 @@ export default function SettingsPage() {
             <div className="bg-black w-[90vw] md:w-full order-last md:order-first flex md:pr-40 pb-12 mx-auto overflow-visible flex-col">
               <div>
                 <label className="block text-sm text-gray-300 mb-1">{t('auth.email') || 'Email'}</label>
-                <input readOnly value={form.email} className="w-full px-3 py-2 bg-gray-800 rounded text-gray-200 mb-2" />
+                <input readOnly value={form.email} className="w-full px-3 py-2 bg-gray-800 border-1 border-[#fbb033] rounded-full text-gray-200 mb-2" />
               </div>
 
               <div>
                 <label className="block text-sm text-gray-300 mb-1">{t('auth.phone') || 'Phone'}</label>
-                <input value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} className="w-full px-3 py-2 bg-gray-900 rounded text-white mb-2" />
+                <input value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} className="w-full px-3 py-2 bg-gray-900 border-1 border-[#fbb033] rounded-full text-white mb-2" />
               </div>
 
               <div>
@@ -264,7 +265,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">{t('common.gender') || 'Gender'}</label>
-                  <select value={form.gender} onChange={(e) => handleChange('gender', e.target.value)} className="w-full px-3 py-2 bg-gray-900 rounded text-white mb-2">
+                  <select value={form.gender} onChange={(e) => handleChange('gender', e.target.value)} className="w-full px-3 py-2 bg-gray-900 border-1 border-[#fbb033] rounded-full text-white mb-2">
                     <option value="">--</option>
                     <option value="0">{t('common.male') || 'Male'}</option>
                     <option value="1">{t('common.female') || 'Female'}</option>
@@ -272,19 +273,34 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">{t('profile.birthday') || 'Birthday'}</label>
-                  <input type="date" value={form.birthday} onChange={(e) => handleChange('birthday', e.target.value)} className="w-full px-3 py-2 bg-gray-900 rounded text-white mb-2" />
+                  <div className="relative">
+                    <input 
+                      ref={(el) => {
+                        if (el) {
+                          (el as HTMLInputElement & { openCalendar?: () => void }).openCalendar = () => {
+                            el.showPicker?.();
+                          };
+                        }
+                      }}
+                      type="date" 
+                      value={form.birthday} 
+                      onChange={(e) => handleChange('birthday', e.target.value)} 
+                      className="w-full px-3 py-2 bg-gray-900 border-1  border-[#fbb033] rounded-full text-white mb-2 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer" 
+                    />
+                    <FiCalendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white pointer-events-none" />
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-center space-x-3">
-                <button type="submit" disabled={localLoading } className="bg-[#fbb033] px-4 py-2 rounded disabled:opacity-60 w-full">
+                <button type="submit" disabled={localLoading } className="bg-[#fbb033] px-4 py-2  border-[#fbb033] rounded-full disabled:opacity-60 w-full">
                   {localLoading  ? (t('common.loading') || 'Loading...') : (t('common.save') || 'Save')}
                 </button>
                 {success && <span className="text-green-400">{success}</span>}
                 {error && <span className="text-red-400">{error}</span>}
               </div>
             </div>
-            <div className="relative flex order-first md:order-last justify-center items-center flex-col">
+           <div className="relative flex order-first md:order-last justify-center items-center flex-col">
               {form.avatar ? (
                 <NextImage onClick={() => fileInputRef.current?.click()} src={form.avatar} alt={form.nickname || "avatar"} width={30} height={30} className="w-30 h-30 lg:w-50 lg:h-50 rounded-full mr-2 object-cover cursor-pointer" />
               ) : (
@@ -306,7 +322,7 @@ export default function SettingsPage() {
         </form>
       </section>
 
-      <section className="bg-black/70 p-6 rounded-md max-w-xl mt-6">
+      <section className="bg-black/70 p-6 max-w-xl mt-6">
         <h2 className="text-lg font-semibold mb-3">{t('settings.changePassword') || 'Change Password'}</h2>
         <form onSubmit={handlePasswordChange} className="space-y-4">
           <div>
@@ -315,7 +331,7 @@ export default function SettingsPage() {
               type="password"
               value={passwordForm.oldPassword}
               onChange={(e) => setPasswordForm(prev => ({ ...prev, oldPassword: e.target.value }))}
-              className="w-full px-3 py-2 bg-gray-900 rounded text-white"
+              className="w-full px-3 py-2 bg-gray-900 border-1 border-[#fbb033] rounded-full text-white"
               required
             />
           </div>
@@ -325,7 +341,7 @@ export default function SettingsPage() {
               type="password"
               value={passwordForm.newPassword}
               onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
-              className="w-full px-3 py-2 bg-gray-900 rounded text-white"
+              className="w-full px-3 py-2 bg-gray-900 border-1 border-[#fbb033] rounded-full text-white"
               required
             />
           </div>
@@ -335,7 +351,7 @@ export default function SettingsPage() {
               type="password"
               value={passwordForm.confirmPassword}
               onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-              className="w-full px-3 py-2 bg-gray-900 rounded text-white"
+              className="w-full px-3 py-2 bg-gray-900 border-1 border-[#fbb033] rounded-full text-white"
               required
             />
           </div>
@@ -344,14 +360,14 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={passwordLoading}
-            className="bg-[#fbb033] px-4 py-2 rounded disabled:opacity-60 hover:bg-orange-600 transition-colors"
+            className="bg-[#fbb033] px-4 py-2 border-1 border-[#fbb033] rounded-full disabled:opacity-60 hover:bg-orange-600 transition-colors"
           >
             {passwordLoading ? (t('common.loading') || 'Loading...') : (t('settings.changePassword') || 'Change Password')}
           </button>
         </form>
       </section>
 
-      <section className="bg-black/70 p-6 rounded-md max-w-xl mt-6">
+      <section className="bg-black/70 p-6 max-w-xl mt-6">
         <h2 className="text-lg font-semibold mb-2">{t('settings.language') || 'Language'}</h2>
         <p className="text-sm text-gray-400 mb-4">{t('settings.current') ? `${t('settings.current')}: ${currentLang}` : `Current: ${currentLang}`}</p>
 

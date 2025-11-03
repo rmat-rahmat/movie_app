@@ -152,6 +152,7 @@ export default function CommentSection({ mediaId, mediaType, className = '', onC
         {comments.map((comment) => (
           <CommentItem
             key={comment.id}
+            isauth={isauth}
             comment={comment}
             mediaId={mediaId}
             mediaType={mediaType}

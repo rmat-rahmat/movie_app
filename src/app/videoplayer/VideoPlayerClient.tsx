@@ -93,16 +93,16 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         // Determine the uploadId to use
         let uploadIdToUse = '';
 
-        if (contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].uploadId) {
-          // For series, use the first episode's uploadId
-          uploadIdToUse = contentDetails.episodes[0].uploadId || '';
-          console.log('Series detected, using first episode uploadId:', uploadIdToUse);
-        }
-        else if (contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].m3u8Url) {
+        if (contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].m3u8Url) {
           const m3u8Url = contentDetails.episodes[0].m3u8Url || '';
           const mediaID = contentDetails.episodes[0].id || '';
           console.log('M3U8 URL detected, using:', m3u8Url);
           router.replace(`/videoplayer?m3u8=${encodeURIComponent(m3u8Url)}&mediaid=${encodeURIComponent(mediaID)}`);
+        }
+        else if (contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].uploadId) {
+          // For series, use the first episode's uploadId
+          uploadIdToUse = contentDetails.episodes[0].uploadId || '';
+          console.log('Se`ries detected, using first episode uploadId:', uploadIdToUse);
         }
         else if (contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].playUrl) {
           const playUrl = contentDetails.episodes[0].playUrl || '';
@@ -708,24 +708,24 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     }
   }, []);
 
-  const RenderQualityButtons = 
-  ({
-    list,
-    filter,
-    current,
-    onQualityChange
-  }: {
-    list: string[];
-    filter: QualityPermission[];
-    current: number;
-    onQualityChange: (qualityIndex: number) => void;
-  }) => {
+  const RenderQualityButtons =
+    ({
+      list,
+      filter,
+      current,
+      onQualityChange
+    }: {
+      list: string[];
+      filter: QualityPermission[];
+      current: number;
+      onQualityChange: (qualityIndex: number) => void;
+    }) => {
       {
         const uniqueFilter = [...filter];
         console.log('Rendering quality buttons with filter:', uniqueFilter);
         return list.map((quality, idx) => {
           // Check if quality is in filteredQuality (if applicable)
-          let status="DENY";
+          let status = "DENY";
           console.log('Checking quality:', quality);
           if (filter.length > 0) {
             const qualityName = quality.toUpperCase();
@@ -736,42 +736,42 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
             if (filterIdx === -1) {
               return null; // Skip rendering this quality button
             } else {
-              status=uniqueFilter[filterIdx].status||"DENY";
+              status = uniqueFilter[filterIdx].status || "DENY";
               // Remove permitted quality from uniqueFilter
               uniqueFilter.splice(filterIdx, 1);
             }
           }
-        return (
-          <button
-            key={idx}
-            onClick={() => {
-              switch(status){
-                case "ALLOW":
-                  dynamicQualityChange(idx);
-                  break;
-                case "REQUIRE_LOGIN":
-                  confirm(t('video.qualityRequiresLogin', 'This quality requires you to be logged in. Do you want to log in now?')) && router.push('/login');
-                  break;
-                case "DENY":
-                  alert(t('video.qualityNotPermitted', 'You do not have permission to access this quality.'));
-                  break;
-                default:
-                  alert(t('video.qualityNotPermitted', 'You do not have permission to access this quality.'));
-              }
-            }}
-            // disabled={!playlist || loading}
-            className={`px-4 py-2 rounded font-medium transition-colors ${idx === current
-              ? 'bg-[#fbb033] text-black'
-              : true
-                ? 'bg-gray-700 hover:bg-gray-600 text-white cursor-pointer'
-                : 'bg-gray-800 text-gray-500 cursor-not-allowed'
-              }`}
-          >
-            {quality}{idx === current && isPlaying && `(${t('video.currentlyPlaying')})`}
-          </button>)
-      })
+          return (
+            <button
+              key={idx}
+              onClick={() => {
+                switch (status) {
+                  case "ALLOW":
+                    dynamicQualityChange(idx);
+                    break;
+                  case "REQUIRE_LOGIN":
+                    confirm(t('video.qualityRequiresLogin', 'This quality requires you to be logged in. Do you want to log in now?')) && router.push('/login');
+                    break;
+                  case "DENY":
+                    alert(t('video.qualityNotPermitted', 'You do not have permission to access this quality.'));
+                    break;
+                  default:
+                    alert(t('video.qualityNotPermitted', 'You do not have permission to access this quality.'));
+                }
+              }}
+              // disabled={!playlist || loading}
+              className={`px-4 py-2 rounded font-medium transition-colors ${idx === current
+                ? 'bg-[#fbb033] text-black'
+                : true
+                  ? 'bg-gray-700 hover:bg-gray-600 text-white cursor-pointer'
+                  : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                }`}
+            >
+              {quality}{idx === current && isPlaying && `(${t('video.currentlyPlaying')})`}
+            </button>)
+        })
+      }
     }
-  }
 
   // Show fallback when no video ID, m3u8Url, or directId is provided
   if (!id && !m3u8Url && !directId) {
@@ -927,9 +927,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all ${showComments
                         ? 'bg-[#fbb033]/20 text-[#fbb033] hover:bg-[#fbb033]/30'
                         : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        }`}
+                        } 
+                        ${commentCount === 0 && !user ? 'hidden' : ''}
+                        `}
                     >
-                      <FiMessageCircle className="w-5 h-5" />
+                      <FiMessageCircle className={"w-5 h-5"} />
                       <span className="hidden md:block text-sm font-medium">
                         {t('comments.title', 'Comments')} {commentCount > 0 && `(${commentCount})`}
                       </span>
@@ -1060,31 +1062,40 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
             </div>
 
-              {/* Episodes List for Series - horizontal grid, only episode number */}
-              {currentVideo.isSeries && currentVideo.episodes && currentVideo.episodes.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-3">{`${currentVideo.episodes.length > 1 && `${currentVideo.episodes.length} `}${t('video.episodes')}`}</h3>
-                  <div className="flex gap-2 overflow-x-auto pb-2">
-                    {currentVideo.episodes.map((episode) => (
-                      <button
-                        key={episode.id || episode.uploadId}
-                        onClick={() => {
-                          setCurrentEpisode(episode.uploadId || "");
+            {/* Episodes List for Series - horizontal grid, only episode number */}
+            {currentVideo.isSeries && currentVideo.episodes && currentVideo.episodes.length > 0 && (
+              <div>
+                <h3 className="text-xl font-semibold mb-3">{`${currentVideo.episodes.length > 1 && `${currentVideo.episodes.length} `}${t('video.episodes')}`}</h3>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {currentVideo.episodes.map((episode) => (
+                    <button
+                      key={episode.id || episode.uploadId}
+                      onClick={() => {
+                        setCurrentEpisode(episode.uploadId || "");
+                        if (episode.m3u8Url) {
+                          router.push(`/videoplayer?m3u8=${encodeURIComponent(episode.m3u8Url)}&mediaid=${encodeURIComponent(episode.id || '')}`)
+                        }
+                        else if (episode.playUrl) {
+                          console.log('Play URL detected, using:', episode.playUrl);
+                          const encryptedUrl = encryptUrl(episode.playUrl);
+                          router.push(`/videoplayerExternal?url=${encodeURIComponent(encryptedUrl)}`);
+                        } else {
                           router.push(`/videoplayer?id=${encodeURIComponent(episode.uploadId || episode.id || '')}`)
-                        }}
-                        className={`min-w-[56px] h-14 flex items-center justify-center rounded-lg font-bold text-lg transition-colors cursor-pointer
+                        }
+                      }}
+                      className={`min-w-[56px] h-14 flex items-center justify-center rounded-lg font-bold text-lg transition-colors cursor-pointer
                           ${currentVideo.currentEpisode?.uploadId === (episode.uploadId || episode.id)
-                            ? ' text-[#fbb033] border border-[#fbb033]'
-                            : 'bg-gray-800 text-white hover:bg-gray-700'
-                          }`}
-                        style={{ flex: '0 0 auto' }}
-                      >
-                        {episode.episodeNumber || '-'}
-                      </button>
-                    ))}
-                  </div>
+                          ? ' text-[#fbb033] border border-[#fbb033]'
+                          : 'bg-gray-800 text-white hover:bg-gray-700'
+                        }`}
+                      style={{ flex: '0 0 auto' }}
+                    >
+                      {episode.episodeNumber || '-'}
+                    </button>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
           </div>
         )}
 

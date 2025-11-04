@@ -436,6 +436,8 @@
   "popular_movie": "Filem Popular",
   "latest_movie": "Filem Terkini",
   "recommended_movie": "Filem Disyorkan",
+  "popular_Search": "Carian Popular",
+  "recent_Search": "Carian Terkini",
     "home": {
       "noContentAvailable": "Tiada kandungan tersedia sekarang. Kami mungkin sedang mengemas kini katalog.",
       "retry": "Cuba Lagi",

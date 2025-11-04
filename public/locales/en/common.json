@@ -444,6 +444,8 @@
   "popular_movie": "Popular Movies",
   "latest_movie": "Latest Movies",
   "recommended_movie": "Recommended Movies",
+  "popular_Search": "Popular Searches",
+  "recent_Search": "Recent Searches",
   "home": {
     "noContentAvailable": "No content available right now. We may be updating the catalogue.",
     "retry": "Retry",

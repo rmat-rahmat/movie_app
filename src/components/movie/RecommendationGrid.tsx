@@ -161,67 +161,70 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
     console.log('Rendering Recommendation Row with data length:', data.length);
     const { row1, row2 } = arrangeInTwoRows(data);
 
-    return <div className="flex flex-col gap-4 pb-4" style={{ minWidth: 'fit-content' }}>
-          {/* Row 1 */}
-          <div className="flex gap-4 justify-center">
-            {row1.map((video, index) => (
-              <div
-                key={`${video.id}-row1`}
-                className="flex-shrink-0"
-                style={{ width: '200px' }}
-              >
-                <DashboardItem
-                  video={video}
-                  index={index * 2}
-                  showRating={true}
-                  showViewer={true}
-                  // onClick={() => setSelectedMovieIndex(index * 2)}
-                  onClick={()=> {router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}`)}}
-                />
+    return (
+      <div className="flex flex-col gap-4 pb-4">
+        {/* Row 1 */}
+        <div
+          className="flex gap-4 justify-start overflow-x-auto scroll-smooth"
+          style={{ scrollbarWidth: 'thin', minHeight: '320px' }}
+          // Each row gets its own ref and scroll handler if needed
+        >
+          {row1.map((video, index) => (
+            <div
+              key={`${video.id}-row1`}
+              className="flex-shrink-0"
+              style={{ width: '200px' }}
+            >
+              <DashboardItem
+                video={video}
+                index={index * 2}
+                showRating={true}
+                showViewer={true}
+                onClick={() => { router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}`) }}
+              />
+            </div>
+          ))}
+          {loading && row1.length > 0 && (
+            <div className="flex-shrink-0 flex items-center justify-center bg-gray-800 rounded-lg" style={{ width: '200px', height: '300px' }}>
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#fbb033] mx-auto mb-2"></div>
+                <p className="text-sm text-gray-400">{t('common.loading')}</p>
               </div>
-            ))}
-            
-            {/* Loading indicator for row 1 */}
-            {loading && row1.length > 0 && (
-              <div className="flex-shrink-0 flex items-center justify-center bg-gray-800 rounded-lg" style={{ width: '200px', height: '300px' }}>
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#fbb033] mx-auto mb-2"></div>
-                  <p className="text-sm text-gray-400">{t('common.loading')}</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Row 2 */}
-          <div className="flex gap-4 justify-center">
-            {row2.map((video, index) => (
-              <div
-                key={`${video.id}-row2`}
-                className="flex-shrink-0"
-                style={{ width: '200px' }}
-              >
-                <DashboardItem
-                  video={video}
-                  index={index * 2 + 1}
-                  showRating={true}
-                  showViewer={true}
-                  // onClick={() => setSelectedMovieIndex(index * 2 + 1)}
-                     onClick={()=> {router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}`)}}
-                />
-              </div>
-            ))}
-            
-            {/* Loading indicator for row 2 */}
-            {loading && row2.length > 0 && (
-              <div className="flex-shrink-0 flex items-center justify-center bg-gray-800 rounded-lg" style={{ width: '200px', height: '300px' }}>
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#fbb033] mx-auto mb-2"></div>
-                  <p className="text-sm text-gray-400">{t('common.loading')}</p>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
+
+        {/* Row 2 */}
+        <div
+          className="flex gap-4 justify-start overflow-x-auto scroll-smooth"
+          style={{ scrollbarWidth: 'thin', minHeight: '320px' }}
+        >
+          {row2.map((video, index) => (
+            <div
+              key={`${video.id}-row2`}
+              className="flex-shrink-0"
+              style={{ width: '200px' }}
+            >
+              <DashboardItem
+                video={video}
+                index={index * 2 + 1}
+                showRating={true}
+                showViewer={true}
+                onClick={() => { router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}`) }}
+              />
+            </div>
+          ))}
+          {loading && row2.length > 0 && (
+            <div className="flex-shrink-0 flex items-center justify-center bg-gray-800 rounded-lg" style={{ width: '200px', height: '300px' }}>
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#fbb033] mx-auto mb-2"></div>
+                <p className="text-sm text-gray-400">{t('common.loading')}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -232,15 +235,8 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
         <h2 className="text-2xl font-bold">{title}</h2>
       </div>
 
-      {/* Grid Container */}
-      <div
-        ref={scrollContainerRef}
-        onScroll={handleScroll}
-        className="overflow-x-auto overflow-y-hidden scroll-smooth"
-        style={{ scrollbarWidth: 'thin' }}
-      >
-        <RenderRecommendationRow data={recommendations} />
-      </div>
+      {/* Remove parent scroll container */}
+      <RenderRecommendationRow data={recommendations} />
 
       {/* Initial loading state */}
       {loading && recommendations.length === 0 && (

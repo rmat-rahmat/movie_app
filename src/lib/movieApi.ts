@@ -527,6 +527,26 @@ export async function getHotKeywords(limit: number = 10): Promise<string[] | nul
   }
 }
 
+
+// Get search history
+export async function getSearchHistory(limit: number = 10): Promise<string[] | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/search/recent`;
+    const response = await axios.get(url, {
+      params: { limit },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+    const data = response.data;
+    if (data && data.success && Array.isArray(data.data)) {
+      return data.data as string[];
+    }
+    return Array.isArray(data?.data) ? data.data : [];
+  } catch (err) {
+    console.error('Failed to fetch search history', err);
+    return null;
+  }
+}
+
 // Fetch the main m3u8 (may require expires & signature)
 export async function getPlayMain(uploadId: string, expires: number | string = 100000, signature: string = '2', apiKey?: string): Promise<string | null> {
   try {
@@ -1341,7 +1361,8 @@ export const getBannerList = async (type: number = 1, quality: string = '720'): 
 export const getHomeSections = async (
   categoryId?: string,
   type: string = '720',
-  limit: number = 5
+  limit: number = 5,
+  lang: string = 'ms'
 ): Promise<HomeSectionVO[]> => {
   try {
     const params: Record<string, string | number> = { type, limit };

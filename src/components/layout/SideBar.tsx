@@ -65,24 +65,36 @@ const SideBar = ({ show, hide }: { show: boolean, hide: () => void }) => {
       { href: "/", label: t('navigation.home'), icon: <FiHome className="h-5 w-5 mr-2" /> },
       { href: "/about", label: t('navigation.about'), icon: <FiInfo className="h-5 w-5 mr-2" /> },
       {
-        label: t('navigation.categories') || 'Categories',
-        name: "category",
-        icon: <FiGrid className="h-5 w-5 mr-2" />,
-        subMenu: (categories && categories.length)
-          ? categories.map((c) => ({
-            href: `/category/${c.id}`, label: getLocalizedCategoryName(c), icon: <FiGrid className="h-5 w-5 mr-2" />,
-            name: c.id,
-            subMenu: c.children && c.children.length ? c.children.map((sub: CategoryItem) => ({ href: `/category/${sub.id}`, label: getLocalizedCategoryName(sub), icon: <FiGrid className="h-5 w-5 mr-2" /> })) : []
+      label: t('navigation.categories') || 'Categories',
+      name: "category",
+      icon: <FiGrid className="h-5 w-5 mr-2" />,
+      subMenu: (categories && categories.length)
+        ? categories
+          .filter((c) => c.id != null)
+          .map((c) => ({
+          href: `/category/${c.id}`,
+          label: getLocalizedCategoryName(c),
+          icon: <FiGrid className="h-5 w-5 mr-2" />,
+          name: c.id,
+          subMenu: c.children && c.children.length
+            ? c.children
+              .filter((sub: CategoryItem) => sub.id != null)
+              .map((sub: CategoryItem) => ({
+              href: `/category/${sub.id}`,
+              label: getLocalizedCategoryName(sub),
+              icon: <FiGrid className="h-5 w-5 mr-2" />
+              }))
+            : []
           }))
-          : [
-            // { href: "/movies", label: t('navigation.movies'), icon: <FiFilm className="h-5 w-5 mr-2" /> },
-            // { href: "/?", label: t('navigation.sports') || 'Sports', icon: <FiSmile className="h-5 w-5 mr-2" /> },
-            // { href: "/?", label: t('navigation.tv') || 'TV', icon: <FiTv className="h-5 w-5 mr-2" /> },
-            // { href: "/?", label: t('navigation.dramas') || 'Dramas', icon: <FiGrid className="h-5 w-5 mr-2" /> },
-            // { href: "/?", label: t('navigation.music') || 'My Music', icon: <FiMusic className="h-5 w-5 mr-2" /> },
-            // { href: "/?", label: t('navigation.entertainment') || 'Entertainment', icon: <FiSmile className="h-5 w-5 mr-2" /> },
-            // { href: "/?", label: t('navigation.technology') || 'Technology', icon: <FiCpu className="h-5 w-5 mr-2" /> },
-          ]
+        : [
+        // { href: "/movies", label: t('navigation.movies'), icon: <FiFilm className="h-5 w-5 mr-2" /> },
+        // { href: "/?", label: t('navigation.sports') || 'Sports', icon: <FiSmile className="h-5 w-5 mr-2" /> },
+        // { href: "/?", label: t('navigation.tv') || 'TV', icon: <FiTv className="h-5 w-5 mr-2" /> },
+        // { href: "/?", label: t('navigation.dramas') || 'Dramas', icon: <FiGrid className="h-5 w-5 mr-2" /> },
+        // { href: "/?", label: t('navigation.music') || 'My Music', icon: <FiMusic className="h-5 w-5 mr-2" /> },
+        // { href: "/?", label: t('navigation.entertainment') || 'Entertainment', icon: <FiSmile className="h-5 w-5 mr-2" /> },
+        // { href: "/?", label: t('navigation.technology') || 'Technology', icon: <FiCpu className="h-5 w-5 mr-2" /> },
+        ]
       },
       // { href: "/?", label: t('navigation.contact') || 'Contact', icon: <FiMail className="h-5 w-5 mr-2" /> },
     ];

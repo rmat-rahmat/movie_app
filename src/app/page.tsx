@@ -220,21 +220,27 @@ export default function Home() {
           `}
           style={{ scrollbarWidth: "none" }}
         >
-          {categoryList.map(cat => (
-            <button
+            {categoryList
+            .filter(cat => !!cat.id)
+            .map(cat => (
+              <button
               key={cat.id}
               onClick={() => {
+                if (display === 'mobile') {
                 router.push(`/category/${cat.id}`);
+                } else {
+                handleCategoryChange(cat.id);
+                }
               }}
               className={`md:text-xl mx-1 px-3 py-1 md:px-4 md:py-2 whitespace-nowrap rounded-full hover:scale-105 transition-transform duration-300 cursor-pointer ${
                 selectedCategory === cat.id
-                  ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"
-                  : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] hover:text-white transition-colors duration-300"
+                ? "bg-gradient-to-b from-[#fbb033] to-[#f69c05] text-white"
+                : "text-gray-300 inset-shadow-[0px_0px_5px_1px] inset-shadow-[#fbb033] hover:text-white transition-colors duration-300"
               }`}
-            >
+              >
               {getLocalizedCategoryName(cat)}
-            </button>
-          ))}
+              </button>
+            ))}
         </div>
         <style jsx>{`
           div::-webkit-scrollbar {
@@ -295,6 +301,8 @@ export default function Home() {
                 <div key={section.id}>
                   <DashboardSection
                     title={t(section.id, section.title)}
+                    // title={section.title}
+
                     videos={section.allVideos.map(convertToDashboardItem)}
                     onViewMore={section.hasMore ? () => {
                       const title = encodeURIComponent(section.title || '');

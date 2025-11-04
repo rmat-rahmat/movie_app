@@ -436,6 +436,8 @@
   "popular_movie": "热门电影",
   "latest_movie": "最新电影",
   "recommended_movie": "推荐电影",
+  "popular_Search": "热门搜索",
+  "recent_Search": "最近搜索",
     "home": {
       "noContentAvailable": "目前没有可用内容。我们可能正在更新目录。",
       "retry": "重试",

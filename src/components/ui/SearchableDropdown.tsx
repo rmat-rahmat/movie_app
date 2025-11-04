@@ -87,7 +87,7 @@ export default function SearchableDropdown({ id, value, onChange, suggestions = 
 
   const onInputChange = (v: string) => {
     setFilter(v);
-    onChange(v);
+    // onChange(v);
     
     if (multi) {
       // Show suggestions after comma or when typing
@@ -126,16 +126,34 @@ export default function SearchableDropdown({ id, value, onChange, suggestions = 
   return (
     <div ref={rootRef} className={`relative ${className}`}>
       <input
-        id={id}
+        // id={id}
         ref={inputRef}
         type="text"
         value={filter}
         placeholder={placeholder}
-        required={required}
+        onBlur={()=>{
+          if(value !== filter){
+            setTimeout(() => {
+              setFilter("")
+            }, 200);
+          }
+        }}
         onChange={(e) => onInputChange(e.target.value)}
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
-        className="w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+        className="w-full px-4 py-3 z-2 border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
+        autoComplete="off"
+      />
+      <input
+        id={id}
+        type="text"
+        required={required}
+        value={value===filter ? value : ''}
+        // placeholder={placeholder}
+        // onChange={(e) => onInputChange(e.target.value)}
+        // onFocus={() => setOpen(true)}
+        // onKeyDown={onKeyDown}
+        className="absolute z-[-1] left-0  w-full px-4 py-3  border border-[#fbb033] rounded-3xl focus:ring-2 focus:ring-[#fbb033] focus:border-transparent text-white"
         autoComplete="off"
       />
 

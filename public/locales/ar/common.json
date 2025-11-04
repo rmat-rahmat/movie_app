@@ -436,6 +436,8 @@
   "popular_movie": "الأفلام الشائعة",
   "latest_movie": "أحدث الأفلام",
   "recommended_movie": "أفلام موصى بها",
+  "popular_Search": "عمليات البحث الشائعة",
+  "recent_Search": "عمليات البحث الأخيرة",
   "home": {
     "noContentAvailable": "لا يوجد محتوى متاح في الوقت الحالي. قد نقوم بتحديث الكتالوج.",
     "retry": "إعادة المحاولة",

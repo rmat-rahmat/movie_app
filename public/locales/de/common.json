@@ -443,6 +443,8 @@
   "popular_movie": "Beliebte Filme",
   "latest_movie": "Neueste Filme",
   "recommended_movie": "Empfohlene Filme",
+  "popular_Search": "Beliebte Suchanfragen",
+  "recent_Search": "Kürzliche Suchanfragen",
   "home": {
     "noContentAvailable": "Derzeit sind keine Inhalte verfügbar. Wir aktualisieren möglicherweise den Katalog.",
     "retry": "Erneut versuchen",

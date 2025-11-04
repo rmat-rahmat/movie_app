@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { searchVideos, getCachedCategories } from '@/lib/movieApi';
-import { getHotKeywords } from '@/lib/movieApi';
+import { getHotKeywords, getSearchHistory } from '@/lib/movieApi';
 import type { SearchApiResponse, VideoVO, CategoryItem, VideosApiResponse } from '@/types/Dashboard';
 import LoadingPage from '@/components/ui/LoadingPage';
 import DashboardItem from '../movie/DashboardItem';
@@ -25,6 +25,7 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
   const [pageInfo, setPageInfo] = useState<SearchApiResponse['pageInfo'] | null>(null);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [hotKeywords, setHotKeywords] = useState<string[]>([]);
+  const [recentSearch, setRecentSearch] = useState<string[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<VideoVO | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -94,16 +95,19 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
   // Load hot keywords when no query present
   useEffect(() => {
     const query = searchParams?.get('q')?.trim() || '';
-    if (!query) {
-      (async () => {
-        try {
-          const list = await getHotKeywords(12);
-          if (Array.isArray(list)) setHotKeywords(list);
-        } catch (_e) {
-          // ignore
-        }
-      })();
-    }
+    // if (!query) {
+    (async () => {
+      try {
+        const list = await getSearchHistory(12);
+        if (Array.isArray(list)) setRecentSearch(list);
+
+        const list2 = await getHotKeywords(12);
+        if (Array.isArray(list2)) setHotKeywords(list2);
+      } catch (_e) {
+        // ignore
+      }
+    })();
+    // }
   }, [searchParams]);
 
   const performSearch = async (query: string, categoryId: string, page: number, append: boolean = false) => {
@@ -252,8 +256,8 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
                       className={`px-3 py-2 rounded transition-colors cursor-pointer ${pageNum === currentPage
-                          ? 'bg-[#fbb033] text-black'
-                          : 'bg-gray-700 text-white hover:bg-gray-600'
+                        ? 'bg-[#fbb033] text-black'
+                        : 'bg-gray-700 text-white hover:bg-gray-600'
                         }`}
                     >
                       {pageNum}
@@ -292,11 +296,25 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
         <>
           {!loading && videos.length === 0 && !error && (
             <div className="text-center py-12">
-              <div className="text-gray-400 text-lg mb-4">No videos found</div>
-              <p className="text-gray-500 text-sm">Try different keywords or check your spelling</p>
+              {recentSearch.length > 0 && (
+                <div className="mt-6 mb-10">
+                  <p className="text-sm text-gray-400 mb-2">{t('recent_Search')} :</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {recentSearch.map((k) => (
+                      <button
+                        key={k}
+                        onClick={() => router.push(`/search?q=${encodeURIComponent(k)}`)}
+                        className="px-3 py-1 bg-gray-800 text-sm text-white rounded-full hover:bg-gray-700"
+                      >
+                        {k}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {hotKeywords.length > 0 && (
-                <div className="mt-6">
-                  <p className="text-sm text-gray-400 mb-2">热门搜索</p>
+                <div className="mt-6 mb-10">
+                  <p className="text-sm text-gray-400 mb-2">{t('popular_Search')} :</p>
                   <div className="flex flex-wrap justify-center gap-2">
                     {hotKeywords.map((k) => (
                       <button
@@ -310,6 +328,9 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
                   </div>
                 </div>
               )}
+              <div className="text-gray-400 text-lg mb-4">No videos found</div>
+              <p className="text-gray-500 text-sm">Try different keywords or check your spelling</p>
+
             </div>
           )}
         </> :

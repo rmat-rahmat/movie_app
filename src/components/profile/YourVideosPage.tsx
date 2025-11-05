@@ -244,7 +244,7 @@ export default function YourVideosPage() {
                           >
                             <FiEdit className="w-5 h-5" />
                           </Link> */}
-                          <button
+                          {/* <button
                             onClick={() => toggleEpisodes(seriesItem.seriesId || seriesItem.id)}
                             className="flex items-center gap-2 px-4 py-2 bg-[#fbb033] hover:bg-[#f69c05] text-black rounded-full md:rounded transition  md:font-medium"
                             disabled={seriesItem.loadingEpisodes}
@@ -260,7 +260,7 @@ export default function YourVideosPage() {
                                 <FiChevronDown /> <p className='md:inline hidden'>{t('common.showEpisodes', 'Show Episodes')}</p>
                               </>
                             )}
-                          </button>
+                          </button> */}
                         </div>
                       </div>
 

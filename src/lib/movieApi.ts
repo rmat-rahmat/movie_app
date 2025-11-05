@@ -355,12 +355,12 @@ export const getDashboard = async (force = false): Promise<DashboardApiResponse 
 
 // Synchronous helper to get cached categories (in-memory or localStorage). Returns null when
 // no categories are cached or when running outside the browser and no in-memory cache exists.
-export const getCachedCategories = (): CategoryItem[] | null => {
+export const getCachedCategories = async (): Promise<CategoryItem[] | null> => {
   if (inMemoryCategoriesCache) return inMemoryCategoriesCache.categories;
   if (typeof window === 'undefined') return null;
   try {
     const raw = window.localStorage.getItem('seefu_dashboard_categories_v1');
-    if (!raw) return null;
+    if (!raw) return await getCategoryTree() || null;
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return null;
     // If stored format is flat (items have parentId and no children), convert to tree
@@ -369,7 +369,6 @@ export const getCachedCategories = (): CategoryItem[] | null => {
     const catsTree = isTree ? (parsed as CategoryItem[]) : buildCategoryTree(parsed as CategoryItem[]);
     inMemoryCategoriesCache = { timestamp: Date.now(), categories: catsTree };
     return catsTree;
-    return parsed
   } catch (_e) {
     return null;
   }
@@ -1362,7 +1361,7 @@ export const getHomeSections = async (
   categoryId?: string,
   type: string = '720',
   limit: number = 5,
-  lang: string = 'ms'
+  lang: string = 'en'
 ): Promise<HomeSectionVO[]> => {
   try {
     const params: Record<string, string | number> = { type, limit };
@@ -1372,7 +1371,10 @@ export const getHomeSections = async (
 
     const response = await axios.get(`${BASE_URL}/api-movie/v1/home/sections/home`, {
       params,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Accept-Language': lang
+      }
     });
 
     if (response.data?.success && Array.isArray(response.data?.data)) {

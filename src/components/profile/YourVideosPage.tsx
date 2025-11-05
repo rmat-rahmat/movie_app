@@ -59,7 +59,7 @@ export default function YourVideosPage() {
     if (itemIndex === -1) return;
 
     const item = items[itemIndex];
-    
+
     // If already expanded, just collapse
     if (item.episodesExpanded) {
       const updated = [...items];
@@ -75,7 +75,7 @@ export default function YourVideosPage() {
       setItems(updated);
 
       const result = await getSeriesEpisodes(seriesId, 1, 50, '720');
-      
+
       const updatedAfterLoad = [...items];
       updatedAfterLoad[itemIndex] = {
         ...item,
@@ -104,12 +104,12 @@ export default function YourVideosPage() {
       {/* Profile Header */}
       <div className="bg-black flex items-end md:pl-20 overflow-visible py-6">
         <div className="flex items-center gap-4 p-4 z-1">
-          <Image 
-            src={user?.avatar || '/fallback_poster/sample_poster.png'} 
-            alt={user?.nickname || "avatar"} 
-            width={50} 
-            height={50} 
-            className="w-12 h-12 lg:w-16 lg:h-16 rounded-full object-cover" 
+          <Image
+            src={user?.avatar || '/fallback_poster/sample_poster.png'}
+            alt={user?.nickname || "avatar"}
+            width={50}
+            height={50}
+            className="w-12 h-12 lg:w-16 lg:h-16 rounded-full object-cover"
           />
           <div className="flex flex-col">
             <h1 className="text-2xl font-bold">{user?.name || user?.nickname || 'User'}</h1>
@@ -158,7 +158,7 @@ export default function YourVideosPage() {
                         />
                         <div className="flex-1 min-w-0">
                           <h3 className="text-lg font-semibold line-clamp-2 mb-2">{movie.title}</h3>
-                          
+
                           <div className="flex flex-wrap items-center gap-2 text-xs text-gray-400 mb-2">
                             {movie.year && <span>{movie.year}</span>}
                             {movie.rating && (
@@ -178,11 +178,10 @@ export default function YourVideosPage() {
                                 <span>{movie.views}</span>
                               </div>
                             )}
-                            <span className={`px-2 py-0.5 rounded ${
-                              movie.status === 'PUBLISHED' ? 'bg-green-600' : 
-                              movie.status === 'DRAFT' ? 'bg-yellow-600' : 
-                              'bg-gray-600'
-                            }`}>
+                            <span className={`px-2 py-0.5 rounded ${movie.status === 'PUBLISHED' ? 'bg-green-600' :
+                                movie.status === 'DRAFT' ? 'bg-yellow-600' :
+                                  'bg-gray-600'
+                              }`}>
                               {movie.status}
                             </span>
                           </div>
@@ -192,7 +191,7 @@ export default function YourVideosPage() {
                           )}
 
                           <div className="flex items-center gap-2 mt-auto pt-2">
-                            <Link
+                            {/* <Link
                               href={`/upload/movie?edit=${movie.id}`}
                               onClick={(e) => e.stopPropagation()}
                               className="flex items-center gap-1 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded transition text-sm"
@@ -200,7 +199,7 @@ export default function YourVideosPage() {
                             >
                               <FiEdit className="w-4 h-4" />
                               <span className="hidden sm:inline">{t('common.edit', 'Edit')}</span>
-                            </Link>
+                            </Link> */}
                           </div>
                         </div>
                       </div>
@@ -238,13 +237,13 @@ export default function YourVideosPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Link
+                          {/* <Link
                             href={`/upload/series?edit=${seriesItem.seriesId || seriesItem.id}`}
                             className="p-2 bg-gray-800 hover:bg-gray-700 rounded transition"
                             title={t('common.edit', 'Edit')}
                           >
                             <FiEdit className="w-5 h-5" />
-                          </Link>
+                          </Link> */}
                           <button
                             onClick={() => toggleEpisodes(seriesItem.seriesId || seriesItem.id)}
                             className="flex items-center gap-2 px-4 py-2 bg-[#fbb033] hover:bg-[#f69c05] text-black rounded transition font-medium"
@@ -279,16 +278,24 @@ export default function YourVideosPage() {
                                   className="bg-gray-800 rounded p-3 hover:bg-gray-750 transition"
                                 >
                                   <div className="flex items-center gap-3">
-                                    <Image
+                                    {/* <Image
                                       src={episode.imageQuality?.customCoverUrl || episode.coverUrl || '/fallback_poster/sample_poster.png'}
                                       alt={episode.title || `Episode ${episode.episodeNumber}`}
                                       width={60}
                                       height={90}
                                       className="w-16 h-24 object-cover rounded"
-                                    />
+                                    /> */}
+                                    <div className='flex flex-col justify-center items-center bg-gray-700 rounded w-16 h-24 text-white font-bold'>
+                                      <span className="text-sm font-semibold">
+                                        {t('common.episode', 'Episode')}
+                                      </span>
+                                      <span className="text-5xl font-bold">
+                                        {episode.episodeNumber}
+                                      </span>
+                                    </div>
                                     <div className="flex-1">
                                       <p className="text-sm font-semibold">
-                                        {t('common.episode', 'Episode')} {episode.episodeNumber}
+
                                       </p>
                                       {episode.title && (
                                         <p className="text-sm text-gray-300 mt-1 line-clamp-2">{episode.title}</p>
@@ -300,13 +307,13 @@ export default function YourVideosPage() {
                                       )}
                                       <p className="text-xs text-gray-500 mt-1">{episode.status}</p>
                                     </div>
-                                    <Link
+                                    {/* <Link
                                       href={`/upload/series/episode?edit=${episode.id}`}
                                       className="p-2 bg-gray-700 hover:bg-gray-600 rounded transition"
                                       title={t('common.edit', 'Edit')}
                                     >
                                       <FiEdit className="w-4 h-4" />
-                                    </Link>
+                                    </Link> */}
                                   </div>
                                 </div>
                               ))}
@@ -323,8 +330,8 @@ export default function YourVideosPage() {
             {/* Load More Button */}
             {hasMore && (
               <div className="flex justify-center">
-                <button 
-                  className="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded transition font-medium" 
+                <button
+                  className="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded transition font-medium"
                   onClick={handleLoadMore}
                 >
                   {t('common.loadMore', 'Load More')}

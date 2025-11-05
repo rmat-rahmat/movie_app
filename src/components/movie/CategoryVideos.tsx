@@ -61,8 +61,8 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
   };
 
   // Helper function to find category name from cached categories
-  const findCategoryName = useCallback((categoryId: string): string | null => {
-    const categories = getCachedCategories();
+  const findCategoryName = useCallback(async (categoryId: string): Promise<string | null> => {
+    const categories = await getCachedCategories();
     if (!categories) return null;
 
     // Recursive function to search through category tree
@@ -123,8 +123,11 @@ const CategoryVideos: React.FC<CategoryVideosProps> = ({ categoryId, categoryNam
 
   // Fetch category name on component mount
   useEffect(() => {
-    const foundName = findCategoryName(categoryId);
-    setActualCategoryName(foundName);
+    const fetchCategoryName = async () => {
+      const foundName = await findCategoryName(categoryId);
+      setActualCategoryName(foundName);
+    };
+    fetchCategoryName();
   }, [categoryId, findCategoryName]);
 
   const displayName = actualCategoryName || categoryName || `Category ${categoryId}`;

@@ -252,12 +252,7 @@
     "episodeDescription": "Description de l'épisode",
     "selectVideoFile": "Sélectionner un fichier vidéo",
     "noCoverSelected": "Aucune couverture sélectionnée. Vous pouvez également coller une URL externe dans le champ coverUrl ultérieurement si nécessaire.",
-    "successTitle": "Téléversement réussi !",
-    "movieUploadSuccess": "Le film a été téléversé avec succès !",
-    "seriesUploadSuccess": "La série a été téléversée avec succès !",
     "viewDetails": "Voir les détails",
-    "uploadMore": "Téléverser un autre",
-    "backToHome": "Retour à l'accueil",
     "videoPrivacy": "Votre vidéo restera privée jusqu'à sa publication",
     "directorPlaceholder": "Nom du réalisateur",
     "actorsPlaceholder": "Noms des acteurs ex : John Doe, Jane Smith",
@@ -265,8 +260,18 @@
     "languagePlaceholder": "Langue ex : English, Spanish",
     "chooseImage": "Choisir une image",
     "releaseRegions": "Région de sortie",
-    "sourceProvider": "Fournisseur de source"
+    "sourceProvider": "Fournisseur de source",
+    "successTitle": "Téléversement réussi !",
+    "successAddTitle": "Ajout du film/de la série réussi !",
+    "movieUploadSuccess": "\"{{title}}\" a été téléversé avec succès !",
+    "seriesUploadSuccess": "La série \"{{title}}\" a été téléversée avec succès !",
+    "movieAddSuccess": "\"{{title}}\" a été ajoutée avec succès !",
+    "seriesAddSuccess": "La série \"{{title}}\" a été ajoutée avec succès !",
+    "uploadMore": "Téléverser un autre {{type}}",
+    "addMore": "Ajouter un autre {{type}}",
+    "backToHome": "Retour à l'accueil"
   },
+
   "uploadForm": {
     "title": "Titre",
     "categoryLabel": "Catégorie",
@@ -301,7 +306,7 @@
     "landscapeCover": "Couverture Paysage",
     "landscapeThumbnail": "Miniature Paysage",
     "noImageSelected": "Aucune image sélectionnée",
-    "actorSupportedFormats":"Formats pris en charge : /acteur1/acteur2/acteur3 ou acteur1, acteur2, acteur3). Exemple : /Zhang Luyi/Yu Hewei/Chen Jin",
+    "actorSupportedFormats": "Formats pris en charge : /acteur1/acteur2/acteur3 ou acteur1, acteur2, acteur3). Exemple : /Zhang Luyi/Yu Hewei/Chen Jin",
     "optional": "Optionnel",
     "releaseRegionsPlaceholder": "ex : United States, United Kingdom",
     "sourceProviderPlaceholder": "ex : Warner Bros, Marvel Studios",
@@ -438,11 +443,11 @@
   "recommended_movie": "Films recommandés",
   "popular_Search": "Recherches populaires",
   "recent_Search": "Recherches récentes",
-    "home": {
-      "noContentAvailable": "Aucun contenu disponible pour le moment. Nous mettons peut-être à jour le catalogue.",
-      "retry": "Réessayer",
-      "showingContentFor": "Affichage du contenu pour :",
-      "clearFilter": "Effacer le filtre",
-      "noContentFound": "Aucun contenu trouvé pour"
-    }
+  "home": {
+    "noContentAvailable": "Aucun contenu disponible pour le moment. Nous mettons peut-être à jour le catalogue.",
+    "retry": "Réessayer",
+    "showingContentFor": "Affichage du contenu pour :",
+    "clearFilter": "Effacer le filtre",
+    "noContentFound": "Aucun contenu trouvé pour"
+  }
 }

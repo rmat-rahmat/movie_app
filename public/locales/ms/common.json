@@ -252,12 +252,7 @@
     "episodeDescription": "Deskripsi Episod",
     "selectVideoFile": "Pilih fail video",
     "noCoverSelected": "Tiada kulit dipilih. Anda juga boleh menampal URL luaran ke medan coverUrl kemudian jika perlu.",
-    "successTitle": "Muat naik Berjaya!",
-    "movieUploadSuccess": "telah berjaya dimuat naik!",
-    "seriesUploadSuccess": "siri telah berjaya dimuat naik!",
     "viewDetails": "Lihat Butiran",
-    "uploadMore": "Muat Naik Lain",
-    "backToHome": "Kembali ke Laman Utama",
     "videoPrivacy": "Video anda akan kekal peribadi sehingga ia diterbitkan",
     "directorPlaceholder": "Nama Pengarah",
     "actorsPlaceholder": "Nama Pelakon contohnya: John Doe, Jane Smith",
@@ -265,7 +260,16 @@
     "languagePlaceholder": "Bahasa contohnya: English, Spanish",
     "chooseImage": "Pilih Imej",
     "releaseRegions": "Wilayah Tayangan",
-    "sourceProvider": "Penyedia Sumber"
+    "sourceProvider": "Penyedia Sumber",
+    "successTitle": "Muat naik Berjaya!",
+    "successAddTitle": "Berjaya Menambah Filem/Siri!",
+    "movieUploadSuccess": "\"{{title}}\" telah berjaya dimuat naik!",
+    "seriesUploadSuccess": "\"{{title}}\" siri telah berjaya dimuat naik!",
+    "movieAddSuccess": "\"{{title}}\" telah berjaya ditambah!",
+    "seriesAddSuccess": "\"{{title}}\" siri telah berjaya ditambah!",
+    "uploadMore": "Muat Naik Lain {{type}}",
+    "addMore": "Tambah Lagi {{type}}",
+    "backToHome": "Kembali ke Laman Utama"
   },
   "uploadForm": {
     "title": "Tajuk",
@@ -301,7 +305,7 @@
     "landscapeCover": "Kulit Landskap",
     "landscapeThumbnail": "Thumbnail Landskap",
     "noImageSelected": "Tiada imej dipilih",
-    "actorSupportedFormats":"Format disokong: /pelakon1/pelakon2/pelakon3 atau pelakon1, pelakon2, pelakon3). Contoh: /Zhang Luyi/Yu Hewei/Chen Jin",
+    "actorSupportedFormats": "Format disokong: /pelakon1/pelakon2/pelakon3 atau pelakon1, pelakon2, pelakon3). Contoh: /Zhang Luyi/Yu Hewei/Chen Jin",
     "optional": "Pilihan",
     "releaseRegionsPlaceholder": "contohnya, United States, United Kingdom",
     "sourceProviderPlaceholder": "contohnya, Warner Bros, Marvel Studios",
@@ -438,11 +442,11 @@
   "recommended_movie": "Filem Disyorkan",
   "popular_Search": "Carian Popular",
   "recent_Search": "Carian Terkini",
-    "home": {
-      "noContentAvailable": "Tiada kandungan tersedia sekarang. Kami mungkin sedang mengemas kini katalog.",
-      "retry": "Cuba Lagi",
-      "showingContentFor": "Menunjukkan kandungan untuk:",
-      "clearFilter": "Kosongkan penapis",
-      "noContentFound": "Tiada kandungan dijumpai untuk"
-    }
+  "home": {
+    "noContentAvailable": "Tiada kandungan tersedia sekarang. Kami mungkin sedang mengemas kini katalog.",
+    "retry": "Cuba Lagi",
+    "showingContentFor": "Menunjukkan kandungan untuk:",
+    "clearFilter": "Kosongkan penapis",
+    "noContentFound": "Tiada kandungan dijumpai untuk"
+  }
 }

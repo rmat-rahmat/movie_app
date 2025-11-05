@@ -76,10 +76,13 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
 
   // Load categories on component mount
   useEffect(() => {
-    const cachedCategories = getCachedCategories();
-    if (cachedCategories) {
-      setCategories(cachedCategories);
-    }
+    const fetchCategories = async () => {
+      const cachedCategories = await getCachedCategories();
+      if (cachedCategories) {
+        setCategories(cachedCategories);
+      }
+    };
+    fetchCategories();
   }, []);
 
   // Perform search based on URL query
@@ -334,10 +337,19 @@ const SearchVideos: React.FC<SearchVideosProps> = () => {
             </div>
           )}
         </> :
+        <>
         <GridVideos
           spesificApiUrl="/api-movie/v1/watch-history/list"
           mobileListView={true}
+          hideIfEmpty={true}
         />
+
+        <GridVideos
+          spesificApiUrl="/api-movie/v1/home/recommended"
+          mobileListView={true}
+          hideIfEmpty={true}
+        />
+        </>
       }
 
       {/* Video Modal */}

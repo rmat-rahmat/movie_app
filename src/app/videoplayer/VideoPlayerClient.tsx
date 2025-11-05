@@ -227,7 +227,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
 
     fetchAll();
     return () => { mounted = false; };
-  }, [actualUploadId, id, m3u8Url, currentVideo, setCurrentEpisode]);
+  }, [actualUploadId, id, m3u8Url]);
 
   // Check favorite and like status when video loads
   useEffect(() => {
@@ -467,11 +467,13 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const loadFromDirectM3u8 = (m3u8DirectUrl: string) => {
     if (!loading) setLoading(true);
 
+    setCurrentEpisode(m3u8DirectUrl);
     console.log('Direct m3u8 url :', currentVideo)
     const episode = currentVideo?.episodes?.find(ep => ep.id === mediaID);
     const serverQualityPermissions = episode?.qualityPermissions || [];
     setFilteredQuality(serverQualityPermissions);
     console.log('Direct m3u8 episode :', episode)
+    console.log('Direct m3u8 serverQualityPermissions :', serverQualityPermissions)
 
     const videoElement = videoRef.current;
     if (!videoElement || !m3u8DirectUrl) return;
@@ -498,14 +500,16 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         const availableLevels = hlsRef.current?.levels.map(({ height }) => `${height}p`) || []
         setAvailableQualities(availableLevels);
+
+        if (serverQualityPermissions.length > 0) {
         const initialQualityIndex = hlsRef.current?.levels.findIndex(({ height }) => `${height}p`.toUpperCase() === serverQualityPermissions[0].qualityName?.toUpperCase()) || 0;
 
-        if (hlsRef.current) {
+        if (hlsRef.current && initialQualityIndex > -1) {
           hlsRef.current.currentLevel = initialQualityIndex;
         }
         console.log('Initial quality index based on server permissions:', initialQualityIndex);
         setCurrentlyPlayingQuality(initialQualityIndex);
-
+}
         // Start playback
         setIsPlaying(true);
         videoElement.play().catch(console.error);
@@ -1071,7 +1075,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     <button
                       key={episode.id || episode.uploadId}
                       onClick={() => {
-                        setCurrentEpisode(episode.uploadId || "");
+                        setCurrentEpisode(episode.uploadId || episode.id || episode.m3u8Url || episode.playUrl || '');
                         if (episode.m3u8Url) {
                           router.push(`/videoplayer?m3u8=${encodeURIComponent(episode.m3u8Url)}&mediaid=${encodeURIComponent(episode.id || '')}`)
                         }
@@ -1084,7 +1088,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                         }
                       }}
                       className={`min-w-[56px] h-14 flex items-center justify-center rounded-lg font-bold text-lg transition-colors cursor-pointer
-                          ${currentVideo.currentEpisode?.uploadId === (episode.uploadId || episode.id)
+                          ${(currentVideo.currentEpisode?.uploadId === (episode.uploadId))||(currentVideo.currentEpisode?.id === episode.id)||(currentVideo.currentEpisode?.m3u8Url === episode.m3u8Url)
                           ? ' text-[#fbb033] border border-[#fbb033]'
                           : 'bg-gray-800 text-white hover:bg-gray-700'
                         }`}

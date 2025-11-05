@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getSearchSuggestions,getHotKeywords } from '@/lib/movieApi';
+import { getSearchSuggestions,getHotKeywords,getSearchHistory } from '@/lib/movieApi';
 import { FiChevronLeft } from 'react-icons/fi';
 
 interface SearchInputProps {
@@ -116,7 +116,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
     if (!query) {
       (async () => {
         try {
-          const list = await getHotKeywords(12);
+          const list = await getSearchHistory(12);
           if (Array.isArray(list)) {
           setSuggestions(list);
           setShowSuggestions(list.length > 0);

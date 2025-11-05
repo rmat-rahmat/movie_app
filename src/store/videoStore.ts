@@ -32,6 +32,9 @@ interface VideoMetadata {
     duration?: number;
     uploadId?: string;
     qualityPermissions?: QualityPermission[]; 
+    m3u8Url?: string | null;
+    playUrl?: string | null;
+    id?: string | number | undefined;
   };
 }
 
@@ -58,7 +61,7 @@ export const useVideoStore = create<VideoStore>()(
           if (!currentVideo.episodes || currentVideo.episodes.length === 0) return state;
           
           const episode = currentVideo.episodes.find(ep => 
-            ep.uploadId === uploadID || ep.id === uploadID
+            ep.uploadId === uploadID || ep.id === uploadID || ep.m3u8Url === uploadID || ep.playUrl === uploadID
           );
           if (!episode) return state;
 
@@ -67,6 +70,9 @@ export const useVideoStore = create<VideoStore>()(
             currentVideo: {
               ...currentVideo,
               currentEpisode: {
+                id: episode.id,
+                m3u8Url: episode.m3u8Url,
+                playUrl: episode.playUrl,
                 episodeNumber: episode.episodeNumber,
                 episodeTitle: episode.title,
                 qualityPermissions: episode.qualityPermissions,
@@ -123,6 +129,9 @@ export const useVideoStore = create<VideoStore>()(
           );
           if (episode) {
             videoMetadata.currentEpisode = {
+              id: episode.id,
+              m3u8Url: episode.m3u8Url,
+              playUrl: episode.playUrl,
               episodeNumber: episode.episodeNumber,
               qualityPermissions: episode.qualityPermissions,
               episodeTitle: episode.title,

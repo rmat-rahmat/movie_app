@@ -252,12 +252,7 @@
     "episodeDescription": "集描述",
     "selectVideoFile": "选择视频文件",
     "noCoverSelected": "未选择封面。您也可以稍后在 coverUrl 字段粘贴外部 URL（如需）。",
-    "successTitle": "上传成功！",
-    "movieUploadSuccess": "已成功上传！",
-    "seriesUploadSuccess": "电视剧已成功上传！",
     "viewDetails": "查看详情",
-    "uploadMore": "继续上传",
-    "backToHome": "返回主页",
     "videoPrivacy": "您的视频在发布前将保持私密",
     "directorPlaceholder": "导演姓名",
     "actorsPlaceholder": "演员姓名，例如：张三, 李四",
@@ -265,7 +260,16 @@
     "languagePlaceholder": "语言，例如：English, Spanish",
     "chooseImage": "选择图片",
     "releaseRegions": "上映地区",
-    "sourceProvider": "来源提供者"
+    "sourceProvider": "来源提供者",
+    "successTitle": "上传成功！",
+    "successAddTitle": "成功添加电影/电视剧！",
+    "movieUploadSuccess": "\"{{title}}\" 已成功上传！",
+    "seriesUploadSuccess": "\"{{title}}\" 电视剧已成功上传！",
+    "movieAddSuccess": "\"{{title}}\" 已成功添加！",
+    "seriesAddSuccess": "\"{{title}}\" 电视剧已成功添加！",
+    "uploadMore": "继续上传另一个 {{type}}",
+    "addMore": "添加更多 {{type}}",
+    "backToHome": "返回主页"
   },
   "uploadForm": {
     "title": "标题",
@@ -301,7 +305,7 @@
     "landscapeCover": "横向封面",
     "landscapeThumbnail": "横向缩略图",
     "noImageSelected": "未选择图片",
-    "actorSupportedFormats":"支持的格式：/演员1/演员2/演员3 或 演员1, 演员2, 演员3）。例如：/张鲁一/于和伟/陈劲",
+    "actorSupportedFormats": "支持的格式：/演员1/演员2/演员3 或 演员1, 演员2, 演员3）。例如：/张鲁一/于和伟/陈劲",
     "optional": "可选",
     "releaseRegionsPlaceholder": "例如，美国，英国",
     "sourceProviderPlaceholder": "例如，华纳兄弟，漫威影业",
@@ -438,11 +442,11 @@
   "recommended_movie": "推荐电影",
   "popular_Search": "热门搜索",
   "recent_Search": "最近搜索",
-    "home": {
-      "noContentAvailable": "目前没有可用内容。我们可能正在更新目录。",
-      "retry": "重试",
-      "showingContentFor": "显示内容：",
-      "clearFilter": "清除筛选",
-      "noContentFound": "未找到内容"
-    }
+  "home": {
+    "noContentAvailable": "目前没有可用内容。我们可能正在更新目录。",
+    "retry": "重试",
+    "showingContentFor": "显示内容：",
+    "clearFilter": "清除筛选",
+    "noContentFound": "未找到内容"
+  }
 }

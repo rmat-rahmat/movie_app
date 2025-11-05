@@ -99,9 +99,10 @@ export default function SeriesUpload() {
   });
 
   useEffect(() => {
-    const cachedCategories = getCachedCategories();
-    if (cachedCategories) {
-      setCategories(cachedCategories);
+    const loadCategoriesAndSuggestions = async () => {
+      const cachedCategories = await getCachedCategories();
+      if (cachedCategories) {
+        setCategories(cachedCategories);
 
       // Build category suggestions and name-to-id mapping
       const suggestions: string[] = [];
@@ -143,6 +144,8 @@ export default function SeriesUpload() {
         console.warn('Failed to preload suggestions', e);
       }
     })();
+  }
+  loadCategoriesAndSuggestions();
   }, []);
 
   useEffect(() => {
@@ -558,6 +561,7 @@ export default function SeriesUpload() {
   return (
     <>
       <UploadSuccessModal
+        sourceType={seriesForm.episodes[0].m3u8Url ? 'LINK' : 'UPLOAD'}
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
         uploadedId={uploadedSeriesId || undefined}

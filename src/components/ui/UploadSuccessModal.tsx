@@ -2,9 +2,10 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { FiCheckCircle, FiUpload, FiHome, FiEye } from 'react-icons/fi';
+import { FiCheckCircle, FiUpload, FiHome, FiEye, FiPlus } from 'react-icons/fi';
 
 interface UploadSuccessModalProps {
+  sourceType?: "UPLOAD" | "LINK";
   isOpen: boolean;
   onClose: () => void;
   uploadedId?: string;
@@ -19,7 +20,8 @@ const UploadSuccessModal: React.FC<UploadSuccessModalProps> = ({
   uploadedId,
   title,
   type,
-  onUploadMore
+  onUploadMore,
+  sourceType = "UPLOAD",
 }) => {
   const router = useRouter();
   const { t } = useTranslation('common');
@@ -43,6 +45,24 @@ const UploadSuccessModal: React.FC<UploadSuccessModalProps> = ({
     onClose();
   };
 
+  // Message logic
+  const isLink = sourceType === "LINK";
+  const successTitle = isLink
+    ? t('upload.successAddTitle', 'Success Add Movie/Series!')
+    : t('upload.successTitle', 'Upload Successful!');
+  const successDesc = isLink
+    ? (type === 'movie'
+        ? t('upload.movieAddSuccess', `"${title}" has been added successfully!`)
+        : t('upload.seriesAddSuccess', `"${title}" series has been added successfully!`)
+      )
+    : (type === 'movie'
+        ? t('upload.movieUploadSuccess', `"${title}" has been uploaded successfully!`)
+        : t('upload.seriesUploadSuccess', `"${title}" series has been uploaded successfully!`)
+      );
+  const addMoreLabel = isLink
+    ? t('upload.addMore', `Add More ${type === 'movie' ? 'Movie' : 'Series'}`)
+    : t('upload.uploadMore', `Upload Another ${type === 'movie' ? 'Movie' : 'Series'}`);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/70" onClick={onClose} />
@@ -55,33 +75,21 @@ const UploadSuccessModal: React.FC<UploadSuccessModalProps> = ({
           </div>
           
           <h2 className="text-2xl font-bold text-white mb-2">
-            {t('upload.successTitle', 'Upload Successful!')}
+            {successTitle}
           </h2>
           
           <p className="text-gray-300 mb-6">
-            {type === 'movie' 
-              ? t('upload.movieUploadSuccess', `"${title}" has been uploaded successfully!`)
-              : t('upload.seriesUploadSuccess', `"${title}" series has been uploaded successfully!`)
-            }
+            {successDesc}
           </p>
           
           <div className="space-y-3">
-            {/* {uploadedId && (
-              <button
-                onClick={handleViewDetails}
-                className="w-full flex items-center justify-center px-4 py-3 bg-[#fbb033] text-black font-semibold rounded-lg hover:bg-yellow-500 transition-colors"
-              >
-                <FiEye className="mr-2" />
-                {t('upload.viewDetails', 'View Details')}
-              </button>
-            )}
-             */}
+            {/* View Details button is still commented out */}
             <button
               onClick={handleUploadMore}
               className="w-full flex items-center justify-center px-4 py-3 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition-colors"
             >
-              <FiUpload className="mr-2" />
-              {t('upload.uploadMore', `Upload Another ${type === 'movie' ? 'Movie' : 'Series'}`)}
+              {isLink ? <FiPlus className="mr-2" /> : <FiUpload className="mr-2" />}
+              {addMoreLabel}
             </button>
             
             <button

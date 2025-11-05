@@ -10,6 +10,6 @@ const DEFAULT_NEW= 'http://45.137.215.129:59091';
 const DEFAULT_PRE= 'https://pre.otalk.tv';
 const DEFAULT_PROD="https://otalk.tv"
 
-export const BASE_URL: string = DEFAULT_PRE;
+export const BASE_URL: string = DEFAULT_TEST;
 	// process.env.NEXT_PUBLIC_BASE_URL ??
 	// (process.env.NODE_ENV === 'production' ? DEFAULT_PROD : DEFAULT_DEV);

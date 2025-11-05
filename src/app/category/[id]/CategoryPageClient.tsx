@@ -14,8 +14,8 @@ export default function CategoryPageClient({ id }: { id: string }) {
   const [realID, setRealID] = useState<string | null>(null);
 
   // Helper function to find category name
-  const findCategoryName = (categoryId: string): string | null => {
-    const categories = getCachedCategories();
+  const findCategoryName = async (categoryId: string): Promise<string | null> => {
+    const categories = await getCachedCategories();
     if (!categories) return null;
 
     const searchCategory = (items: (CategoryItem & { children?: CategoryItem[] })[]): string | null => {
@@ -35,8 +35,8 @@ export default function CategoryPageClient({ id }: { id: string }) {
   };
 
 
-    const findCategoryIDByAlias = (alias: string): string | null => {
-      const categories = getCachedCategories();
+    const findCategoryIDByAlias = async (alias: string): Promise<string | null> => {
+      const categories = await getCachedCategories();
       if (!categories) return null;
   
       const searchCategory = (items: (CategoryItem & { children?: CategoryItem[] })[]): string | null => {
@@ -59,7 +59,7 @@ export default function CategoryPageClient({ id }: { id: string }) {
   useEffect(() => {
     async function initializePage() {
 
-      const rID = findCategoryIDByAlias(id) || null;
+      const rID = await findCategoryIDByAlias(id) || null;
       setRealID(rID);
       
       try {
@@ -71,7 +71,7 @@ export default function CategoryPageClient({ id }: { id: string }) {
         }
 
         // Try to get category name from cached categories
-        let foundCategoryName = findCategoryName(findCategoryIDByAlias(id) || '');
+        let foundCategoryName = await findCategoryName(await findCategoryIDByAlias(id) || '');
         
         if (!foundCategoryName) {
           // Fallback: try to get from dashboard API

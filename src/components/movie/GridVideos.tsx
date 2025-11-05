@@ -20,9 +20,10 @@ interface GridVideosProps {
   subHeaderRight?: React.ReactNode;
   mobileListView?: boolean;
   groupBy?: 'date' | 'alphabet' | 'none';
+  hideIfEmpty?: boolean;
 }
 
-const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl, backButton, subHeaderRight, mobileListView, groupBy = 'none' }) => {
+const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl, backButton, subHeaderRight, mobileListView, groupBy = 'none' ,hideIfEmpty}) => {
   const [videos, setVideos] = useState<VideoVO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -335,6 +336,10 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl,
 
   if (loading) {
     return <LoadingPage />;
+  }
+
+  if (videos.length === 0 && hideIfEmpty) {
+    return null;
   }
 
   if (error) {

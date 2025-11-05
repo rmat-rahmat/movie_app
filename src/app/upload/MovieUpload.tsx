@@ -74,7 +74,8 @@ export default function MovieUpload() {
   });
 
   useEffect(() => {
-    const cachedCategories = getCachedCategories();
+    const loadCategories = async () => {
+    const cachedCategories = await getCachedCategories();
     if (cachedCategories) {
       // console.log('Loaded cached categories', JSON.stringify(cachedCategories, null, 2));
       setCategories(cachedCategories);
@@ -102,6 +103,9 @@ export default function MovieUpload() {
       setCategorySuggestions(suggestions);
       setCategoryNameToIdMap(nameToIdMap);
     }
+    else{
+      
+    }
     // preload director/actor/region suggestions
     (async () => {
       try {
@@ -119,6 +123,8 @@ export default function MovieUpload() {
         console.warn('Failed to preload suggestions', e);
       }
     })();
+  }
+  loadCategories()
   }, []);
 
   useEffect(() => {

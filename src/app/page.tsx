@@ -31,7 +31,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [sections, setSections] = useState<ExtendedSection[]>([]);
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
-   const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   const { user } = useAuthStore();
   const router = useRouter();
@@ -98,10 +98,12 @@ export default function Home() {
   // Fetch home sections using new API
   const fetchHomeSections = async (categoryId?: string) => {
     try {
+      const currentLanguage = i18n.language;
       const homeSections = await getHomeSections(
         categoryId && categoryId !== "All" ? categoryId : undefined,
         '720',
-        5
+        15,
+        currentLanguage
       );
 
       if (homeSections && Array.isArray(homeSections)) {
@@ -300,8 +302,8 @@ export default function Home() {
               sections.map((section) => (
                 <div key={section.id}>
                   <DashboardSection
-                    title={t(section.id, section.title)}
-                    // title={section.title}
+                    // title={t(section.id, section.title)}
+                    title={section.title}
 
                     videos={section.allVideos.map(convertToDashboardItem)}
                     onViewMore={section.hasMore ? () => {

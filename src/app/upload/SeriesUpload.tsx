@@ -693,6 +693,7 @@ export default function SeriesUpload() {
               suggestions={directorSuggestions}
               placeholder={t('upload.directorPlaceholder', 'Director name')}
               required
+              allowCustom
             />
           </div>
 
@@ -706,6 +707,7 @@ export default function SeriesUpload() {
               placeholder={t('upload.actorsPlaceholder', 'Actor names, separated by commas')}
               multi
               required
+              allowCustom
             />
             <p className="text-sm text-gray-400 mb-2">{t('uploadForm.actorSupportedFormats', 'Supported formats: /Actor1/Actor2/Actor3 or Actor1, Actor2, Actor3). Example: /Zhang Luyi/Yu Hewei/Chen Jin')}</p>
           </div>
@@ -736,6 +738,7 @@ export default function SeriesUpload() {
               suggestions={regionSuggestions}
               placeholder={t('upload.regionPlaceholder', 'e.g., USA, China, etc.')}
               required
+              allowCustom
             />
           </div>
           <div>
@@ -747,6 +750,7 @@ export default function SeriesUpload() {
               suggestions={languageSuggestions}
               placeholder={t('upload.languagePlaceholder', 'e.g., English, Mandarin, etc.')}
               required
+              allowCustom
             />
           </div>
         </div>
@@ -776,6 +780,7 @@ export default function SeriesUpload() {
               suggestions={regionSuggestions}
               placeholder={t('upload.releaseRegionsPlaceholder', 'e.g., United States, United Kingdom')}
               required
+              allowCustom
             />
           </div>
         </div>

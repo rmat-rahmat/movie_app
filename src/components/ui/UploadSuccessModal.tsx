@@ -59,9 +59,9 @@ const UploadSuccessModal: React.FC<UploadSuccessModalProps> = ({
         ? t('upload.movieUploadSuccess', `"${title}" has been uploaded successfully!`,{title})
         : t('upload.seriesUploadSuccess', `"${title}" series has been uploaded successfully!`,{title})
       );
-  const addMoreLabel = isLink 
-    ? t('upload.addMore', `Add More ${type === 'movie' ? 'Movie' : 'Series'}`,{type})
-    : t('upload.uploadMore', `Upload Another ${type === 'movie' ? 'Movie' : 'Series'}`,{type});
+  const addMoreLabel = isLink
+    ? t('upload.addMore', `Add More ${type === 'movie' ? 'Movie' : 'Series'}`,{type:t(`upload.${type}`)})
+    : t('upload.uploadMore', `Upload Another ${type === 'movie' ? 'Movie' : 'Series'}`,{type:t(`upload.${type}`)});
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">

@@ -166,7 +166,7 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
         {/* Row 1 */}
         <div
           className="flex gap-4 justify-start overflow-x-auto scroll-smooth"
-          style={{ scrollbarWidth: 'thin', minHeight: '320px' }}
+          style={{ scrollbarWidth: 'none', minHeight: '320px' }}
           // Each row gets its own ref and scroll handler if needed
         >
           {row1.map((video, index) => (
@@ -197,7 +197,7 @@ const RecommendationGrid: React.FC<RecommendationGridProps> = ({ videoId, title,
         {/* Row 2 */}
         <div
           className="flex gap-4 justify-start overflow-x-auto scroll-smooth"
-          style={{ scrollbarWidth: 'thin', minHeight: '320px' }}
+          style={{ scrollbarWidth: 'none', minHeight: '320px' }}
         >
           {row2.map((video, index) => (
             <div

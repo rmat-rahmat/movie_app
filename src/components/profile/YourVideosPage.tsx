@@ -217,7 +217,7 @@ export default function YourVideosPage() {
                   {series.map((seriesItem) => (
                     <div key={seriesItem.id} className="bg-gray-900 rounded-lg p-4">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 cursor-pointer" onClick={() => window.location.href = `/videoplayer?directid=${encodeURIComponent(seriesItem.id)}`}>
                           <Image
                             src={seriesItem.imageQuality?.customCoverUrl || seriesItem.coverUrl || '/fallback_poster/sample_poster.png'}
                             alt={seriesItem.title}

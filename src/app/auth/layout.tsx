@@ -94,7 +94,7 @@ export default function AuthLayout({
         );
     }
     return (
-        <div className="flex flex-col  h-screen items-center justify-center">
+        <div className="flex flex-col  items-center justify-center">
             {/* <RainAnimation movies={movies} /> */}
             {/* <div className="absolute z-0 top-10 md:right-10 w-full  md:w-[30vw] h-[10vh] z-0 pointer-events-none overflow-hidden z-2">
                 <h1

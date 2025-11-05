@@ -267,7 +267,7 @@
     "seriesUploadSuccess": "\"{{title}}\" siri telah berjaya dimuat naik!",
     "movieAddSuccess": "\"{{title}}\" telah berjaya ditambah!",
     "seriesAddSuccess": "\"{{title}}\" siri telah berjaya ditambah!",
-    "uploadMore": "Muat Naik Lain {{type}}",
+    "uploadMore": "Muat Naik {{type}} yang lain",
     "addMore": "Tambah Lagi {{type}}",
     "backToHome": "Kembali ke Laman Utama"
   },
@@ -424,7 +424,8 @@
     "confirmDelete": "Adakah anda pasti mahu memadam komen ini?",
     "showReplies": "Tunjukkan balasan",
     "hideReplies": "Sembunyikan balasan",
-    "loadingReplies": "Memuatkan balasan..."
+    "loadingReplies": "Memuatkan balasan...",
+    "charactersLeft": "{{count}} aksara tinggal"
   },
   "ERR_USER_ALREADY_EXISTS": "Pengguna dengan e-mel ini sudah wujud",
   "top_rated_series": "Siri Terbaik",

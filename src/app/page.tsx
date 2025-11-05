@@ -275,9 +275,9 @@ export default function Home() {
             </div>
           )}
 
-          <div className="flex relative flex-col md:px-20 px-0 w-[100%] mt-4">
+          <div className="flex relative flex-col md:px-20 px-0 w-[100%] md:mt-4">
             <MovieCategoryFilter />
-            <hr className="h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0" />
+            {/* <hr className="h-1 rounded-full bg-gradient-to-r from-[#fbb033] via-[#f69c05] to-[#fbb033] border-0" /> */}
             
             {/* Show selected category indicator */}
             {selectedCategory && selectedCategory !== "All" && (
@@ -330,7 +330,7 @@ export default function Home() {
                 </div>
               )) : <LoadingPage className="relative h-[50vh] z-[-1]" />
             ) : selectedCategory && selectedCategory !== "All" ? (
-              <div className="py-8 px-4 text-center">
+              <div className="md:py-8 px-4 text-center">
                 <p className="text-gray-400 text-lg">
                   {t('home.noContentFound')} &quot;{categoryMap[selectedCategory] || selectedCategory}&quot;
                 </p>

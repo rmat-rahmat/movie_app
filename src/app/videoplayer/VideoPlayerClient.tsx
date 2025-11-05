@@ -196,6 +196,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         let masterPlaylist: string = '#EXTM3U\n#EXT-X-VERSION:3\n\n';
 
         const qualityPermissions = currentVideo?.currentEpisode?.qualityPermissions || null;
+      setFilteredQuality(qualityPermissions||[]);
         console.log('Quality permissions:', qualityPermissions);
         for (const quality of qualities) {
           let permitted = false;
@@ -206,6 +207,8 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
             const v = await getPlaybackUrl(uploadIdToLoad, quality);
             permitted = v !== null;
           }
+
+
           console.log(`Quality ${quality} permitted:`, permitted);
           if (!mounted) return;
           console.log(`${BASE_URL}/api-net/play/${uploadIdToLoad}/${quality}.m3u8`);
@@ -957,13 +960,13 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     </button>}
 
                     {/* Share Button */}
-                    {currentVideo?.id && (
+                    {/* {currentVideo?.id && (
                       <ShareButton
                         targetId={String(currentVideo.id)}
                         contentType={currentVideo.isSeries && currentVideo.currentEpisode ? 'episode' : 'video'}
                         title={currentVideo.title}
                       />
-                    )}
+                    )} */}
                   </div>
                 </div>
                 {/* Quality Selection */}

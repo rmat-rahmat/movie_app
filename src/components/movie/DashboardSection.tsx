@@ -59,7 +59,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
     }, [videos.length]);
 
     if (!videos || videos.length === 0) {
-        return <div className="container mx-auto px-4 py-8">
+        return <div className="container mx-auto px-4 py-1 md:py-8">
             <div className="flex items-center justify-between mb-4 px-0">
                 <div className="flex items-center gap-2">
                     {icon}
@@ -71,7 +71,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
         </div>
     }
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-1 md:py-8">
             <div className="flex items-center justify-between mb-4 px-0">
                 <div className="flex items-center gap-2">
                     {icon}

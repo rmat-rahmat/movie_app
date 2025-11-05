@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { decryptUrl, encryptUrl } from '@/utils/urlEncryption';
 import LoadingPage from '@/components/ui/LoadingPage';
 import { useVideoStore } from '@/store/videoStore';
+import { useAuthStore } from '@/store/authStore';
 import { formatDuration } from '@/utils/durationUtils';
 import StarRating from '@/components/ui/StarRating';
 import RecommendationGrid from '@/components/movie/RecommendationGrid';
@@ -30,6 +31,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
   const router = useRouter();
+  const { user } = useAuthStore();
 
   // Get video metadata from store
   const { currentVideo } = useVideoStore();
@@ -46,6 +48,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
   // Comments state
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
+
+  // Add accordion state
+  const [showInfoAccordion, setShowInfoAccordion] = useState(false);
 
   useEffect(() => {
     if (!encryptedUrl) {
@@ -276,14 +281,13 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
   }
 
   return (
-    <div className="min-h-screen text-white bg-black">
-      {/* Video Player Section */}
+    <div className="min-h-screen text-white">
       <div className="p-6">
         {!currentVideo && (
           <h1 className="text-2xl font-bold mb-4">{t('video.externalPlayerTitle', 'External Video Player')}</h1>
         )}
 
-        {error && <p className="text-red-400">{error}</p>}
+        {error && <p className="text-red-400 mb-4">{error}</p>}
         
         {/* Video Player */}
         <section className="mb-6">
@@ -330,10 +334,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                   allowFullScreen
                   allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
                   title="External Video Player"
-                  style={{
-                    border: 'none',
-                    backgroundColor: 'black'
-                  }}
+                  style={{ border: 'none', backgroundColor: 'black' }}
                 />
                 
                 {loading && (
@@ -349,15 +350,17 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
               <div className="grid mt-6 h-full w-full md:grid-cols-[70%_30%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
                 {/* Video Info */}
                 <div className="w-full">
-                  <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                    {currentVideo.title}
-                    {currentVideo.isSeries && currentVideo.currentEpisode && (
-                      <span className="text-xl md:text-2xl text-gray-300 ml-2">
-                        {t("video._episode","- Episode")} {currentVideo.currentEpisode.episodeNumber}
-                        {currentVideo.currentEpisode.episodeTitle && `: ${currentVideo.currentEpisode.episodeTitle}`}
-                      </span>
-                    )}
-                  </h1>
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <h1 className="text-3xl md:text-4xl font-bold flex-1">
+                      {currentVideo.title}
+                      {currentVideo.isSeries && currentVideo.currentEpisode && (
+                        <span className="text-xl md:text-2xl text-gray-300 ml-2">
+                          - Episode {currentVideo.currentEpisode.episodeNumber}
+                          {currentVideo.currentEpisode.episodeTitle && `: ${currentVideo.currentEpisode.episodeTitle}`}
+                        </span>
+                      )}
+                    </h1>
+                  </div>
 
                   <div className="flex flex-wrap items-center gap-4 mb-3">
                     {currentVideo.releaseDate && (
@@ -374,7 +377,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                   </div>
 
                   {currentVideo.description && (
-                    <p className="text-gray-200 text-sm md:text-base max-w-3xl mb-4">
+                    <p className="text-gray-200 text-sm md:text-base max-w-3xl">
                       {currentVideo.description.length > 200
                         ? `${currentVideo.description.substring(0, 200)}...`
                         : currentVideo.description}
@@ -384,7 +387,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                   {/* Interaction Buttons */}
                   <div className="flex items-center gap-4 mt-4">
                     {/* Like Button */}
-                    <button
+                    {user && <button
                       onClick={handleToggleLike}
                       disabled={isLikeLoading}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isLiked
@@ -393,27 +396,29 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                         } disabled:opacity-50`}
                     >
                       <FiThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-                      <span className="text-sm font-medium">
+                      <span className="hidden md:block text-sm font-medium">
                         {`${isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')}`}
                       </span>
-                    </button>
+                    </button>}
 
                     {/* Comments Button */}
                     <button
                       onClick={() => setShowComments(!showComments)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${showComments
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all ${showComments
                           ? 'bg-[#fbb033]/20 text-[#fbb033] hover:bg-[#fbb033]/30'
                           : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        }`}
+                        }
+                        ${commentCount === 0 && !user ? 'hidden' : ''}
+                        `}
                     >
                       <FiMessageCircle className="w-5 h-5" />
-                      <span className="text-sm font-medium">
+                      <span className="hidden md:block text-sm font-medium">
                         {t('comments.title', 'Comments')} {commentCount > 0 && `(${commentCount})`}
                       </span>
                     </button>
 
                     {/* Favorite Button */}
-                    <button
+                    {user && <button
                       onClick={handleToggleFavorite}
                       disabled={isFavoriteLoading}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isFavorited
@@ -422,10 +427,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                         } disabled:opacity-50`}
                     >
                       <FiHeart className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
-                      <span className="text-sm font-medium">
+                      <span className="hidden md:block text-sm font-medium">
                         {isFavorited ? t('video.favorited', 'Favorited') : t('video.favorite', 'Favorite')}
                       </span>
-                    </button>
+                    </button>}
 
                     {/* Share Button */}
                     {currentVideo?.id && (
@@ -433,7 +438,6 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                         targetId={String(currentVideo.id)}
                         contentType={currentVideo.isSeries && currentVideo.currentEpisode ? 'episode' : 'video'}
                         title={currentVideo.title}
-                        variant="full"
                       />
                     )}
                   </div>
@@ -456,10 +460,129 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
           </div>
         </section>
 
+        {/* Additional Video Information */}
+        {currentVideo && (
+          <div className="w-full lg:w-[60vw] mx-auto space-y-3">
+            {/* Accordion trigger */}
+            <button
+              className="w-full flex items-center justify-between px-2 py-1 rounded-lg cursor-pointer text-left font-semibold text-sm text-white hover:bg-gray-700 transition-colors"
+              onClick={() => setShowInfoAccordion((prev) => !prev)}
+              aria-expanded={showInfoAccordion}
+              aria-controls="video-info-accordion"
+            >
+              <span>{t('upload.viewDetails', 'Additional Video Information')}</span>
+              <svg
+                className={`w-6 h-6 transform transition-transform ${showInfoAccordion ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Accordion content */}
+            <div
+              id="video-info-accordion"
+              className={`overflow-hidden transition-all duration-300 ${showInfoAccordion ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}
+            >
+              <div className="grid md:grid-cols-[40%_30%_30%] gap-6">
+                {currentVideo.actors && currentVideo.actors.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-3">{t('video.cast')}</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {currentVideo.actors.slice(0, 8).map((actor, index) => (
+                        <span key={index} className="bg-gray-800 px-3 py-1 rounded-full text-sm">
+                          {actor}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  {currentVideo.director && (
+                    <div>
+                      <span className="text-gray-400">{t('video.director')}: </span>
+                      <span className="text-white">{currentVideo.director}</span>
+                    </div>
+                  )}
+                  {currentVideo.language && (
+                    <div>
+                      <span className="text-gray-400">{t('video.language')}: </span>
+                      <span className="text-white">{currentVideo.language}</span>
+                    </div>
+                  )}
+                  {currentVideo.region && (
+                    <div>
+                      <span className="text-gray-400">{t('video.region')}: </span>
+                      <span className="text-white">{currentVideo.region}</span>
+                    </div>
+                  )}
+                  {currentVideo.currentEpisode?.duration && (
+                    <div>
+                      <span className="text-gray-400">{t('video.duration')}: </span>
+                      <span className="text-white">{formatDuration(currentVideo.currentEpisode.duration)}</span>
+                    </div>
+                  )}
+                </div>
+
+                {currentVideo.tags && currentVideo.tags.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-3">{t('video.tags')}</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {currentVideo.tags.map((tag, index) => (
+                        <span key={index} className="bg-[#fbb033] text-black px-3 py-1 rounded text-sm">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Episodes List for Series - horizontal grid */}
+            {currentVideo.isSeries && currentVideo.episodes && currentVideo.episodes.length > 0 && (
+              <div>
+                <h3 className="text-xl font-semibold mb-3">
+                  {`${currentVideo.episodes.length > 1 ? `${currentVideo.episodes.length} ` : ''}${t('video.episodes')}`}
+                </h3>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {currentVideo.episodes.map((episode) => (
+                    <button
+                      key={episode.id || episode.uploadId}
+                      onClick={() => {
+                        if (episode.playUrl) {
+                          const encryptedUrl = encryptUrl(episode.playUrl);
+                          router.push(`/videoplayerExternal?url=${encodeURIComponent(encryptedUrl)}`);
+                        } else if (episode.m3u8Url) {
+                          router.push(`/videoplayer?m3u8=${encodeURIComponent(episode.m3u8Url)}&mediaid=${encodeURIComponent(episode.id || '')}`);
+                        } else if (episode.uploadId) {
+                          router.push(`/videoplayer?id=${encodeURIComponent(episode.uploadId || episode.id || '')}`);
+                        }
+                      }}
+                      className={`min-w-[56px] h-14 flex items-center justify-center rounded-lg font-bold text-lg transition-colors cursor-pointer
+                        ${currentVideo.currentEpisode?.id === episode.id || currentVideo.currentEpisode?.playUrl === episode.playUrl
+                          ? 'text-[#fbb033] border border-[#fbb033]'
+                          : 'bg-gray-800 text-white hover:bg-gray-700'
+                        }`}
+                      style={{ flex: '0 0 auto' }}
+                    >
+                      {episode.episodeNumber || '-'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Comments Section */}
         {currentVideo?.id && (
           <div className="mt-8 w-full lg:w-[60vw] mx-auto">
             <CommentSection
+              isauth={user !== null}
               showComments={showComments}
               mediaId={String(currentVideo.id)}
               mediaType={currentVideo.isSeries ? 'episode' : 'video'}
@@ -471,7 +594,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
 
         {/* Recommended Videos Section */}
         {currentVideo?.id && (
-          <div className="mt-8">
+          <div className="mt-8 w-full lg:w-[60vw] mx-auto">
             <RecommendationGrid
               videoId={String(currentVideo.id)}
               title={t('video.recommendedVideos', 'Recommended Videos')}

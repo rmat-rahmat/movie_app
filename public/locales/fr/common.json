@@ -425,7 +425,8 @@
     "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce commentaire ?",
     "showReplies": "Afficher les réponses",
     "hideReplies": "Masquer les réponses",
-    "loadingReplies": "Chargement des réponses..."
+    "loadingReplies": "Chargement des réponses...",
+    "charactersLeft": "{{count}} caractères restants"
   },
   "ERR_USER_ALREADY_EXISTS": "Un utilisateur avec cet e-mail existe déjà",
   "top_rated_series": "Séries les mieux notées",

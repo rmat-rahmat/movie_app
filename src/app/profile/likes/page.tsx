@@ -15,7 +15,6 @@ export default function LikedVideosPage() {
       spesificApiUrl="/api-movie/v1/like/list"
       mobileListView={true}
       backButton={true}
-      groupBy="date"
     />
   );
 }

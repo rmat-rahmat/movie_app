@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiHeart, FiMessageCircle, FiTrash2, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { type CommentVO, createComment, deleteComment, toggleCommentLike, getCommentReplies } from '@/lib/commentApi';
@@ -34,6 +34,11 @@ export default function CommentItem({
   const [loadingReplies, setLoadingReplies] = useState(false);
   const [likingComment, setLikingComment] = useState(false);
 
+
+  useEffect(() => {
+    setLocalComment(comment);
+    console.log('Comment updated:', comment);
+  }, [comment]);
   // Get current user ID from localStorage (if available)
   const getCurrentUserId = (): string | null => {
     if (typeof window === 'undefined') return null;
@@ -46,7 +51,7 @@ export default function CommentItem({
   // Format time ago
   const timeAgo = (dateString: string) => {
     try {
-      const date = new Date(dateString);
+      const date = new Date(dateString + 'Z');
       const now = new Date();
       const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
       

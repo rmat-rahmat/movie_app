@@ -48,7 +48,7 @@ export default function FavoritesPage() {
               alt={favorites[0]?.title || "Favorites"} 
               width={240} 
               height={135} 
-              className="w-60 h-30 border border-gray-300 rounded-xl lg:min-w-50 lg:min-h-50 mr-2 object-cover" 
+              className="w-30 md:w-60 h-30 border border-gray-300 rounded-xl lg:min-w-50 lg:min-h-50 mr-2 object-cover" 
             />
 
             {favorites.length > 0 && (
@@ -77,7 +77,7 @@ export default function FavoritesPage() {
                 alt={likedVideos[0]?.title || "Liked Videos"} 
                 width={240} 
                 height={135} 
-                className="w-60 h-30 border border-gray-300 rounded-xl lg:min-w-50 lg:min-h-50 mr-2 object-cover" 
+                className="w-30 md:w-60 h-30 border border-gray-300 rounded-xl lg:min-w-50 lg:min-h-50 mr-2 object-cover" 
               />
 
               {likedVideos.length > 0 && (

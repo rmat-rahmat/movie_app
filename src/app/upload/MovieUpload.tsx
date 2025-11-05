@@ -581,6 +581,7 @@ export default function MovieUpload() {
   return (
     <>
       <UploadSuccessModal
+        sourceType={fileMethod}
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
         uploadedId={uploadedMovieId || undefined}
@@ -881,7 +882,8 @@ export default function MovieUpload() {
               onChange={(v) => setMovieForm(prev => ({ ...prev, director: v }))}
               suggestions={directorSuggestions}
               placeholder={t('upload.directorPlaceholder', 'Director Name')}
-              required  
+              required
+              allowCustom
               multi
             />
           </div>
@@ -895,6 +897,7 @@ export default function MovieUpload() {
               suggestions={actorSuggestions}
               placeholder={t('upload.actorsPlaceholder', 'Actor Names')}
               multi
+              allowCustom
               required
             />
 
@@ -930,6 +933,7 @@ export default function MovieUpload() {
               suggestions={regionSuggestions}
               placeholder={t('upload.regionPlaceholder', 'e.g., USA, China, etc.')}
               required
+              allowCustom
             />
           </div>
           <div>
@@ -941,6 +945,7 @@ export default function MovieUpload() {
               suggestions={languageSuggestions}
               placeholder={t('upload.languagePlaceholder', 'e.g., English, Mandarin, etc.')}
               required
+              allowCustom
             />
           </div>
         </div>
@@ -956,6 +961,7 @@ export default function MovieUpload() {
               suggestions={regionSuggestions}
               placeholder={t('uploadForm.releaseRegionsPlaceholder', 'e.g., United States, United Kingdom')}
               required
+              allowCustom
             />
           </div>
           <div>

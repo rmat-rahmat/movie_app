@@ -185,7 +185,7 @@ const ResetPasswordPage: React.FC = () => {
                         <label className="block text-sm font-medium text-gray-300">
                             {t('auth.email')}
                         </label>
-                        <div className="mt-1 block w-full px-3 py-2 bg-gray-700 rounded-md text-gray-300">
+                        <div className="mt-1 block w-full px-3 py-2 bg-gray-700 rounded-full text-gray-300">
                             {email}
                         </div>
                     </div>
@@ -212,7 +212,7 @@ const ResetPasswordPage: React.FC = () => {
                             type="text"
                             value={tacCode}
                             onChange={e => setTacCode(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-[#fbb033] rounded-full shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                             required
                             placeholder={t('auth.enterVerificationCode')}
                         />
@@ -228,11 +228,11 @@ const ResetPasswordPage: React.FC = () => {
                             type="password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
-                            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none sm:text-sm ${
+                            className={`mt-1 block w-full px-3 py-2 border rounded-full shadow-sm focus:outline-none sm:text-sm ${
                                 password ? (passwordStrength.score < 2 
                                     ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
                                     : 'border-green-500 focus:ring-green-500 focus:border-green-500'
-                                ) : 'border-gray-300 focus:ring-[#fbb033] focus:border-[#fbb033]'
+                                ) : 'border-[#fbb033] focus:ring-[#fbb033] focus:border-[#fbb033]'
                             }`}
                             required
                             minLength={8}
@@ -250,11 +250,11 @@ const ResetPasswordPage: React.FC = () => {
                             type="password"
                             value={confirmPassword}
                             onChange={e => setConfirmPassword(e.target.value)}
-                            className={`mt-1 block w-full px-3 py-2 rounded-md shadow-sm focus:outline-none sm:text-sm ${
+                            className={`mt-1 block w-full px-3 py-2 rounded-full shadow-sm border-1 focus:outline-none sm:text-sm ${
                                 confirmPassword ? (passwordsMatch 
                                     ? 'border-green-500 focus:ring-green-500 focus:border-green-500' 
                                     : 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                                ) : 'border border-gray-300 focus:ring-[#fbb033] focus:border-[#fbb033]'
+                                ) : 'border border-[#fbb033] focus:ring-[#fbb033] focus:border-[#fbb033]'
                             }`}
                             required
                         />
@@ -269,7 +269,7 @@ const ResetPasswordPage: React.FC = () => {
                     <button
                         type="submit"
                         disabled={isLoading || passwordStrength.score < 2 || !passwordsMatch || !tacCode}
-                        className="w-full bg-[#fbb033] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="w-full bg-[#fbb033] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline"
                     >
                         {isLoading ? t('common.loading') : t('auth.resetPassword')}
                     </button>

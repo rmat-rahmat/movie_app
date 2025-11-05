@@ -246,18 +246,18 @@ export default function YourVideosPage() {
                           </Link> */}
                           <button
                             onClick={() => toggleEpisodes(seriesItem.seriesId || seriesItem.id)}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#fbb033] hover:bg-[#f69c05] text-black rounded transition font-medium"
+                            className="flex items-center gap-2 px-4 py-2 bg-[#fbb033] hover:bg-[#f69c05] text-black rounded-full md:rounded transition  md:font-medium"
                             disabled={seriesItem.loadingEpisodes}
                           >
                             {seriesItem.loadingEpisodes ? (
                               <span>{t('common.loading', 'Loading...')}</span>
                             ) : seriesItem.episodesExpanded ? (
                               <>
-                                <FiChevronUp /> {t('common.hideEpisodes', 'Hide Episodes')}
+                                <FiChevronUp /><p className='md:inline hidden'>{t('common.hideEpisodes', 'Hide Episodes')}</p> 
                               </>
                             ) : (
                               <>
-                                <FiChevronDown /> {t('common.showEpisodes', 'Show Episodes')}
+                                <FiChevronDown /> <p className='md:inline hidden'>{t('common.showEpisodes', 'Show Episodes')}</p>
                               </>
                             )}
                           </button>

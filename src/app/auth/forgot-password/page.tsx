@@ -90,7 +90,7 @@ const ForgotPasswordPage: React.FC = () => {
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
+                            className="mt-1 block w-full px-3 py-2 border border-[#fbb033] rounded-full shadow-sm focus:outline-none focus:ring-[#fbb033] focus:border-[#fbb033] sm:text-sm"
                             required
                         />
                     </div>
@@ -98,7 +98,7 @@ const ForgotPasswordPage: React.FC = () => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-[#fbb033] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="w-full bg-[#fbb033] hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline"
                     >
                         {isLoading ? t('common.loading') : t('auth.resetPassword')}
                     </button>

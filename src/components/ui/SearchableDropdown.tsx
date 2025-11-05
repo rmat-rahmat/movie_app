@@ -11,9 +11,10 @@ type Props = {
   className?: string;
   multi?: boolean; // when true, selection appends to comma-separated list
   required?: boolean;
+  allowCustom?: boolean; // when true, allows custom values not in the suggestions
 };
 
-export default function SearchableDropdown({ id, value, onChange, suggestions = [], placeholder, className = '', multi = false, required = false }: Props) {
+export default function SearchableDropdown({ id, value, onChange, suggestions = [], placeholder, className = '', multi = false, required = false, allowCustom = false }: Props) {
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState('');
   const [highlight, setHighlight] = useState<number>(-1);
@@ -87,7 +88,11 @@ export default function SearchableDropdown({ id, value, onChange, suggestions = 
 
   const onInputChange = (v: string) => {
     setFilter(v);
-    // onChange(v);
+
+    if(allowCustom){
+      onChange(v);
+      return;
+    }
     
     if (multi) {
       // Show suggestions after comma or when typing
@@ -132,9 +137,12 @@ export default function SearchableDropdown({ id, value, onChange, suggestions = 
         value={filter}
         placeholder={placeholder}
         onBlur={()=>{
-          if(value !== filter){
+          if(value !== filter && allowCustom ==false){
             setTimeout(() => {
-              setFilter("")
+              if (!filter.includes(value)) {
+                setFilter(value);
+              }
+              else setFilter("")
             }, 200);
           }
         }}

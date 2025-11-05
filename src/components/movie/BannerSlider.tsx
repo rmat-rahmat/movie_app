@@ -80,7 +80,7 @@ const BannerSlider: React.FC<BannerSliderProps> = ({ banners }) => {
     return (
         <div
             style={{ backgroundColor: "black" }}
-            className="w-full relative h-[500px] md:h-[70vh] lg:h-[80vh] overflow-hidden"
+            className="w-full relative  h-[50vh] md:h-[70vh] lg:h-[80vh] overflow-hidden"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -130,7 +130,7 @@ const BannerSlider: React.FC<BannerSliderProps> = ({ banners }) => {
 
                                 {/* content placed at bottom */}
                                 <div className="relative pointer-events-auto p-6 md:p-12 lg:p-16">
-                                    <h2 className="text-white text-3xl md:text-5xl lg:text-6xl font-bold mb-4 max-w-3xl">
+                                    <h2 className="text-white text-xl md:text-5xl lg:text-6xl font-bold mb-4 max-w-3xl">
                                         {banner.title}
                                     </h2>
 
@@ -154,7 +154,7 @@ const BannerSlider: React.FC<BannerSliderProps> = ({ banners }) => {
                     <button
                         key={idx}
                         onClick={() => setCurrent(idx)}
-                        className={`w-3 h-3 rounded-full transition-all cursor-pointer ${
+                        className={`h-1 w-1 md:w-3 md:h-3 rounded-full transition-all cursor-pointer ${
                             idx === current 
                                 ? 'bg-[#fbb033] w-8' 
                                 : 'bg-white/50 hover:bg-white/80'
@@ -167,19 +167,19 @@ const BannerSlider: React.FC<BannerSliderProps> = ({ banners }) => {
             {/* Navigation arrows */}
             <button
                 onClick={() => setCurrent((prev) => (prev - 1 + banners.length) % banners.length)}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full transition-colors z-10 cursor-pointer"
+                className="hidden md:absolute left-4 md:top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full transition-colors z-10 cursor-pointer"
                 aria-label="Previous banner"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
             <button
                 onClick={() => setCurrent((prev) => (prev + 1) % banners.length)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full transition-colors z-10 cursor-pointer"
+                className="hidden md:absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full transition-colors z-10 cursor-pointer"
                 aria-label="Next banner"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
             </button>

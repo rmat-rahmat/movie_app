@@ -424,7 +424,8 @@
     "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا التعليق؟",
     "showReplies": "عرض الردود",
     "hideReplies": "إخفاء الردود",
-    "loadingReplies": "جارٍ تحميل الردود..."
+    "loadingReplies": "جارٍ تحميل الردود...",
+    "charactersLeft": "تبقى {{count}} حرف"
   },
   "ERR_USER_ALREADY_EXISTS": "يوجد مستخدم بهذا البريد الإلكتروني بالفعل",
   "top_rated_series": "المسلسلات الأعلى تقييمًا",

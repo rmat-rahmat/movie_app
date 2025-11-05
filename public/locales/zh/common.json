@@ -340,7 +340,7 @@
     "selectQuality": "选择清晰度：",
     "currentlyPlaying": "正在播放",
     "uploadId": "上传 ID",
-    "episodes": "集数",
+    "episodes": "选集",
     "cast": "演员",
     "director": "导演",
     "language": "语言",
@@ -424,7 +424,8 @@
     "confirmDelete": "您确定要删除此评论吗？",
     "showReplies": "显示回复",
     "hideReplies": "隐藏回复",
-    "loadingReplies": "正在加载回复..."
+    "loadingReplies": "正在加载回复...",
+    "charactersLeft": "{{count}} 个字符剩余"
   },
   "ERR_USER_ALREADY_EXISTS": "使用该电子邮件的用户已存在",
   "top_rated_series": "评分最高的剧集",

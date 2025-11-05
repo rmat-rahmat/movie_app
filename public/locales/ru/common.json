@@ -424,7 +424,8 @@
     "confirmDelete": "Вы уверены, что хотите удалить этот комментарий?",
     "showReplies": "Показать ответы",
     "hideReplies": "Скрыть ответы",
-    "loadingReplies": "Загрузка ответов..."
+    "loadingReplies": "Загрузка ответов...",
+    "charactersLeft": "{{count}} символов осталось"
   },
   "ERR_USER_ALREADY_EXISTS": "Пользователь с таким e-mail уже существует",
   "top_rated_series": "Лучшие сериалы",

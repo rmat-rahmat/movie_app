@@ -424,7 +424,8 @@
     "confirmDelete": "Sind Sie sicher, dass Sie diesen Kommentar löschen möchten?",
     "showReplies": "Antworten anzeigen",
     "hideReplies": "Antworten verbergen",
-    "loadingReplies": "Antworten werden geladen..."
+    "loadingReplies": "Antworten werden geladen...",
+    "charactersLeft": "{{count}} Zeichen übrig"
   },
   "share": {
     "title": "Teilen",

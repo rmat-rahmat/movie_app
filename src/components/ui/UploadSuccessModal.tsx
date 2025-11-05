@@ -52,16 +52,16 @@ const UploadSuccessModal: React.FC<UploadSuccessModalProps> = ({
     : t('upload.successTitle', 'Upload Successful!');
   const successDesc = isLink
     ? (type === 'movie'
-        ? t('upload.movieAddSuccess', `"${title}" has been added successfully!`)
-        : t('upload.seriesAddSuccess', `"${title}" series has been added successfully!`)
+        ? t('upload.movieAddSuccess', `"${title}" has been added successfully!`,{title})
+        : t('upload.seriesAddSuccess', `"${title}" series has been added successfully!`,{title})
       )
     : (type === 'movie'
-        ? t('upload.movieUploadSuccess', `"${title}" has been uploaded successfully!`)
-        : t('upload.seriesUploadSuccess', `"${title}" series has been uploaded successfully!`)
+        ? t('upload.movieUploadSuccess', `"${title}" has been uploaded successfully!`,{title})
+        : t('upload.seriesUploadSuccess', `"${title}" series has been uploaded successfully!`,{title})
       );
-  const addMoreLabel = isLink
-    ? t('upload.addMore', `Add More ${type === 'movie' ? 'Movie' : 'Series'}`)
-    : t('upload.uploadMore', `Upload Another ${type === 'movie' ? 'Movie' : 'Series'}`);
+  const addMoreLabel = isLink 
+    ? t('upload.addMore', `Add More ${type === 'movie' ? 'Movie' : 'Series'}`,{type})
+    : t('upload.uploadMore', `Upload Another ${type === 'movie' ? 'Movie' : 'Series'}`,{type});
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">

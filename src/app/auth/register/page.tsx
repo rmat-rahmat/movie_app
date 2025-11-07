@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { getDeviceId } from '@/lib/authAPI';
 import PasswordStrengthMeter from '@/components/ui/PasswordStrengthMeter';
 import { checkPasswordStrength } from '@/utils/passwordUtils';
+import Image from 'next/image';
 
 type ButtonClickEvent = React.MouseEvent<HTMLButtonElement>;
 
@@ -164,7 +165,7 @@ const RegisterPage: React.FC = () => {
         const passwordStrength = checkPasswordStrength(e.target.value);
         if (passwordStrength.score < 2) {
             setLocalError(t('auth.error.password_too_weak'));
-            
+
         }
         setPassword(e.target.value);
     }
@@ -173,13 +174,22 @@ const RegisterPage: React.FC = () => {
             <div className="md:flex z-1 flex-col items-center justify-center hidden  w-full md:w-1/2 h-full">
                 {/* Background image for larger screens */}
                 <h1
-                    className="text-4xl font-bold text-white relative"
+                    className="text-4xl font-bold text-white relative mb-[-100]"
                     style={{
                         textShadow: "2px 2px 3px rgba(0,0,0,0.9), 0 0 0 #000, 0 0 8px #222"
                     }}
                 >
                     {t('auth.joinTitle')}
                 </h1>
+                <div className="relative w-full max-w-md">
+                    <Image
+                        src="/ip_1.png"
+                        alt="Login Background"
+                        width={400}
+                        height={400}
+                        className="object-contain mx-auto"
+                    />
+                </div>
                 <p className="mt-4 text-lg text-gray-200 max-w-md">
                     {t('auth.joinDesc1')} <span className="font-semibold text-[#fbb033]">{t('auth.createAccountCTA')}</span> {t('auth.joinDesc2')}
                 </p>
@@ -286,6 +296,17 @@ const RegisterPage: React.FC = () => {
                     </div>
 
                 </div>
+                 {/* Terms and Conditions */}
+                        <p className="hidden md:block text-md text-gray-500 max-w-md mx-auto mt-5 text-center">
+                            {t('profileEmpty.termsText', 'By continuing, you agree to our')}{' '}
+                            <button className="text-[#fbb033] hover:text-[#f69c05] underline transition-colors">
+                                {t('profileEmpty.termsLink', 'Terms and Conditions')}
+                            </button>
+                            {' '}{t('profileEmpty.andText', 'and')}{' '}
+                            <button className="text-[#fbb033] hover:text-[#f69c05] underline transition-colors">
+                                {t('profileEmpty.privacyLink', 'Privacy Policy')}
+                            </button>
+                        </p>
             </div>
         </>
     );

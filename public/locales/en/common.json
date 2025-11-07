@@ -125,7 +125,8 @@
     "watchNow": "Watch Now",
     "addToWatchlist": "Add to Watchlist",
     "removeFromWatchlist": "Remove from Watchlist",
-    "latest": "Latest"
+    "latest": "Latest",
+    "dummyDesc": "Just a quick video to share something cool — hope you enjoy it! Drop a comment below and let me know what you think."
   },
   "subscription": {
     "plans": "Subscription Plans",
@@ -200,7 +201,13 @@
     "newUserOnly": "New User Only",
     "newUserPromo": "Exclusive offer for new users! Sign up now and get 100% off your first month of VIP membership. Don't miss out on this limited-time deal to access premium content and features.",
     "joinVip": "Join VIP",
-    "subscribeNow": "Subscribe Now!!!"
+    "subscribeNow": "Subscribe Now!!!",
+    "unLikedSuccess": "Removed from Like list",
+    "unLikedFail": "Failed to unlike the video",
+    "confirmUnLiked": "Are you sure you want to unlike this video?",
+    "unfavoriteSuccess": "Removed from favorites",
+    "unfavoriteFail": "Failed to remove from favorites",
+    "confirmUnfavorite": "Are you sure you want to remove this from favorites?"
   },
   "profileEmpty": {
     "welcome": "Welcome to OTalk TV",

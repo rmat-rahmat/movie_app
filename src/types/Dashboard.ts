@@ -40,6 +40,7 @@ export interface ImageItem {
 }
 
 export interface BannerVO {
+  avatarUrl?: string;
   title: string;
   imageUrl: string;
   type: number; // 1-PC端，2-移动端
@@ -47,6 +48,7 @@ export interface BannerVO {
   videoId?: string; // 内链：视频ID
   externalUrl?: string; // 外链：外部链接地址
   sortOrder: number; // 排序权重
+  description?: string;
 }
 
 // Share types

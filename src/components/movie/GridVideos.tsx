@@ -9,7 +9,7 @@ import DashboardItem from './DashboardItem';
 import { useRouter } from 'next/navigation';
 import MovieModal from './MovieModal';
 import Link from 'next/link';
-import { FiChevronLeft, FiChevronsLeft } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronsLeft, FiMoreVertical } from 'react-icons/fi';
 
 interface GridVideosProps {
   id?: string;
@@ -21,9 +21,11 @@ interface GridVideosProps {
   mobileListView?: boolean;
   groupBy?: 'date' | 'alphabet' | 'none';
   hideIfEmpty?: boolean;
+  onOptionClick?: (videoId: string) => void;
+  optionIcon?: React.ReactNode;
 }
-
-const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl, backButton, subHeaderRight, mobileListView, groupBy = 'none' ,hideIfEmpty}) => {
+;
+const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl, backButton, subHeaderRight, mobileListView, groupBy = 'none', hideIfEmpty, onOptionClick, optionIcon }) => {
   const [videos, setVideos] = useState<VideoVO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -235,7 +237,7 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl,
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     const groups: Record<string, VideoVO[]> = {
       today: [],
       yesterday: [],
@@ -295,7 +297,7 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl,
   const getGroupLabel = (groupKey: string): string => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
+
     switch (groupKey) {
       case 'today':
         return t('date.today', 'Today');
@@ -401,6 +403,8 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl,
                           showRating={!!video.rating}
                           showViewer={!!video.views}
                           onClick={() => handleVideoClick(video)}
+                          onOptionsClick={onOptionClick}
+                          optionIcon={optionIcon}
                         />
                       ))}
                     </div>
@@ -461,6 +465,18 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl,
                                 </p>
                               )}
                             </div>
+                            {onOptionClick && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onOptionClick(video.id);
+                                }}
+                                className=" z-10 flex items-center justify-center w-8 h-8 bg-black/70 hover:bg-[#fbb033] text-white hover:text-black rounded-full transition-all duration-200 cursor-pointer"
+                                title="Options"
+                              >
+                                {optionIcon || <FiMoreVertical className="w-4 h-4" />}
+                              </button>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -481,6 +497,8 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl,
                       showRating={!!video.rating}
                       showViewer={!!video.views}
                       onClick={() => handleVideoClick(video)}
+                      onOptionsClick={onOptionClick}
+                      optionIcon={optionIcon}
                     />
                   ))}
                 </div>
@@ -541,6 +559,18 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl,
                             </p>
                           )}
                         </div>
+                         {onOptionClick && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onOptionClick(video.id);
+                                }}
+                                className=" z-10 flex self-center items-center justify-center w-8 h-8 bg-black/70 hover:bg-[#fbb033] text-white hover:text-black rounded-full transition-all duration-200 cursor-pointer"
+                                title="Options"
+                              >
+                                {optionIcon || <FiMoreVertical className="w-4 h-4" />}
+                              </button>
+                            )}
                       </div>
                     ))}
                   </div>

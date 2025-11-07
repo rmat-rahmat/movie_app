@@ -146,7 +146,7 @@ export default function YourVideosPage() {
                     <div
                       key={movie.id}
                       className="bg-gray-900 rounded-lg overflow-hidden hover:bg-gray-800 transition cursor-pointer"
-                      onClick={() => window.location.href = `/videoplayer?directid=${encodeURIComponent(movie.id)}`}
+                      onClick={() => window.location.href = `/videoplayer?directid=${encodeURIComponent(movie.id)}&self=true`}
                     >
                       <div className="flex gap-4 p-4">
                         <Image
@@ -191,7 +191,7 @@ export default function YourVideosPage() {
                           )}
 
                           <div className="flex items-center gap-2 mt-auto pt-2">
-                            {/* <Link
+                            <Link
                               href={`/upload/movie?edit=${movie.id}`}
                               onClick={(e) => e.stopPropagation()}
                               className="flex items-center gap-1 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded transition text-sm"
@@ -199,7 +199,7 @@ export default function YourVideosPage() {
                             >
                               <FiEdit className="w-4 h-4" />
                               <span className="hidden sm:inline">{t('common.edit', 'Edit')}</span>
-                            </Link> */}
+                            </Link>
                           </div>
                         </div>
                       </div>
@@ -217,7 +217,7 @@ export default function YourVideosPage() {
                   {series.map((seriesItem) => (
                     <div key={seriesItem.id} className="bg-gray-900 rounded-lg p-4">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 cursor-pointer" onClick={() => window.location.href = `/videoplayer?directid=${encodeURIComponent(seriesItem.id)}`}>
+                        <div className="flex items-center gap-4 cursor-pointer" onClick={() => window.location.href = `/videoplayer?directid=${encodeURIComponent(seriesItem.id)}&self=true`}>
                           <Image
                             src={seriesItem.imageQuality?.customCoverUrl || seriesItem.coverUrl || '/fallback_poster/sample_poster.png'}
                             alt={seriesItem.title}
@@ -237,14 +237,14 @@ export default function YourVideosPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {/* <Link
-                            href={`/upload/series?edit=${seriesItem.seriesId || seriesItem.id}`}
+                          <Link
+                            href={`/upload/series?edit=${seriesItem.id}`}
                             className="p-2 bg-gray-800 hover:bg-gray-700 rounded transition"
                             title={t('common.edit', 'Edit')}
                           >
                             <FiEdit className="w-5 h-5" />
-                          </Link> */}
-                          {/* <button
+                          </Link>
+                          <button
                             onClick={() => toggleEpisodes(seriesItem.seriesId || seriesItem.id)}
                             className="flex items-center gap-2 px-4 py-2 bg-[#fbb033] hover:bg-[#f69c05] text-black rounded-full md:rounded transition  md:font-medium"
                             disabled={seriesItem.loadingEpisodes}
@@ -260,7 +260,7 @@ export default function YourVideosPage() {
                                 <FiChevronDown /> <p className='md:inline hidden'>{t('common.showEpisodes', 'Show Episodes')}</p>
                               </>
                             )}
-                          </button> */}
+                          </button>
                         </div>
                       </div>
 
@@ -308,9 +308,10 @@ export default function YourVideosPage() {
                                       <p className="text-xs text-gray-500 mt-1">{episode.status}</p>
                                     </div>
                                     {/* <Link
-                                      href={`/upload/series/episode?edit=${episode.id}`}
+                                      href={`/upload/series/episode?edit=${episode.id}&seriesId=${seriesItem.seriesId || seriesItem.id}`}
                                       className="p-2 bg-gray-700 hover:bg-gray-600 rounded transition"
                                       title={t('common.edit', 'Edit')}
+                                      onClick={(e) => e.stopPropagation()}
                                     >
                                       <FiEdit className="w-4 h-4" />
                                     </Link> */}

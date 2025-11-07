@@ -32,6 +32,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const m3u8Url = searchParams.get('m3u8');
   const mediaID = searchParams.get('mediaid');
   const directId = searchParams.get('directid'); // New: video ID that needs to be resolved
+  const owner = searchParams.get('self'); // New: video ID that needs to be resolved
   const id = propId || urlId || '';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,7 +81,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       setError(null);
       try {
         console.log('Fetching content details for directId:', directId);
-        const contentDetails = await getContentDetail(directId || "");
+        const contentDetails = await getContentDetail(directId || "", owner === "true");
 
         if (!mounted) return;
 
@@ -200,8 +201,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         console.log('Quality permissions:', qualityPermissions);
         for (const quality of qualities) {
           let permitted = false;
-          if (qualityPermissions) {
+          if (qualityPermissions && qualityPermissions.length > 0) {
             permitted = !!qualityPermissions.find(qp => qp.qualityName?.toUpperCase() == quality.toUpperCase());
+          }
+          else if(owner === "true") {
+            permitted = true; // Allow all qualities for own content
           }
           else {
             const v = await getPlaybackUrl(uploadIdToLoad, quality);
@@ -752,6 +756,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
             <button
               key={idx}
               onClick={() => {
+                if(owner === "true") {
+                  dynamicQualityChange(idx);
+                  return;
+                }
                 switch (status) {
                   case "ALLOW":
                     dynamicQualityChange(idx);

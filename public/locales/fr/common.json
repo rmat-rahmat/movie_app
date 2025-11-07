@@ -125,7 +125,8 @@
     "watchNow": "Regarder maintenant",
     "addToWatchlist": "Ajouter à la liste de surveillance",
     "removeFromWatchlist": "Retirer de la liste de surveillance",
-    "latest": "Dernier"
+    "latest": "Dernier",
+    "dummyDesc": "Juste une vidéo rapide pour partager quelque chose de cool — j'espère que vous apprécierez ! Laissez un commentaire ci-dessous et faites-moi savoir ce que vous en pensez."
   },
   "subscription": {
     "plans": "Plans d'abonnement",
@@ -200,7 +201,13 @@
     "newUserOnly": "Nouveaux utilisateurs uniquement",
     "newUserPromo": "Offre exclusive pour les nouveaux utilisateurs ! Inscrivez-vous maintenant et bénéficiez de 100% de réduction sur votre premier mois d'abonnement VIP. Ne manquez pas cette offre limitée pour accéder à du contenu et des fonctionnalités premium.",
     "joinVip": "Rejoindre VIP",
-    "subscribeNow": "Abonnez-vous maintenant!!!"
+    "subscribeNow": "Abonnez-vous maintenant!!!",
+    "unLikedSuccess": "Retiré de la liste des likes",
+    "unLikedFail": "Échec de l'annulation du like de la vidéo",
+    "confirmUnLiked": "Êtes-vous sûr de vouloir ne plus aimer cette vidéo ?",
+    "unfavoriteSuccess": "Retiré des favoris",
+    "unfavoriteFail": "Échec de la suppression des favoris",
+    "confirmUnfavorite": "Êtes-vous sûr de vouloir supprimer cela des favoris ?"
   },
   "profileEmpty": {
     "welcome": "Bienvenue sur OTalk TV",

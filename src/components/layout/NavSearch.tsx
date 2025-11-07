@@ -21,11 +21,11 @@ export default function NavSearch({ className = " lg:block mx-6 flex-1 max-w-md"
       </Suspense>
     </div>
      <button
-          className={`z-100 md:hidden flex items-center justify-center p-2 rounded text-gray-200 mr-4 `}
+          className={`z-100 md:hidden flex items-center justify-center p-2 rounded text-gray-200 mr-0 `}
           onClick={()=>location.href="/search"}
           aria-label={t('navigation.openMenu')}
         >
-          <FiSearch size={28} />
+          <FiSearch size={22} />
         </button>
     </>
   );

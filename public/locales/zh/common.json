@@ -125,7 +125,8 @@
     "watchNow": "立即观看",
     "addToWatchlist": "加入观看列表",
     "removeFromWatchlist": "从观看列表移除",
-    "latest": "最新"
+    "latest": "最新",
+    "dummyDesc": "这是一个快速视频，分享一些很酷的东西——希望你喜欢！在下面留下评论，让我知道你的想法。"
   },
   "subscription": {
     "plans": "订阅方案",
@@ -200,7 +201,13 @@
     "newUserOnly": "仅限新用户",
     "newUserPromo": "新用户独享优惠！立即注册，首月 VIP 会员享受 100% 折扣。不要错过这个限时优惠，解锁高级内容和功能。",
     "joinVip": "加入 VIP",
-    "subscribeNow": "立即订阅！！！"
+    "subscribeNow": "立即订阅！！！",
+    "unLikedSuccess": "已从喜欢列表中移除",
+    "unLikedFail": "取消喜欢视频失败",
+    "confirmUnLiked": "您确定要取消喜欢此视频吗？",
+    "unfavoriteSuccess": "已从收藏中移除",
+    "unfavoriteFail": "从收藏中移除失败",
+    "confirmUnfavorite": "您确定要从收藏中移除该视频吗？"
   },
   "profileEmpty": {
     "welcome": "欢迎来到 OTalk TV",

@@ -125,7 +125,8 @@
     "watchNow": "Tonton Sekarang",
     "addToWatchlist": "Tambah ke Senarai Tontonan",
     "removeFromWatchlist": "Buang dari Senarai Tontonan",
-    "latest": "Terkini"
+    "latest": "Terkini",
+    "dummyDesc": "Hanya video ringkas untuk berkongsi sesuatu yang menarik — harap anda menikmatinya! Tinggalkan komen di bawah dan beritahu saya apa pendapat anda."
   },
   "subscription": {
     "plans": "Pelan Langganan",
@@ -200,7 +201,13 @@
     "newUserOnly": "Hanya untuk Pengguna Baru",
     "newUserPromo": "Tawaran eksklusif untuk pengguna baru! Daftar sekarang dan dapatkan diskaun 100% untuk bulan pertama keahlian VIP anda. Jangan lepaskan tawaran terhad ini untuk mengakses kandungan dan ciri premium.",
     "joinVip": "Sertai VIP",
-    "subscribeNow": "Langgan Sekarang!!!"
+    "subscribeNow": "Langgan Sekarang!!!", 
+    "unLikedSuccess": "Dibuang dari senarai suka",
+    "unLikedFail": "Gagal untuk tidak menyukai video",
+    "confirmUnLiked": "Adakah anda pasti ingin tidak menyukai video ini?",
+    "unfavoriteSuccess": "Dibuang dari kegemaran",
+    "unfavoriteFail": "Gagal untuk membuang dari kegemaran",
+    "confirmUnfavorite": "Adakah anda pasti ingin membuang ini dari kegemaran?"
   },
   "profileEmpty": {
     "welcome": "Selamat datang ke OTalk TV",

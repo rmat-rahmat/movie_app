@@ -612,9 +612,12 @@ export async function getPlaybackUrl(uploadId: string, quality: '144p' | '360p' 
 }
 
 // Fetch content detail by contentId and return typed VideoDetails
-export async function getContentDetail(contentId: string): Promise<import('@/types/Dashboard').VideoDetails | null> {
+export async function getContentDetail(contentId: string,isOwn?:boolean): Promise<import('@/types/Dashboard').VideoDetails | null> {
   try {
-    const url = `${BASE_URL}/api-movie/v1/home/contents/${contentId}/detail`;
+    let url = `${BASE_URL}/api-movie/v1/home/contents/${contentId}/detail`;
+    if(isOwn){
+      url = `${BASE_URL}/api-movie/v1/home/my-uploads/${contentId}/detail`;
+    }
     const res = await axios.get(url, {
       headers: { 'Accept': '*/*' }
     });
@@ -981,6 +984,7 @@ export async function toggleVideoLike(videoId: string): Promise<{ success: boole
 
     const params = new URLSearchParams();
     params.append('contentId', videoId);
+    params.append('contentType', "video");
 
     const res = await axios.post(url, params, { headers });
     const data = res.data;
@@ -1452,4 +1456,249 @@ export const loadMoreFromURL = async (
     return null;
   }
 };
+
+// --------------------------------------------------------------------------
+// EDIT/UPDATE APIS
+// --------------------------------------------------------------------------
+
+/**
+ * Get video details for editing
+ * Fetches edit information with draft priority
+ * Supports both short ID and internal ID
+ * 
+ * @param videoId - Video ID (short ID or internal ID)
+ * @returns Video edit information with draft if exists
+ */
+export async function getVideoForEdit(videoId: string): Promise<VideoEditResponse | null> {
+  try {
+    const response = await axios.get(`${BASE_URL}/api-movie/v1/my-videos/uploads/${videoId}/edit`);
+    if (response.data.success) {
+      return response.data.data as VideoEditResponse;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to fetch video for edit:', error);
+    return null;
+  }
+}
+
+/**
+ * Get episode details for editing
+ * Fetches edit information with draft priority
+ * 
+ * @param episodeId - Episode ID (short ID or internal ID)
+ * @returns Episode edit information with draft if exists
+ */
+export async function getEpisodeForEdit(episodeId: string): Promise<EpisodeEditResponse | null> {
+  try {
+    const response = await axios.get(`${BASE_URL}/api-movie/v1/my-videos/episodes/${episodeId}/edit`);
+    if (response.data.success) {
+      return response.data.data as EpisodeEditResponse;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to fetch episode for edit:', error);
+    return null;
+  }
+}
+
+// Interface for video edit responses
+interface VideoEditResponse {
+  videoId: string;
+  hasDraft: boolean;
+  title?: string;
+  description?: string;
+  fileName?: string;
+  coverUrl?: string;
+  customCoverUrl?: string;
+  landscapeThumbnailUrl?: string;
+  fileSize?: number;
+  status?: string;
+  categoryId?: string;
+  region?: string;
+  language?: string;
+  year?: number;
+  director?: string;
+  actors?: string[];
+  releaseRegions?: string;
+  rating?: number;
+  tags?: string[];
+  sourceProvider?: string;
+  isSeries?: boolean;
+  seriesId?: string;
+  seasonNumber?: number;
+  totalEpisodes?: number;
+  isCompleted?: boolean;
+  createBy?: string;
+  createTime?: string;
+  updateTime?: string;
+  sourceType?: string;
+  episodes?: EpisodeVO[];
+}
+
+// Interface for episode edit responses
+interface EpisodeEditResponse {
+  episodeId: string;
+  hasDraft: boolean;
+  draftId?: string;
+  draftVersion?: number;
+  draftStatus?: string;
+  auditStatus?: string;
+  modificationNote?: string;
+  draftCreateTime?: string;
+  seriesId?: string;
+  title?: string;
+  description?: string;
+  coverUrl?: string;
+  episodeNumber?: number;
+  duration?: number;
+  m3u8Url?: string;
+  quality?: string;
+  price?: number;
+  salePrice?: number;
+  originalStatus?: string;
+  originalCreateTime?: string;
+  originalUpdateTime?: string;
+}
+
+// Define the update payload type for movies and series
+export interface UpdateVideoDto {
+  id: string;
+  title?: string;
+  description?: string;
+  coverUrl?: string;
+  customCoverUrl?: string;
+  landscapeThumbnailUrl?: string;
+  categoryId?: string;
+  year?: number;
+  region?: string;
+  language?: string;
+  director?: string;
+  actors?: string;
+  releaseRegions?: string;
+  rating?: number;
+  tags?: string[];
+  sourceProvider?: string;
+  seasonNumber?: number;
+  totalEpisodes?: number;
+  isCompleted?: boolean;
+}
+
+// Define the update payload type for episodes
+export interface UpdateEpisodeDto {
+  id: string;
+  seriesId?: string;
+  episodeNumber?: number;
+  title?: string;
+  description?: string;
+  coverUrl?: string;
+  customCoverUrl?: string;
+  landscapeThumbnailUrl?: string;
+  duration?: number;
+  m3u8Url?: string;
+  quality?: string;
+  price?: number;
+  salePrice?: number;
+}
+
+/**
+ * Update movie/video metadata
+ * @param videoId - Video ID
+ * @param data - Updated video data (UpdateVideoDto)
+ */
+export async function updateMovie(videoId: string, data: UpdateVideoDto): Promise<{
+  success: boolean;
+  message?: string;
+}> {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/api-movie/v1/my-videos/${videoId}/save`,
+      data
+    );
+    return {
+      success: response.data.success,
+      message: response.data.message
+    };
+  } catch (error) {
+    console.error('Failed to update movie:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Update failed'
+    };
+  }
+}
+
+/**
+ * Update series metadata
+ * @param seriesId - Series ID
+ * @param data - Updated series data (UpdateVideoDto)
+ */
+export async function updateSeries(seriesId: string, data: UpdateVideoDto): Promise<{
+  success: boolean;
+  message?: string;
+}> {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/api-movie/v1/my-videos/${seriesId}/save`,
+      data
+    );
+    return {
+      success: response.data.success,
+      message: response.data.message
+    };
+  } catch (error) {
+    console.error('Failed to update series:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Update failed'
+    };
+  }
+}
+
+/**
+ * Update episode metadata
+ * @param episodeId - Episode ID
+ * @param data - Updated episode data
+ */
+export async function updateEpisode(episodeId: string, data: UpdateEpisodeDto): Promise<{
+  success: boolean;
+  message?: string;
+}> {
+  try {
+    const response = await axios.put(`${BASE_URL}/api-movie/v1/my-videos/episodes/${episodeId}/save`, data);
+    return {
+      success: response.data.success,
+      message: response.data.message
+    };
+  } catch (error) {
+    console.error('Failed to update episode:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Update failed'
+    };
+  }
+}
+
+/**
+ * Delete video/series
+ * @param videoId - Video/Series ID
+ */
+export async function deleteVideo(videoId: string): Promise<{
+  success: boolean;
+  message?: string;
+}> {
+  try {
+    const response = await axios.delete(`${BASE_URL}/api-movie/v1/content/${videoId}`);
+    return {
+      success: response.data.success,
+      message: response.data.message
+    };
+  } catch (error) {
+    console.error('Failed to delete video:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Delete failed'
+    };
+  }
+}
 

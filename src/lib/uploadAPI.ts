@@ -381,6 +381,27 @@ export async function getImageById(id: string, type: string): Promise<ImageVo> {
   }
 }
 
+
+export async function getImageById2(id: string, type: string): Promise<string> {
+  debugLog('Getting image by id', { id, type });
+
+  try {
+    const endpoint = `/api-movie/v1/images/getImageById?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
+    const response = await apiCall<StandardResponse<unknown>>(endpoint, 'GET');
+
+    if (!response.success || !response.data) {
+      debugLog('Get image by id failed', response);
+      throw new Error(response.message || 'Failed to get image by id');
+    }
+
+    debugLog('Image metadata retrieved', response.data);
+    return typeof response?.data === 'string' ? response.data : '';
+  } catch (error) {
+    debugLog('Error getting image by id', error);
+    throw error;
+  }
+}
+
 /**
  * Direct image upload - uploads image file and returns image URL and uploadId
  * @param file - The image file to upload

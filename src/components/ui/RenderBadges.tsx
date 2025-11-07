@@ -108,7 +108,7 @@ export const RenderTags: React.FC<RenderTagsProps> = ({ tags, className = '' }) 
       {tagArray.map((tag, idx) => (
         <span
           key={idx}
-          className={className || 'bg-[#fbb033] text-black px-2 py-1 rounded-full text-[10px] md:text-xs font-medium'}
+          className={className || 'border-1 border-[#fbb033] text-white px-1 md:px-2 py-1 rounded-full text-[10px] md:text-xs font-medium'}
         >
           {tag}
         </span>
@@ -131,7 +131,7 @@ export const RenderRegion: React.FC<RenderRegionProps> = ({ region, className = 
       {regionArray.map((reg, idx) => (
         <span
           key={idx}
-          className={className || 'bg-gray-700/80 text-gray-200 px-2 py-1 rounded-full text-[10px] md:text-xs'}
+          className={className || 'border-1 border-[#fbb033] text-white px-1 md:px-2 py-1 rounded-full text-[10px] md:text-xs font-medium'}
         >
           {reg}
         </span>
@@ -154,7 +154,7 @@ export const RenderLanguage: React.FC<RenderLanguageProps> = ({ language, classN
       {languageArray.map((lang, idx) => (
         <span
           key={idx}
-          className={className || 'bg-gray-700/80 text-gray-200 px-2 py-1 rounded-full text-[10px] md:text-xs'}
+          className={className || 'border-1 border-[#fbb033] text-white px-1 md:px-2 py-1 rounded-full text-[10px] md:text-xs font-medium'}
         >
           {lang}
         </span>

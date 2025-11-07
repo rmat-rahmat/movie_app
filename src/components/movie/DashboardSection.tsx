@@ -72,7 +72,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
     }
     return (
         <div className="container mx-auto px-4 py-1 md:py-8">
-            <div className="flex items-center justify-between mb-4 px-0">
+            <div className="flex items-center justify-between md:mb-4 px-0">
                 <div className="flex items-center gap-2">
                     {icon}
                     <h2 className="text-base md:text-2xl font-semibold">{title}</h2>
@@ -80,7 +80,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
                 {onViewMore && (
                     <button
                         onClick={onViewMore}
-                        className="flex items-center gap-1 text-[#fbb033] hover:text-[#fbb033] font-medium text-sm cursor-pointer"
+                        className="flex items-center gap-1 text-gray-500 hover:text-[#fbb033] font-medium text-sm cursor-pointer"
                     >
                         {t('common.viewMore', 'View More')}
                         <svg
@@ -109,7 +109,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
             </div>
             <div 
                 ref={scrollContainerRef}
-                className={`hide-scrollbar grid grid-flow-col auto-cols-[35%]  ${frameSize ? `xl:auto-cols-[${frameSize}%]` : "xl:auto-cols-[20%]"}  gap-4 py-4 px-1 overflow-x-scroll`}
+                className={`hide-scrollbar grid grid-flow-col auto-cols-[40%]  ${frameSize ? `md:auto-cols-[${frameSize}%]` : "md:auto-cols-[20%]"}  gap-4 py-2 md:py-4 px-1 overflow-x-scroll`}
             >
                 {videos.map((video: DashboardItemType, index: number) => (
                     <DashboardItem

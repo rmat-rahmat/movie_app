@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import type { BannerVO } from '@/types/Dashboard';
 import Image from "next/image";
 import { useRouter } from 'next/navigation';
+import { t } from "i18next";
 
 interface BannerSliderProps {
     banners: BannerVO[];
@@ -80,7 +81,7 @@ const BannerSlider: React.FC<BannerSliderProps> = ({ banners }) => {
     return (
         <div
             style={{ backgroundColor: "black" }}
-            className="w-full relative  h-[50vh] md:h-[70vh] lg:h-[80vh] overflow-hidden"
+            className="w-full relative h-[50vh] md:h-[70vh] lg:h-[80vh] overflow-hidden"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -124,39 +125,53 @@ const BannerSlider: React.FC<BannerSliderProps> = ({ banners }) => {
                            
                         </div>
                          {/* Bottom gradient & content */}
-                            <div className=" inset-x-0 bottom-0   w-full">
+                            <div className=" inset-x-0 bottom-0 w-full">
                                 {/* gradient overlay */}
                                 <div className=" inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
 
                                 {/* content placed at bottom */}
-                                <div className="relative pointer-events-auto p-6 md:p-12 lg:p-16">
-                                    <h2 className="text-white text-xl md:text-5xl lg:text-6xl font-bold mb-4 max-w-3xl">
-                                        {banner.title}
-                                    </h2>
-
-                                    {/* {(banner.linkType === 1 || banner.linkType === 2) && (
-                                        <button
-                                            onClick={() => handleBannerClick(banner)}
-                                            className="bg-[#fbb033] hover:bg-[#f69c05] text-black font-bold px-8 py-3 rounded-lg transition-colors cursor-pointer"
-                                        >
-                                            {banner.linkType === 1 ? 'Watch Now' : 'Learn More'}
-                                        </button>
-                                    )} */}
+                                <div className="relative pointer-events-auto mt-6 px-6 md:px-12 lg:px-16 flex items-center gap-4">
+                                    {/* Avatar on the left */}
+                                    <div className="flex-shrink-0">
+                                        <Image
+                                            src={banner.avatarUrl || '/fallback_poster/sample_avatar.png'}
+                                            alt={banner.title ? `${banner.title} avatar` : 'Banner avatar'}
+                                            width={64}
+                                            height={64}
+                                            className="rounded-full object-cover w-12 h-12 md:w-16 md:h-16 border-2 border-white shadow"
+                                        />
+                                    </div>
+                                    {/* Title and description */}
+                                    <div>
+                                        <h2 className="text-white text-xl md:text-3xl lg:text-4xl font-bold mb-1 max-w-3xl">
+                                            {banner.title}
+                                        </h2>
+                                        {banner.description ? (
+                                            <p className="text-sm md:text-xl text-gray-200 mb-2 md:mb-8 leading-relaxed drop-shadow-lg max-w-xl line-clamp-3">
+                                                {banner.description.split(" ").slice(0, 30).join(" ")}
+                                                {banner.description.split(" ").length > 30 ? "..." : ""}
+                                            </p>
+                                        ) : (
+                                            <p className="text-xs md:text-xl text-gray-200 mb-2 md:mb-8 leading-relaxed drop-shadow-lg max-w-xl line-clamp-3">
+                                                {t('movie.dummyDesc', 'Just a quick video to share something cool — hope you enjoy it! Drop a comment below and let me know what you think.')}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                     </div>
                 );
             })}
 
-            {/* Navigation dots */}
-            <div className="absolute bottom-[28%] left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
+            {/* Navigation dots - positioned from bottom of main container */}
+            <div className="absolute bottom-32 md:bottom-42 lg:bottom-45 left-1/2 transform -translate-x-1/2 flex gap-2 z-20">
                 {banners.map((_, idx) => (
                     <button
                         key={idx}
                         onClick={() => setCurrent(idx)}
-                        className={`h-1 w-1 md:w-3 md:h-3 rounded-full transition-all cursor-pointer ${
+                        className={`h-2 w-4 md:h-3 md:w-6 rounded-full transition-all cursor-pointer ${
                             idx === current 
-                                ? 'bg-[#fbb033] w-8' 
+                                ? 'bg-[#fbb033] scale-125' 
                                 : 'bg-white/50 hover:bg-white/80'
                         }`}
                         aria-label={`Go to banner ${idx + 1}`}

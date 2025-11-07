@@ -12,6 +12,8 @@ import { getCachedCategories, type CategoryItem, getLanguageList, getDirectorLis
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 import SearchableDropdown from '@/components/ui/SearchableDropdown';
 import EpisodeFile from './EpisodeFile';
+import { useSearchParams } from 'next/navigation';
+import { getVideoForEdit, updateSeries } from '@/lib/movieApi';
 
 interface Episode {
   number: number;
@@ -51,6 +53,11 @@ export default function SeriesUpload() {
   const [directorSuggestions, setDirectorSuggestions] = useState<string[]>([]);
   const [actorSuggestions, setActorSuggestions] = useState<string[]>([]);
   const [regionSuggestions, setRegionSuggestions] = useState<string[]>([]);
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('edit');
+  const isEditMode = !!editId;
+  const [isLoadingData, setIsLoadingData] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
 
   interface SeriesForm {
     title: string;
@@ -318,6 +325,67 @@ export default function SeriesUpload() {
     );
   };
 
+  // Load existing series data for edit mode
+  useEffect(() => {
+    if (!isEditMode || !editId) return;
+    setIsLoadingData(true);
+    (async () => {
+      try {
+        const seriesData = await getVideoForEdit(editId);
+        if (!seriesData) throw new Error('Failed to load series data');
+        setHasDraft(seriesData.hasDraft || false);
+
+        setSeriesForm(prev => ({
+          ...prev,
+          title: seriesData.title || '',
+          description: seriesData.description || '',
+          customCoverUrl: seriesData.customCoverUrl || '',
+          coverFile: null,
+          landscapeFile: null,
+          landscapeThumbnailUrl: seriesData.landscapeThumbnailUrl || '',
+          categoryId: seriesData.categoryId || '',
+          year: seriesData.year || new Date().getFullYear(),
+          region: seriesData.region || '',
+          language: seriesData.language || '',
+          director: seriesData.director || '',
+          actors: Array.isArray(seriesData.actors) ? seriesData.actors.join(', ') : (seriesData.actors || ''),
+          releaseRegions: seriesData.releaseRegions || '',
+          sourceProvider: seriesData.sourceProvider || '',
+          rating: seriesData.rating || 0,
+          tags: seriesData.tags || [],
+          seasonNumber: seriesData.seasonNumber || 1,
+          totalEpisodes: seriesData.totalEpisodes || (seriesData.episodes ? seriesData.episodes.length : 1),
+          episodes: Array.isArray(seriesData.episodes)
+            ? seriesData.episodes.map((ep, idx: number) => ({
+                number: ep.episodeNumber || (idx + 1),
+                title: ep.title || `Episode ${ep.episodeNumber || (idx + 1)}`,
+                description: ep.description || '',
+                file: null,
+                customCoverUrl: ep.imageQuality?.customCoverUrl || '',
+                duration: ep.duration ? ep.duration * 1000 : null,
+                m3u8Url: ep.m3u8Url || null,
+              }))
+            : [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '', duration: null, m3u8Url: null }]
+        }));
+
+        if (seriesData.customCoverUrl) {
+          setSeriesCoverPreviewUrl(`${seriesData.customCoverUrl}`);
+        }
+        if (seriesData.landscapeThumbnailUrl) {
+          setSeriesLandscapePreviewUrl(`${seriesData.landscapeThumbnailUrl}`);
+        }
+      } catch (error) {
+        setUploadProgress({
+          progress: 0,
+          status: 'error',
+          error: 'Failed to load series data'
+        });
+      } finally {
+        setIsLoadingData(false);
+      }
+    })();
+  }, [isEditMode, editId]);
+
   const handleSeriesUpload = async (e?: React.FormEvent) => {
     e?.preventDefault();
 
@@ -418,8 +486,6 @@ export default function SeriesUpload() {
       const seriesRequest: SeriesCreateRequest = {
         title: seriesForm.title,
         description: seriesForm.description || undefined,
-        // The API accepts a customCoverUrl string. If the user selected a local file (coverFile)
-        // we currently don't have an upload endpoint here, so only send customCoverUrl when present.
         customCoverUrl: seriesForm.customCoverUrl || coverUrl,
         landscapeThumbnailUrl: landscapeId || undefined,
         categoryId: seriesForm.categoryId,
@@ -435,6 +501,19 @@ export default function SeriesUpload() {
         seasonNumber: seriesForm.seasonNumber,
         totalEpisodes: seriesForm.totalEpisodes
       };
+
+      if (isEditMode && editId) {
+        // EDIT MODE: Update series metadata only
+        const result = await updateSeries(editId, { ...seriesRequest, id: editId });
+        if (!result.success) {
+          throw new Error(result.message || 'Update failed');
+        }
+        setUploadProgress({ progress: 100, status: 'success', error: '' });
+        setUploadedSeriesId(editId);
+        setShowSuccessModal(true);
+        setIsSubmitting(false);
+        return;
+      }
 
       debugLog('Creating series', seriesRequest);
       const seriesResult = await createSeries(seriesRequest);
@@ -517,8 +596,7 @@ export default function SeriesUpload() {
       setShowSuccessModal(true);
 
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t('uploadForm.seriesUploadFailed', 'Series upload failed');
-      debugLog('Series upload failed', { error: errorMessage });
+      const errorMessage = err instanceof Error ? err.message : 'Series upload failed';
       setUploadProgress({ progress: 0, status: 'error', error: errorMessage });
     } finally {
       setIsSubmitting(false);
@@ -558,6 +636,10 @@ export default function SeriesUpload() {
     }));
   };
 
+  if (isEditMode && isLoadingData) {
+    return <div className="min-h-screen flex items-center justify-center"><span>Loading series data...</span></div>;
+  }
+
   return (
     <>
       <UploadSuccessModal
@@ -570,6 +652,25 @@ export default function SeriesUpload() {
         onUploadMore={handleUploadMore}
       />
       <form onSubmit={handleSeriesUpload} className="rounded-xl p-8 shadow-2xl">
+        <h1 className="text-3xl font-bold mb-6">
+          {isEditMode ? t('upload.editSeries', 'Edit Series') : t('upload.uploadSeries', 'Upload Series')}
+        </h1>
+        {isEditMode && hasDraft && (
+          <div className="bg-yellow-900/20 border border-yellow-500/50 rounded-lg p-4 mb-6">
+            <p className="text-yellow-300 text-sm">
+              <strong>{t('upload.draftWarning', 'Draft Exists:')}</strong>{' '}
+              {t('upload.draftDescription', 'You have unsaved changes. Editing will update your draft.')}
+            </p>
+          </div>
+        )}
+        {isEditMode && (
+          <div className="bg-blue-900/20 border border-blue-500/50 rounded-lg p-4 mb-6">
+            <p className="text-blue-300 text-sm">
+              <strong>{t('upload.editModeNote', 'Edit Mode:')}</strong>{' '}
+              {t('upload.editModeDescription', 'You are editing an existing series. The video files cannot be changed, but you can update all metadata fields.')}
+            </p>
+          </div>
+        )}
         <div className="mb-6">
           <label className="block text-lg font-medium mb-2">{t('uploadForm.seriesTitlePlaceholder', t('uploadForm.titlePlaceholder', 'Title *'))}</label>
           <input

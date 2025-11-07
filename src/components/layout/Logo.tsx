@@ -13,8 +13,8 @@ export default function Logo({ className = "" }: LogoProps) {
 
   return (
     <Link href="/" className={`flex items-center gap-2 cursor-pointer ${className}`}>
-      <Image src="/logo_dark.svg" className="mx-2" alt="Logo" width={40} height={40} />
-      <span className="font-bold text-lg lg:text-3xl text-white">{t('navigation.brand')}</span>
+      <Image src="/logo_dark.svg" className="ml-2" alt="Logo" width={35} height={35} />
+      <span className="ml-[-6px] font-bold text-2xl lg:text-3xl text-[#fbb033]">Talk</span>
     </Link>
   );
 }

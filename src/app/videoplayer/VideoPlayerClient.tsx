@@ -79,7 +79,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const hasSeekedRef = useRef<boolean>(false);
   const [actualUploadId, setActualUploadId] = useState<string>(''); // Store resolved uploadId from directId
   const { user } = useAuthStore();
-  const [isFinishProcess, setIsFinishProcess] = useState<boolean>(false);
+  const [isFinishProcess, setIsFinishProcess] = useState<boolean>(true);
 
   // Favorite state
   const [isFavorited, setIsFavorited] = useState(false);

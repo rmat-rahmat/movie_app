@@ -26,9 +26,10 @@ interface DashboardSectionProps {
         onClick: () => void;
     };
     isSubSection?: boolean;
+    selfVideos?: boolean;
 }
 
-const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, showRating, showPlayback, showViewer, frameSize, icon, onViewMore, onScrollEnd, onOptionsClick, sectionOptionButton, isSubSection }) => {
+const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, showRating, showPlayback, showViewer, frameSize, icon, onViewMore, onScrollEnd, onOptionsClick, sectionOptionButton, isSubSection, selfVideos }) => {
     const [selectedMovieIndex, setSelectedMovieIndex] = useState<number | null>(null);
     const router = useRouter();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -119,7 +120,13 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({ title, videos, show
                         index={index}
                         onClick={() => {
                             if(!isSubSection){
-                             router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}`);}
+                                if(!selfVideos)router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}`)
+                                else router.push(`/videoplayer?directid=${encodeURIComponent(video.id)}&self=true`)
+                            }
+                             else{
+                                
+                             router.push(`/profile/${video.fileName}`);
+                             }
                              
                             // setSelectedMovieIndex(index)
                         }}

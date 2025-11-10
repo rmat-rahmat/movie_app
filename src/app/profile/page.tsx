@@ -97,7 +97,9 @@ export default function Profile() {
             ...favs[0], 
             title:t('profile.Favorites', 'My Favorites'),
             tags: [`${favs.length} videos`] ,
-            language:null
+            language:null,
+            fileName:'favorites/list'
+
               }
             : undefined;
         const likeFirst = likes && likes.length > 0 && likes[0]?.imageQuality?.url 
@@ -105,7 +107,8 @@ export default function Profile() {
             ...likes[0], 
             title: t('profile.LikedVideos', 'Liked Videos') ,
             tags: [`${likes.length} videos`] ,
-            language:null
+            language:null,
+            fileName:'likes'
               }
             : undefined;
 
@@ -166,6 +169,7 @@ export default function Profile() {
                     onViewMore={undefined}
                     title={t('profile.YourVideos', 'Your Videos')}
                     videos={yourVideos || []}
+                    selfVideos={true}
                     sectionOptionButton={{
                         title: t('common.viewAll', 'View All'),
                         icon: <FiChevronRight className="h-4 w-4" />,

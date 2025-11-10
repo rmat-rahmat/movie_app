@@ -8,6 +8,7 @@ import { DashboardItem } from '@/types/Dashboard';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import DashboardSection from '@/components/movie/DashboardSection';
+import { FiChevronRight } from 'react-icons/fi';
 
 export default function FavoritesPage() {
   const { t } = useTranslation('common');
@@ -52,7 +53,7 @@ export default function FavoritesPage() {
 
         {/* Favorites Section */}
         <div
-          className="flex flex-row mb-6 items-center cursor-pointer hover:opacity-80 transition-opacity"
+          className="flex flex-row mb-6 bg-gray-900 p-1 md:p-6 rounded-xl items-center cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => router.push('/profile/favorites/list')}
         >
           <div className="relative">
@@ -75,15 +76,17 @@ ounded-full"
               </span>
             )}
           </div>
-          <h1 className="text-lg font-semibold hover:text-[#fbb033] transition-colors">
+          <h1 className="text-lg md:ml-7 font-semibold hover:text-[#fbb033] transition-colors">
             {t('profile.Favorites', 'My Favorites')}
           </h1>
+
+             <FiChevronRight className="ml-auto text-gray-400 hover:text-[#fbb033] md:w-10 md:h-10" />
         </div>
 
         {/* Liked Videos Section */}
         {likedVideos.length > 0 && (
           <div
-            className="flex flex-row items-center cursor-pointer hover:opacity-80 transition-opacity"
+            className="flex flex-row bg-gray-900 p-1 md:p-6 rounded-xl items-center cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => router.push('/profile/likes')}
           >
             <div className="relative">
@@ -104,11 +107,13 @@ er"
                 >
                   {`${likedVideos.length} ${t('common.videos', 'Videos')}`}
                 </span>
+               
               )}
             </div>
-            <h1 className="text-lg font-semibold hover:text-[#fbb033] transition-colors">
+            <h1 className="text-lg  md:ml-7  font-semibold hover:text-[#fbb033] transition-colors">
               {t('profile.LikedVideos', 'Liked Videos')}
             </h1>
+             <FiChevronRight className="ml-auto text-gray-400 hover:text-[#fbb033] md:w-10 md:h-10" />
           </div>
         )}
       </div>

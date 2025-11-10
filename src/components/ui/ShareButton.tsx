@@ -165,7 +165,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
     );
   };
 
-  return <div className="relative">{renderButton()}</div>;
+  return <div className="relative md:hidden">{renderButton()}</div>;
 };
 
 export default ShareButton;

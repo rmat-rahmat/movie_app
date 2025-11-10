@@ -383,7 +383,8 @@
     "watchNow": "Jetzt ansehen",
     "_episode": "- Episode",
     "external": "Extern",
-    "series": "Serie"
+    "series": "Serie",
+    "processingVideo":"Das Video wird verarbeitet und ist vorübergehend nicht zum Abspielen verfügbar!"
   },
   "modal": {
     "loadingDetails": "Details werden geladen...",

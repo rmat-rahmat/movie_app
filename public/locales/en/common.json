@@ -384,7 +384,8 @@
     "watchNow": "Watch Now",
     "_episode": "- Episode",
     "external": "External",
-    "series": "Series"
+    "series": "Series",
+    "processingVideo":"Video is being processed and is temporarily unavailable for playback!"
   },
   "modal": {
     "loadingDetails": "Loading details...",

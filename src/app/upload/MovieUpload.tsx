@@ -121,56 +121,56 @@ export default function MovieUpload() {
    */
   useEffect(() => {
     const loadCategories = async () => {
-    const cachedCategories = await getCachedCategories();
-    if (cachedCategories) {
-      // console.log('Loaded cached categories', JSON.stringify(cachedCategories, null, 2));
-      setCategories(cachedCategories);
-      
-      // Build category suggestions and name-to-id mapping
-      const suggestions: string[] = [];
-      const nameToIdMap = new Map<string, string>();
-      
-      cachedCategories.forEach(category => {
-        // If category has children, add only children (parent not selectable)
-        if (category.children && category.children.length > 0) {
-          category.children.forEach(child => {
-            const childName = getLocalizedCategoryName(child);
-            suggestions.push(childName);
-            nameToIdMap.set(childName, child.id);
-          });
-        } else {
-          // No children - add the category itself
-          const categoryName = getLocalizedCategoryName(category);
-          suggestions.push(categoryName);
-          nameToIdMap.set(categoryName, category.id);
-        }
-      });
-      
-      setCategorySuggestions(suggestions);
-      setCategoryNameToIdMap(nameToIdMap);
-    }
-    else{
-      
-    }
-    // preload director/actor/region suggestions
-    (async () => {
-      try {
-        const [dirs, acts, regs, langs] = await Promise.all([
-          getDirectorList('', undefined, 1, 50),
-          getActorList('', undefined, 1, 50),
-          getRegionList('', 1, 200),
-          getLanguageList('', '', 1, 200)
-        ]);
-        if (Array.isArray(dirs)) setDirectorSuggestions(dirs.slice(0, 100));
-        if (Array.isArray(acts)) setActorSuggestions(acts.slice(0, 200));
-        if (Array.isArray(regs)) setRegionSuggestions(regs.slice(0, 200));
-        if (Array.isArray(langs)) setLanguageSuggestions(langs.slice(0, 200));
-      } catch (e) {
-        console.warn('Failed to preload suggestions', e);
+      const cachedCategories = await getCachedCategories();
+      if (cachedCategories) {
+        // console.log('Loaded cached categories', JSON.stringify(cachedCategories, null, 2));
+        setCategories(cachedCategories);
+
+        // Build category suggestions and name-to-id mapping
+        const suggestions: string[] = [];
+        const nameToIdMap = new Map<string, string>();
+
+        cachedCategories.forEach(category => {
+          // If category has children, add only children (parent not selectable)
+          if (category.children && category.children.length > 0) {
+            category.children.forEach(child => {
+              const childName = getLocalizedCategoryName(child);
+              suggestions.push(childName);
+              nameToIdMap.set(childName, child.id);
+            });
+          } else {
+            // No children - add the category itself
+            const categoryName = getLocalizedCategoryName(category);
+            suggestions.push(categoryName);
+            nameToIdMap.set(categoryName, category.id);
+          }
+        });
+
+        setCategorySuggestions(suggestions);
+        setCategoryNameToIdMap(nameToIdMap);
       }
-    })();
-  }
-  loadCategories()
+      else {
+
+      }
+      // preload director/actor/region suggestions
+      (async () => {
+        try {
+          const [dirs, acts, regs, langs] = await Promise.all([
+            getDirectorList('', undefined, 1, 50),
+            getActorList('', undefined, 1, 50),
+            getRegionList('', 1, 200),
+            getLanguageList('', '', 1, 200)
+          ]);
+          if (Array.isArray(dirs)) setDirectorSuggestions(dirs.slice(0, 100));
+          if (Array.isArray(acts)) setActorSuggestions(acts.slice(0, 200));
+          if (Array.isArray(regs)) setRegionSuggestions(regs.slice(0, 200));
+          if (Array.isArray(langs)) setLanguageSuggestions(langs.slice(0, 200));
+        } catch (e) {
+          console.warn('Failed to preload suggestions', e);
+        }
+      })();
+    }
+    loadCategories()
 
 
   }, []);
@@ -196,6 +196,11 @@ export default function MovieUpload() {
    * Handles cover file selection and sets preview.
    * Updates form state and preview image for the cover.
    */
+  const handleFileMethodChange = (method: "UPLOAD" | "LINK") => {
+    clearMovieFile();
+    setFileMethod(method);
+  }
+
   const handleCoverFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files?.length) return;
@@ -434,12 +439,12 @@ export default function MovieUpload() {
           tags: videoData.tags || [],
           // duration: videoData.duration || null,
           // m3u8Url: videoData.m3u8Url || '',
-          duration:  null,
-          m3u8Url:  ''
+          duration: null,
+          m3u8Url: ''
         });
 
-        
-        
+
+
 
         // Set preview URLs
         if (videoData.customCoverUrl) {
@@ -699,27 +704,27 @@ export default function MovieUpload() {
    */
   const handleUploadMore = () => {
     // Reset form for new upload
-    setMovieForm({ 
-      title: '', 
-      description: '', 
-      m3u8Url: '', 
-      file: null, 
-      coverUrl: '', 
-      coverFile: null, 
-      customCoverUrl: '', 
+    setMovieForm({
+      title: '',
+      description: '',
+      m3u8Url: '',
+      file: null,
+      coverUrl: '',
+      coverFile: null,
+      customCoverUrl: '',
       landscapeFile: null,
       landscapeThumbnailUrl: '',
       releaseRegions: '',
       sourceProvider: '',
-      categoryId: 'movie', 
-      year: new Date().getFullYear(), 
-      region: '', 
-      language: '', 
-      director: '', 
-      actors: '', 
-      rating: 0, 
-      tags: [], 
-      duration: 30000 
+      categoryId: 'movie',
+      year: new Date().getFullYear(),
+      region: '',
+      language: '',
+      director: '',
+      actors: '',
+      rating: 0,
+      tags: [],
+      duration: 30000
     });
     if (moviePreviewUrl) {
       try { URL.revokeObjectURL(moviePreviewUrl); } catch { }
@@ -805,8 +810,8 @@ export default function MovieUpload() {
       />
       <form onSubmit={handleMovieUpload} className="rounded-xl md:p-8 p-1 shadow-2xl">
         <h1 className="text-3xl font-bold mb-6">
-          {isEditMode 
-            ? t('upload.editMovie', 'Edit Movie') 
+          {isEditMode
+            ? t('upload.editMovie', 'Edit Movie')
             : t('upload.uploadMovie', 'Upload Movie')
           }
         </h1>
@@ -838,7 +843,7 @@ export default function MovieUpload() {
             <div className="flex justify-center mb-8 w-full">
               <div className="p-1 flex md:gap-6 gap-2">
 
-                <div onClick={() => setFileMethod("UPLOAD")}
+                <div onClick={() => handleFileMethodChange("UPLOAD")}
                   className={`cursor-pointer relative group rounded-lg overflow-hidden flex flex-col items-center justify-center md:justify-end p-2 md:p-8 bg-gradient-to-br from-gray-800 to-black hover:scale-105 transform transition duration-300 ${fileMethod === "UPLOAD" ? "ring-4 ring-[#fbb033]" : ""}`}
                 >
                   <div className="absolute inset-0 opacity-10 bg-[url('/images/hero-movie.jpg')] bg-cover bg-center"></div>
@@ -850,7 +855,7 @@ export default function MovieUpload() {
                   </div>
                 </div>
 
-                <div onClick={() => setFileMethod("LINK")}
+                <div onClick={() => handleFileMethodChange("LINK")}
                   className={`cursor-pointer relative group rounded-lg overflow-hidden flex flex-col items-center justify-center md:justify-end p-2 md:p-8 bg-gradient-to-br from-gray-800 to-black hover:scale-105 transform transition duration-300 ${fileMethod === "LINK" ? "ring-4 ring-[#fbb033]" : ""}`}
                 >
                   <div className="absolute inset-0 opacity-10 bg-[url('/images/hero-series.jpg')] bg-cover bg-center"></div>
@@ -968,7 +973,7 @@ export default function MovieUpload() {
                 </div>
               )}
           </div>
-        ): null}
+        ) : null}
 
         <div className={`grid grid-cols-1 ${!isEditMode && 'md:grid-cols-2'} gap-6 mb-6`}>
           {!isEditMode && <div>
@@ -1050,16 +1055,16 @@ export default function MovieUpload() {
             <div className="flex-1">
               <p className="text-sm text-gray-400 mb-2">{t('uploadForm.portraitCover', 'Portrait Cover')}</p>
               <div className="flex items-center gap-4">
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  id="movie-cover-file" 
-                  onChange={handleCoverFileSelect} 
-                  className="visually-hidden opacity-0 absolute z-[-100]" 
-                  required 
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="movie-cover-file"
+                  onChange={handleCoverFileSelect}
+                  className="visually-hidden opacity-0 absolute z-[-100]"
+                  required
                 />
-                <label 
-                  htmlFor="movie-cover-file" 
+                <label
+                  htmlFor="movie-cover-file"
                   className="px-4 py-2 border border-[#fbb033] rounded-3xl cursor-pointer text-white text-sm whitespace-nowrap"
                 >
                   {t('uploadForm.choosePortrait', 'Choose Portrait')}
@@ -1067,9 +1072,9 @@ export default function MovieUpload() {
                 {movieCoverPreviewUrl ? (
                   <div className="flex items-center gap-3">
                     <img src={movieCoverPreviewUrl} alt="cover preview" className="w-24 h-36 object-cover rounded" />
-                    <button 
-                      type="button" 
-                      onClick={clearCoverFile} 
+                    <button
+                      type="button"
+                      onClick={clearCoverFile}
                       className="px-2 py-1 bg-red-600 rounded text-white text-sm"
                     >
                       {t('uploadForm.remove', 'Remove')}
@@ -1085,15 +1090,15 @@ export default function MovieUpload() {
             <div className="flex-1">
               <p className="text-sm text-gray-400 mb-2">{t('uploadForm.landscapeThumbnail', 'Landscape Thumbnail')}</p>
               <div className="flex items-center gap-4">
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  id="movie-landscape-file" 
-                  onChange={handleLandscapeFileSelect} 
-                  className="visually-hidden opacity-0 absolute z-[-100]" 
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="movie-landscape-file"
+                  onChange={handleLandscapeFileSelect}
+                  className="visually-hidden opacity-0 absolute z-[-100]"
                 />
-                <label 
-                  htmlFor="movie-landscape-file" 
+                <label
+                  htmlFor="movie-landscape-file"
                   className="px-4 py-2 border border-[#fbb033] rounded-3xl cursor-pointer text-white text-sm whitespace-nowrap"
                 >
                   {t('uploadForm.chooseLandscape', 'Choose Landscape')}
@@ -1101,9 +1106,9 @@ export default function MovieUpload() {
                 {movieLandscapePreviewUrl ? (
                   <div className="flex items-center gap-3">
                     <img src={movieLandscapePreviewUrl} alt="landscape preview" className="w-48 h-28 object-cover rounded" />
-                    <button 
-                      type="button" 
-                      onClick={clearLandscapeFile} 
+                    <button
+                      type="button"
+                      onClick={clearLandscapeFile}
                       className="px-2 py-1 bg-red-600 rounded text-white text-sm"
                     >
                       {t('uploadForm.remove', 'Remove')}
@@ -1197,7 +1202,7 @@ export default function MovieUpload() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label className="block text-lg font-medium mb-2">{t('upload.releaseRegions', 'Release Regions')}</label>
-           
+
             <SearchableDropdown
               id="releaseRegions"
               value={movieForm.releaseRegions}
@@ -1224,24 +1229,24 @@ export default function MovieUpload() {
         {renderProgressBar()}
 
         <div className="flex justify-end mt-8">
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isSubmitting || uploadProgress.status === 'uploading'}
             className="flex justify-center w-full lg:w-auto items-center px-8 py-4 bg-[#fbb033] text-black text-center font-semibold rounded-3xl hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-3"></div>
-                {isEditMode 
-                  ? t('upload.updating', 'Updating...') 
+                {isEditMode
+                  ? t('upload.updating', 'Updating...')
                   : t('uploadForm.uploading', 'Uploading...')
                 }
               </>
             ) : (
               <>
                 <FiUpload className="mr-3" />
-                {isEditMode 
-                  ? t('upload.updateMovie', 'Update Movie') 
+                {isEditMode
+                  ? t('upload.updateMovie', 'Update Movie')
                   : t('upload.uploadMovie', 'Upload Movie')
                 }
               </>

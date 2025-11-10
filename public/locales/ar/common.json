@@ -383,7 +383,8 @@
     "watchNow": "شاهد الآن",
     "_episode": "- الحلقة",
     "external": "خارجي",
-    "series": "مسلسل"
+    "series": "مسلسل",
+    "processingVideo":"يتم معالجة الفيديو وهو غير متاح مؤقتًا للتشغيل!"
   },
   "modal": {
     "loadingDetails": "جارٍ تحميل التفاصيل...",

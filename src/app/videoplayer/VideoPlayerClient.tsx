@@ -48,6 +48,7 @@ import ShareButton from '@/components/ui/ShareButton';
 import { useAuthStore } from '@/store/authStore';
 import { QualityPermission } from '@/types/Dashboard';
 
+const readyStatus=['READY','AUDIT_PENDING','AUDIT_REJECTED','CAN_PUBLISH','PUBLISHED','OFFLINE'];
 
 interface VideoPlayerClientProps {
   id?: string;
@@ -78,6 +79,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   const hasSeekedRef = useRef<boolean>(false);
   const [actualUploadId, setActualUploadId] = useState<string>(''); // Store resolved uploadId from directId
   const { user } = useAuthStore();
+  const [isFinishProcess, setIsFinishProcess] = useState<boolean>(false);
 
   // Favorite state
   const [isFavorited, setIsFavorited] = useState(false);
@@ -109,6 +111,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
       setError(null);
       try {
         console.log('Fetching content details for directId:', directId);
+
         const contentDetails = await getContentDetail(directId || "", owner === "true");
 
         if (!mounted) return;
@@ -126,10 +129,23 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
           const m3u8Url = contentDetails.episodes[0].m3u8Url || '';
           const mediaID = contentDetails.episodes[0].id || '';
           console.log('M3U8 URL detected, using:', m3u8Url);
+          if(readyStatus.includes(contentDetails.episodes[0].status?.toUpperCase()||"")){
+            setIsFinishProcess(true);
+          }
+          else{
+            alert(t('common:m3u8Url'));
+            setIsFinishProcess(false);
+          }
           router.replace(`/videoplayer?m3u8=${encodeURIComponent(m3u8Url)}&mediaid=${encodeURIComponent(mediaID)}`);
         }
         else if (contentDetails.episodes && contentDetails.episodes[0] && contentDetails.episodes[0].uploadId) {
           // For series, use the first episode's uploadId
+           if(readyStatus.includes(contentDetails.episodes[0].status?.toUpperCase()||"")){
+            setIsFinishProcess(true);
+          }
+          else{
+            setIsFinishProcess(false);
+          }
           uploadIdToUse = contentDetails.episodes[0].uploadId || '';
           console.log('Se`ries detected, using first episode uploadId:', uploadIdToUse);
         }
@@ -139,7 +155,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
           const encryptedUrl = encryptUrl(playUrl);
           router.push(`/videoplayerExternal?url=${encodeURIComponent(encryptedUrl)}`);
         }
-
+        else if(contentDetails.episodes && contentDetails.episodes.length===0){
+          
+        }
         else {
           throw new Error('No episode found in content details');
         }
@@ -708,10 +726,28 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   }
 
   /**
+   * handleAuthRequired
+   * Prompts user to login and redirects to login page with return URL
+   */
+  const handleAuthRequired = (action: string) => {
+    const currentPath = window.location.pathname + window.location.search;
+    const returnUrl = encodeURIComponent(currentPath);
+    
+    if (confirm(t('auth.loginRequired', `You need to login to ${action}. Do you want to login now?`))) {
+      router.push(`/auth/login?returnUrl=${returnUrl}`);
+    }
+  };
+
+  /**
    * handleToggleFavorite
    * Toggles the favorite status for the current video and updates UI.
    */
   const handleToggleFavorite = async () => {
+    if (!user) {
+      handleAuthRequired(t('video.favorite', 'add to favorites'));
+      return;
+    }
+
     if (!currentVideo?.id) return;
 
     setIsFavoriteLoading(true);
@@ -736,6 +772,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
    * Toggles the like status for the current video and updates UI.
    */
   const handleToggleLike = async () => {
+    if (!user) {
+      handleAuthRequired(t('video.like', 'like this video'));
+      return;
+    }
+
     if (!currentVideo?.id) return;
 
     setIsLikeLoading(true);
@@ -755,6 +796,18 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     } finally {
       setIsLikeLoading(false);
     }
+  };
+
+  /**
+   * handleCommentClick
+   * Shows comments section or prompts login if not authenticated
+   */
+  const handleCommentClick = () => {
+    if (!user) {
+      handleAuthRequired(t('comments.title', 'view comments'));
+      return;
+    }
+    setShowComments(!showComments);
   };
 
   /**
@@ -887,7 +940,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
         <section className="mb-6">
 
           <div className="w-full lg:w-[60vw] mx-auto pb-6">
-            <div className="bg-black rounded-lg overflow-hidden mx-auto relative">
+            {isFinishProcess ?<div className="bg-black rounded-lg overflow-hidden mx-auto relative">
               <video
                 ref={videoRef}
                 className="w-full h-auto bg-black max-h-[70vh]"
@@ -941,7 +994,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                 </div>
               )}
 
-            </div>
+            </div>: <div className="flex flex-col items-center justify-center w-full h-64 bg-black rounded-lg">
+            <p className="text-white mb-4">{t('video.processingVideo')}</p>
+            {/* <LoadingPage message={t('video.processingVideo')} className='relative bg-white/10 w-full h-full' /> */}
+          </div>}
             {currentVideo && (
               <div className="grid mt-6 h-full w-full md:grid-cols-[70%_30%] md:grid-rows-1 grid-cols-1 grid-rows-[70%_30%]">
                 {/* Video Info Overlay */}
@@ -984,50 +1040,51 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                   {/* Interaction Buttons */}
                   <div className="flex items-center gap-4 mt-4">
                     {/* Like Button */}
-                    {user && <button
+                    <button
                       onClick={handleToggleLike}
                       disabled={isLikeLoading}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isLiked
-                        ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        } disabled:opacity-50`}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        isLiked
+                          ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      } disabled:opacity-50`}
                     >
                       <FiThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                       <span className="hidden md:block text-sm font-medium">
                         {`${isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')}`}
                       </span>
-                    </button>}
+                    </button>
 
                     {/* Comments Button */}
                     <button
-                      onClick={() => setShowComments(!showComments)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all ${showComments
-                        ? 'bg-[#fbb033]/20 text-[#fbb033] hover:bg-[#fbb033]/30'
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        } 
-                        ${commentCount === 0 && !user ? 'hidden' : ''}
-                        `}
+                      onClick={handleCommentClick}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all ${
+                        showComments
+                          ? 'bg-[#fbb033]/20 text-[#fbb033] hover:bg-[#fbb033]/30'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      }`}
                     >
-                      <FiMessageCircle className={"w-5 h-5"} />
+                      <FiMessageCircle className="w-5 h-5" />
                       <span className="hidden md:block text-sm font-medium">
                         {t('comments.title', 'Comments')} {commentCount > 0 && `(${commentCount})`}
                       </span>
                     </button>
 
                     {/* Favorite Button */}
-                    {user && <button
+                    <button
                       onClick={handleToggleFavorite}
                       disabled={isFavoriteLoading}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isFavorited
-                        ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        } disabled:opacity-50`}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                        isFavorited
+                          ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      } disabled:opacity-50`}
                     >
                       <FiHeart className={`w-5 h-5 ${isFavorited ? 'fill-current' : ''}`} />
                       <span className="hidden md:block text-sm font-medium">
                         {isFavorited ? t('video.favorited', 'Favorited') : t('video.favorite', 'Favorite')}
                       </span>
-                    </button>}
+                    </button>
 
                     {/* Share Button */}
                     {currentVideo?.id && (

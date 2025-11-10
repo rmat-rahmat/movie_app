@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useTranslation } from 'react-i18next';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
@@ -12,6 +12,8 @@ const LoginPage: React.FC = () => {
     const [localError, setLocalError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const returnUrl = searchParams.get('returnUrl');
     const { login, isLoading, error,clearError } = useAuthStore();
     const { t } = useTranslation('common');
 
@@ -27,7 +29,9 @@ const LoginPage: React.FC = () => {
 
         try {
             await login(email, password);
-            router.push('/');
+            // Redirect to return URL if available, otherwise to home
+            const redirectPath = returnUrl ? decodeURIComponent(returnUrl) : '/';
+            router.push(redirectPath);
         } catch (err) {
             // Error is handled by the store
             console.error('Login failed:', err);

@@ -105,8 +105,10 @@ const ShareButton: React.FC<ShareButtonProps> = ({
     }
   };
 
+  const isDisabled = isSharing || !isSecureContext;
+
   const renderButton = () => {
-    const isDisabled = isSharing || !isSecureContext;
+    if (isDisabled) return null;
 
     if (variant === 'icon') {
       return (

@@ -384,7 +384,8 @@
     "watchNow": "Regarder maintenant",
     "_episode": "- Episode",
     "external": "Externe",
-    "series": "Série"
+    "series": "Série",
+    "processingVideo":"La vidéo est en cours de traitement et est temporairement indisponible pour la lecture !"
   },
   "modal": {
     "loadingDetails": "Chargement des détails...",

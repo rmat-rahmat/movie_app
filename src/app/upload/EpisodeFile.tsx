@@ -151,6 +151,10 @@ const EpisodeFile: React.FC<EpisodeFileProps> = ({
 
         }
     }
+    const handleFileMethodChange = (method: "UPLOAD" | "LINK") => {
+        onClearFile(index)
+        setFileMethod(method);
+    }
     return (
         <div>
             {/* File/Link mode switch */}
@@ -158,7 +162,7 @@ const EpisodeFile: React.FC<EpisodeFileProps> = ({
             <div className="flex justify-center mb-8">
                 <div className="rounded-lg p-1 flex gap-6">
 
-                    <div onClick={() => setFileMethod("UPLOAD")}
+                    <div onClick={() => handleFileMethodChange("UPLOAD")}
                         className={`cursor-pointer relative group rounded-lg overflow-hidden flex flex-col items-start justify-end p-2 bg-gradient-to-br from-gray-800 to-black hover:scale-105 transform transition duration-300 ${fileMethod === "UPLOAD" ? "ring-4 ring-[#fbb033]" : ""}`}
                     >
                         <div className="absolute inset-0 opacity-10 bg-[url('/images/hero-movie.jpg')] bg-cover bg-center"></div>
@@ -170,7 +174,7 @@ const EpisodeFile: React.FC<EpisodeFileProps> = ({
                         </div>
                     </div>
 
-                    <div onClick={() => setFileMethod("LINK")}
+                    <div onClick={() => handleFileMethodChange("LINK")}
                         className={`cursor-pointer relative group rounded-lg overflow-hidden flex flex-col items-start justify-end p-2 bg-gradient-to-br from-gray-800 to-black hover:scale-105 transform transition duration-300 ${fileMethod === "LINK" ? "ring-4 ring-[#fbb033]" : ""}`}
                     >
                         <div className="absolute inset-0 opacity-10 bg-[url('/images/hero-series.jpg')] bg-cover bg-center"></div>

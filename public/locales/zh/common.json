@@ -383,7 +383,8 @@
     "watchNow": "立即观看",
     "_episode": "- 集",
     "external": "外部",
-    "series": "剧集"
+    "series": "剧集",
+    "processingVideo":"视频正在处理，暂时无法播放！"
   },
   "modal": {
     "loadingDetails": "正在加载详情...",

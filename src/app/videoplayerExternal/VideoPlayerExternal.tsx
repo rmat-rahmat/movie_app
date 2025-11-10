@@ -259,10 +259,28 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
   }, [currentVideo]);
 
   /**
+   * handleAuthRequired
+   * Prompts user to login and redirects to login page with return URL
+   */
+  const handleAuthRequired = (action: string) => {
+    const currentPath = window.location.pathname + window.location.search;
+    const returnUrl = encodeURIComponent(currentPath);
+    
+    if (confirm(t('auth.loginRequired', `You need to login to ${action}. Do you want to login now?`))) {
+      router.push(`/auth/login?returnUrl=${returnUrl}`);
+    }
+  };
+
+  /**
    * handleToggleFavorite
    * Toggles the favorite status for the current video and updates UI.
    */
   const handleToggleFavorite = async () => {
+    if (!user) {
+      handleAuthRequired(t('video.favorite', 'add to favorites'));
+      return;
+    }
+
     if (!currentVideo?.id) return;
 
     setIsFavoriteLoading(true);
@@ -287,6 +305,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
    * Toggles the like status for the current video and updates UI.
    */
   const handleToggleLike = async () => {
+    if (!user) {
+      handleAuthRequired(t('video.like', 'like this video'));
+      return;
+    }
+
     if (!currentVideo?.id) return;
 
     setIsLikeLoading(true);
@@ -305,6 +328,18 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
     } finally {
       setIsLikeLoading(false);
     }
+  };
+
+  /**
+   * handleCommentClick
+   * Shows comments section or prompts login if not authenticated
+   */
+  const handleCommentClick = () => {
+    if (!user) {
+      handleAuthRequired(t('comments.title', 'view comments'));
+      return;
+    }
+    setShowComments(!showComments);
   };
 
   if (loading) {
@@ -435,7 +470,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                   {/* Interaction Buttons */}
                   <div className="flex items-center gap-4 mt-4">
                     {/* Like Button */}
-                    {user && <button
+                    <button
                       onClick={handleToggleLike}
                       disabled={isLikeLoading}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isLiked
@@ -447,17 +482,15 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                       <span className="hidden md:block text-sm font-medium">
                         {`${isLiked ? t('video.liked', 'Liked') : t('video.like', 'Like')}`}
                       </span>
-                    </button>}
+                    </button>
 
                     {/* Comments Button */}
                     <button
-                      onClick={() => setShowComments(!showComments)}
+                      onClick={handleCommentClick}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all ${showComments
                           ? 'bg-[#fbb033]/20 text-[#fbb033] hover:bg-[#fbb033]/30'
                           : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        }
-                        ${commentCount === 0 && !user ? 'hidden' : ''}
-                        `}
+                        }`}
                     >
                       <FiMessageCircle className="w-5 h-5" />
                       <span className="hidden md:block text-sm font-medium">
@@ -466,7 +499,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                     </button>
 
                     {/* Favorite Button */}
-                    {user && <button
+                    <button
                       onClick={handleToggleFavorite}
                       disabled={isFavoriteLoading}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${isFavorited
@@ -478,7 +511,7 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
                       <span className="hidden md:block text-sm font-medium">
                         {isFavorited ? t('video.favorited', 'Favorited') : t('video.favorite', 'Favorite')}
                       </span>
-                    </button>}
+                    </button>
 
                     {/* Share Button */}
                     {currentVideo?.id && (

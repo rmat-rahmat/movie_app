@@ -383,7 +383,8 @@
     "watchNow": "Tonton Sekarang",
     "_episode": "- Episod",
     "external": "Sumber Luar",
-    "series": "Siri"
+    "series": "Siri",
+    "processingVideo":"Video sedang diproses dan sementara tidak tersedia untuk dimainkan!"
   },
   "modal": {
     "loadingDetails": "Memuatkan butiran...",

@@ -202,6 +202,8 @@
     "newUserPromo": "Exclusive offer for new users! Sign up now and get 100% off your first month of VIP membership. Don't miss out on this limited-time deal to access premium content and features.",
     "joinVip": "Join VIP",
     "subscribeNow": "Subscribe Now!!!",
+    "unlike": "Remove from Liked Videos",
+    "unfavorite": "Remove from Favorites",
     "unLikedSuccess": "Removed from Like list",
     "unLikedFail": "Failed to unlike the video",
     "confirmUnLiked": "Are you sure you want to unlike this video?",
@@ -464,5 +466,184 @@
     "showingContentFor": "Showing content for:",
     "clearFilter": "Clear filter",
     "noContentFound": "No content found for"
-  }
+  },
+   "legal": {
+      "lastUpdated": "Last Updated",
+      "terms": {
+        "title": "Terms and Conditions",
+        "section1": {
+          "title": "Acceptance of Terms",
+          "content1": "By accessing and using OtalkTV (\"the Service\"), you accept and agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use the Service.",
+          "content2": "These terms apply to all users, including visitors, registered users, and content uploaders."
+        },
+        "section2": {
+          "title": "User Accounts",
+          "subtitle1": "Registration",
+          "content1": "To access certain features, you must create an account. You agree to:",
+          "item1": "Provide accurate and complete information",
+          "item2": "Maintain the security of your password",
+          "item3": "Be responsible for all activities under your account",
+          "item4": "Notify us immediately of unauthorized use",
+          "subtitle2": "Age Requirements",
+          "content2": "You must be at least 13 years old to use this Service. Users under 18 should use the Service under parental supervision."
+        },
+        "section3": {
+          "title": "Content and Usage",
+          "subtitle1": "License to Use",
+          "content1": "We grant you a limited, non-exclusive, non-transferable license to access and use the Service for personal, non-commercial purposes.",
+          "subtitle2": "Prohibited Activities",
+          "content2": "You agree not to:",
+          "item1": "Copy, distribute, or modify any content without authorization",
+          "item2": "Use automated systems to access the Service",
+          "item3": "Attempt to circumvent security measures",
+          "item4": "Upload malicious code or viruses",
+          "item5": "Impersonate other users or entities",
+          "item6": "Harass, abuse, or harm other users",
+          "item7": "Upload illegal or infringing content"
+        },
+        "section4": {
+          "title": "Content Upload and Ownership",
+          "subtitle1": "User Content",
+          "content1": "When you upload content, you represent and warrant that:",
+          "item1": "You own or have the necessary rights to the content",
+          "item2": "The content does not violate any laws or third-party rights",
+          "item3": "The content does not contain malware or harmful code",
+          "subtitle2": "Content License",
+          "content2": "By uploading content, you grant us a worldwide, non-exclusive, royalty-free license to use, reproduce, distribute, and display your content on the Service.",
+          "subtitle3": "Content Removal",
+          "content3": "We reserve the right to remove any content that violates these terms or is otherwise objectionable at our sole discretion."
+        },
+        "section5": {
+          "title": "Intellectual Property",
+          "content": "All content, trademarks, logos, and intellectual property on the Service are owned by OtalkTV or its licensors. You may not use, copy, or distribute any intellectual property without explicit permission."
+        },
+        "section6": {
+          "title": "Copyright Infringement",
+          "content": "We respect intellectual property rights. If you believe content on our Service infringes your copyright, please contact us with:",
+          "item1": "Description of the copyrighted work",
+          "item2": "Location of the infringing content",
+          "item3": "Your contact information",
+          "item4": "A statement of good faith belief",
+          "item5": "Your signature or authorization"
+        },
+        "section7": {
+          "title": "Privacy",
+          "content": "Your use of the Service is also governed by our Privacy Policy. Please review our Privacy Policy to understand how we collect and use your information."
+        },
+        "section8": {
+          "title": "Disclaimer of Warranties",
+          "content": "THE SERVICE IS PROVIDED \"AS IS\" WITHOUT WARRANTIES OF ANY KIND. WE DO NOT WARRANT THAT:",
+          "item1": "The Service will be uninterrupted or error-free",
+          "item2": "Defects will be corrected",
+          "item3": "The Service is free of viruses or harmful components",
+          "item4": "Results from using the Service will be accurate or reliable"
+        },
+        "section9": {
+          "title": "Limitation of Liability",
+          "content": "TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, DATA, OR USE, ARISING FROM YOUR USE OF THE SERVICE."
+        },
+        "section10": {
+          "title": "Termination",
+          "content": "We may suspend or terminate your account at any time for violations of these terms or for any other reason at our discretion. Upon termination:",
+          "item1": "Your right to use the Service immediately ceases",
+          "item2": "We may delete your account and content",
+          "item3": "You remain liable for any outstanding obligations"
+        },
+        "section11": {
+          "title": "Governing Law",
+          "content": "These Terms shall be governed by and construed in accordance with the laws of [Your Jurisdiction], without regard to its conflict of law provisions."
+        },
+        "section12": {
+          "title": "Changes to Terms",
+          "content": "We reserve the right to modify these Terms at any time. We will notify users of material changes. Your continued use of the Service after changes constitutes acceptance of the modified terms."
+        },
+        "section13": {
+          "title": "Contact Information",
+          "content": "For questions about these Terms, please contact us at:",
+          "email": "Email",
+          "address": "Address"
+        }
+      },
+      "privacy": {
+        "title": "Privacy Policy",
+        "section1": {
+          "title": "Information We Collect",
+          "subtitle1": "Personal Information",
+          "content1": "When you register for an account, we collect:",
+          "item1": "Email address",
+          "item2": "Username",
+          "item3": "Password (encrypted)",
+          "item4": "Profile information you choose to provide",
+          "subtitle2": "Usage Information",
+          "content2": "We automatically collect information about how you use our service:",
+          "item5": "Videos watched and viewing history",
+          "item6": "Search queries",
+          "item7": "Favorites and liked content",
+          "item8": "Device information and IP address",
+          "item9": "Browser type and operating system"
+        },
+        "section2": {
+          "title": "How We Use Your Information",
+          "content": "We use the collected information to:",
+          "item1": "Provide and maintain our streaming service",
+          "item2": "Personalize your content recommendations",
+          "item3": "Improve our platform and user experience",
+          "item4": "Communicate with you about updates and features",
+          "item5": "Ensure security and prevent fraud",
+          "item6": "Comply with legal obligations"
+        },
+        "section3": {
+          "title": "Information Sharing",
+          "content": "We do not sell your personal information. We may share your information only in the following circumstances:",
+          "item1": "Service Providers: With third-party vendors who help us operate our platform",
+          "item2": "Legal Requirements: When required by law or to protect our rights",
+          "item3": "Business Transfers: In connection with a merger, acquisition, or sale of assets"
+        },
+        "section4": {
+          "title": "Data Security",
+          "content": "We implement industry-standard security measures to protect your personal information:",
+          "item1": "Encryption of data in transit (HTTPS)",
+          "item2": "Secure password storage using hashing algorithms",
+          "item3": "Regular security audits and updates",
+          "item4": "Access controls and authentication mechanisms"
+        },
+        "section5": {
+          "title": "Cookies and Tracking",
+          "content": "We use cookies and similar tracking technologies to:",
+          "item1": "Remember your preferences and settings",
+          "item2": "Analyze platform usage and performance",
+          "item3": "Provide personalized content recommendations",
+          "item4": "Maintain your login session",
+          "content2": "You can control cookie settings through your browser preferences."
+        },
+        "section6": {
+          "title": "Your Rights",
+          "content": "You have the right to:",
+          "item1": "Access your personal information",
+          "item2": "Correct inaccurate data",
+          "item3": "Request deletion of your account and data",
+          "item4": "Export your data",
+          "item5": "Opt-out of marketing communications",
+          "item6": "Withdraw consent for data processing"
+        },
+        "section7": {
+          "title": "Children's Privacy",
+          "content": "Our service is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you believe we have collected information from a child under 13, please contact us immediately."
+        },
+        "section8": {
+          "title": "International Data Transfers",
+          "content": "Your information may be transferred to and processed in countries other than your country of residence. We ensure appropriate safeguards are in place to protect your data in accordance with this Privacy Policy."
+        },
+        "section9": {
+          "title": "Changes to This Policy",
+          "content": "We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting the new policy on this page and updating the \"Last Updated\" date. Your continued use of the service after changes constitutes acceptance of the updated policy."
+        },
+        "section10": {
+          "title": "Contact Us",
+          "content": "If you have questions about this Privacy Policy or our data practices, please contact us at:",
+          "email": "Email",
+          "address": "Address"
+        }
+      }
+    }
 }

@@ -1,3 +1,24 @@
+/**
+ * EpisodeFile.tsx
+ * 
+ * This component handles the upload and preview of a single episode file or m3u8 URL
+ * for a TV series. It supports:
+ * - File upload (with preview and unsupported format warning)
+ * - m3u8 URL input and HLS.js preview
+ * - Duration detection and reporting to parent
+ * - Switching between upload and link modes
+ * 
+ * Key conventions:
+ * - Receives episode state and handlers as props from the parent (SeriesUpload).
+ * - Uses HLS.js for m3u8 preview.
+ * - Calls `onDurationDetected` when video duration is available.
+ * 
+ * To extend:
+ * - Add more validation or metadata fields as needed.
+ * - Update UI for new video formats.
+ * 
+ * Function-level comments are provided below for maintainability.
+ */
 
 "use client";
 import React, { useState, useRef } from 'react';
@@ -46,6 +67,20 @@ interface SeriesForm {
     episodes: Episode[];
 }
 
+/**
+ * EpisodeFile
+ * Main component for handling episode upload or m3u8 link input.
+ * Props:
+ * - episode: The episode object (number, title, file, etc.)
+ * - index: Index of the episode in the series
+ * - episodePreviewUrl: Preview URL for the uploaded file
+ * - unsupportedFormatMsg: Warning message for unsupported formats
+ * - fileInputRef: Ref for the file input (for first episode)
+ * - onFileSelect: Handler for file selection
+ * - onClearFile: Handler for clearing the selected file
+ * - onDurationDetected: Handler for reporting detected duration
+ * - setSeriesForm: State setter for the parent form
+ */
 const EpisodeFile: React.FC<EpisodeFileProps> = ({
     episode,
     index,
@@ -56,7 +91,6 @@ const EpisodeFile: React.FC<EpisodeFileProps> = ({
     onClearFile,
     onDurationDetected,
     setSeriesForm
-
 }) => {
     const { t } = useTranslation('common');
     const [fileMethod, setFileMethod] = useState<"UPLOAD" | "LINK">("UPLOAD");
@@ -65,7 +99,11 @@ const EpisodeFile: React.FC<EpisodeFileProps> = ({
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const hlsRef = useRef<Hls | null>(null);
 
-
+    /**
+     * handleHLSPreview
+     * Sets up HLS.js to preview an m3u8 URL in the browser.
+     * Attaches the stream to the video element and reports duration.
+     */
     const handleHLSPreview = (url: string) => {
         console.log('Setting up HLS preview for URL:', url);
         const videoElement = videoRef.current;
@@ -115,6 +153,7 @@ const EpisodeFile: React.FC<EpisodeFileProps> = ({
     }
     return (
         <div>
+            {/* File/Link mode switch */}
             <label className="block text-lg font-medium mb-2">{t('uploadForm.videoFileLabel', 'Video File')}</label>
             <div className="flex justify-center mb-8">
                 <div className="rounded-lg p-1 flex gap-6">
@@ -145,6 +184,7 @@ const EpisodeFile: React.FC<EpisodeFileProps> = ({
                 </div>
             </div>
             {fileMethod === "LINK" ? (
+                // m3u8 URL input and preview
                 <div className="mb-6 w-full">
                     <label className="block text-lg font-medium mb-2">{t('upload.url', 'URL Link')}</label>
                     <input
@@ -180,6 +220,7 @@ const EpisodeFile: React.FC<EpisodeFileProps> = ({
 
             ) : (
                 <>
+                    {/* File upload and preview */}
                     {!episode.file ? (
 
                         <label
@@ -242,6 +283,7 @@ const EpisodeFile: React.FC<EpisodeFileProps> = ({
                         </div>
                     )}
                 </>)}
+            {/* HLS preview for m3u8 URL */}
             {
                 HLSPreviewUrl && fileMethod === "LINK" && (
                     <div className="w-full flex items-center justify-between gap-4">

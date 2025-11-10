@@ -1,3 +1,25 @@
+/**
+ * Profile Page
+ * 
+ * This page displays the user's profile, including:
+ * - Watch history (recently watched videos)
+ * - Playlist (favorites)
+ * - User's uploaded videos
+ * - Download Android app section
+ * 
+ * Key conventions:
+ * - Uses `useState` and `useEffect` for data fetching and state management.
+ * - Uses `useAuthStore` for authentication and user info.
+ * - Uses `DashboardSection` for consistent video grid UI.
+ * - Follows project conventions in .github/copilot-instructions.md.
+ * 
+ * To extend:
+ * - Add more dashboard sections as needed.
+ * - Add more user profile features (settings, edit profile, etc.).
+ * 
+ * Function-level comments are provided below for maintainability.
+ */
+
 'use client';
 
 import { useEffect, useState } from "react";
@@ -15,22 +37,30 @@ import ProfileWrapper from "./ProfileWrapper";
 import { LuCrown } from "react-icons/lu";
 import DownloadAndroid from "@/components/download/DownloadAndroid"
 
+/**
+ * Profile
+ * Main profile page component.
+ * Fetches and displays user data: watch history, playlist, uploads, etc.
+ */
 export default function Profile() {
+    // State for loading and user data
     const [isloading, setIsLoading] = useState(true);
     const [lastSeenVid, setLastSeenVid] = useState<DashboardItem[]>([]);
     const [playlists, setPlaylists] = useState<DashboardItem[]>([]);
     const [yourVideos, setYourVideos] = useState<DashboardItem[]>([]);
     const [favorites, setFavorites] = useState<DashboardItem[]>([]);
     const [likedVideos, setLikedVideos] = useState<DashboardItem[]>([]);
-    const [shares, setShares] = useState<DashboardItem[]>([]);
     const { t } = useTranslation('common');
 
+    // Auth state
     const user = useAuthStore((s) => s.user);
     const authLoading = useAuthStore((s) => s.isLoading);
     // const checkAuth = useAuthStore((s) => s.checkAuth);
     const subscribersCount = user?.subscribers;
 
-
+    /**
+     * Effect: Fetches user-related video data on mount or when user changes.
+     */
     useEffect(() => {
         // ensure auth is loaded
         if (!user) {
@@ -45,20 +75,49 @@ export default function Profile() {
             const uploads = await getUserUploadedVideos(1, 12, '480');
             setYourVideos(uploads || []);
 
-            const favs = await getFavoritesList(1, 12, '480');
-            setFavorites(favs || []);
+            // const favs = await getFavoritesList(1, 12, '480');
 
-            const likes = await getVideoLikeList(1, 12, '480');
-            setLikedVideos(likes || []);
-
-            const sharesList = await getSharesList(1, 12, undefined, undefined, '480');
-            setShares(sharesList || []);
+            // const likes = await getVideoLikeList(1, 12, '480');
+            // setLikedVideos(likes || []);
+            // setFavorites([...(favs || []), ...(likes || [])]);
+            remakePlaylists();
 
             setIsLoading(false);
         };
         fetchData();
     }, [user]);
 
+    const remakePlaylists = async () => {
+        const favs = await getFavoritesList(1, 12, '480');
+        const likes = await getVideoLikeList(1, 12, '480');
+
+        // Get first item of each, update title and tags, and ensure photo exists
+        const favFirst = favs && favs.length > 0 && favs[0]?.imageQuality?.url 
+            ? { 
+            ...favs[0], 
+            title:t('profile.Favorites', 'My Favorites'),
+            tags: [`${favs.length} videos`] ,
+            language:null
+              }
+            : undefined;
+        const likeFirst = likes && likes.length > 0 && likes[0]?.imageQuality?.url 
+            ? { 
+            ...likes[0], 
+            title: t('profile.LikedVideos', 'Liked Videos') ,
+            tags: [`${likes.length} videos`] ,
+            language:null
+              }
+            : undefined;
+
+        // Only include items with photo
+        const filtered = [favFirst, likeFirst].filter(Boolean) as DashboardItem[];
+        console.log("Remade playlists:", filtered);
+        setFavorites(filtered);
+    }
+    /**
+     * maskUserID
+     * Utility to mask user ID for privacy.
+     */
     const maskUserID = (id: string | number | undefined) => {
         if (id === undefined || id === null) return '';
         const s = String(id);
@@ -66,30 +125,12 @@ export default function Profile() {
         return `${s.slice(0, 2)}***${s.slice(-2)}`;
     }
 
-
     return (
         <ProfileWrapper title={t('navigation.profile', 'Profile')}>
+            {/* Show loading spinner if loading or auth is loading */}
             {isloading || authLoading || !user ? <LoadingPage /> : <>
 
-                {/* <div className="mb-6">
-
-                    <div className="flex rounded-2xl flex-row mb-6 items-center bg-[#fbb033]">
-                        <div className="relative px-4 py-2 flex-1 text-xs md:text-sm">
-                            <h1 className="text-sm md:text-2xl font-bold text-white"> 
-                                {t('profile.newUserOnly', 'New User Only' )}
-                                </h1>
-                            {t('profile.newUserPromo', 'New User Promo')}
-                        </div>
-                        <div className="grid md:h-full gap-1 md:grid-cols-[50%_50%] md:grid-rows-1 grid-cols-1  overflow-hidden pr-2">
-                        <button className="text-xs md:text-lg px-1 md:px-2 py-1 md:mx-2 font-semibold bg-white rounded-full text-[#fbb033]">
-                            <LuCrown className="inline md:h-6 md:w-6 mr-2" />
-                            {
-                        t('profile.joinVip','Join VIP')
-                        }</button>
-                        <button className="text-xs md:text-lg px-1 md:px-2 py-1 md:mx-2 font-semibold bg-purple-600 rounded-full text-white">{t('profile.subscribeNow','Subscribe Now!!!')}</button>
-                        </div>
-                    </div>
-                </div> */}
+                {/* Watch History Section */}
                 <DashboardSection
                     onViewMore={undefined}
                     title={t('profile.WatchHistory', 'Watch History')}
@@ -105,10 +146,12 @@ export default function Profile() {
                         }
                     }}
                 />
+                {/* Playlist (Favorites) Section */}
                 <DashboardSection
                     onViewMore={undefined}
                     title={t('profile.Playlist', 'My Playlist')}
                     videos={favorites || []}
+                    isSubSection={true}
                     sectionOptionButton={{
                         title: t('common.viewAll', 'View All'),
                         icon: <FiChevronRight className="h-4 w-4" />,
@@ -118,46 +161,7 @@ export default function Profile() {
                         }
                     }}
                 />
-                {/* <DashboardSection
-                        onViewMore={undefined}
-                        title={t('profile.LikedVideos', 'Liked Videos')}
-                        videos={likedVideos || []}
-                        sectionOptionButton={{
-                            title: t('common.viewAll', 'View All'),
-                            icon: <FiChevronRight className="h-4 w-4" />,
-                            iconRight: true,
-                            onClick: () => {
-                                location.href = '/profile/likes';
-                            }
-                        }}
-                    /> */}
-                {/* <DashboardSection
-                        onViewMore={undefined}
-                        title={t('profile.Playlist', 'Playlist')}
-                        videos={playlists || []}
-                        sectionOptionButton={{
-                            title: t('common.viewAll', 'View All'),
-                            icon: <FiChevronRight className="h-4 w-4" />,
-                            iconRight: true,
-                            onClick: () => {
-                                // Clear watch history logic here
-                                // setLastSeenVid([]);
-                            }
-                        }}
-                    /> */}
-                {/* <DashboardSection
-                    onViewMore={undefined}
-                    title={t('profile.sharedVideos', 'Shared Videos')}
-                    videos={shares || []}
-                    sectionOptionButton={{
-                        title: t('common.viewAll', 'View All'),
-                        icon: <FiChevronRight className="h-4 w-4" />,
-                        iconRight: true,
-                        onClick: () => {
-                            location.href = '/profile/shares';
-                        }
-                    }}
-                /> */}
+                {/* User's Uploaded Videos Section */}
                 <DashboardSection
                     onViewMore={undefined}
                     title={t('profile.YourVideos', 'Your Videos')}
@@ -171,30 +175,19 @@ export default function Profile() {
                         }
                     }}
                 />
-                {/* View history */}
-
-                {/* 
-                <DashboardSection
-                  key={sec.id || sec.title}
-                  onViewMore={sec.hasMore ? () => location.href = `/viewmore/${sec.id}` : undefined}
-                  title={sec.title || ""}
-                  videos={sec.contents || []}
-                />
-
-                    */}
-            
             </>}
             
+            {/* Download Android App Section */}
             <DownloadAndroid />
             
         </ProfileWrapper>
     );
 }
 
-
-
-
-// Utility function to format subscriber count
+/**
+ * formatSubscribers
+ * Utility function to format subscriber count (e.g., 1.2K, 3.4M).
+ */
 function formatSubscribers(count: number): string {
     if (count >= 1000000) {
         return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';

@@ -15,11 +15,16 @@ import { useTranslation } from 'react-i18next';
 import { getVideoLikeList,toggleVideoLike } from '@/lib/movieApi';
 import ProfileListPage from '@/components/profile/ProfileListPage';
 import GridVideos from '@/components/movie/GridVideos';
-import { FiTrash2 } from 'react-icons/fi';
+import { FiMoreVertical, FiTrash2 } from 'react-icons/fi';
+import OptionDropdown, { OptionItem } from '@/components/ui/OptionDropdown';
 
 export default function LikedVideosPage() {
   const { t } = useTranslation('common');
   const [refreshKey, setRefreshKey] = React.useState(0);
+  const [dropdownState, setDropdownState] = React.useState<{
+    videoId: string;
+    position: { x: number; y: number };
+  } | null>(null);
 
   const handleUnlike = async (videoId: string) => {
       if (!confirm(t('profile.confirmUnLiked', 'Are you sure you want to unlike this video?'))) {
@@ -40,18 +45,47 @@ export default function LikedVideosPage() {
         alert(t('profile.unLikedFail', 'Failed to unlike the video'));
       }
     };
+
+  const handleOptionClick = (videoId: string, event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setDropdownState({
+      videoId,
+      position: {
+        x: rect.right - 192, // 192px = w-48 (dropdown width)
+        y: rect.bottom + 4,
+      },
+    });
+  };
+
+  const getOptionsForVideo = (videoId: string): OptionItem[] => [
+    {
+      id: 'unlike',
+      label: t('profile.unlike', 'Remove from Liked'),
+      icon: <FiTrash2 className="w-4 h-4" />,
+      onClick: () => handleUnlike(videoId),
+      danger: true,
+    },
+  ];
+
   return (
     <div className='container mx-auto px-4'>
+      <GridVideos
+        key={refreshKey}
+        title={t('profile.LikedVideos', 'Liked Videos')}
+        spesificApiUrl="/api-movie/v1/like/list"
+        mobileListView={true}
+        backButton={true}
+        optionIcon={<FiMoreVertical className="w-4 h-4" />} 
+        onOptionClick={handleOptionClick}
+      />
 
-    <GridVideos
-      key={refreshKey}
-      title={t('profile.LikedVideos', 'Liked Videos')}
-      spesificApiUrl="/api-movie/v1/like/list"
-      mobileListView={true}
-      backButton={true}
-      optionIcon={<FiTrash2 className="w-4 h-4" />} 
-      onOptionClick={handleUnlike}
-    />
+      {dropdownState && (
+        <OptionDropdown
+          options={getOptionsForVideo(dropdownState.videoId)}
+          position={dropdownState.position}
+          onClose={() => setDropdownState(null)}
+        />
+      )}
     </div>
   );
 }

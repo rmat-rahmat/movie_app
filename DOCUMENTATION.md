@@ -1,4 +1,4 @@
-# SeefuTV - Complete Project Documentation
+# OtalkTV - Complete Project Documentation
 
 ## Table of Contents
 1. [Project Overview](#project-overview)
@@ -22,7 +22,7 @@
 
 ## Project Overview
 
-**SeefuTV** is a Next.js-based video streaming platform that supports:
+**OtalkTV** is a Next.js-based video streaming platform that supports:
 - Movie and series uploads with multiple quality options
 - HLS video streaming with adaptive bitrate
 - User authentication and authorization
@@ -1163,8 +1163,8 @@ npm run build && npm run export
 
 ```bash
 # .env.local
-NEXT_PUBLIC_API_BASE_URL=https://api.seefutv.com
-NEXT_PUBLIC_UPLOAD_API_URL=https://upload.seefutv.com
+NEXT_PUBLIC_API_BASE_URL=https://api.OtalkTV.com
+NEXT_PUBLIC_UPLOAD_API_URL=https://upload.OtalkTV.com
 UPLOAD_API_KEY=your_api_key_here
 ```
 
@@ -1405,7 +1405,7 @@ console.log('[Store] State updated:', { user, currentVideo });
 - `/api-user/*` - User authentication & management
 
 ### Contact
-For questions or support, contact the development team at: dev@seefutv.com
+For questions or support, contact the development team at: dev@OtalkTV.com
 
 ---
 
@@ -1422,4 +1422,4 @@ For questions or support, contact the development team at: dev@seefutv.com
 ---
 
 **Last Updated**: December 2024  
-**Maintainer**: SeefuTV Development Team
+**Maintainer**: OtalkTV Development Team

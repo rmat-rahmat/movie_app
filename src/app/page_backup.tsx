@@ -9,7 +9,8 @@ import { allCategories } from "@/lib/categoryList";
 import { useAuthStore } from "@/store/authStore";
 import DashboardSection from "@/components/movie/DashboardSection";
 import BannerSlider from "@/components/movie/BannerSlider";
-import { getCategoryList,getCategoryTree,type CategoryItem} from "@/lib/movieApi";
+import { getCategoryList,getCategoryTree} from "@/lib/movieApi";
+import type { CategoryItem } from "@/types/Dashboard";
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 
 

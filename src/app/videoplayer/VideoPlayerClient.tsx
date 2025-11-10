@@ -1,3 +1,31 @@
+/**
+ * VideoPlayerClient.tsx
+ * 
+ * This component handles the playback of videos (movies and series episodes) in the Seefu TV app.
+ * It supports:
+ * - Loading video sources by uploadId, m3u8 URL, or directId (resolves to episode/movie)
+ * - HLS.js integration for adaptive streaming and quality selection
+ * - Resume playback from last watched position
+ * - Watch history recording (periodically and on pause/end)
+ * - Favorite and like toggling, with UI feedback
+ * - Comments and recommendations display
+ * - Quality permission filtering and dynamic quality switching
+ * - Series episode navigation
+ * 
+ * Key conventions:
+ * - Uses `useState`, `useEffect`, and refs for state and side effects.
+ * - Uses helpers from `@/lib/movieApi` for API calls.
+ * - Uses `useVideoStore` and `useAuthStore` for global state.
+ * - Follows project conventions in .github/copilot-instructions.md.
+ * 
+ * To extend:
+ * - Add new metadata fields as needed.
+ * - Update API calls if backend changes.
+ * - Use debug logging for troubleshooting.
+ * 
+ * Function-level comments are provided below for maintainability.
+ */
+
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
 import { getPlayMain, getPlaybackUrl, recordWatchHistory, getLastWatchPosition, toggleFavorite, checkFavorite, toggleVideoLike, checkVideoLike, getContentDetail } from '@/lib/movieApi';
@@ -330,6 +358,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
   }, [actualUploadId, id, currentVideo, calcDuration]);
 
 
+  /**
+   * loadFromMaster
+   * Loads a master HLS playlist into the video element using HLS.js.
+   * Sets up quality selection, playback, and resume logic.
+   */
   const loadFromMaster = (masterplaylist: string) => {
     if (!loading) setLoading(true);
 
@@ -471,6 +504,11 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     setLoading(false);
   };
 
+  /**
+   * loadFromDirectM3u8
+   * Loads a direct m3u8 URL into the video element using HLS.js.
+   * Handles quality permissions and resume logic.
+   */
   const loadFromDirectM3u8 = (m3u8DirectUrl: string) => {
     if (!loading) setLoading(true);
 
@@ -609,6 +647,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     setLoading(false);
   };
 
+  /**
+   * loadPlayTime
+   * Loads and sets the video duration, accounting for timestamp offset.
+   */
   const loadPlayTime = () => {
     if (videoRef.current) {
       const videoElement = videoRef.current;
@@ -647,6 +689,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     }
   };
 
+  /**
+   * dynamicQualityChange
+   * Switches the video quality in HLS.js to the selected level.
+   */
   const dynamicQualityChange = (newQuality: number) => {
     console.log('Requested quality change to:', newQuality);
     console.log('currentQuality:', hlsRef.current?.currentLevel);
@@ -661,6 +707,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     // }
   }
 
+  /**
+   * handleToggleFavorite
+   * Toggles the favorite status for the current video and updates UI.
+   */
   const handleToggleFavorite = async () => {
     if (!currentVideo?.id) return;
 
@@ -681,6 +731,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     }
   };
 
+  /**
+   * handleToggleLike
+   * Toggles the like status for the current video and updates UI.
+   */
   const handleToggleLike = async () => {
     if (!currentVideo?.id) return;
 
@@ -703,7 +757,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     }
   };
 
-  // Cleanup on unmount
+  /**
+   * Effect: Cleans up HLS.js instance on unmount.
+   */
   useEffect(() => {
     return () => {
       if (hlsRef.current) {
@@ -712,13 +768,19 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
     };
   }, []);
 
-  // Set default volume programmatically
+  /**
+   * Effect: Sets default video volume on mount.
+   */
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.volume = 1; // Set default volume to 100%
     }
   }, []);
 
+  /**
+   * RenderQualityButtons
+   * Renders quality selection buttons, filtered by permissions.
+   */
   const RenderQualityButtons =
     ({
       list,
@@ -968,13 +1030,13 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ id: propId }) => 
                     </button>}
 
                     {/* Share Button */}
-                    {/* {currentVideo?.id && (
+                    {currentVideo?.id && (
                       <ShareButton
                         targetId={String(currentVideo.id)}
                         contentType={currentVideo.isSeries && currentVideo.currentEpisode ? 'episode' : 'video'}
                         title={currentVideo.title}
                       />
-                    )} */}
+                    )}
                   </div>
                 </div>
                 {/* Quality Selection */}

@@ -1,3 +1,29 @@
+/**
+ * movieApi.ts
+ * 
+ * This module provides API client functions and TypeScript types for interacting with
+ * the Seefu TV backend movie/series/episode APIs. It includes:
+ * 
+ * - Category, dashboard, and video/series/episode CRUD operations
+ * - Caching helpers for categories and dashboard data
+ * - Search, recommendation, and playback URL fetchers
+ * - User actions: watch history, favorites, likes, shares
+ * - Edit/update/delete endpoints for movies, series, and episodes
+ * 
+ * Conventions:
+ * - All API calls are made using axios.
+ * - Category and dashboard data are cached in-memory and in localStorage.
+ * - Types are imported from `@/types/Dashboard` where possible.
+ * - Use the exported helpers in UI components for all server interactions.
+ * 
+ * See .github/copilot-instructions.md for project conventions.
+ * 
+ * To extend:
+ * - Add new API endpoints as async functions.
+ * - Add new types to `@/types/Dashboard` if needed.
+ * - Use debug logging and error handling patterns as shown.
+ */
+
 import { transformEpisodesToSlides } from "@/utils/transformToSlides";
 import { parseStringPromise } from 'xml2js';
 import axios from 'axios';
@@ -54,7 +80,11 @@ interface ContentApiItem {
   isCompleted?: boolean;
 }
 
-// Build hierarchical category tree from flat list (parents contain `children` array)
+/**
+ * buildCategoryTree
+ * Converts a flat list of categories into a hierarchical tree structure.
+ * Used for category dropdowns and navigation.
+ */
 function buildCategoryTree(flat: CategoryItem[] = []): CategoryItem[] {
   const map = new Map<string, CategoryItem & { children?: CategoryItem[] }>();
   // normalize and populate map
@@ -139,6 +169,11 @@ function movieToVideoSrc(movie: unknown): VideoSrc {
       : [],
   };
 }
+
+/**
+ * getMovies
+ * Fetches a list of random movies from a mock API and maps them to VideoSrc.
+ */
 export const getMovies = async (number: number): Promise<VideoSrc[]> => {
   const res = await axios.get(`https://jsonfakery.com/movies/random/${number}`);
   const movies = res.data;
@@ -146,6 +181,10 @@ export const getMovies = async (number: number): Promise<VideoSrc[]> => {
   return movies.map(movieToVideoSrc);
 };
 
+/**
+ * getNowPlayingMovies, getPopularMovie, getTopRatedMovies, getUpcomingMovies
+ * Fetches movies from TMDB API for different categories and maps to VideoSrc.
+ */
 export const getNowPlayingMovies = async (_number: number): Promise<VideoSrc[]> => {
   const url = 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1';
   const options = {
@@ -228,6 +267,10 @@ export const getUpcomingMovies = async (_number: number): Promise<VideoSrc[]> =>
   }
 };
 
+/**
+ * getSeries
+ * Fetches TV series episodes from TVMaze API and transforms them for the dashboard.
+ */
 export const getSeries = async (country: string) => {
   const res = await axios.get(`https://api.tvmaze.com/schedule?country=${country}`);
   const episodes = res.data;
@@ -235,10 +278,11 @@ export const getSeries = async (country: string) => {
 };
 
 
-// Fetch live dashboard from backend and map to VideoSrc
-// Simple module-level cache to support server/runtime environments where localStorage
-// is not available. This is best-effort and will be overwritten by localStorage when
-// available in the browser.
+/**
+ * getDashboard
+ * Fetches and caches the dashboard data (featured content, categories, sections).
+ * Uses localStorage and in-memory cache for performance.
+ */
 let inMemoryDashboardCache: { timestamp: number; payload: DashboardApiResponse } | null = null;
 let inMemoryCategoriesCache: { timestamp: number; categories: CategoryItem[] } | null = null;
 
@@ -353,8 +397,10 @@ export const getDashboard = async (force = false): Promise<DashboardApiResponse 
   }
 };
 
-// Synchronous helper to get cached categories (in-memory or localStorage). Returns null when
-// no categories are cached or when running outside the browser and no in-memory cache exists.
+/**
+ * getCachedCategories
+ * Returns cached categories from memory or localStorage, or fetches from API if not cached.
+ */
 export const getCachedCategories = async (): Promise<CategoryItem[] | null> => {
   if (inMemoryCategoriesCache) return inMemoryCategoriesCache.categories;
   if (typeof window === 'undefined') return null;
@@ -374,11 +420,20 @@ export const getCachedCategories = async (): Promise<CategoryItem[] | null> => {
   }
 };
 
+/**
+ * getCategoryTree
+ * Fetches the flat category list and builds a hierarchical tree.
+ */
 export const getCategoryTree = async (): Promise<CategoryItem[] | null> => {
   const cats = await getCategoryList();
   if (!cats || !Array.isArray(cats)) return null;
   return buildCategoryTree(cats);
 }
+
+/**
+ * getCategoryList
+ * Fetches the flat list of categories from the backend.
+ */
 export const getCategoryList = async (): Promise<CategoryItem[] | null> => {
   const lang = (i18next && i18next.language) ? i18next.language : (typeof window !== 'undefined' && navigator.language ? navigator.language.split('-')[0] : 'en');
   const url = `${BASE_URL}/api-movie/v1/category/list?lang=${encodeURIComponent(lang)}`;
@@ -392,7 +447,10 @@ export const getCategoryList = async (): Promise<CategoryItem[] | null> => {
   }
 }
 
-// Helper: convert featuredContent to VideoSrc[] when a VideoSrc view is needed
+/**
+ * mapFeaturedToVideoSrc
+ * Maps featured dashboard content to VideoSrc[] for UI display.
+ */
 export const mapFeaturedToVideoSrc = (payload: DashboardApiResponse | null): VideoSrc[] => {
   const items = payload?.data?.featuredContent || [];
   return items.map((it: DashboardItem) => {
@@ -423,7 +481,10 @@ export const mapFeaturedToVideoSrc = (payload: DashboardApiResponse | null): Vid
   });
 };
 
-// Get videos by category ID with pagination
+/**
+ * getCategoryVideos
+ * Fetches paginated videos for a given category.
+ */
 export async function getCategoryVideos(categoryId: string, page: number = 1, size: number = 20,type:string="720",sortType:string="0"): Promise<VideosApiResponse | null> {
   try {
     const response = await axios.get(`${BASE_URL}/api-movie/v1/category/videos/${categoryId}`, {
@@ -440,7 +501,10 @@ export async function getCategoryVideos(categoryId: string, page: number = 1, si
   }
 }
 
-// Get videos by category ID with pagination
+/**
+ * getGridVideos
+ * Fetches paginated videos from a dynamic API endpoint.
+ */
 export async function getGridVideos(src: string, page: number = 1, size: number = 21): Promise<VideosApiResponse | null> {
   try {
     // normalize src to avoid accidental double slashes when src starts with '/'
@@ -461,7 +525,10 @@ export async function getGridVideos(src: string, page: number = 1, size: number 
   }
 }
 
-// Search videos with optional category filter and pagination
+/**
+ * searchVideos
+ * Searches for videos by name and optional category, paginated.
+ */
 export async function searchVideos(
   searchName: string,
   categoryId: string = "",
@@ -488,7 +555,10 @@ export async function searchVideos(
   }
 }
 
-// Get search suggestions (array of strings)
+/**
+ * getSearchSuggestions
+ * Fetches search keyword suggestions for autocomplete.
+ */
 export async function getSearchSuggestions(prefix: string = '', limit: number = 10): Promise<string[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/search/suggestions`;
@@ -507,7 +577,10 @@ export async function getSearchSuggestions(prefix: string = '', limit: number = 
   }
 }
 
-// Get hot search keywords
+/**
+ * getHotKeywords
+ * Fetches trending/hot search keywords.
+ */
 export async function getHotKeywords(limit: number = 10): Promise<string[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/search/hot-keywords`;
@@ -527,7 +600,10 @@ export async function getHotKeywords(limit: number = 10): Promise<string[] | nul
 }
 
 
-// Get search history
+/**
+ * getSearchHistory
+ * Fetches the user's recent search history.
+ */
 export async function getSearchHistory(limit: number = 10): Promise<string[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/search/recent`;
@@ -546,7 +622,10 @@ export async function getSearchHistory(limit: number = 10): Promise<string[] | n
   }
 }
 
-// Fetch the main m3u8 (may require expires & signature)
+/**
+ * getPlayMain
+ * Fetches the main m3u8 playlist for a video upload.
+ */
 export async function getPlayMain(uploadId: string, expires: number | string = 100000, signature: string = '2', apiKey?: string): Promise<string | null> {
   try {
     const url = `${BASE_URL}/api-net/play/${uploadId}/expires=${expires}&signature=${signature}`;
@@ -567,7 +646,10 @@ export async function getPlayMain(uploadId: string, expires: number | string = 1
   }
 }
 
-// Fetch a variant m3u8 for specific resolution/type
+/**
+ * getPlayVariant
+ * Fetches a specific quality variant m3u8 playlist.
+ */
 export async function getPlayVariant(uploadId: string, type: string, apiKey?: string): Promise<string | null> {
   try {
     // const url = `${BASE_URL}/api-net/play/${uploadId}/${type}.m3u8`;
@@ -582,7 +664,10 @@ export async function getPlayVariant(uploadId: string, type: string, apiKey?: st
   }
 }
 
-// Get playback URL for a specific quality using the otaik.cc endpoint
+/**
+ * getPlaybackUrl
+ * Fetches the playback URL for a specific video quality.
+ */
 export async function getPlaybackUrl(uploadId: string, quality: '144p' | '360p' | '480p' | '720p' | '1080p', apiKey?: string): Promise<string | null> {
   try {
     const url = `${BASE_URL}/api-net/play/${uploadId}/${quality}.m3u8`;
@@ -611,7 +696,10 @@ export async function getPlaybackUrl(uploadId: string, quality: '144p' | '360p' 
   }
 }
 
-// Fetch content detail by contentId and return typed VideoDetails
+/**
+ * getContentDetail
+ * Fetches detailed information for a video or series, including episodes.
+ */
 export async function getContentDetail(contentId: string,isOwn?:boolean): Promise<import('@/types/Dashboard').VideoDetails | null> {
   try {
     let url = `${BASE_URL}/api-movie/v1/home/contents/${contentId}/detail`;
@@ -634,11 +722,8 @@ export async function getContentDetail(contentId: string,isOwn?:boolean): Promis
 }
 
 /**
- * Get recommended videos based on a video ID
- * @param videoId - The video ID to get recommendations for
- * @param page - Page number (defaults to 1)
- * @param size - Page size (defaults to 20, max 100)
- * @returns Promise<RecommendationApiResponse | null>
+ * getVideoRecommendations
+ * Fetches recommended videos based on a given video ID.
  */
 export async function getVideoRecommendations(videoId: string, page: number = 1, size: number = 20): Promise<RecommendationApiResponse | null> {
   try {
@@ -666,8 +751,6 @@ export async function getVideoRecommendations(videoId: string, page: number = 1,
   }
 }
 
-export type { CategoryItem };
-
 // Record watch history
 export interface WatchHistoryDto {
   mediaId: string;
@@ -678,6 +761,10 @@ export interface WatchHistoryDto {
   source?: string;
 }
 
+/**
+ * recordWatchHistory
+ * Records the user's watch progress for a video or episode.
+ */
 export async function recordWatchHistory(dto: WatchHistoryDto): Promise<boolean> {
   try {
     const url = `${BASE_URL}/api-movie/v1/watch-history/record`;
@@ -694,7 +781,10 @@ export async function recordWatchHistory(dto: WatchHistoryDto): Promise<boolean>
   }
 }
 
-// Get last watch position (in seconds) for a given media/episode
+/**
+ * getLastWatchPosition
+ * Fetches the last watch position for a video/episode for resume playback.
+ */
 export async function getLastWatchPosition(mediaId: string, episodeId: string): Promise<number | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/watch-history/last-position`;
@@ -717,7 +807,10 @@ export async function getLastWatchPosition(mediaId: string, episodeId: string): 
   }
 }
 
-// Fetch paginated watch history list for the current user
+/**
+ * getWatchHistoryList
+ * Fetches the user's watch history as a paginated list.
+ */
 export async function getWatchHistoryList(page: number = 0, size: number = 12,type: string='720'): Promise<DashboardItem[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/watch-history/list`;
@@ -769,7 +862,10 @@ export async function getWatchHistoryList(page: number = 0, size: number = 12,ty
   }
 }
 
-// Clear all watch history for the current user
+/**
+ * clearWatchHistory
+ * Clears all watch history for the current user.
+ */
 export async function clearWatchHistory(): Promise<boolean> {
   try {
     const url = `${BASE_URL}/api-movie/v1/watch-history/clear`;
@@ -786,7 +882,10 @@ export async function clearWatchHistory(): Promise<boolean> {
   }
 }
 
-// Fetch user uploaded videos list (paginated) - returns ContentVO items
+/**
+ * getUserUploadedVideos
+ * Fetches the user's uploaded videos (movies and series).
+ */
 export async function getUserUploadedVideos(page: number = 1, size: number = 12, type: string = '720'): Promise<DashboardItem[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/my-videos/uploads`;
@@ -839,7 +938,10 @@ export async function getUserUploadedVideos(page: number = 1, size: number = 12,
   }
 }
 
-// Fetch episodes for a specific series
+/**
+ * getSeriesEpisodes
+ * Fetches episodes for a given series, paginated.
+ */
 export async function getSeriesEpisodes(
   seriesId: string,
   page: number = 1,
@@ -875,7 +977,10 @@ export async function getSeriesEpisodes(
   }
 }
 
-// Check if a video is favorited by the current user
+/**
+ * checkFavorite
+ * Checks if a video is favorited by the current user.
+ */
 export async function checkFavorite(videoId: string): Promise<boolean> {
   try {
     const url = `${BASE_URL}/api-movie/v1/favorites/check`;
@@ -895,7 +1000,10 @@ export async function checkFavorite(videoId: string): Promise<boolean> {
   }
 }
 
-// Toggle favorite status for a video
+/**
+ * toggleFavorite
+ * Toggles the favorite status for a video.
+ */
 export async function toggleFavorite(videoId: string): Promise<{ success: boolean; isFavorited: boolean; message?: string }> {
   try {
     const url = `${BASE_URL}/api-movie/v1/favorites/toggle`;
@@ -923,7 +1031,10 @@ export async function toggleFavorite(videoId: string): Promise<{ success: boolea
   }
 }
 
-// Get user's favorite videos list
+/**
+ * getFavoritesList
+ * Fetches the user's list of favorited videos.
+ */
 export async function getFavoritesList(page: number = 0, size: number = 20, type: string = '720'): Promise<DashboardItem[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/favorites/list`;
@@ -974,7 +1085,10 @@ export async function getFavoritesList(page: number = 0, size: number = 20, type
 // Video Like API Functions
 // ============================================
 
-// Toggle like status for a video
+/**
+ * toggleVideoLike
+ * Toggles the like status for a video.
+ */
 export async function toggleVideoLike(videoId: string): Promise<{ success: boolean; isLiked: boolean; message?: string }> {
   try {
     const url = `${BASE_URL}/api-movie/v1/like/toggleLike`;
@@ -1003,7 +1117,10 @@ export async function toggleVideoLike(videoId: string): Promise<{ success: boole
   }
 }
 
-// Check if a video is liked by the current user
+/**
+ * checkVideoLike
+ * Checks if a video is liked by the current user.
+ */
 export async function checkVideoLike(videoId: string): Promise<boolean> {
   try {
     const url = `${BASE_URL}/api-movie/v1/like/check`;
@@ -1024,7 +1141,10 @@ export async function checkVideoLike(videoId: string): Promise<boolean> {
   }
 }
 
-// Get user's liked videos list
+/**
+ * getVideoLikeList
+ * Fetches the user's list of liked videos.
+ */
 export async function getVideoLikeList(page: number = 0, size: number = 20, type: string = '720'): Promise<DashboardItem[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/like/list`;
@@ -1071,7 +1191,10 @@ export async function getVideoLikeList(page: number = 0, size: number = 20, type
   }
 }
 
-// Fetch shares list (videos/episodes shared by the user)
+/**
+ * getSharesList
+ * Fetches the user's shared videos/episodes.
+ */
 export async function getSharesList(
   page: number = 1, 
   size: number = 20, 
@@ -1139,7 +1262,10 @@ export async function getSharesList(
   }
 }
 
-// Create a share record
+/**
+ * createShare
+ * Creates a new share record for a video or episode.
+ */
 export async function createShare(shareDto: ShareDto): Promise<{ success: boolean; message?: string; data?: Share | null }> {
   try {
     const url = `${BASE_URL}/api-movie/v1/shares/create`;
@@ -1178,7 +1304,10 @@ export async function createShare(shareDto: ShareDto): Promise<{ success: boolea
   }
 }
 
-// Fetch simplified director list (returns array of names)
+/**
+ * getDirectorList
+ * Fetches a list of director names for suggestions/autocomplete.
+ */
 export async function getDirectorList(name: string = '', gender?: number, page: number = 0, size: number = 50): Promise<string[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/director/list`;
@@ -1197,7 +1326,10 @@ export async function getDirectorList(name: string = '', gender?: number, page: 
   }
 }
 
-// Fetch simplified actor list (returns array of names)
+/**
+ * getActorList
+ * Fetches a list of actor names for suggestions/autocomplete.
+ */
 export async function getActorList(name: string = '', gender?: number, page: number = 0, size: number = 50): Promise<string[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/actor/list`;
@@ -1216,7 +1348,10 @@ export async function getActorList(name: string = '', gender?: number, page: num
   }
 }
 
-// Fetch region list (returns array of names)
+/**
+ * getRegionList
+ * Fetches a list of region names for suggestions/autocomplete.
+ */
 export async function getRegionList(name: string = '', page: number = 0, size: number = 200): Promise<string[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/region/list`;
@@ -1234,7 +1369,10 @@ export async function getRegionList(name: string = '', page: number = 0, size: n
   }
 }
 
-// Fetch language list (returns array of names)
+/**
+ * getLanguageList
+ * Fetches a list of language names for suggestions/autocomplete.
+ */
 export async function getLanguageList(name: string = '', code: string = '', page: number = 1, size: number = 200): Promise<string[] | null> {
   try {
     const url = `${BASE_URL}/api-movie/v1/language/page`;
@@ -1331,10 +1469,8 @@ export async function resetPassword(data: ResetPasswordRequest): Promise<ResetPa
 }
 
 /**
- * Get banner list by type and quality
- * @param type - Banner type: 1=PC, 2=Mobile
- * @param quality - Image quality: 144/360/720, default 720
- * @returns Promise with banner list
+ * getBannerList
+ * Fetches the list of banners for the home page.
  */
 export const getBannerList = async (type: number = 1, quality: string = '720'): Promise<BannerVO[]> => {
   try {
@@ -1355,11 +1491,8 @@ export const getBannerList = async (type: number = 1, quality: string = '720'): 
 };
 
 /**
- * Get home sections with structure and content (recommended for initial load)
- * @param categoryId - Optional category ID filter
- * @param type - Image quality type (360, 720, etc.)
- * @param limit - Number of videos per section (default: 5)
- * @returns Promise with home sections array
+ * getHomeSections
+ * Fetches home page sections with their content.
  */
 export const getHomeSections = async (
   categoryId?: string,
@@ -1394,13 +1527,8 @@ export const getHomeSections = async (
 };
 
 /**
- * Load more content for a specific section (for pagination/infinite scroll)
- * @param sectionId - Section ID
- * @param categoryId - Category ID (short ID)
- * @param type - Image type/quality (e.g., 'p720')
- * @param page - Page number (starts from 2 for loading more)
- * @param size - Page size
- * @returns Promise with section content
+ * loadMoreSectionContent
+ * Loads more content for a specific home page section (pagination).
  */
 export const loadMoreSectionContent = async (
   sectionId: string,
@@ -1430,6 +1558,10 @@ export const loadMoreSectionContent = async (
   }
 };
 
+/**
+ * loadMoreFromURL
+ * Loads more content from a dynamic URL (pagination).
+ */
 export const loadMoreFromURL = async (
   url: string,
   type: string = '720',
@@ -1462,12 +1594,8 @@ export const loadMoreFromURL = async (
 // --------------------------------------------------------------------------
 
 /**
- * Get video details for editing
- * Fetches edit information with draft priority
- * Supports both short ID and internal ID
- * 
- * @param videoId - Video ID (short ID or internal ID)
- * @returns Video edit information with draft if exists
+ * getVideoForEdit
+ * Fetches video edit information (with draft if exists) for a given video ID.
  */
 export async function getVideoForEdit(videoId: string): Promise<VideoEditResponse | null> {
   try {
@@ -1483,11 +1611,8 @@ export async function getVideoForEdit(videoId: string): Promise<VideoEditRespons
 }
 
 /**
- * Get episode details for editing
- * Fetches edit information with draft priority
- * 
- * @param episodeId - Episode ID (short ID or internal ID)
- * @returns Episode edit information with draft if exists
+ * getEpisodeForEdit
+ * Fetches episode edit information (with draft if exists) for a given episode ID.
  */
 export async function getEpisodeForEdit(episodeId: string): Promise<EpisodeEditResponse | null> {
   try {
@@ -1602,9 +1727,8 @@ export interface UpdateEpisodeDto {
 }
 
 /**
- * Update movie/video metadata
- * @param videoId - Video ID
- * @param data - Updated video data (UpdateVideoDto)
+ * updateMovie
+ * Updates movie/video metadata for a given video ID.
  */
 export async function updateMovie(videoId: string, data: UpdateVideoDto): Promise<{
   success: boolean;
@@ -1629,9 +1753,8 @@ export async function updateMovie(videoId: string, data: UpdateVideoDto): Promis
 }
 
 /**
- * Update series metadata
- * @param seriesId - Series ID
- * @param data - Updated series data (UpdateVideoDto)
+ * updateSeries
+ * Updates series metadata for a given series ID.
  */
 export async function updateSeries(seriesId: string, data: UpdateVideoDto): Promise<{
   success: boolean;
@@ -1656,9 +1779,8 @@ export async function updateSeries(seriesId: string, data: UpdateVideoDto): Prom
 }
 
 /**
- * Update episode metadata
- * @param episodeId - Episode ID
- * @param data - Updated episode data
+ * updateEpisode
+ * Updates episode metadata for a given episode ID.
  */
 export async function updateEpisode(episodeId: string, data: UpdateEpisodeDto): Promise<{
   success: boolean;
@@ -1680,8 +1802,8 @@ export async function updateEpisode(episodeId: string, data: UpdateEpisodeDto): 
 }
 
 /**
- * Delete video/series
- * @param videoId - Video/Series ID
+ * deleteVideo
+ * Deletes a video or series by ID.
  */
 export async function deleteVideo(videoId: string): Promise<{
   success: boolean;

@@ -21,7 +21,7 @@ interface GridVideosProps {
   mobileListView?: boolean;
   groupBy?: 'date' | 'alphabet' | 'none';
   hideIfEmpty?: boolean;
-  onOptionClick?: (videoId: string) => void;
+  onOptionClick?: (videoId: string, event: React.MouseEvent<HTMLButtonElement>) => void;
   optionIcon?: React.ReactNode;
 }
 ;
@@ -469,7 +469,7 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl,
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  onOptionClick(video.id);
+                                  onOptionClick(video.id,e);
                                 }}
                                 className=" z-10 flex items-center justify-center w-8 h-8 bg-black/70 hover:bg-[#fbb033] text-white hover:text-black rounded-full transition-all duration-200 cursor-pointer"
                                 title="Options"
@@ -563,7 +563,7 @@ const GridVideos: React.FC<GridVideosProps> = ({ id, title, ctg, spesificApiUrl,
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  onOptionClick(video.id);
+                                  onOptionClick(video.id, e);
                                 }}
                                 className=" z-10 flex self-center items-center justify-center w-8 h-8 bg-black/70 hover:bg-[#fbb033] text-white hover:text-black rounded-full transition-all duration-200 cursor-pointer"
                                 title="Options"

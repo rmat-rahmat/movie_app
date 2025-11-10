@@ -1,3 +1,28 @@
+/**
+ * MovieUpload.tsx
+ * 
+ * This component handles the upload and editing of movies, including:
+ * - Movie metadata (title, description, category, year, region, language, etc.)
+ * - Cover and landscape images
+ * - Tag selection and suggestions
+ * - File upload or m3u8 URL link for video source
+ * - Progress tracking and upload feedback
+ * - Edit mode: loads existing movie data for updating metadata (video file cannot be changed)
+ * 
+ * Key conventions:
+ * - Uses `useState` for form state and `useEffect` for side effects.
+ * - Uses helpers from `@/lib/movieApi` and `@/lib/uploadAPI` for API calls.
+ * - Uses `SearchableDropdown`, `TagSelector`, and `DurationInput` for consistent UI.
+ * - Follows project conventions in .github/copilot-instructions.md.
+ * 
+ * To extend:
+ * - Add new metadata fields as needed.
+ * - Update API calls if backend changes.
+ * - Use `debugLog` for consistent debugging.
+ * 
+ * Function-level comments are provided below for maintainability.
+ */
+
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
@@ -15,7 +40,8 @@ import UploadSuccessModal from '@/components/ui/UploadSuccessModal';
 import TagSelector from '@/components/ui/TagSelector';
 import VideoPlayer from '@/components/ui/VideoPlayer';
 import DurationInput from '@/components/ui/DurationInput';
-import { getCachedCategories, type CategoryItem } from '@/lib/movieApi';
+import { getCachedCategories } from '@/lib/movieApi';
+import { type CategoryItem } from '@/types/Dashboard';
 import { getDirectorList, getActorList, getRegionList, getLanguageList } from '@/lib/movieApi';
 import SearchableDropdown from '@/components/ui/SearchableDropdown';
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
@@ -26,6 +52,10 @@ import LoadingPage from '@/components/ui/LoadingPage';
 import { BASE_URL } from '@/config';
 import { get } from 'http';
 
+/**
+ * debugLog
+ * Utility for consistent debug logging in MovieUpload.
+ */
 const debugLog = (message: string, data?: unknown) => {
   console.log(`[MovieUpload] ${message}`, data || '');
 };
@@ -85,6 +115,10 @@ export default function MovieUpload() {
     m3u8Url: '' as string
   });
 
+  /**
+   * Loads categories and suggestion lists for dropdowns (category, director, actor, region, language).
+   * Populates local state for suggestions and maps category names to IDs.
+   */
   useEffect(() => {
     const loadCategories = async () => {
     const cachedCategories = await getCachedCategories();
@@ -141,6 +175,9 @@ export default function MovieUpload() {
 
   }, []);
 
+  /**
+   * Cleans up preview URLs on component unmount to avoid memory leaks.
+   */
   useEffect(() => {
     return () => {
       if (moviePreviewUrl) {
@@ -155,8 +192,10 @@ export default function MovieUpload() {
     };
   }, [moviePreviewUrl, movieCoverPreviewUrl, movieLandscapePreviewUrl]);
 
-  
-
+  /**
+   * Handles cover file selection and sets preview.
+   * Updates form state and preview image for the cover.
+   */
   const handleCoverFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files?.length) return;
@@ -170,6 +209,10 @@ export default function MovieUpload() {
     } catch { }
   };
 
+  /**
+   * Clears the selected cover file and resets preview.
+   * Also clears the file input field.
+   */
   const clearCoverFile = () => {
     debugLog('Clearing cover file and preview');
     if (movieCoverPreviewUrl) {
@@ -185,6 +228,10 @@ export default function MovieUpload() {
     }
   };
 
+  /**
+   * Handles landscape thumbnail file selection and sets preview.
+   * Updates form state and preview image for the landscape.
+   */
   const handleLandscapeFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files?.length) return;
@@ -200,6 +247,10 @@ export default function MovieUpload() {
     } catch { }
   };
 
+  /**
+   * Clears the selected landscape file and resets preview.
+   * Also clears the file input field.
+   */
   const clearLandscapeFile = () => {
     debugLog('Clearing landscape file and preview');
     if (movieLandscapePreviewUrl) {
@@ -212,6 +263,10 @@ export default function MovieUpload() {
     if (input) input.value = '';
   };
 
+  /**
+   * Handles main video file selection, sets preview, and checks for unsupported formats.
+   * Updates form state and preview video for the movie file.
+   */
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files?.length) return;
@@ -246,6 +301,9 @@ export default function MovieUpload() {
     } catch { }
   };
 
+  /**
+   * Clears the selected movie file and resets preview.
+   */
   const clearMovieFile = () => {
     debugLog('Clearing movie file and preview');
     if (moviePreviewUrl) {
@@ -255,12 +313,19 @@ export default function MovieUpload() {
     setMovieForm(prev => ({ ...prev, file: null }));
   };
 
+  /**
+   * Handles tag changes for the movie.
+   * Updates the tags in the form state.
+   */
   const handleTagsChange = (tags: string[]) => {
     debugLog('Tags changed', { tags });
     setMovieForm(prev => ({ ...prev, tags }));
   };
 
-  // Helper function to get category name from ID
+  /**
+   * Returns the localized category name for a given category ID.
+   * Used for displaying the selected category in the dropdown.
+   */
   const getCategoryNameFromId = (categoryId: string): string => {
     if (!categoryId) return '';
     // Search in categories (including children)
@@ -278,12 +343,18 @@ export default function MovieUpload() {
     return categoryId; // fallback to ID if not found
   };
 
-  // Helper function to handle category selection by name
+  /**
+   * Handles category selection by name and updates the form state.
+   */
   const handleCategoryChange = (categoryName: string) => {
     const categoryId = categoryNameToIdMap.get(categoryName) || categoryName;
     setMovieForm(prev => ({ ...prev, categoryId }));
   };
 
+  /**
+   * Renders the upload progress bar and status messages.
+   * Shows progress, success, or error messages during upload.
+   */
   const renderProgressBar = () => {
     if (uploadProgress.status === 'idle') return null;
     return (
@@ -322,7 +393,11 @@ export default function MovieUpload() {
     );
   };
 
-  // Load existing data for edit mode
+  /**
+   * Loads existing movie data for edit mode.
+   * Populates the form with existing metadata and sets preview images.
+   * Also loads cover and landscape images for preview.
+   */
   useEffect(() => {
     if (!isEditMode || !editId) return;
 
@@ -394,6 +469,14 @@ export default function MovieUpload() {
     loadVideoData();
   }, [isEditMode, editId, t]);
 
+  /**
+   * Handles the main upload or update action for the movie.
+   * - Validates form fields.
+   * - Uploads cover/landscape images if needed.
+   * - Creates or updates the movie.
+   * - Tracks upload progress.
+   * - Handles both file upload and m3u8 URL link methods.
+   */
   const handleMovieUpload = async (e?: React.FormEvent) => {
     e?.preventDefault();
 
@@ -610,6 +693,10 @@ export default function MovieUpload() {
     }
   };
 
+  /**
+   * Resets the form and state for uploading another movie.
+   * Clears all form fields and preview URLs.
+   */
   const handleUploadMore = () => {
     // Reset form for new upload
     setMovieForm({ 
@@ -651,6 +738,11 @@ export default function MovieUpload() {
   };
 
 
+  /**
+   * Sets up HLS.js for previewing m3u8 URLs in the browser.
+   * Used when uploading via URL link.
+   * Attaches HLS stream to the video element and updates duration.
+   */
   const handleHLSPreview = (url: string) => {
     console.log('Setting up HLS preview for URL:', url);
     const videoElement = videoRef.current;

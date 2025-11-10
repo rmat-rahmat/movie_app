@@ -1,3 +1,25 @@
+/**
+ * uploadAPI.ts
+ * 
+ * This module provides helper functions for uploading movies, series, episodes, and images
+ * to the Seefu TV backend. It handles:
+ * - Initializing upload credentials for movies, series, and episodes
+ * - Uploading files in chunks with progress tracking
+ * - Uploading cover and landscape images
+ * - Creating movie/series/episode records with metadata
+ * 
+ * Key conventions:
+ * - All API calls are made using axios or fetch.
+ * - Use the exported helpers in upload components for all upload-related operations.
+ * - Progress is reported as a percentage (0-100) via callback.
+ * 
+ * To extend:
+ * - Add new upload endpoints as async functions.
+ * - Use debug logging for troubleshooting.
+ * 
+ * Function-level comments are provided below for maintainability.
+ */
+
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { BASE_URL } from '../config';
 import { withTokenRefresh, useAuthStore } from '@/store/authStore';
@@ -717,16 +739,27 @@ export async function completeMultipartUpload(request: FileUploadCompleteRequest
   throw new Error('All endpoints failed for completing multipart upload');
 }
 
-// High-level file upload function
+/**
+ * uploadFile
+ * Uploads a file to the backend in one or more parts (chunks).
+ * - Accepts a File object, upload credentials, and a progress callback.
+ * - Splits the file into chunks if needed and uploads each part sequentially.
+ * - Calls onProgress with the current upload percentage (0-100).
+ * - Returns a Promise that resolves when the upload is complete.
+ * 
+ * @param file - The File object to upload
+ * @param credential - UploadCredential object with uploadId, key, and (optionally) part URLs
+ * @param onProgress - Callback function to report upload progress (0-100)
+ * @returns Promise<void>
+ */
 export async function uploadFile(
   file: File,
-  uploadCredential: UploadCredential,
+  credential: UploadCredential,
   onProgress?: (progress: number) => void
 ): Promise<void> {
   debugLog('Starting file upload', { 
     fileName: file.name, 
     fileSize: file.size, 
-    uploadCredential 
   });
   
   const chunkSize = 10 * 1024 * 1024; // 10MB chunks
@@ -746,8 +779,8 @@ export async function uploadFile(
       
       // Get presigned URL for this part
       const partUploadInfo = await getPartUploadUrl(
-        uploadCredential.uploadId,
-        uploadCredential.key,
+        credential.uploadId,
+        credential.key,
         partNumber
       );
       
@@ -769,8 +802,8 @@ export async function uploadFile(
     
     // Complete the multipart upload
     await completeMultipartUpload({
-      uploadId: uploadCredential.uploadId,
-      key: uploadCredential.key,
+      uploadId: credential.uploadId,
+      key: credential.key,
       parts
     });
     

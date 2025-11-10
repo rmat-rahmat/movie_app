@@ -202,9 +202,11 @@
     "newUserPromo": "Tawaran eksklusif untuk pengguna baru! Daftar sekarang dan dapatkan diskaun 100% untuk bulan pertama keahlian VIP anda. Jangan lepaskan tawaran terhad ini untuk mengakses kandungan dan ciri premium.",
     "joinVip": "Sertai VIP",
     "subscribeNow": "Langgan Sekarang!!!", 
-    "unLikedSuccess": "Dibuang dari senarai suka",
-    "unLikedFail": "Gagal untuk tidak menyukai video",
-    "confirmUnLiked": "Adakah anda pasti ingin tidak menyukai video ini?",
+    "unlike": "Buang dari Video Disukai",
+    "unfavorite": "Buang dari Kegemaran",
+    "unlikedSuccess": "Dibuang dari senarai suka",
+    "unlikedFail": "Gagal untuk tidak menyukai video",
+    "confirmUnliked": "Adakah anda pasti ingin tidak menyukai video ini?",
     "unfavoriteSuccess": "Dibuang dari kegemaran",
     "unfavoriteFail": "Gagal untuk membuang dari kegemaran",
     "confirmUnfavorite": "Adakah anda pasti ingin membuang ini dari kegemaran?"
@@ -456,5 +458,184 @@
     "showingContentFor": "Menunjukkan kandungan untuk:",
     "clearFilter": "Kosongkan penapis",
     "noContentFound": "Tiada kandungan dijumpai untuk"
+  },
+  "legal": {
+    "lastUpdated": "Tarikh Dikemaskini",
+    "terms": {
+      "title": "Terma dan Syarat",
+      "section1": {
+        "title": "Penerimaan Terma",
+        "content1": "Dengan mengakses dan menggunakan OtalkTV (\"Perkhidmatan\"), anda menerima dan bersetuju untuk terikat dengan Terma dan Syarat ini. Jika anda tidak bersetuju dengan terma ini, sila jangan gunakan Perkhidmatan.",
+        "content2": "Terma ini terpakai kepada semua pengguna, termasuk pelawat, pengguna berdaftar, dan pemuat naik kandungan."
+      },
+      "section2": {
+        "title": "Akaun Pengguna",
+        "subtitle1": "Pendaftaran",
+        "content1": "Untuk mengakses ciri tertentu, anda mesti mencipta akaun. Anda bersetuju untuk:",
+        "item1": "Memberikan maklumat yang tepat dan lengkap",
+        "item2": "Menjaga keselamatan kata laluan anda",
+        "item3": "Bertanggungjawab ke atas semua aktiviti di bawah akaun anda",
+        "item4": "Memaklumkan kami segera jika berlaku penggunaan tanpa kebenaran",
+        "subtitle2": "Keperluan Umur",
+        "content2": "Anda mesti berumur sekurang-kurangnya 13 tahun untuk menggunakan Perkhidmatan ini. Pengguna di bawah 18 tahun harus menggunakan Perkhidmatan di bawah pengawasan ibu bapa."
+      },
+      "section3": {
+        "title": "Kandungan dan Penggunaan",
+        "subtitle1": "Lesen Penggunaan",
+        "content1": "Kami memberikan anda lesen terhad, tidak eksklusif, tidak boleh dipindah milik untuk mengakses dan menggunakan Perkhidmatan untuk tujuan peribadi, bukan komersial.",
+        "subtitle2": "Aktiviti Dilarang",
+        "content2": "Anda bersetuju untuk tidak:",
+        "item1": "Menyalin, mengedar, atau mengubah kandungan tanpa kebenaran",
+        "item2": "Menggunakan sistem automatik untuk mengakses Perkhidmatan",
+        "item3": "Mencuba untuk memintas langkah keselamatan",
+        "item4": "Memuat naik kod berniat jahat atau virus",
+        "item5": "Menyamar sebagai pengguna atau entiti lain",
+        "item6": "Mengganggu, menyalahgunakan, atau mencederakan pengguna lain",
+        "item7": "Memuat naik kandungan haram atau melanggar hak"
+      },
+      "section4": {
+        "title": "Muat Naik & Pemilikan Kandungan",
+        "subtitle1": "Kandungan Pengguna",
+        "content1": "Apabila anda memuat naik kandungan, anda mewakili dan menjamin bahawa:",
+        "item1": "Anda memiliki atau mempunyai hak yang diperlukan ke atas kandungan",
+        "item2": "Kandungan tidak melanggar undang-undang atau hak pihak ketiga",
+        "item3": "Kandungan tidak mengandungi perisian hasad atau kod berbahaya",
+        "subtitle2": "Lesen Kandungan",
+        "content2": "Dengan memuat naik kandungan, anda memberikan kami lesen seluruh dunia, tidak eksklusif, bebas royalti untuk menggunakan, menghasilkan semula, mengedar, dan memaparkan kandungan anda di Perkhidmatan.",
+        "subtitle3": "Penghapusan Kandungan",
+        "content3": "Kami berhak untuk menghapuskan mana-mana kandungan yang melanggar terma ini atau yang dianggap tidak sesuai mengikut budi bicara kami."
+      },
+      "section5": {
+        "title": "Harta Intelek",
+        "content": "Semua kandungan, tanda dagangan, logo, dan harta intelek di Perkhidmatan dimiliki oleh OtalkTV atau pemberi lesennya. Anda tidak boleh menggunakan, menyalin, atau mengedar sebarang harta intelek tanpa kebenaran jelas."
+      },
+      "section6": {
+        "title": "Pelanggaran Hak Cipta",
+        "content": "Kami menghormati hak harta intelek. Jika anda percaya kandungan di Perkhidmatan kami melanggar hak cipta anda, sila hubungi kami dengan:",
+        "item1": "Penerangan mengenai karya berhak cipta",
+        "item2": "Lokasi kandungan yang melanggar",
+        "item3": "Maklumat hubungan anda",
+        "item4": "Penyataan kepercayaan baik",
+        "item5": "Tandatangan atau kebenaran anda"
+      },
+      "section7": {
+        "title": "Privasi",
+        "content": "Penggunaan anda terhadap Perkhidmatan juga tertakluk kepada Dasar Privasi kami. Sila semak Dasar Privasi kami untuk memahami bagaimana kami mengumpul dan menggunakan maklumat anda."
+      },
+      "section8": {
+        "title": "Penafian Jaminan",
+        "content": "PERKHIDMATAN DISEDIAKAN \"SEADANYA\" TANPA JAMINAN APA-APA JENIS. KAMI TIDAK MENJAMIN BAHAWA:",
+        "item1": "Perkhidmatan tidak akan terganggu atau bebas ralat",
+        "item2": "Kecacatan akan diperbetulkan",
+        "item3": "Perkhidmatan bebas daripada virus atau komponen berbahaya",
+        "item4": "Hasil daripada penggunaan Perkhidmatan adalah tepat atau boleh dipercayai"
+      },
+      "section9": {
+        "title": "Had Liabiliti",
+        "content": "SEJAUH YANG DIBENARKAN OLEH UNDANG-UNDANG, KAMI TIDAK BERTANGGUNGJAWAB KE ATAS SEBARANG KERUGIAN TIDAK LANGSUNG, SAMPINGAN, KHAS, BERBANGKIT, ATAU PUNITIF, TERMASUK KEHILANGAN KEUNTUNGAN, DATA, ATAU PENGGUNAAN, YANG TIMBUL DARIPADA PENGGUNAAN ANDA TERHADAP PERKHIDMATAN."
+      },
+      "section10": {
+        "title": "Penamatan",
+        "content": "Kami boleh menggantung atau menamatkan akaun anda pada bila-bila masa atas pelanggaran terma ini atau atas apa-apa sebab lain mengikut budi bicara kami. Selepas penamatan:",
+        "item1": "Hak anda untuk menggunakan Perkhidmatan akan serta-merta tamat",
+        "item2": "Kami boleh memadam akaun dan kandungan anda",
+        "item3": "Anda kekal bertanggungjawab ke atas sebarang obligasi tertunggak"
+      },
+      "section11": {
+        "title": "Undang-undang Pentadbiran",
+        "content": "Terma ini ditadbir dan ditafsirkan mengikut undang-undang [Bidang Kuasa Anda], tanpa mengambil kira percanggahan peruntukan undang-undang."
+      },
+      "section12": {
+        "title": "Perubahan Terma",
+        "content": "Kami berhak untuk mengubah Terma ini pada bila-bila masa. Kami akan memaklumkan pengguna tentang perubahan penting. Penggunaan berterusan anda terhadap Perkhidmatan selepas perubahan bermakna anda menerima terma yang diubah."
+      },
+      "section13": {
+        "title": "Maklumat Perhubungan",
+        "content": "Untuk sebarang pertanyaan mengenai Terma ini, sila hubungi kami di:",
+        "email": "Emel",
+        "address": "Alamat"
+      }
+    },
+    "privacy": {
+      "title": "Dasar Privasi",
+      "section1": {
+        "title": "Maklumat yang Kami Kumpul",
+        "subtitle1": "Maklumat Peribadi",
+        "content1": "Apabila anda mendaftar akaun, kami mengumpul:",
+        "item1": "Alamat emel",
+        "item2": "Nama pengguna",
+        "item3": "Kata laluan (disulitkan)",
+        "item4": "Maklumat profil yang anda pilih untuk berikan",
+        "subtitle2": "Maklumat Penggunaan",
+        "content2": "Kami secara automatik mengumpul maklumat tentang bagaimana anda menggunakan perkhidmatan kami:",
+        "item5": "Video yang ditonton dan sejarah tontonan",
+        "item6": "Carian yang dibuat",
+        "item7": "Kandungan kegemaran dan disukai",
+        "item8": "Maklumat peranti dan alamat IP",
+        "item9": "Jenis pelayar dan sistem operasi"
+      },
+      "section2": {
+        "title": "Bagaimana Kami Menggunakan Maklumat Anda",
+        "content": "Kami menggunakan maklumat yang dikumpul untuk:",
+        "item1": "Menyediakan dan mengekalkan perkhidmatan penstriman kami",
+        "item2": "Memperibadikan cadangan kandungan anda",
+        "item3": "Menambah baik platform dan pengalaman pengguna",
+        "item4": "Berkomunikasi dengan anda tentang kemas kini dan ciri",
+        "item5": "Memastikan keselamatan dan mencegah penipuan",
+        "item6": "Mematuhi kewajipan undang-undang"
+      },
+      "section3": {
+        "title": "Perkongsian Maklumat",
+        "content": "Kami tidak menjual maklumat peribadi anda. Kami hanya akan berkongsi maklumat anda dalam keadaan berikut:",
+        "item1": "Penyedia Perkhidmatan: Dengan vendor pihak ketiga yang membantu kami mengendalikan platform",
+        "item2": "Keperluan Undang-undang: Apabila dikehendaki oleh undang-undang atau untuk melindungi hak kami",
+        "item3": "Pemindahan Perniagaan: Berkaitan dengan penggabungan, pengambilalihan, atau penjualan aset"
+      },
+      "section4": {
+        "title": "Keselamatan Data",
+        "content": "Kami melaksanakan langkah keselamatan piawai industri untuk melindungi maklumat peribadi anda:",
+        "item1": "Penyulitan data semasa penghantaran (HTTPS)",
+        "item2": "Penyimpanan kata laluan yang selamat menggunakan algoritma hashing",
+        "item3": "Audit dan kemas kini keselamatan secara berkala",
+        "item4": "Kawalan akses dan mekanisme pengesahan"
+      },
+      "section5": {
+        "title": "Kuki dan Penjejakan",
+        "content": "Kami menggunakan kuki dan teknologi penjejakan serupa untuk:",
+        "item1": "Mengingati keutamaan dan tetapan anda",
+        "item2": "Menganalisis penggunaan dan prestasi platform",
+        "item3": "Memberikan cadangan kandungan yang diperibadikan",
+        "item4": "Mengekalkan sesi log masuk anda",
+        "content2": "Anda boleh mengawal tetapan kuki melalui keutamaan pelayar anda."
+      },
+      "section6": {
+        "title": "Hak Anda",
+        "content": "Anda berhak untuk:",
+        "item1": "Mengakses maklumat peribadi anda",
+        "item2": "Membetulkan data yang tidak tepat",
+        "item3": "Meminta penghapusan akaun dan data anda",
+        "item4": "Mengeksport data anda",
+        "item5": "Menolak komunikasi pemasaran",
+        "item6": "Menarik balik persetujuan pemprosesan data"
+      },
+      "section7": {
+        "title": "Privasi Kanak-kanak",
+        "content": "Perkhidmatan kami tidak bertujuan untuk kanak-kanak di bawah umur 13 tahun. Kami tidak mengumpul maklumat peribadi daripada kanak-kanak di bawah 13 tahun secara sedar. Jika anda percaya kami telah mengumpul maklumat daripada kanak-kanak di bawah 13 tahun, sila hubungi kami segera."
+      },
+      "section8": {
+        "title": "Pemindahan Data Antarabangsa",
+        "content": "Maklumat anda mungkin dipindahkan dan diproses di negara selain negara kediaman anda. Kami memastikan perlindungan sewajarnya dilaksanakan mengikut Dasar Privasi ini."
+      },
+      "section9": {
+        "title": "Perubahan Polisi Ini",
+        "content": "Kami mungkin mengemas kini Dasar Privasi ini dari semasa ke semasa. Kami akan memaklumkan anda tentang perubahan penting dengan menyiarkan polisi baharu di halaman ini dan mengemas kini tarikh \"Tarikh Dikemaskini\". Penggunaan berterusan anda selepas perubahan bermakna anda menerima polisi yang dikemas kini."
+      },
+      "section10": {
+        "title": "Hubungi Kami",
+        "content": "Jika anda mempunyai soalan tentang Dasar Privasi ini atau amalan data kami, sila hubungi kami di:",
+        "email": "Emel",
+        "address": "Alamat"
+      }
+    }
   }
 }

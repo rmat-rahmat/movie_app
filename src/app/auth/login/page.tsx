@@ -131,11 +131,17 @@ const LoginPage: React.FC = () => {
                {/* Terms and Conditions */}
                         <p className="hidden md:block text-md text-gray-500 max-w-md mx-auto mt-5 text-center">
                             {t('profileEmpty.termsText', 'By continuing, you agree to our')}{' '}
-                            <button className="text-[#fbb033] hover:text-[#f69c05] underline transition-colors">
+                            <button 
+                                onClick={() => router.push('/legal/terms')}
+                                className="text-[#fbb033] hover:text-[#f69c05] underline transition-colors cursor-pointer"
+                            >
                                 {t('profileEmpty.termsLink', 'Terms and Conditions')}
                             </button>
                             {' '}{t('profileEmpty.andText', 'and')}{' '}
-                            <button className="text-[#fbb033] hover:text-[#f69c05] underline transition-colors">
+                            <button 
+                                onClick={() => router.push('/legal/privacy-policy')}
+                                className="text-[#fbb033] hover:text-[#f69c05] underline transition-colors cursor-pointer"
+                            >
                                 {t('profileEmpty.privacyLink', 'Privacy Policy')}
                             </button>
                         </p>

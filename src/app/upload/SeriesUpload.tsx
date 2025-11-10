@@ -1,3 +1,28 @@
+/**
+ * SeriesUpload.tsx
+ * 
+ * This component handles the upload and editing of TV series, including:
+ * - Series metadata (title, description, category, year, region, language, etc.)
+ * - Cover and landscape images
+ * - Tag selection and suggestions
+ * - Dynamic episode management (add/remove episodes, upload files or provide m3u8 URLs)
+ * - Progress tracking and upload feedback
+ * - Edit mode: loads existing series data for updating metadata (video files cannot be changed)
+ * 
+ * Key conventions:
+ * - Uses `useState` for form state and `useEffect` for side effects.
+ * - Uses helpers from `@/lib/movieApi` and `@/lib/uploadAPI` for API calls.
+ * - Uses `SearchableDropdown`, `TagSelector`, and `DurationInput` for consistent UI.
+ * - Follows project conventions in .github/copilot-instructions.md.
+ * 
+ * To extend:
+ * - Add new metadata fields as needed.
+ * - Update API calls if backend changes.
+ * - Use `debugLog` for consistent debugging.
+ * 
+ * Function-level comments are provided below for maintainability.
+ */
+
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
@@ -8,7 +33,8 @@ import UploadSuccessModal from '@/components/ui/UploadSuccessModal';
 import TagSelector from '@/components/ui/TagSelector';
 import VideoPlayer from '@/components/ui/VideoPlayer';
 import DurationInput from '@/components/ui/DurationInput';
-import { getCachedCategories, type CategoryItem, getLanguageList, getDirectorList, getActorList, getRegionList } from '@/lib/movieApi';
+import { getCachedCategories, getLanguageList, getDirectorList, getActorList, getRegionList } from '@/lib/movieApi';
+import { type CategoryItem } from '@/types/Dashboard';
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 import SearchableDropdown from '@/components/ui/SearchableDropdown';
 import EpisodeFile from './EpisodeFile';
@@ -105,6 +131,10 @@ export default function SeriesUpload() {
     ]
   });
 
+  /**
+   * Loads categories and suggestion lists for dropdowns (category, director, actor, region, language).
+   * Populates local state for suggestions and maps category names to IDs.
+   */
   useEffect(() => {
     const loadCategoriesAndSuggestions = async () => {
       const cachedCategories = await getCachedCategories();
@@ -155,6 +185,9 @@ export default function SeriesUpload() {
   loadCategoriesAndSuggestions();
   }, []);
 
+  /**
+   * Cleans up preview URLs on component unmount to avoid memory leaks.
+   */
   useEffect(() => {
     return () => {
       if (episodePreviewUrl) try { URL.revokeObjectURL(episodePreviewUrl); } catch { }
@@ -162,16 +195,27 @@ export default function SeriesUpload() {
     };
   }, [episodePreviewUrl, seriesCoverPreviewUrl]);
 
+  /**
+   * Adds a new episode to the series form.
+   */
   const addEpisode = () => {
     const newEpisodeNumber = seriesForm.episodes.length + 1;
     setSeriesForm(prev => ({ ...prev, episodes: [...prev.episodes, { number: newEpisodeNumber, title: `Episode ${newEpisodeNumber}`, description: '', file: null, customCoverUrl: '', duration: null, m3u8Url: null }], totalEpisodes: newEpisodeNumber }));
   };
 
+  /**
+   * Removes an episode by index from the series form.
+   * Prevents removing the last episode.
+   */
   const removeEpisode = (index: number) => {
     if (seriesForm.episodes.length <= 1) return;
     setSeriesForm(prev => ({ ...prev, episodes: prev.episodes.filter((_, idx) => idx !== index).map((ep, idx) => ({ ...ep, number: idx + 1, title: ep.title })), totalEpisodes: prev.episodes.length - 1 }));
   };
 
+  /**
+   * Handles file selection for an episode.
+   * Sets preview URL and checks for unsupported formats.
+   */
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, episodeIndex: number) => {
     const files = event.target.files;
     if (!files?.length) return;
@@ -217,6 +261,9 @@ export default function SeriesUpload() {
     } catch { }
   };
 
+  /**
+   * Clears the selected file for an episode and resets preview.
+   */
   const clearEpisodeFile = (index: number) => {
     if (episodePreviewUrl) try { URL.revokeObjectURL(episodePreviewUrl); } catch { }
     setEpisodePreviewUrl(null);
@@ -224,12 +271,17 @@ export default function SeriesUpload() {
     if (seriesPreviewIndex === index) setSeriesPreviewIndex(0);
   };
 
+  /**
+   * Handles tag changes for the series.
+   */
   const handleTagsChange = (tags: string[]) => {
     debugLog('Series tags changed', { tags });
     setSeriesForm(prev => ({ ...prev, tags }));
   };
 
-  // Helper function to get category name from ID
+  /**
+   * Returns the localized category name for a given category ID.
+   */
   const getCategoryNameFromId = (categoryId: string): string => {
     if (!categoryId) return '';
     // Search in categories (including children)
@@ -247,12 +299,17 @@ export default function SeriesUpload() {
     return categoryId; // fallback to ID if not found
   };
 
-  // Helper function to handle category selection by name
+  /**
+   * Handles category selection by name and updates the form state.
+   */
   const handleCategoryChange = (categoryName: string) => {
     const categoryId = categoryNameToIdMap.get(categoryName) || categoryName;
     setSeriesForm(prev => ({ ...prev, categoryId }));
   };
 
+  /**
+   * Handles cover file selection and sets preview.
+   */
   const handleCoverFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files?.length) return;
@@ -266,6 +323,9 @@ export default function SeriesUpload() {
     } catch { }
   };
 
+  /**
+   * Handles landscape thumbnail file selection and sets preview.
+   */
   const handleLandscapeFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files?.length) return;
@@ -280,6 +340,9 @@ export default function SeriesUpload() {
     } catch { }
   };
 
+  /**
+   * Clears the selected landscape file and resets preview.
+   */
   const clearLandscapeFile = () => {
     if (seriesLandscapePreviewUrl) try { URL.revokeObjectURL(seriesLandscapePreviewUrl); } catch { }
     setSeriesLandscapePreviewUrl(null);
@@ -289,6 +352,9 @@ export default function SeriesUpload() {
     if (input) input.value = '';
   };
 
+  /**
+   * Clears the selected cover file and resets preview.
+   */
   const clearCoverFile = () => {
     if (seriesCoverPreviewUrl) try { URL.revokeObjectURL(seriesCoverPreviewUrl); } catch { }
     setSeriesCoverPreviewUrl(null);
@@ -301,11 +367,17 @@ export default function SeriesUpload() {
     }
   };
 
+  /**
+   * Removes a tag from the series tags.
+   */
   const removeTag = (tagToRemove: string) => {
     debugLog('Removing series tag', { tag: tagToRemove });
     setSeriesForm(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tagToRemove) }));
   };
 
+  /**
+   * Renders the upload progress bar and status messages.
+   */
   const renderProgressBar = () => {
     if (uploadProgress.status === 'idle') return null;
     return (
@@ -325,7 +397,10 @@ export default function SeriesUpload() {
     );
   };
 
-  // Load existing series data for edit mode
+  /**
+   * Loads existing series data for edit mode.
+   * Populates the form with existing metadata and sets preview images.
+   */
   useEffect(() => {
     if (!isEditMode || !editId) return;
     setIsLoadingData(true);
@@ -386,6 +461,13 @@ export default function SeriesUpload() {
     })();
   }, [isEditMode, editId]);
 
+  /**
+   * Handles the main upload or update action for the series.
+   * - Validates form fields.
+   * - Uploads cover/landscape images if needed.
+   * - Creates or updates the series and its episodes.
+   * - Tracks upload progress.
+   */
   const handleSeriesUpload = async (e?: React.FormEvent) => {
     e?.preventDefault();
 
@@ -603,6 +685,9 @@ export default function SeriesUpload() {
     }
   };
 
+  /**
+   * Resets the form and state for uploading another series.
+   */
   const handleUploadMore = () => {
     // Reset form for new upload
     setSeriesForm({ title: '', description: '', customCoverUrl: '', coverFile: null, categoryId: 'series', year: new Date().getFullYear(), region: '', language: '', director: '', actors: '', rating: 0, tags: [], seasonNumber: 1, totalEpisodes: 1, episodes: [{ number: 1, title: 'Episode 1', description: '', file: null, customCoverUrl: '', duration: null, m3u8Url: null }] });
@@ -618,6 +703,9 @@ export default function SeriesUpload() {
     setUploadedSeriesId(null);
   };
 
+  /**
+   * Handles video load event to auto-detect and set episode duration.
+   */
   const handleVideoLoad = (e: React.SyntheticEvent<HTMLVideoElement, Event>, index: number) => {
     const video = e.currentTarget;
     if (video && video.duration) {
@@ -627,6 +715,9 @@ export default function SeriesUpload() {
     }
   };
 
+  /**
+   * Handles duration detection from child components (e.g., VideoPlayer).
+   */
   const handleDurationDetected = (durationMs: number, index: number) => {
     setSeriesForm(prev => ({
       ...prev,

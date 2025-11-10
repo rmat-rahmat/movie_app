@@ -190,7 +190,7 @@ export default function YourVideosPage() {
                             <p className="text-sm text-gray-400 line-clamp-2 mb-2">{movie.description}</p>
                           )}
 
-                          <div className="flex items-center gap-2 mt-auto pt-2">
+                          {/* <div className="flex items-center gap-2 mt-auto pt-2">
                             <Link
                               href={`/upload/movie?edit=${movie.id}`}
                               onClick={(e) => e.stopPropagation()}
@@ -200,7 +200,7 @@ export default function YourVideosPage() {
                               <FiEdit className="w-4 h-4" />
                               <span className="hidden sm:inline">{t('common.edit', 'Edit')}</span>
                             </Link>
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                     </div>
@@ -237,7 +237,7 @@ export default function YourVideosPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Link
+                          {/* <Link
                             href={`/upload/series?edit=${seriesItem.id}`}
                             className="p-2 bg-gray-800 hover:bg-gray-700 rounded transition"
                             title={t('common.edit', 'Edit')}
@@ -260,7 +260,7 @@ export default function YourVideosPage() {
                                 <FiChevronDown /> <p className='md:inline hidden'>{t('common.showEpisodes', 'Show Episodes')}</p>
                               </>
                             )}
-                          </button>
+                          </button> */}
                         </div>
                       </div>
 

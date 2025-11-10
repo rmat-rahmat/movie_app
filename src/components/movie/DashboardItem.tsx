@@ -12,7 +12,7 @@ interface DashboardItemProps {
   onClick?: () => void;
   showRating?: boolean;
   showViewer?: boolean;
-  onOptionsClick?: (videoId: string) => void;
+  onOptionsClick?: (videoId: string, event: React.MouseEvent<HTMLButtonElement>) => void;
   optionIcon?: React.ReactNode;
 }
 
@@ -74,7 +74,7 @@ const DashboardItem: React.FC<DashboardItemProps> = ({ video, index, onClick, sh
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onOptionsClick(video.id);
+              onOptionsClick(video.id, e);
             }}
             className="absolute top-2 right-2 z-10 flex items-center justify-center w-8 h-8 bg-black/70 hover:bg-[#fbb033] text-white hover:text-black rounded-full transition-all duration-200 cursor-pointer"
             title="Options"

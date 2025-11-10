@@ -202,9 +202,11 @@
     "newUserPromo": "Exklusives Angebot für neue Benutzer! Melden Sie sich jetzt an und erhalten Sie 100% Rabatt auf Ihren ersten Monat der VIP-Mitgliedschaft. Verpassen Sie nicht dieses zeitlich begrenzte Angebot, um auf Premium-Inhalte und -Funktionen zuzugreifen.",
     "joinVip": "VIP beitreten",
     "subscribeNow": "Jetzt abonnieren!!!",
-    "unLikedSuccess": "Aus der Liste der Gefällt mir entfernt",
-    "unLikedFail": "Fehler beim Entfernen des Likes vom Video",
-    "confirmUnLiked": "Sind Sie sicher, dass Sie dieses Video nicht mehr mögen möchten?",
+    "unlike": "Aus den gelikten Videos entfernen",
+    "unfavorite": "Aus den Favoriten entfernen",
+    "unlikedSuccess": "Aus der Liste der Gefällt mir entfernt",
+    "unlikedFail": "Fehler beim Entfernen des Likes vom Video",
+    "confirmUnliked": "Sind Sie sicher, dass Sie dieses Video nicht mehr mögen möchten?",
     "unfavoriteSuccess": "Aus den Favoriten entfernt",
     "unfavoriteFail": "Fehler beim Entfernen aus den Favoriten",
     "confirmUnfavorite": "Sind Sie sicher, dass Sie dies aus den Favoriten entfernen möchten?"
@@ -463,5 +465,184 @@
     "showingContentFor": "Inhalte anzeigen für:",
     "clearFilter": "Filter löschen",
     "noContentFound": "Keine Inhalte gefunden für"
+  },
+  "legal": {
+    "lastUpdated": "Zuletzt aktualisiert",
+    "terms": {
+      "title": "Allgemeine Geschäftsbedingungen",
+      "section1": {
+        "title": "Akzeptanz der Bedingungen",
+        "content1": "Durch den Zugriff auf und die Nutzung von OtalkTV (\"der Dienst\") akzeptieren Sie diese Allgemeinen Geschäftsbedingungen. Wenn Sie diesen Bedingungen nicht zustimmen, nutzen Sie den Dienst bitte nicht.",
+        "content2": "Diese Bedingungen gelten für alle Nutzer, einschließlich Besucher, registrierte Nutzer und Inhaltsanbieter."
+      },
+      "section2": {
+        "title": "Benutzerkonten",
+        "subtitle1": "Registrierung",
+        "content1": "Um bestimmte Funktionen zu nutzen, müssen Sie ein Konto erstellen. Sie verpflichten sich:",
+        "item1": "Genaue und vollständige Informationen bereitzustellen",
+        "item2": "Die Sicherheit Ihres Passworts zu gewährleisten",
+        "item3": "Für alle Aktivitäten unter Ihrem Konto verantwortlich zu sein",
+        "item4": "Uns unverzüglich über unbefugte Nutzung zu informieren",
+        "subtitle2": "Altersanforderungen",
+        "content2": "Sie müssen mindestens 13 Jahre alt sein, um diesen Dienst zu nutzen. Nutzer unter 18 Jahren sollten den Dienst unter elterlicher Aufsicht verwenden."
+      },
+      "section3": {
+        "title": "Inhalte und Nutzung",
+        "subtitle1": "Nutzungslizenz",
+        "content1": "Wir gewähren Ihnen eine eingeschränkte, nicht-exklusive, nicht übertragbare Lizenz, den Dienst für persönliche, nicht-kommerzielle Zwecke zu nutzen.",
+        "subtitle2": "Verbotene Aktivitäten",
+        "content2": "Sie verpflichten sich, Folgendes zu unterlassen:",
+        "item1": "Inhalte ohne Genehmigung zu kopieren, zu verbreiten oder zu verändern",
+        "item2": "Automatisierte Systeme zum Zugriff auf den Dienst zu verwenden",
+        "item3": "Sicherheitsmaßnahmen zu umgehen",
+        "item4": "Schädlichen Code oder Viren hochzuladen",
+        "item5": "Andere Nutzer oder Organisationen zu imitieren",
+        "item6": "Andere Nutzer zu belästigen, zu missbrauchen oder zu schädigen",
+        "item7": "Illegale oder rechtsverletzende Inhalte hochzuladen"
+      },
+      "section4": {
+        "title": "Inhalte hochladen und Eigentum",
+        "subtitle1": "Nutzerinhalte",
+        "content1": "Wenn Sie Inhalte hochladen, versichern und garantieren Sie, dass:",
+        "item1": "Sie die Rechte an den Inhalten besitzen oder über die erforderlichen Rechte verfügen",
+        "item2": "Die Inhalte keine Gesetze oder Rechte Dritter verletzen",
+        "item3": "Die Inhalte keine Malware oder schädlichen Code enthalten",
+        "subtitle2": "Inhaltslizenz",
+        "content2": "Durch das Hochladen von Inhalten gewähren Sie uns eine weltweite, nicht-exklusive, gebührenfreie Lizenz, Ihre Inhalte im Dienst zu nutzen, zu reproduzieren, zu verbreiten und anzuzeigen.",
+        "subtitle3": "Entfernung von Inhalten",
+        "content3": "Wir behalten uns das Recht vor, Inhalte, die gegen diese Bedingungen verstoßen oder anderweitig anstößig sind, nach eigenem Ermessen zu entfernen."
+      },
+      "section5": {
+        "title": "Geistiges Eigentum",
+        "content": "Alle Inhalte, Marken, Logos und geistigen Eigentumsrechte am Dienst gehören OtalkTV oder seinen Lizenzgebern. Sie dürfen geistiges Eigentum ohne ausdrückliche Genehmigung nicht verwenden, kopieren oder verbreiten."
+      },
+      "section6": {
+        "title": "Urheberrechtsverletzung",
+        "content": "Wir respektieren geistige Eigentumsrechte. Wenn Sie der Meinung sind, dass Inhalte auf unserem Dienst Ihr Urheberrecht verletzen, kontaktieren Sie uns bitte mit:",
+        "item1": "Beschreibung des urheberrechtlich geschützten Werks",
+        "item2": "Ort des verletzenden Inhalts",
+        "item3": "Ihre Kontaktdaten",
+        "item4": "Einer Erklärung Ihres guten Glaubens",
+        "item5": "Ihrer Unterschrift oder Autorisierung"
+      },
+      "section7": {
+        "title": "Datenschutz",
+        "content": "Ihre Nutzung des Dienstes unterliegt auch unserer Datenschutzrichtlinie. Bitte lesen Sie unsere Datenschutzrichtlinie, um zu verstehen, wie wir Ihre Daten erfassen und verwenden."
+      },
+      "section8": {
+        "title": "Haftungsausschluss",
+        "content": "DER DIENST WIRD \"WIE BESEHEN\" OHNE JEGLICHE GEWÄHRLEISTUNG BEREITGESTELLT. WIR GARANTIEREN NICHT, DASS:",
+        "item1": "Der Dienst ununterbrochen oder fehlerfrei ist",
+        "item2": "Fehler behoben werden",
+        "item3": "Der Dienst frei von Viren oder schädlichen Komponenten ist",
+        "item4": "Die Ergebnisse der Nutzung des Dienstes korrekt oder zuverlässig sind"
+      },
+      "section9": {
+        "title": "Haftungsbeschränkung",
+        "content": "SOWEIT GESETZLICH ZULÄSSIG, HAFTEN WIR NICHT FÜR INDIREKTE, ZUFÄLLIGE, BESONDERE, FOLGE- ODER STRAFSCHÄDEN, EINSCHLIESSLICH ENTGANGENEM GEWINN, DATENVERLUST ODER NUTZUNGSAUSFALL, DIE AUS IHRER NUTZUNG DES DIENSTES ENTSTEHEN."
+      },
+      "section10": {
+        "title": "Kündigung",
+        "content": "Wir können Ihr Konto jederzeit wegen Verstoßes gegen diese Bedingungen oder aus anderen Gründen nach unserem Ermessen sperren oder kündigen. Nach der Kündigung:",
+        "item1": "Erlischt Ihr Recht zur Nutzung des Dienstes sofort",
+        "item2": "Können wir Ihr Konto und Ihre Inhalte löschen",
+        "item3": "Bleiben Sie für ausstehende Verpflichtungen haftbar"
+      },
+      "section11": {
+        "title": "Anwendbares Recht",
+        "content": "Diese Bedingungen unterliegen dem Recht von [Ihrer Gerichtsbarkeit] und werden entsprechend ausgelegt, ohne Rücksicht auf kollisionsrechtliche Bestimmungen."
+      },
+      "section12": {
+        "title": "Änderungen der Bedingungen",
+        "content": "Wir behalten uns das Recht vor, diese Bedingungen jederzeit zu ändern. Über wesentliche Änderungen werden wir die Nutzer informieren. Ihre fortgesetzte Nutzung des Dienstes nach Änderungen gilt als Zustimmung zu den geänderten Bedingungen."
+      },
+      "section13": {
+        "title": "Kontaktinformationen",
+        "content": "Bei Fragen zu diesen Bedingungen kontaktieren Sie uns bitte unter:",
+        "email": "E-Mail",
+        "address": "Adresse"
+      }
+    },
+    "privacy": {
+      "title": "Datenschutzrichtlinie",
+      "section1": {
+        "title": "Welche Informationen wir erfassen",
+        "subtitle1": "Personenbezogene Daten",
+        "content1": "Wenn Sie ein Konto registrieren, erfassen wir:",
+        "item1": "E-Mail-Adresse",
+        "item2": "Benutzername",
+        "item3": "Passwort (verschlüsselt)",
+        "item4": "Profilinformationen, die Sie angeben",
+        "subtitle2": "Nutzungsinformationen",
+        "content2": "Wir erfassen automatisch Informationen darüber, wie Sie unseren Dienst nutzen:",
+        "item5": "Angesehene Videos und Wiedergabeverlauf",
+        "item6": "Suchanfragen",
+        "item7": "Favoriten und gelikte Inhalte",
+        "item8": "Geräteinformationen und IP-Adresse",
+        "item9": "Browsertyp und Betriebssystem"
+      },
+      "section2": {
+        "title": "Wie wir Ihre Informationen verwenden",
+        "content": "Wir verwenden die gesammelten Informationen, um:",
+        "item1": "Unseren Streaming-Dienst bereitzustellen und zu betreiben",
+        "item2": "Ihre Inhalte zu personalisieren",
+        "item3": "Unsere Plattform und das Nutzererlebnis zu verbessern",
+        "item4": "Mit Ihnen über Updates und Funktionen zu kommunizieren",
+        "item5": "Sicherheit zu gewährleisten und Betrug zu verhindern",
+        "item6": "Gesetzlichen Verpflichtungen nachzukommen"
+      },
+      "section3": {
+        "title": "Informationsweitergabe",
+        "content": "Wir verkaufen Ihre personenbezogenen Daten nicht. Wir geben Ihre Informationen nur in folgenden Fällen weiter:",
+        "item1": "Dienstleister: An Drittanbieter, die uns beim Betrieb der Plattform unterstützen",
+        "item2": "Gesetzliche Anforderungen: Wenn dies gesetzlich vorgeschrieben ist oder zum Schutz unserer Rechte",
+        "item3": "Unternehmensübertragungen: Im Zusammenhang mit Fusionen, Übernahmen oder dem Verkauf von Vermögenswerten"
+      },
+      "section4": {
+        "title": "Datensicherheit",
+        "content": "Wir setzen branchenübliche Sicherheitsmaßnahmen zum Schutz Ihrer Daten ein:",
+        "item1": "Verschlüsselung der Datenübertragung (HTTPS)",
+        "item2": "Sichere Passwortspeicherung mit Hashing-Algorithmen",
+        "item3": "Regelmäßige Sicherheitsüberprüfungen und Updates",
+        "item4": "Zugriffskontrollen und Authentifizierungsmechanismen"
+      },
+      "section5": {
+        "title": "Cookies und Tracking",
+        "content": "Wir verwenden Cookies und ähnliche Tracking-Technologien, um:",
+        "item1": "Ihre Einstellungen und Präferenzen zu speichern",
+        "item2": "Die Nutzung und Leistung der Plattform zu analysieren",
+        "item3": "Personalisierte Inhalte zu empfehlen",
+        "item4": "Ihre Sitzung aufrechtzuerhalten",
+        "content2": "Sie können Cookie-Einstellungen über Ihre Browsereinstellungen steuern."
+      },
+      "section6": {
+        "title": "Ihre Rechte",
+        "content": "Sie haben das Recht:",
+        "item1": "Auf Ihre personenbezogenen Daten zuzugreifen",
+        "item2": "Unrichtige Daten zu korrigieren",
+        "item3": "Die Löschung Ihres Kontos und Ihrer Daten zu verlangen",
+        "item4": "Ihre Daten zu exportieren",
+        "item5": "Sich von Marketingmitteilungen abzumelden",
+        "item6": "Ihre Einwilligung zur Datenverarbeitung zu widerrufen"
+      },
+      "section7": {
+        "title": "Datenschutz für Kinder",
+        "content": "Unser Dienst richtet sich nicht an Kinder unter 13 Jahren. Wir erfassen wissentlich keine personenbezogenen Daten von Kindern unter 13 Jahren. Wenn Sie glauben, dass wir Daten eines Kindes unter 13 Jahren erfasst haben, kontaktieren Sie uns bitte umgehend."
+      },
+      "section8": {
+        "title": "Internationale Datenübertragungen",
+        "content": "Ihre Daten können in Länder außerhalb Ihres Wohnsitzlandes übertragen und dort verarbeitet werden. Wir stellen sicher, dass angemessene Schutzmaßnahmen gemäß dieser Datenschutzrichtlinie getroffen werden."
+      },
+      "section9": {
+        "title": "Änderungen dieser Richtlinie",
+        "content": "Wir können diese Datenschutzrichtlinie von Zeit zu Zeit aktualisieren. Über wesentliche Änderungen informieren wir Sie durch Veröffentlichung der neuen Richtlinie auf dieser Seite und Aktualisierung des Datums \"Zuletzt aktualisiert\". Ihre fortgesetzte Nutzung des Dienstes nach Änderungen gilt als Zustimmung zur aktualisierten Richtlinie."
+      },
+      "section10": {
+        "title": "Kontakt",
+        "content": "Wenn Sie Fragen zu dieser Datenschutzrichtlinie oder unseren Datenpraktiken haben, kontaktieren Sie uns bitte unter:",
+        "email": "E-Mail",
+        "address": "Adresse"
+      }
+    }
   }
 }

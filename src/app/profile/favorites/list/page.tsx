@@ -5,11 +5,16 @@ import { useTranslation } from 'react-i18next';
 import { getFavoritesList, toggleFavorite } from '@/lib/movieApi';
 import ProfileListPage from '@/components/profile/ProfileListPage';
 import GridVideos from '@/components/movie/GridVideos';
-import { FiTrash2 } from 'react-icons/fi';
+import { FiMoreVertical, FiTrash2 } from 'react-icons/fi';
+import OptionDropdown, { OptionItem } from '@/components/ui/OptionDropdown';
 
 export default function FavoritesListPage() {
   const { t } = useTranslation('common');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [dropdownState, setDropdownState] = useState<{
+    videoId: string;
+    position: { x: number; y: number };
+  } | null>(null);
 
   const handleUnfavorite = async (videoId: string) => {
     if (!confirm(t('profile.confirmUnfavorite', 'Are you sure you want to remove this from favorites?'))) {
@@ -31,6 +36,27 @@ export default function FavoritesListPage() {
     }
   };
 
+  const handleOptionClick = (videoId: string, event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setDropdownState({
+      videoId,
+      position: {
+        x: rect.right - 192, // 192px = w-48 (dropdown width)
+        y: rect.bottom + 4,
+      },
+    });
+  };
+
+  const getOptionsForVideo = (videoId: string): OptionItem[] => [
+    {
+      id: 'unfavorite',
+      label: t('profile.unfavorite', 'Remove from Favorites'),
+      icon: <FiTrash2 className="w-4 h-4" />,
+      onClick: () => handleUnfavorite(videoId),
+      danger: true,
+    },
+  ];
+
   return (
     <div className='container mx-auto px-4'>
       <GridVideos
@@ -39,9 +65,17 @@ export default function FavoritesListPage() {
         spesificApiUrl="/api-movie/v1/favorites/list"
         mobileListView={true}
         backButton
-        onOptionClick={handleUnfavorite}
-        optionIcon={<FiTrash2 className="w-4 h-4" />} 
+        onOptionClick={handleOptionClick}
+        optionIcon={<FiMoreVertical className="w-4 h-4" />} 
       />
+
+      {dropdownState && (
+        <OptionDropdown
+          options={getOptionsForVideo(dropdownState.videoId)}
+          position={dropdownState.position}
+          onClose={() => setDropdownState(null)}
+        />
+      )}
     </div>
   );
 }

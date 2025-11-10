@@ -1,3 +1,29 @@
+/**
+ * VideoPlayerExternal.tsx
+ * 
+ * This component handles playback of externally hosted videos via an iframe.
+ * It supports:
+ * - Decrypting and validating external video URLs
+ * - Securely embedding the video in an iframe with ad-blocking CSS (where possible)
+ * - Fullscreen toggling for the video container
+ * - Displaying video metadata, tags, and interaction buttons (like, favorite, comments, share)
+ * - Accordion for additional video information
+ * - Series episode navigation (if applicable)
+ * 
+ * Key conventions:
+ * - Uses `useState`, `useEffect`, and refs for state and side effects.
+ * - Uses helpers from `@/lib/movieApi` for API calls.
+ * - Uses `useVideoStore` and `useAuthStore` for global state.
+ * - Follows project conventions in .github/copilot-instructions.md.
+ * 
+ * To extend:
+ * - Add more metadata fields or controls as needed.
+ * - Update API calls if backend changes.
+ * - Use debug logging for troubleshooting.
+ * 
+ * Function-level comments are provided below for maintainability.
+ */
+
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -52,6 +78,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
   // Add accordion state
   const [showInfoAccordion, setShowInfoAccordion] = useState(false);
 
+  /**
+   * Effect: Decrypts and validates the external video URL.
+   * Sets error state if invalid or missing.
+   */
   useEffect(() => {
     if (!encryptedUrl) {
       setError('No video URL provided');
@@ -82,7 +112,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
     }
   }, [encryptedUrl]);
 
-  // Handle fullscreen
+  /**
+   * toggleFullscreen
+   * Toggles fullscreen mode for the video container.
+   */
   const toggleFullscreen = () => {
     if (!containerRef.current) return;
 
@@ -97,7 +130,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
     }
   };
 
-  // Listen for fullscreen changes
+  /**
+   * Effect: Listens for fullscreen changes and updates state.
+   */
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -107,7 +142,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  // Ad blocking and iframe security
+  /**
+   * Effect: Sets up ad-blocking CSS and security attributes for the iframe.
+   * Only works if iframe is same-origin (CORS restrictions apply).
+   */
   useEffect(() => {
     if (!externalUrl) return;
 
@@ -178,7 +216,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
     blockAds();
   }, [externalUrl]);
 
-  // Check favorite and like status when video loads
+  /**
+   * Effect: Checks favorite and like status for the current video.
+   */
   useEffect(() => {
     if (!currentVideo?.id) return;
 
@@ -204,7 +244,9 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
     checkLikeStatus();
   }, [currentVideo?.id]);
 
-  // Initialize like count from store
+  /**
+   * Effect: Initializes like state from store.
+   */
   useEffect(() => {
     if (currentVideo) {
       if (currentVideo.isLiked !== undefined) {
@@ -216,7 +258,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
     }
   }, [currentVideo]);
 
-  // Toggle favorite status
+  /**
+   * handleToggleFavorite
+   * Toggles the favorite status for the current video and updates UI.
+   */
   const handleToggleFavorite = async () => {
     if (!currentVideo?.id) return;
 
@@ -237,7 +282,10 @@ const VideoPlayerClient: React.FC<VideoPlayerClientProps> = ({ url: propUrl }) =
     }
   };
 
-  // Toggle like status
+  /**
+   * handleToggleLike
+   * Toggles the like status for the current video and updates UI.
+   */
   const handleToggleLike = async () => {
     if (!currentVideo?.id) return;
 

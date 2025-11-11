@@ -494,79 +494,74 @@ export async function directImageUpload(
   }
 }
 
-// File Upload Functions (shared between movie and series)
+/**
+ * getPartUploadUrl
+ * Gets a presigned URL for uploading a specific part.
+ * Supports breakpoint resume by passing eTag of already uploaded parts.
+ * If eTag is provided and part is already uploaded, returns empty data.
+ * 
+ * @param uploadId - Upload task ID
+ * @param key - Upload key
+ * @param partNumber - Chunk number (1-based)
+ * @param eTag - Optional eTag from previous upload attempt (for resume)
+ * @returns Promise<PartUploadResponse | null> - Returns null if part already uploaded
+ */
 export async function getPartUploadUrl(
   uploadId: string,
   key: string,
-  partNumber: number
-): Promise<PartUploadResponse> {
-  debugLog(`Getting part upload URL for part ${partNumber}`, { uploadId, key });
+  partNumber: number,
+  eTag?: string
+): Promise<PartUploadResponse | null> {
+  const eTagParam = eTag ? `&eTag=${encodeURIComponent(eTag)}` : '&eTag=';
+  const endpoint = `/api-net/upload/part-url/?uploadId=${uploadId}&key=${encodeURIComponent(key)}&partNumber=${partNumber}${eTagParam}`;
+  
+  debugLog(`Getting part upload URL for part ${partNumber}`, { uploadId, key, hasETag: !!eTag });
 
-  // Try default endpoint first, fallback to alternative
-  const endpoints = [
-    `/api-net/upload/part-url/?uploadId=${uploadId}&key=${encodeURIComponent(key)}&partNumber=${partNumber}`
-  ];
+  try {
+    debugLog(`Request endpoint: ${endpoint}`);
 
-  for (let i = 0; i < endpoints.length; i++) {
-    try {
-      debugLog(`Trying endpoint ${i + 1}/${endpoints.length}: ${endpoints[i]}`);
+    const response = await apiCall<StandardResponse<string>>(
+      endpoint,
+      'GET'
+    );
 
-      const response = await apiCall<StandardResponse<PartUploadResponse>>(
-        endpoints[i],
-        'GET',
-
-      );
-
-      if (!response.success || !response.data) {
-        debugLog(`Endpoint ${i + 1} failed`, response);
-        if (i === endpoints.length - 1) {
-          throw new Error(response.message || 'Failed to get part upload URL');
-        }
-        continue;
-      }
-
-      debugLog(`Part upload URL retrieved successfully from endpoint ${i + 1}`, response.data);
-
-      // Normalize different response shapes:
-      const respData = response.data as unknown;
-
-      // If API returned a plain URL string, wrap it into PartUploadResponse
-      if (typeof respData === 'string') {
-        debugLog('Response data is string, wrapping into PartUploadResponse', respData);
-        return {
-          url: respData,
-          partNumber,
-          expires: 0, // unknown expiry — use 0 as fallback
-        } as PartUploadResponse;
-      }
-
-      // If API returned an object, ensure it contains a url and partNumber (fill partNumber if missing)
-      if (respData && typeof respData === 'object') {
-        const obj = respData as Partial<PartUploadResponse>;
-        if (typeof obj.url === 'string') {
-          if (typeof obj.partNumber !== 'number') {
-            obj.partNumber = partNumber;
-          }
-          if (typeof obj.expires !== 'number') {
-            obj.expires = obj.expires ?? 0;
-          }
-          return obj as PartUploadResponse;
-        }
-      }
-
-      // Unexpected format
-      throw new Error('Unexpected response format for part upload URL');
-      return response.data;
-    } catch (error) {
-      debugLog(`Endpoint ${i + 1} error`, error);
-      if (i === endpoints.length - 1) {
-        throw error;
-      }
+    if (!response.success) {
+      debugLog(`Get part upload URL failed`, response);
+      throw new Error(response.message || 'Failed to get part upload URL');
     }
-  }
 
-  throw new Error('All endpoints failed for part upload URL');
+    // If data is empty string, part is already uploaded
+    if (!response.data || response.data.trim() === '') {
+      debugLog(`Part ${partNumber} already uploaded (empty URL returned)`);
+      return null;
+    }
+
+    debugLog(`Part upload URL retrieved successfully`, { partNumber, url: response.data });
+
+    return {
+      url: response.data,
+      partNumber,
+      expires: 3600, // Default 1 hour expiry
+    } as PartUploadResponse;
+
+  } catch (error) {
+    debugLog(`Error getting part upload URL`, error);
+    throw error;
+  }
 }
+
+/**
+ * recordUploadedPart
+ * Records that a part has been successfully uploaded.
+ * Must be called after each successful part upload for breakpoint resume support.
+ * 
+ * @param uploadId - Upload task ID
+ * @param key - Upload key
+ * @param partNumber - Chunk number
+ * @param eTag - ETag returned from S3 after upload
+ * @returns Promise<boolean> - Success status
+ */
+
 
 export async function uploadPart(
   url: string,
@@ -615,6 +610,7 @@ export async function uploadPart(
   }
 }
 
+
 export async function completeMultipartUpload(request: FileUploadCompleteRequest): Promise<boolean> {
   debugLog('Completing multipart upload', request);
 
@@ -653,17 +649,116 @@ export async function completeMultipartUpload(request: FileUploadCompleteRequest
 
   throw new Error('All endpoints failed for completing multipart upload');
 }
+export async function recordUploadedPart(
+  uploadId: string,
+  key: string,
+  partNumber: number,
+  eTag: string
+): Promise<boolean> {
+  debugLog('Recording uploaded part', { uploadId, key, partNumber, eTag });
+
+  try {
+    const response = await apiCall<StandardResponse<string>>(
+      '/api-net/upload/record',
+      'POST',
+      {
+        uploadId,
+        key,
+        partNumber,
+        eTag
+      }
+    );
+
+    if (!response.success) {
+      debugLog('Failed to record uploaded part', response);
+      throw new Error(response.message || 'Failed to record uploaded part');
+    }
+
+    debugLog('Part recorded successfully', { partNumber, data: response.data });
+    return true;
+  } catch (error) {
+    debugLog('Error recording uploaded part', error);
+    throw error;
+  }
+}
+
+/**
+ * getUploadedParts
+ * Retrieves list of already uploaded parts for resume functionality.
+ * Checks the upload status to get parts that have been successfully uploaded.
+ * This allows skipping already uploaded chunks when resuming an interrupted upload.
+ * 
+ * @param uploadId - Upload task ID
+ * @param key - Upload key (not used in this endpoint but kept for backward compatibility)
+ * @returns Promise<UploadPart[]> - Array of already uploaded parts
+ */
+export async function getUploadedParts(
+  uploadId: string,
+  key: string
+): Promise<UploadPart[]> {
+  debugLog('Getting uploaded parts for resume', { uploadId, key });
+
+  try {
+    // Use the upload-status endpoint to get parts that have been recorded
+    const endpoint = `/api-net/upload/upload-status/${uploadId}`;
+    
+    const response = await apiCall<StandardResponse<{
+      uploadId: string;
+      fileName: string;
+      fileSize: number;
+      fileType: string;
+      contentType: string;
+      uploadStatus: number;
+      totalParts: number;
+      uploadedParts: Array<{
+        partNumber: number;
+        eTag: string;
+        uploadedAt: string;
+      }>;
+      createdAt: string;
+      completedAt: string | null;
+      storageKey: string;
+      isPublic: number;
+    }>>(endpoint, 'GET');
+
+    if (!response.success || !response.data) {
+      debugLog('No uploaded parts found or endpoint not available', response);
+      return [];
+    }
+
+    // Map the response to UploadPart[] format
+    const uploadedParts: UploadPart[] = response.data.uploadedParts.map(part => ({
+      PartNumber: part.partNumber,
+      ETag: part.eTag
+    }));
+
+    debugLog('Retrieved uploaded parts', { 
+      count: uploadedParts.length,
+      totalParts: response.data.totalParts,
+      uploadStatus: response.data.uploadStatus
+    });
+
+    return uploadedParts;
+  } catch (error) {
+    // If endpoint doesn't exist or returns error, return empty array (no resume)
+    debugLog('Could not retrieve uploaded parts, starting fresh', error);
+    return [];
+  }
+}
 
 /**
  * uploadFile
  * Uploads a file to the backend in one or more parts (chunks).
+ * Supports breakpoint resume by checking for already uploaded parts.
  * - Accepts a File object, upload credentials, and a progress callback.
  * - Splits the file into chunks if needed and uploads each part sequentially.
+ * - Skips parts that have already been uploaded (resume support).
+ * - Records each uploaded part for future resume attempts.
  * - Calls onProgress with the current upload percentage (0-100).
  * - Returns a Promise that resolves when the upload is complete.
  * 
  * @param file - The File object to upload
- * @param credential - UploadCredential object with uploadId, key, and (optionally) part URLs
+ * @param credential - UploadCredential object with uploadId and key
  * @param onProgress - Callback function to report upload progress (0-100)
  * @returns Promise<void>
  */
@@ -672,7 +767,7 @@ export async function uploadFile(
   credential: UploadCredential,
   onProgress?: (progress: number) => void
 ): Promise<void> {
-  debugLog('Starting file upload', {
+  debugLog('Starting file upload with resume support', {
     fileName: file.name,
     fileSize: file.size,
   });
@@ -684,23 +779,78 @@ export async function uploadFile(
   debugLog(`File will be uploaded in ${totalChunks} chunks of ${chunkSize} bytes each`);
 
   try {
+    // Check for already uploaded parts (resume support)
+    const uploadedParts = await getUploadedParts(credential.uploadId, credential.key);
+    const uploadedPartNumbers = new Set(uploadedParts.map(p => p.PartNumber));
+    
+    debugLog(`Found ${uploadedParts.length} already uploaded parts`, { 
+      partNumbers: Array.from(uploadedPartNumbers) 
+    });
+
+    // Add already uploaded parts to our tracking
+    parts.push(...uploadedParts);
+
     // Upload each part
     for (let i = 0; i < totalChunks; i++) {
       const partNumber = i + 1;
       const start = i * chunkSize;
       const end = Math.min(start + chunkSize, file.size);
 
-      debugLog(`Uploading part ${partNumber}/${totalChunks}`, { start, end });
+      debugLog(`Processing part ${partNumber}/${totalChunks}`, { start, end });
 
-      // Get presigned URL for this part
+      // Check if part already uploaded (from previous attempt)
+      const alreadyUploaded = uploadedPartNumbers.has(partNumber);
+      
+      if (alreadyUploaded) {
+        debugLog(`Skipping part ${partNumber} - already uploaded`);
+        // Update progress for skipped part
+        const progress = ((i + 1) / totalChunks) * 90;
+        onProgress?.(progress);
+        continue;
+      }
+
+      // Get eTag from previous attempts if available
+      const existingPart = uploadedParts.find(p => p.PartNumber === partNumber);
+      const existingETag = existingPart?.ETag;
+
+      // Get presigned URL for this part (with eTag for resume check)
       const partUploadInfo = await getPartUploadUrl(
         credential.uploadId,
         credential.key,
-        partNumber
+        partNumber,
+        existingETag
       );
 
+      // If null returned, part is already uploaded on S3
+      if (!partUploadInfo) {
+        debugLog(`Part ${partNumber} already exists on S3, skipping upload`);
+        // Add to parts list if not already there
+        if (existingPart && !uploadedPartNumbers.has(partNumber)) {
+          parts.push(existingPart);
+          uploadedPartNumbers.add(partNumber);
+        }
+        const progress = ((i + 1) / totalChunks) * 90;
+        onProgress?.(progress);
+        continue;
+      }
+
       // Upload the part
+      debugLog(`Uploading part ${partNumber}/${totalChunks} to S3`);
       const etag = await uploadPart(partUploadInfo.url, file, start, end);
+
+      // Record the uploaded part for future resume attempts
+      try {
+        await recordUploadedPart(
+          credential.uploadId,
+          credential.key,
+          partNumber,
+          etag
+        );
+        debugLog(`Part ${partNumber} recorded successfully`);
+      } catch (recordError) {
+        // Log but don't fail - we can still complete the upload
+        debugLog(`Warning: Failed to record part ${partNumber}`, recordError);
+      }
 
       parts.push({
         PartNumber: partNumber,
@@ -714,6 +864,9 @@ export async function uploadFile(
     }
 
     debugLog('All parts uploaded, completing multipart upload', { partsCount: parts.length });
+
+    // Sort parts by part number before completing
+    parts.sort((a, b) => a.PartNumber - b.PartNumber);
 
     // Complete the multipart upload
     await completeMultipartUpload({

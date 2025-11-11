@@ -46,11 +46,12 @@ import { getDirectorList, getActorList, getRegionList, getLanguageList } from '@
 import SearchableDropdown from '@/components/ui/SearchableDropdown';
 import { getLocalizedCategoryName } from '@/utils/categoryUtils';
 import Hls from 'hls.js';
-import { getVideoForEdit, updateMovie } from '@/lib/movieApi';
+import { getVideoForEdit, updateMovie,type VideoEditResponse } from '@/lib/movieApi';
 import { useSearchParams } from 'next/navigation';
 import LoadingPage from '@/components/ui/LoadingPage';
 import { BASE_URL } from '@/config';
 import { get } from 'http';
+import { calculateFilePartialSHA256 } from '@/utils/fileUtils';
 
 /**
  * debugLog
@@ -91,6 +92,9 @@ export default function MovieUpload() {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
   const [calcDuration, setCalcDuration] = useState<number | null>(null);
+  const [fileShaCode, setFileShaCode] = useState<string | null>(null);
+  const [isCalculatingHash, setIsCalculatingHash] = useState(false);
+  const [existingUploadData, setExistingUploadData] = useState<VideoEditResponse | null>(null);
 
   const [movieForm, setMovieForm] = useState({
     title: '',
@@ -272,7 +276,7 @@ export default function MovieUpload() {
    * Handles main video file selection, sets preview, and checks for unsupported formats.
    * Updates form state and preview video for the movie file.
    */
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files?.length) return;
     const file = files[0];
@@ -296,9 +300,53 @@ export default function MovieUpload() {
       setUnsupportedFormatMsg(null);
     }
 
-    // Clear any previous unsupported-format message
-
     setMovieForm(prev => ({ ...prev, file }));
+    
+    // Calculate SHA-256 hash for file identification
+    setIsCalculatingHash(true);
+    try {
+      const shaCode = await calculateFilePartialSHA256(file);
+      setFileShaCode(shaCode);
+      debugLog('File SHA-256 calculated', { shaCode });
+
+      // Check if file already exists (resume functionality)
+      try {
+        const existingData = await getVideoForEdit('temp', 'video', shaCode);
+        if (existingData && existingData.videoId) {
+          setExistingUploadData(existingData);
+          // Prompt user about existing upload
+          const resume = confirm(
+            t('upload.resumeUploadPrompt', 'This file has been uploaded before. Do you want to resume from the previous upload?')
+          );
+          if (resume && existingData) {
+            // Pre-fill form with existing data
+            setMovieForm(prev => ({
+              ...prev,
+              title: existingData.title || prev.title,
+              description: existingData.description || prev.description,
+              categoryId: existingData.categoryId || prev.categoryId,
+              year: existingData.year || prev.year,
+              region: existingData.region || prev.region,
+              language: existingData.language || prev.language,
+              director: existingData.director || prev.director,
+              actors: Array.isArray(existingData.actors) ? existingData.actors.join(', ') : (existingData.actors || prev.actors),
+              rating: existingData.rating || prev.rating,
+              tags: existingData.tags || prev.tags,
+              releaseRegions: existingData.releaseRegions || prev.releaseRegions,
+              sourceProvider: existingData.sourceProvider || prev.sourceProvider,
+            }));
+          }
+        }
+      } catch (checkErr) {
+        debugLog('No existing upload found for this file', checkErr);
+      }
+    } catch (err) {
+      console.error('Failed to calculate file hash:', err);
+      setFileShaCode(null);
+    } finally {
+      setIsCalculatingHash(false);
+    }
+
     try {
       const url = URL.createObjectURL(file);
       if (moviePreviewUrl) URL.revokeObjectURL(moviePreviewUrl);
@@ -666,7 +714,8 @@ export default function MovieUpload() {
           rating: movieForm.rating || 0,
           tags: movieForm.tags.length > 0 ? movieForm.tags : undefined,
           sourceProvider: movieForm.sourceProvider || undefined,
-          totalParts: totalChunks
+          totalParts: totalChunks,
+          shaCode: fileShaCode || undefined, // Include shaCode for resume
         };
 
         debugLog('Creating movie upload credential', movieRequest);

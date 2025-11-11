@@ -31,15 +31,20 @@ const debugLog = (message: string, data?: unknown) => {
 
 // Types for Movie Upload
 export interface MovieUploadRequest {
+  id?: string; // Optional: if provided, backend will update existing content
   title: string;
-  uploadType?: 'FILE_UPLOAD' | 'M3U8_URL';
+  uploadType: 'FILE_UPLOAD' | 'M3U8_URL';
+  fileName?: string;
+  fileSize?: number;
+  totalParts?: number;
+  m3u8Url?: string;
   description?: string;
   coverUrl?: string;
   customCoverUrl?: string;
   landscapeThumbnailUrl?: string;
   duration?: number;
-  categoryId?: string;
-  year?: number;
+  categoryId: string;
+  year: number;
   region?: string;
   language?: string;
   director?: string;
@@ -48,12 +53,7 @@ export interface MovieUploadRequest {
   rating?: number;
   tags?: string[];
   sourceProvider?: string;
-  // File upload method fields
-  fileName?: string;
-  fileSize?: number;
-  totalParts?: number;
-  // M3U8 method fields
-  m3u8Url?: string;
+  shaCode?: string; // Required: unique file identifier for resume functionality
 }
 
 export interface UploadCredential {
@@ -63,25 +63,27 @@ export interface UploadCredential {
 
 // Types for Series Upload
 export interface SeriesCreateRequest {
+  id?: string; // Optional: if provided, backend will update existing series
   title: string;
   description?: string;
   customCoverUrl?: string;
-  categoryId?: string;
-  year?: number;
+  landscapeThumbnailUrl?: string;
+  categoryId: string;
+  year: number;
   region?: string;
   language?: string;
   director?: string;
   actors?: string;
-  landscapeThumbnailUrl?: string;
   releaseRegions?: string;
-  sourceProvider?: string;
   rating?: number;
   tags?: string[];
+  sourceProvider?: string;
   seasonNumber: number;
   totalEpisodes: number;
 }
 
 export interface EpisodeCreateRequest {
+  id?: string; // Optional: if provided, backend will update existing episode
   seriesId: string;
   title: string;
   description?: string;
@@ -91,15 +93,15 @@ export interface EpisodeCreateRequest {
 }
 
 export interface EpisodeUploadRequest {
+  episodeId?: string; // Optional: if provided, backend will update existing episode
   seriesId: string;
   episodeNumber: number;
-  // File upload method fields
+  uploadType: 'FILE_UPLOAD' | 'M3U8_URL';
   fileName?: string;
-  uploadType?: 'FILE_UPLOAD' | 'M3U8_URL';
   fileSize?: number;
   totalParts?: number;
-  // M3U8 method fields
   m3u8Url?: string;
+  shaCode?: string; // Required: unique file identifier for resume functionality
 }
 
 // Upload Part Types
@@ -190,17 +192,17 @@ interface StandardResponse<T> {
 const getHeaders = ({ withApiKey = true }: { withApiKey?: boolean } = {}): Record<string, string> => {
   // Use token from Zustand store for immediate access to refreshed tokens
   const authToken = useAuthStore.getState().token;
-  const apiKey = localStorage.getItem('api-key') || process.env.UPLOAD_API_KEY||"123";
+  const apiKey = localStorage.getItem('api-key') || process.env.UPLOAD_API_KEY || "123";
   console.log('Using API Key:', apiKey);
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-     'Authorization': authToken ? `Bearer ${authToken}` : '',
+    'Authorization': authToken ? `Bearer ${authToken}` : '',
   };
-  
+
   if (apiKey) {
     headers['api-key'] = apiKey;
   }
-  
+
   debugLog('API Headers prepared', { hasApiKey: !!apiKey, hasAuthToken: !!authToken });
   return headers;
 };
@@ -250,98 +252,88 @@ async function apiCall<T>(
 }
 
 // Movie Upload Functions
-export async function createMovieUpload(request: MovieUploadRequest): Promise<UploadCredential | void> {
-  debugLog('Creating movie upload', request);
-  
+export async function createMovieUpload(request: MovieUploadRequest): Promise<UploadCredential | null> {
   try {
-    // Determine which endpoint to use based on the request type
-    const endpoint = '/api-movie/v1/vod/upload'; // File upload method
-    
-    const response = await apiCall<StandardResponse<UploadCredential>>(
-      endpoint,
-      'POST',
-      request
-    );
-    
-    if (!response.success) {
-      debugLog('Movie upload creation failed', response);
-      throw new Error(response.message || 'Failed to create movie upload');
+    const url = `${BASE_URL}/api-movie/v1/vod/upload`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const apiKey = localStorage.getItem('api-key') || process.env.UPLOAD_API_KEY || "123";
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    if (apiKey) {
+      headers['api-key'] = apiKey;
     }
-    
-    debugLog('Movie upload created successfully', response.data);
-    // Only return upload credentials if it's a file upload method
-    return response.data;
-  } catch (error) {
-    debugLog('Error creating movie upload', error);
-    throw error;
+    const res = await axios.post(url, request, { headers });
+    const data = res.data;
+
+    if (data && data.success && data.data) {
+      return data.data as UploadCredential;
+    }
+    return null;
+  } catch (err) {
+    console.error('Failed to create movie upload', err);
+    return null;
   }
 }
 
 // Series Upload Functions
-export async function createSeries(request: SeriesCreateRequest): Promise<{
-  seriesId: string;
-  title: string;
-  description?: string;
-  customCoverUrl?: string;
-  coverUrl?: string;
-  landscapeThumbnailUrl?: string;
-  categoryId?: string;
-  year?: number;
-  region?: string;
-  releaseRegions?: string;
-  language?: string;
-  director?: string;
-  actors?: string;
-  rating?: number;
-  tags?: string[];
-  seasonNumber: number;
-  totalEpisodes: number;
-  isCompleted: boolean;
-  createTime: string;
-  updateTime?: string;
-  sourceProvider?: string;
-}> {
-  debugLog('Creating TV series', request);
-  
+export async function createSeries(request: SeriesCreateRequest): Promise<{ success: boolean; seriesId?: string; message?: string }> {
   try {
-    const response = await apiCall<StandardResponse<{
-      seriesId: string;
-      title: string;
-      description?: string;
-      customCoverUrl?: string;
-      coverUrl?: string;
-      landscapeThumbnailUrl?: string;
-      categoryId?: string;
-      year?: number;
-      region?: string;
-      releaseRegions?: string;
-      language?: string;
-      director?: string;
-      actors?: string;
-      rating?: number;
-      tags?: string[];
-      seasonNumber: number;
-      totalEpisodes: number;
-      isCompleted: boolean;
-      sourceProvider?: string;
-      createTime: string;
-      updateTime?: string;
-    }>>(
-      '/api-movie/v1/vod/series/create',
-      'POST',
-      request
-    );
-    
-    if (!response.success || !response.data) {
-      debugLog('Series creation failed', response);
-      throw new Error(response.message || 'Failed to create series');
+    const url = `${BASE_URL}/api-movie/v1/vod/series/create`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await axios.post(url, request, { headers });
+    const data = res.data;
+
+    if (data && data.success) {
+      return { success: true, seriesId: data.data?.seriesId || data.data?.id, message: data.message };
     }
-    
-    debugLog('Series created successfully', response.data);
-    return response.data;
-  } catch (error) {
-    debugLog('Error creating series', error);
-    throw error;
+    return { success: false, message: data.message || 'Failed to create series' };
+  } catch (err) {
+    console.error('Failed to create series', err);
+    return { success: false, message: err instanceof Error ? err.message : 'Failed to create series' };
+  }
+}
+
+export async function createEpisode(request: EpisodeCreateRequest): Promise<{ success: boolean; episodeId?: string; message?: string }> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/vod/episodes/create`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await axios.post(url, request, { headers });
+    const data = res.data;
+
+    if (data && data.success) {
+      return { success: true, episodeId: data.data?.episodeId || data.data?.id, message: data.message };
+    }
+    return { success: false, message: data.message || 'Failed to create episode' };
+  } catch (err) {
+    console.error('Failed to create episode', err);
+    return { success: false, message: err instanceof Error ? err.message : 'Failed to create episode' };
+  }
+}
+
+export async function initializeEpisodeUpload(request: EpisodeUploadRequest): Promise<UploadCredential | null> {
+  try {
+    const url = `${BASE_URL}/api-movie/v1/vod/episodes/upload`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : undefined;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await axios.post(url, request, { headers });
+    const data = res.data;
+
+    if (data && data.success && data.data) {
+      return data.data as UploadCredential;
+    }
+    return null;
+  } catch (err) {
+    console.error('Failed to initialize episode upload', err);
+    return null;
   }
 }
 
@@ -438,17 +430,17 @@ export async function directImageUpload(
   accessLevel: string = 'Public',
   imageSizes: string = '800x600'
 ): Promise<DirectImageUploadResponse> {
-  debugLog('Starting direct image upload', { 
-    fileName: file.name, 
-    fileSize: file.size, 
-    businessPath, 
-    accessLevel, 
-    imageSizes 
+  debugLog('Starting direct image upload', {
+    fileName: file.name,
+    fileSize: file.size,
+    businessPath,
+    accessLevel,
+    imageSizes
   });
 
   try {
     const authToken = useAuthStore.getState().token;
-    
+
     if (!authToken) {
       throw new Error('Authentication required for image upload');
     }
@@ -459,7 +451,7 @@ export async function directImageUpload(
     formData.append('accessLevel', accessLevel);
     formData.append('imageSizes', imageSizes);
     const url = `${BASE_URL}/api-net/Upload/direct-image-server`;
-    
+
     const axiosConfig: AxiosRequestConfig = {
       url,
       method: 'post',
@@ -502,83 +494,6 @@ export async function directImageUpload(
   }
 }
 
-export async function createEpisode(request: EpisodeCreateRequest): Promise<{
-  id: string;
-  uploadId: string;
-  title: string;
-  description?: string;
-  episodeNumber: number;
-  seriesId: string;
-  duration?: number;
-  fileSize?: number;
-  customCoverUrl?: string;
-  status: string;
-  createTime: string;
-  createBy: string;
-  updateTime: string;
-}> {
-  debugLog('Creating episode', request);
-  
-  try {
-    const response = await apiCall<StandardResponse<{
-      id: string;
-      uploadId: string;
-      title: string;
-      description?: string;
-      episodeNumber: number;
-      seriesId: string;
-      duration?: number;
-      fileSize?: number;
-      customCoverUrl?: string;
-      status: string;
-      createTime: string;
-      createBy: string;
-      updateTime: string;
-    }>>(
-      '/api-movie/v1/vod/episodes/create',
-      'POST',
-      request
-    );
-    
-    if (!response.success || !response.data) {
-      debugLog('Episode creation failed', response);
-      throw new Error(response.message || 'Failed to create episode');
-    }
-    
-    debugLog('Episode created successfully', response.data);
-    return response.data;
-  } catch (error) {
-    debugLog('Error creating episode', error);
-    throw error;
-  }
-}
-
-export async function initializeEpisodeUpload(request: EpisodeUploadRequest): Promise<UploadCredential | void> {
-  debugLog('Initializing episode upload', request);
-  
-  try {
-    // Determine which endpoint to use based on the request type
-    const endpoint = '/api-movie/v1/vod/episodes/upload'; // File upload method
-
-    const response = await apiCall<StandardResponse<UploadCredential>>(
-      endpoint,
-      'POST',
-      request
-    );
-    
-    if (!response.success || !response.data) {
-      debugLog('Episode upload initialization failed', response);
-      throw new Error(response.message || 'Failed to initialize episode upload');
-    }
-    
-    debugLog('Episode upload initialized successfully', response.data);
-    return response.data;
-  } catch (error) {
-    debugLog('Error initializing episode upload', error);
-    throw error;
-  }
-}
-
 // File Upload Functions (shared between movie and series)
 export async function getPartUploadUrl(
   uploadId: string,
@@ -586,22 +501,22 @@ export async function getPartUploadUrl(
   partNumber: number
 ): Promise<PartUploadResponse> {
   debugLog(`Getting part upload URL for part ${partNumber}`, { uploadId, key });
-  
+
   // Try default endpoint first, fallback to alternative
   const endpoints = [
     `/api-net/upload/part-url/?uploadId=${uploadId}&key=${encodeURIComponent(key)}&partNumber=${partNumber}`
   ];
-  
+
   for (let i = 0; i < endpoints.length; i++) {
     try {
       debugLog(`Trying endpoint ${i + 1}/${endpoints.length}: ${endpoints[i]}`);
-      
+
       const response = await apiCall<StandardResponse<PartUploadResponse>>(
         endpoints[i],
         'GET',
 
       );
-      
+
       if (!response.success || !response.data) {
         debugLog(`Endpoint ${i + 1} failed`, response);
         if (i === endpoints.length - 1) {
@@ -609,7 +524,7 @@ export async function getPartUploadUrl(
         }
         continue;
       }
-      
+
       debugLog(`Part upload URL retrieved successfully from endpoint ${i + 1}`, response.data);
 
       // Normalize different response shapes:
@@ -630,10 +545,10 @@ export async function getPartUploadUrl(
         const obj = respData as Partial<PartUploadResponse>;
         if (typeof obj.url === 'string') {
           if (typeof obj.partNumber !== 'number') {
-        obj.partNumber = partNumber;
+            obj.partNumber = partNumber;
           }
           if (typeof obj.expires !== 'number') {
-        obj.expires = obj.expires ?? 0;
+            obj.expires = obj.expires ?? 0;
           }
           return obj as PartUploadResponse;
         }
@@ -649,7 +564,7 @@ export async function getPartUploadUrl(
       }
     }
   }
-  
+
   throw new Error('All endpoints failed for part upload URL');
 }
 
@@ -660,7 +575,7 @@ export async function uploadPart(
   end: number
 ): Promise<string> {
   debugLog(`Uploading part to: ${url}`, { start, end, size: end - start });
-  
+
   try {
     // Create a Blob for the chunk (File.prototype.slice already returns a Blob)
     const chunkBlob = file.slice(start, end) as Blob;
@@ -702,22 +617,22 @@ export async function uploadPart(
 
 export async function completeMultipartUpload(request: FileUploadCompleteRequest): Promise<boolean> {
   debugLog('Completing multipart upload', request);
-  
+
   // Try default endpoint first, fallback to alternative
   const endpoints = [
     '/api-net/upload/complete'
   ];
-  
+
   for (let i = 0; i < endpoints.length; i++) {
     try {
       debugLog(`Trying complete endpoint ${i + 1}/${endpoints.length}: ${endpoints[i]}`);
-      
+
       const response = await apiCall<StandardResponse<boolean>>(
         endpoints[i],
         'POST',
         request
       );
-      
+
       if (!response.success) {
         debugLog(`Complete endpoint ${i + 1} failed`, response);
         if (i === endpoints.length - 1) {
@@ -725,7 +640,7 @@ export async function completeMultipartUpload(request: FileUploadCompleteRequest
         }
         continue;
       }
-      
+
       debugLog(`Multipart upload completed successfully via endpoint ${i + 1}`, response.data);
       return response.data;
     } catch (error) {
@@ -735,7 +650,7 @@ export async function completeMultipartUpload(request: FileUploadCompleteRequest
       }
     }
   }
-  
+
   throw new Error('All endpoints failed for completing multipart upload');
 }
 
@@ -757,59 +672,59 @@ export async function uploadFile(
   credential: UploadCredential,
   onProgress?: (progress: number) => void
 ): Promise<void> {
-  debugLog('Starting file upload', { 
-    fileName: file.name, 
-    fileSize: file.size, 
+  debugLog('Starting file upload', {
+    fileName: file.name,
+    fileSize: file.size,
   });
-  
+
   const chunkSize = 10 * 1024 * 1024; // 10MB chunks
   const totalChunks = Math.ceil(file.size / chunkSize);
   const parts: UploadPart[] = [];
-  
+
   debugLog(`File will be uploaded in ${totalChunks} chunks of ${chunkSize} bytes each`);
-  
+
   try {
     // Upload each part
     for (let i = 0; i < totalChunks; i++) {
       const partNumber = i + 1;
       const start = i * chunkSize;
       const end = Math.min(start + chunkSize, file.size);
-      
+
       debugLog(`Uploading part ${partNumber}/${totalChunks}`, { start, end });
-      
+
       // Get presigned URL for this part
       const partUploadInfo = await getPartUploadUrl(
         credential.uploadId,
         credential.key,
         partNumber
       );
-      
+
       // Upload the part
       const etag = await uploadPart(partUploadInfo.url, file, start, end);
-      
+
       parts.push({
         PartNumber: partNumber,
         ETag: etag
       });
-      
+
       // Update progress
       const progress = ((i + 1) / totalChunks) * 90; // Reserve 10% for completion
       debugLog(`Part ${partNumber} uploaded successfully. Progress: ${progress.toFixed(1)}%`);
       onProgress?.(progress);
     }
-    
+
     debugLog('All parts uploaded, completing multipart upload', { partsCount: parts.length });
-    
+
     // Complete the multipart upload
     await completeMultipartUpload({
       uploadId: credential.uploadId,
       key: credential.key,
       parts
     });
-    
+
     debugLog('File upload completed successfully');
     onProgress?.(100);
-    
+
   } catch (error) {
     debugLog('File upload failed', error);
     throw error;
@@ -819,7 +734,7 @@ export async function uploadFile(
 // Playback functions
 export async function getPlaybackQualities(uploadId: string): Promise<string[]> {
   debugLog('Getting playback qualities', { uploadId });
-  
+
   try {
     // Note: This would need actual expires and signature in production
     const url = `${BASE_URL}/api-net/play/${uploadId}?expires=9999999999&signature=dummy`;

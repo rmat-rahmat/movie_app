@@ -1596,10 +1596,24 @@ export const loadMoreFromURL = async (
 /**
  * getVideoForEdit
  * Fetches video edit information (with draft if exists) for a given video ID.
+ * Supports shaCode parameter for resume functionality.
  */
-export async function getVideoForEdit(videoId: string): Promise<VideoEditResponse | null> {
+export async function getVideoForEdit(
+  videoId: string, 
+  type: 'video' | 'episode' = 'video',
+  shaCode?: string
+): Promise<VideoEditResponse | null> {
   try {
-    const response = await axios.get(`${BASE_URL}/api-movie/v1/my-videos/uploads/${videoId}/edit`);
+    const params: Record<string, string> = { type };
+    if (shaCode) {
+      params.shaCode = shaCode;
+    }
+
+    const response = await axios.get(`${BASE_URL}/api-movie/v1/my-videos/${videoId}/edit`, {
+      params,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
     if (response.data.success) {
       return response.data.data as VideoEditResponse;
     }
@@ -1628,7 +1642,7 @@ export async function getEpisodeForEdit(episodeId: string): Promise<EpisodeEditR
 }
 
 // Interface for video edit responses
-interface VideoEditResponse {
+export interface VideoEditResponse {
   videoId: string;
   hasDraft: boolean;
   title?: string;
